@@ -4,6 +4,25 @@ void main() {
   runApp(const MyApp());
 }
 
+//TODO VisualPT
+//Install Amplify Backend Services
+//Enable Auth (email/password combo, no third-party auth services)
+//Enable GraphQL data services
+//Enable HIPAA compliant storage
+//Establish therapist data model
+//Establish patient data model
+//Establish assessment data model (for each assessment?)
+//Create UI for login/signup
+//Create UI for test list
+//Create UI flow of Assessment
+//Train AI for CT-SIB Assessment (all 6 parts)
+//Create UI for result page
+//Connect PDF to email (until EMR integration is available)
+//Create UI for asseessment tutorial
+//Create marketing content
+//Market to physical therapists
+//Contact EMR services for connection ($2k investment)
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
