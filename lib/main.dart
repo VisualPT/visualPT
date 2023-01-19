@@ -12,11 +12,7 @@ void main() {
 //Establish therapist data model
 //Establish patient data model
 //Establish assessment data model (for each assessment?)
-//Create UI for login/signup
-//Create UI for test list
-//Create UI flow of Assessment
-//Train AI for CT-SIB Assessment (all 6 parts)
-//Create UI for result page
+//Follow Figma Model
 //Connect PDF to email (until EMR integration is available)
 //Create UI for asseessment tutorial
 //Create marketing content
