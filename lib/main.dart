@@ -5,7 +5,6 @@ void main() {
 }
 
 //TODO VisualPT
-//Install Amplify Backend Services
 //Enable Auth (email/password combo, no third-party auth services)
 //Enable GraphQL data services
 //Enable HIPAA compliant storage
