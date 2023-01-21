@@ -7,7 +7,6 @@ void main() {
 //TODO VisualPT
 //Enable Auth (email/password combo, no third-party auth services)
 //Enable GraphQL data services
-//Enable HIPAA compliant storage
 //Establish therapist data model
 //Establish patient data model
 //Establish assessment data model (for each assessment?)
