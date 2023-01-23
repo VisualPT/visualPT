@@ -1,6 +1,6 @@
 # visualpt
 
-A new Flutter project.
+A tool to optimize physical therapist workflows in the visual-digital age
 
 ## Getting Started
 
