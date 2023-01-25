@@ -8,9 +8,9 @@ void main() {
 //TODO VisualPT
 //Follow Figma Model
 //Connect PDF to email (until EMR integration is available)
-//Create UI for asseessment tutorial
-//Create marketing content
-//Market to physical therapists
+//Asseessment tutorial
+//Marketing content
+//Pitch to physical therapists
 //Contact EMR services for connection ($2k investment)
 
 class VisualPT extends StatelessWidget {
@@ -19,10 +19,11 @@ class VisualPT extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(routes: {
-      "auth": (context) => const AuthView(),
-      "home": (context) => const HomeView(),
-      "assessment": (context) => const AssessmentView(),
-      "analysis": (context) => const AnalysisView(),
+      "/": (context) => const LaunchView(),
+      "/auth": (context) => const AuthView(),
+      "/home": (context) => const HomeView(),
+      "/assessment": (context) => const AssessmentView(),
+      "/analysis": (context) => const AnalysisView(),
     });
   }
 }
