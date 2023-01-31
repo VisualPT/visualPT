@@ -5,3 +5,4 @@ export 'home_view.dart';
 export 'assessment_view.dart';
 export 'launch_view.dart';
 export 'analysis_view.dart';
+export 'base_view.dart';

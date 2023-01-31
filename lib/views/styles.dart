@@ -7,7 +7,10 @@ class Styles {
   factory Styles() => _instance;
   Styles._internal();
 
-  ///Background-related styles
   static const Color backgroundPrimary = Color(0xFF91DAFF);
   static const Color backgroundAccent = Color(0xFF4EC3FF);
+  static const Color backgroundComplementory = Color(0xFFf8c098);
+
+  //Asset Paths
+  static const String mainLogoPath = "assets/vpt_mainlogo.png";
 }
