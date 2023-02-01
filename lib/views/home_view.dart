@@ -1,11 +1,29 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:visualpt/views/views.dart';
+import 'components/components.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return CupertinoPageScaffold(
+      child: BaseView(
+        pageTitle: "",
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: const [
+            AssessmentCard(
+                imagePath: Styles.ctsibLogoPath,
+                title: "CT-SIB",
+                subtitle: "3 minutes"),
+            AssessmentCard(
+                imagePath: Styles.gvLogoPath,
+                title: "Gait Velocity",
+                subtitle: "5 minutes"),
+          ],
+        ),
+      ),
+    );
   }
 }

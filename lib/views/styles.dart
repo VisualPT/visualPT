@@ -10,7 +10,13 @@ class Styles {
   static const Color backgroundPrimary = Color(0xFF91DAFF);
   static const Color backgroundAccent = Color(0xFF4EC3FF);
   static const Color backgroundComplementory = Color(0xFFf8c098);
+  
+  static const Color actionPrimary = Color(0xFF1F7A97);
+
+
 
   //Asset Paths
   static const String mainLogoPath = "assets/vpt_mainlogo.png";
+  static const String ctsibLogoPath = "assets/ctsib_mainlogo.png";
+  static const String gvLogoPath = "assets/gv_mainlogo.png";
 }

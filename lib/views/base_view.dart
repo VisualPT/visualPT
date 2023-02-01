@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/views/components/patient_form.dart';
-import 'package:visualpt/views/components/view_background.dart';
+import 'package:visualpt/views/components/components.dart';
 import 'package:visualpt/views/styles.dart';
 
 class BaseView extends StatelessWidget {
-  const BaseView({super.key, required this.child});
+  const BaseView({super.key, required this.child, required this.pageTitle});
   final Widget child;
+  final String pageTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -16,19 +16,36 @@ class BaseView extends StatelessWidget {
         children: [
           const ViewBackground(),
           SafeArea(
-            child: ConstrainedBox(
+              //TODO If not signed in, this should be in the middle of the page and bigger
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ConstrainedBox(
                 constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.7),
                 child: const Image(
                     image: AssetImage(Styles.mainLogoPath),
-                    fit: BoxFit.fitWidth)),
-          ),
-          SizedBox(
-              height: screenSize.height,
-              width: screenSize.width,
-              child: Container(child: child)),
-          //TODO Fix this
-          SafeArea(child: PatientForm())
+                    fit: BoxFit.fitWidth),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 21.0),
+                child: Text(
+                  pageTitle,
+                  style: TextStyle(fontSize: 24),
+                  overflow: TextOverflow.visible,
+                ),
+              )
+            ],
+          )),
+          Positioned(
+            left: 16,
+            right: 16,
+            top: MediaQuery.of(context).size.height / 3,
+            child: SizedBox(
+                height: screenSize.height,
+                width: screenSize.width,
+                child: Container(child: child)),
+          )
         ],
       ),
     );
