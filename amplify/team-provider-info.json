@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-visualpt-dev-12505-authRole",
+      "UnauthRoleArn": "arn:aws:iam::774447013133:role/amplify-visualpt-dev-12505-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::774447013133:role/amplify-visualpt-dev-12505-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-visualpt-dev-12505-deployment",
+      "UnauthRoleName": "amplify-visualpt-dev-12505-unauthRole",
+      "StackName": "amplify-visualpt-dev-12505",
+      "StackId": "arn:aws:cloudformation:us-east-1:774447013133:stack/amplify-visualpt-dev-12505/30dadfc0-988b-11ed-8b39-0aa27aef0297",
+      "AmplifyAppId": "d1ye5bd9i53uck"
+    },
+    "categories": {
+      "auth": {
+        "visualpt": {}
+      }
+    }
+  }
+}
