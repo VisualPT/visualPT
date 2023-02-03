@@ -30,7 +30,11 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  camera: ^0.10.1
+  path_provider: ^2.0.11
+  video_player: ^2.4.10
+  video_editor: ^2.2.0
+  helpers: ^1.2.0
   bloc: ^8.1.0
   amplify_flutter: ^0.6.0
   amplify_datastore: ^0.6.0
