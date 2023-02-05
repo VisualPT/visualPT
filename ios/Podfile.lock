@@ -1,1 +1,168 @@
-POD INSTALL
+PODS:
+  - Amplify (1.28.3):
+    - Amplify/Default (= 1.28.3)
+  - Amplify/Default (1.28.3)
+  - amplify_auth_cognito_ios (0.0.1):
+    - Amplify (= 1.28.3)
+    - amplify_core
+    - AmplifyPlugins/AWSCognitoAuthPlugin (= 1.28.3)
+    - Flutter
+    - ObjectMapper
+  - amplify_core (0.0.1):
+    - Flutter
+    - SwiftFormat/CLI
+    - SwiftLint (= 0.48.0)
+  - amplify_datastore (0.0.1):
+    - Amplify (= 1.28.3)
+    - amplify_core
+    - AmplifyPlugins/AWSDataStorePlugin (= 1.28.3)
+    - Flutter
+  - amplify_flutter_ios (0.0.1):
+    - Amplify (= 1.28.3)
+    - amplify_core
+    - AmplifyPlugins/AWSCognitoAuthPlugin (= 1.28.3)
+    - AWSPluginsCore (= 1.28.3)
+    - Flutter
+    - SwiftFormat/CLI
+    - SwiftLint (= 0.48.0)
+  - AmplifyPlugins/AWSCognitoAuthPlugin (1.28.3):
+    - AWSAuthCore (~> 2.28.0)
+    - AWSCognitoIdentityProvider (~> 2.28.0)
+    - AWSCognitoIdentityProviderASF (~> 2.28.0)
+    - AWSCore (~> 2.28.0)
+    - AWSMobileClient (~> 2.28.0)
+    - AWSPluginsCore (= 1.28.3)
+  - AmplifyPlugins/AWSDataStorePlugin (1.28.3):
+    - AWSCore (~> 2.28.0)
+    - AWSPluginsCore (= 1.28.3)
+    - SQLite.swift (= 0.13.2)
+  - AWSAuthCore (2.28.5):
+    - AWSCore (= 2.28.5)
+  - AWSCognitoIdentityProvider (2.28.5):
+    - AWSCognitoIdentityProviderASF (= 2.28.5)
+    - AWSCore (= 2.28.5)
+  - AWSCognitoIdentityProviderASF (2.28.5):
+    - AWSCore (= 2.28.5)
+  - AWSCore (2.28.5)
+  - AWSMobileClient (2.28.5):
+    - AWSAuthCore (= 2.28.5)
+    - AWSCognitoIdentityProvider (= 2.28.5)
+    - AWSCognitoIdentityProviderASF (= 2.28.5)
+    - AWSCore (= 2.28.5)
+  - AWSPluginsCore (1.28.3):
+    - Amplify (= 1.28.3)
+    - AWSCore (~> 2.28.0)
+  - camera_avfoundation (0.0.1):
+    - Flutter
+  - ffmpeg-kit-ios-min-gpl (5.1)
+  - ffmpeg_kit_flutter_min_gpl (5.1.0):
+    - ffmpeg_kit_flutter_min_gpl/min-gpl (= 5.1.0)
+    - Flutter
+  - ffmpeg_kit_flutter_min_gpl/min-gpl (5.1.0):
+    - ffmpeg-kit-ios-min-gpl (= 5.1)
+    - Flutter
+  - Flutter (1.0.0)
+  - libwebp (1.2.4):
+    - libwebp/demux (= 1.2.4)
+    - libwebp/mux (= 1.2.4)
+    - libwebp/webp (= 1.2.4)
+  - libwebp/demux (1.2.4):
+    - libwebp/webp
+  - libwebp/mux (1.2.4):
+    - libwebp/demux
+  - libwebp/webp (1.2.4)
+  - ObjectMapper (4.2.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - SQLite.swift (0.13.2):
+    - SQLite.swift/standard (= 0.13.2)
+  - SQLite.swift/standard (0.13.2)
+  - SwiftFormat/CLI (0.50.5)
+  - SwiftLint (0.48.0)
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+  - video_thumbnail (0.0.1):
+    - Flutter
+    - libwebp
+
+DEPENDENCIES:
+  - amplify_auth_cognito_ios (from `.symlinks/plugins/amplify_auth_cognito_ios/ios`)
+  - amplify_core (from `.symlinks/plugins/amplify_core/ios`)
+  - amplify_datastore (from `.symlinks/plugins/amplify_datastore/ios`)
+  - amplify_flutter_ios (from `.symlinks/plugins/amplify_flutter_ios/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - ffmpeg_kit_flutter_min_gpl (from `.symlinks/plugins/ffmpeg_kit_flutter_min_gpl/ios`)
+  - Flutter (from `Flutter`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
+  - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Amplify
+    - AmplifyPlugins
+    - AWSAuthCore
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSCore
+    - AWSMobileClient
+    - AWSPluginsCore
+    - ffmpeg-kit-ios-min-gpl
+    - libwebp
+    - ObjectMapper
+    - SQLite.swift
+    - SwiftFormat
+    - SwiftLint
+
+EXTERNAL SOURCES:
+  amplify_auth_cognito_ios:
+    :path: ".symlinks/plugins/amplify_auth_cognito_ios/ios"
+  amplify_core:
+    :path: ".symlinks/plugins/amplify_core/ios"
+  amplify_datastore:
+    :path: ".symlinks/plugins/amplify_datastore/ios"
+  amplify_flutter_ios:
+    :path: ".symlinks/plugins/amplify_flutter_ios/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
+  ffmpeg_kit_flutter_min_gpl:
+    :path: ".symlinks/plugins/ffmpeg_kit_flutter_min_gpl/ios"
+  Flutter:
+    :path: Flutter
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/ios"
+  video_thumbnail:
+    :path: ".symlinks/plugins/video_thumbnail/ios"
+
+SPEC CHECKSUMS:
+  Amplify: e89b493fc2fe840ac044bd4ddf71ad9828f8c364
+  amplify_auth_cognito_ios: e532d70387aa0fe6f456855afe78ea275d58fe4b
+  amplify_core: 0876b2fbbcec7619f5b58b20c59ecc0118f65a47
+  amplify_datastore: 4aa847727e99901625642db923deb86ee4c33817
+  amplify_flutter_ios: 8943b5e5fb995a7aa3eb5c5238a6822756703584
+  AmplifyPlugins: 98bcd23f2c13179f75c733b887e80dd06243be5e
+  AWSAuthCore: e728d73a2b4eed9e826506a1f0fcc58171537267
+  AWSCognitoIdentityProvider: 261fac98d461e9e398bf3c1e18c3cd90578b33ca
+  AWSCognitoIdentityProviderASF: 8e35d6414d9ee2443e9167414ef5e839a58e1e72
+  AWSCore: 4bad3f0eb17393b4926a9491e32b835991c56382
+  AWSMobileClient: c898658a4d15e64e07d39c7dc6354fd3ea3055a9
+  AWSPluginsCore: 93f813579479fa4c5bfff58817df89e0e10f9f3b
+  camera_avfoundation: 07c77549ea54ad95d8581be86617c094a46280d9
+  ffmpeg-kit-ios-min-gpl: ac5eb47f98b27e26d14c009de3ce9181007ce688
+  ffmpeg_kit_flutter_min_gpl: f657651b493b7608fad9dda3ad606eb0946c9faa
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
+  ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
+  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
+  SwiftFormat: fc64190719f3655079b7b4c246182383bd89026f
+  SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447
+  video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff
+  video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
+
+PODFILE CHECKSUM: c24c27344913105c54b95f33f73882923a0bd103
+
+COCOAPODS: 1.11.3
