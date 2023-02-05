@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/views.dart';
 
@@ -19,12 +18,19 @@ class VisualPT extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(routes: {
-      "/": (context) => const LaunchView(),
-      "/auth": (context) => const AuthView(),
-      "/home": (context) => const HomeView(),
-      "/assessment": (context) => const AssessmentView(),
-      "/analysis": (context) => const AnalysisView(),
-    });
+    return CupertinoApp(
+      theme: const CupertinoThemeData(
+          textTheme: CupertinoTextThemeData(
+              textStyle: TextStyle(
+                  fontFamily: "Unbounded", color: CupertinoColors.black))),
+      routes: {
+        "/": (context) => const AuthView(),
+        "/auth": (context) => const AuthView(),
+        "/home": (context) => const HomeView(),
+        "/assessment": (context) => const AssessmentView(),
+        "/analysis": (context) => const AnalysisView(),
+      },
+    );
   }
 }
+ 

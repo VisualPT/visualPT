@@ -13,7 +13,8 @@ class AuthView extends StatelessWidget {
         pageTitle: "Save clicks and minutes",
         child: ConstrainedBox(
           constraints:
-              BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.1),
+          //TODO AuthBloc Goes Here
           child: Column(
             children: [
               const Padding(
@@ -39,8 +40,8 @@ class AuthView extends StatelessWidget {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    //TODO Authentication!
-                    onTap: () {}),
+                    //TODO Authentication State Management!
+                    onTap: () => Navigator.pushNamed(context, "/home")),
               )
             ],
           ),

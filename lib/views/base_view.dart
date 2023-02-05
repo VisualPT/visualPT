@@ -31,18 +31,17 @@ class BaseView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 21.0),
                 child: Text(
                   pageTitle,
-                  style: TextStyle(fontSize: 24),
+                  style: Styles.subtitleStyle,
                   overflow: TextOverflow.visible,
                 ),
               )
             ],
           )),
+          //TODO make this better and animatable
           Positioned(
-            left: 16,
-            right: 16,
             top: MediaQuery.of(context).size.height / 3,
             child: SizedBox(
-                height: screenSize.height,
+                height: screenSize.height * 15 / 24,
                 width: screenSize.width,
                 child: Container(child: child)),
           )

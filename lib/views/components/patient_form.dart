@@ -5,33 +5,26 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/styles.dart';
 
 class PatientForm extends StatefulWidget {
-  const PatientForm({Key? key}) : super(key: key);
+  final Widget child;
+  const PatientForm({Key? key, required this.child}) : super(key: key);
 
   @override
   State<PatientForm> createState() => _PatientFormState();
 }
 
+//TODO FIX WITH BLOC (post nap)
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
   DateTime date = DateTime.now();
   Patient patient = Patient(
-      first_name: "TODO",
-      last_name: "TODO",
+      name: "TODO",
+      family_name: "TODO",
       dob: TemporalDate(DateTime.now()),
       gender: Gender.MALE,
       height_in_inches: 0);
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton(
-      color: CupertinoColors.link,
-      onPressed: showFormDialog,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text("New Patient"),
-        ],
-      ),
-    );
+    return GestureDetector(onTap: showFormDialog, child: widget.child);
   }
 
   Future<void> showFormDialog() {
@@ -41,123 +34,24 @@ class _PatientFormState extends State<PatientForm> {
       builder: (BuildContext context) =>
           StatefulBuilder(builder: (context, setState) {
         return CupertinoAlertDialog(
-          title: const Text('Patient Information'),
+          title: const Text('Patient Information',
+              style: Styles.defaultTitleOverride),
           content: Form(
             key: _formKey,
-            child: SizedBox(
-              height: 310,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: 100,
+                maxHeight: 400,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("Who is being treated?"),
                   _formInput("First Name"),
                   _formInput("Last Name"),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemBackground,
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Birth Date"),
-                          CupertinoButton(
-                            onPressed: () => showCupertinoModalPopup<void>(
-                                context: context,
-                                builder: (BuildContext context) => Container(
-                                      height: 216,
-                                      padding: const EdgeInsets.only(top: 6.0),
-                                      margin: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom,
-                                      ),
-                                      color: CupertinoColors.systemBackground
-                                          .resolveFrom(context),
-                                      child: SafeArea(
-                                        top: false,
-                                        child: CupertinoDatePicker(
-                                            initialDateTime: date,
-                                            mode: CupertinoDatePickerMode.date,
-                                            onDateTimeChanged:
-                                                (DateTime newDate) {
-                                              setState(() => date = newDate);
-                                            },
-                                            minimumYear: 1900,
-                                            maximumDate: DateTime.now()),
-                                      ),
-                                    )),
-                            child:
-                                Text('${date.month}/${date.day}/${date.year}'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => (patient.gender == Gender.MALE)
-                        ? patient = patient.copyWith(gender: Gender.FEMALE)
-                        : patient = patient.copyWith(gender: Gender.MALE)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Container(
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.systemBackground,
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Spacer(flex: 2),
-                            const Text("Gender"),
-                            const Spacer(),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(1.0),
-                                      decoration: patient.gender == Gender.MALE
-                                          ? BoxDecoration(
-                                              border: Border.all(),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              color: Styles
-                                                  .backgroundComplementory
-                                                  .withOpacity(0.5))
-                                          : null,
-                                      child: const Text("Male"),
-                                    ),
-                                    const Text("/   "),
-                                    Container(
-                                      padding: const EdgeInsets.all(1.0),
-                                      decoration: patient.gender != Gender.MALE
-                                          ? BoxDecoration(
-                                              border: Border.all(),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              color: Styles
-                                                  .backgroundComplementory
-                                                  .withOpacity(0.5))
-                                          : null,
-                                      child: const Text("Female"),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
+                  _formInput("Birth Date", inputPopup: datePopup),
+                  _formInput("Gender", inputPopup: genderPopup),
+                  _formInput("Height"),
                 ],
               ),
             ),
@@ -172,10 +66,11 @@ class _PatientFormState extends State<PatientForm> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     Navigator.pop(context);
-                    // TODO
+                    //TODO Specify assessment type argument
+                    Navigator.pushNamed(context, "/assessment");
                   }
                 },
-                child: const Text("Begin Evaluation"),
+                child: const Text("Next"),
               ),
             ),
           ],
@@ -184,28 +79,124 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 
-  Widget _formInput(String field) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Container(
-        height: 63,
+  Widget _formInput(String field, {Future<String?> Function()? inputPopup}) {
+    TextEditingController controller = TextEditingController();
+    return CupertinoTextFormFieldRow(
+        controller: controller,
+        textAlign: TextAlign.center,
+        style: Styles.inputStyle,
+        autocorrect: false,
         decoration: BoxDecoration(
           color: CupertinoColors.systemBackground,
           border: Border.all(),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        child: CupertinoTextFormFieldRow(
-          prefix: Text(field),
-          textCapitalization: TextCapitalization.words,
-          placeholder: 'Enter a ${field.split(' ')[1].toLowerCase()}',
-          validator: (value) => value == null || value.isEmpty
-              ? 'Please enter a valid response'
-              : null,
-          onSaved: (String? value) {
-            storeValue(field, value);
-          },
-        ),
+        textCapitalization: TextCapitalization.words,
+        placeholder: field,
+        validator: (value) => value == null || value.isEmpty
+            ? 'Please enter a valid response'
+            : null,
+        onSaved: (String? value) {
+          storeValue(field, value);
+        },
+        //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
+        onTap: () => inputPopup != null
+            ? inputPopup()
+                .then((value) => value != null ? controller.text = value : null)
+            : null);
+  }
+
+  Future<String?> datePopup() {
+    String? value;
+    return showCupertinoModalPopup<String>(
+      context: context,
+      builder: (BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CupertinoButton(
+            child: const Text("Ok"),
+            onPressed: () => Navigator.pop(context, value),
+          ),
+          Container(
+            height: 216,
+            padding: const EdgeInsets.only(top: 6.0),
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            child: SafeArea(
+              top: false,
+              child: CupertinoDatePicker(
+                initialDateTime: date,
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (DateTime newDate) =>
+                    value = newDate.toString().split(" ")[0],
+                minimumYear: 1900,
+                maximumDate: DateTime.now(),
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Future<String?> genderPopup() {
+    String? value;
+    return showCupertinoModalPopup<String>(
+      context: context,
+      builder: (BuildContext context) => Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            //Make this a reusable widget
+            Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(8.0),
+                color: CupertinoColors.systemBackground.resolveFrom(context),
+                alignment: Alignment.centerRight,
+                child: Row(
+                  children: [
+                    const Text("Gender", style: Styles.inputStyle),
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.link,
+                        onPressed: () => Navigator.pop(context, value),
+                        child: const Text("Save")),
+                  ],
+                )),
+            Container(
+              height: 216,
+              padding: const EdgeInsets.only(top: 6.0),
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              child: SafeArea(
+                top: false,
+                child: CupertinoPicker(
+                  itemExtent: Styles.kItemExtent,
+                  onSelectedItemChanged: (int selectedItem) {
+                    setState(
+                      () {
+                        value = selectedItem == 0
+                            ? ""
+                            : Gender.values[selectedItem - 1].name.toString();
+                      },
+                    );
+                  },
+                  children: List<Text>.generate(
+                    3,
+                    (index) => index == 0
+                        ? const Text("")
+                        : Text(
+                            Gender.values[index - 1].name.toString(),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ]),
     );
   }
 
@@ -213,10 +204,17 @@ class _PatientFormState extends State<PatientForm> {
     try {
       switch (field) {
         case "First Name":
-          patient = patient.copyWith(first_name: value!);
+          patient = patient.copyWith(name: value!);
           break;
         case "Last Name":
-          patient = patient.copyWith(last_name: value!);
+          patient = patient.copyWith(family_name: value!);
+          break;
+        case "Birth Date":
+          patient = patient.copyWith(dob: TemporalDate.fromString(value!));
+          break;
+        case "Gender":
+          //TODO FIX WITH BLOC PATTERN
+          patient = patient.copyWith(gender: Gender.MALE);
           break;
         case "Height":
           patient = patient.copyWith(height_in_inches: double.tryParse(value!));

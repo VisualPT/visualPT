@@ -1,28 +1,22 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/state/camera_cubit.dart';
+import 'package:visualpt/bloc/camera_cubit.dart';
 
-class VideoPage extends StatefulWidget {
-  const VideoPage({Key? key}) : super(key: key);
-
-  @override
-  _VideoPageState createState() => _VideoPageState();
-}
-
-class _VideoPageState extends State<VideoPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class VideoRecorder extends StatelessWidget {
+  const VideoRecorder({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    //TODO Put all this blocProvider jumble in the bloc folder
     return BlocProvider(
       create: (context) => CameraCubit()..initCamera(),
       child: BlocBuilder<CameraCubit, CameraState>(
         builder: (context, state) {
-          return CupertinoPageScaffold(
+          return Container(
+              height: MediaQuery.of(context).size.height * 0.8,
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(border: Border.all()),
               child: state is CameraError
                   ? Center(
                       child: Column(
@@ -69,8 +63,8 @@ class _VideoPageState extends State<VideoPage> {
 
   Widget cameraWidget(BuildContext context, CameraState state) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.8,
+      width: MediaQuery.of(context).size.width * 0.8,
       child: Stack(
         alignment: Alignment.center,
         children: (() {
