@@ -19,7 +19,9 @@
 
 // ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
+import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 
@@ -32,6 +34,7 @@ class Assessment extends Model {
   final TemporalTimestamp? _timestamp;
   final String? _pdf_base64;
   final String? _patientID;
+  final List<SkeletalSequence>? _SkeletalSequences;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -100,6 +103,10 @@ class Assessment extends Model {
     }
   }
   
+  List<SkeletalSequence>? get SkeletalSequences {
+    return _SkeletalSequences;
+  }
+  
   TemporalDateTime? get createdAt {
     return _createdAt;
   }
@@ -108,15 +115,16 @@ class Assessment extends Model {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required name, required timestamp, required pdf_base64, required patientID, createdAt, updatedAt}): _name = name, _timestamp = timestamp, _pdf_base64 = pdf_base64, _patientID = patientID, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required name, required timestamp, required pdf_base64, required patientID, SkeletalSequences, createdAt, updatedAt}): _name = name, _timestamp = timestamp, _pdf_base64 = pdf_base64, _patientID = patientID, _SkeletalSequences = SkeletalSequences, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String name, required TemporalTimestamp timestamp, required String pdf_base64, required String patientID}) {
+  factory Assessment({String? id, required String name, required TemporalTimestamp timestamp, required String pdf_base64, required String patientID, List<SkeletalSequence>? SkeletalSequences}) {
     return Assessment._internal(
       id: id == null ? UUID.getUUID() : id,
       name: name,
       timestamp: timestamp,
       pdf_base64: pdf_base64,
-      patientID: patientID);
+      patientID: patientID,
+      SkeletalSequences: SkeletalSequences != null ? List<SkeletalSequence>.unmodifiable(SkeletalSequences) : SkeletalSequences);
   }
   
   bool equals(Object other) {
@@ -131,7 +139,8 @@ class Assessment extends Model {
       _name == other._name &&
       _timestamp == other._timestamp &&
       _pdf_base64 == other._pdf_base64 &&
-      _patientID == other._patientID;
+      _patientID == other._patientID &&
+      DeepCollectionEquality().equals(_SkeletalSequences, other._SkeletalSequences);
   }
   
   @override
@@ -154,13 +163,14 @@ class Assessment extends Model {
     return buffer.toString();
   }
   
-  Assessment copyWith({String? name, TemporalTimestamp? timestamp, String? pdf_base64, String? patientID}) {
+  Assessment copyWith({String? name, TemporalTimestamp? timestamp, String? pdf_base64, String? patientID, List<SkeletalSequence>? SkeletalSequences}) {
     return Assessment._internal(
       id: id,
       name: name ?? this.name,
       timestamp: timestamp ?? this.timestamp,
       pdf_base64: pdf_base64 ?? this.pdf_base64,
-      patientID: patientID ?? this.patientID);
+      patientID: patientID ?? this.patientID,
+      SkeletalSequences: SkeletalSequences ?? this.SkeletalSequences);
   }
   
   Assessment.fromJson(Map<String, dynamic> json)  
@@ -169,15 +179,21 @@ class Assessment extends Model {
       _timestamp = json['timestamp'] != null ? TemporalTimestamp.fromSeconds(json['timestamp']) : null,
       _pdf_base64 = json['pdf_base64'],
       _patientID = json['patientID'],
+      _SkeletalSequences = json['SkeletalSequences'] is List
+        ? (json['SkeletalSequences'] as List)
+          .where((e) => e?['serializedData'] != null)
+          .map((e) => SkeletalSequence.fromJson(new Map<String, dynamic>.from(e['serializedData'])))
+          .toList()
+        : null,
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'name': _name, 'timestamp': _timestamp?.toSeconds(), 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'name': _name, 'timestamp': _timestamp?.toSeconds(), 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences?.map((SkeletalSequence? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'name': _name, 'timestamp': _timestamp, 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id, 'name': _name, 'timestamp': _timestamp, 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences, 'createdAt': _createdAt, 'updatedAt': _updatedAt
   };
 
   static final QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<AssessmentModelIdentifier>();
@@ -186,13 +202,19 @@ class Assessment extends Model {
   static final QueryField TIMESTAMP = QueryField(fieldName: "timestamp");
   static final QueryField PDF_BASE64 = QueryField(fieldName: "pdf_base64");
   static final QueryField PATIENTID = QueryField(fieldName: "patientID");
+  static final QueryField SKELETALSEQUENCES = QueryField(
+    fieldName: "SkeletalSequences",
+    fieldType: ModelFieldType(ModelFieldTypeEnum.model, ofModelName: 'SkeletalSequence'));
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Assessment";
     modelSchemaDefinition.pluralName = "Assessments";
     
     modelSchemaDefinition.authRules = [
       AuthRule(
-        authStrategy: AuthStrategy.PUBLIC,
+        authStrategy: AuthStrategy.OWNER,
+        ownerField: "owner",
+        identityClaim: "cognito:username",
+        provider: AuthRuleProvider.USERPOOLS,
         operations: [
           ModelOperation.CREATE,
           ModelOperation.UPDATE,
@@ -229,6 +251,13 @@ class Assessment extends Model {
       key: Assessment.PATIENTID,
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
+      key: Assessment.SKELETALSEQUENCES,
+      isRequired: false,
+      ofModelName: 'SkeletalSequence',
+      associatedKey: SkeletalSequence.ASSESSMENTID
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(

@@ -30,8 +30,8 @@ import 'package:flutter/foundation.dart';
 class Patient extends Model {
   static const classType = const _PatientModelType();
   final String id;
-  final String? _first_name;
-  final String? _last_name;
+  final String? _name;
+  final String? _family_name;
   final TemporalDate? _dob;
   final Gender? _gender;
   final double? _height_in_inches;
@@ -52,9 +52,9 @@ class Patient extends Model {
       );
   }
   
-  String get first_name {
+  String get name {
     try {
-      return _first_name!;
+      return _name!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -65,9 +65,9 @@ class Patient extends Model {
     }
   }
   
-  String get last_name {
+  String get family_name {
     try {
-      return _last_name!;
+      return _family_name!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -129,13 +129,13 @@ class Patient extends Model {
     return _updatedAt;
   }
   
-  const Patient._internal({required this.id, required first_name, required last_name, required dob, required gender, required height_in_inches, Assessments, createdAt, updatedAt}): _first_name = first_name, _last_name = last_name, _dob = dob, _gender = gender, _height_in_inches = height_in_inches, _Assessments = Assessments, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Patient._internal({required this.id, required name, required family_name, required dob, required gender, required height_in_inches, Assessments, createdAt, updatedAt}): _name = name, _family_name = family_name, _dob = dob, _gender = gender, _height_in_inches = height_in_inches, _Assessments = Assessments, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Patient({String? id, required String first_name, required String last_name, required TemporalDate dob, required Gender gender, required double height_in_inches, List<Assessment>? Assessments}) {
+  factory Patient({String? id, required String name, required String family_name, required TemporalDate dob, required Gender gender, required double height_in_inches, List<Assessment>? Assessments}) {
     return Patient._internal(
       id: id == null ? UUID.getUUID() : id,
-      first_name: first_name,
-      last_name: last_name,
+      name: name,
+      family_name: family_name,
       dob: dob,
       gender: gender,
       height_in_inches: height_in_inches,
@@ -151,8 +151,8 @@ class Patient extends Model {
     if (identical(other, this)) return true;
     return other is Patient &&
       id == other.id &&
-      _first_name == other._first_name &&
-      _last_name == other._last_name &&
+      _name == other._name &&
+      _family_name == other._family_name &&
       _dob == other._dob &&
       _gender == other._gender &&
       _height_in_inches == other._height_in_inches &&
@@ -168,8 +168,8 @@ class Patient extends Model {
     
     buffer.write("Patient {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("first_name=" + "$_first_name" + ", ");
-    buffer.write("last_name=" + "$_last_name" + ", ");
+    buffer.write("name=" + "$_name" + ", ");
+    buffer.write("family_name=" + "$_family_name" + ", ");
     buffer.write("dob=" + (_dob != null ? _dob!.format() : "null") + ", ");
     buffer.write("gender=" + (_gender != null ? enumToString(_gender)! : "null") + ", ");
     buffer.write("height_in_inches=" + (_height_in_inches != null ? _height_in_inches!.toString() : "null") + ", ");
@@ -180,11 +180,11 @@ class Patient extends Model {
     return buffer.toString();
   }
   
-  Patient copyWith({String? first_name, String? last_name, TemporalDate? dob, Gender? gender, double? height_in_inches, List<Assessment>? Assessments}) {
+  Patient copyWith({String? name, String? family_name, TemporalDate? dob, Gender? gender, double? height_in_inches, List<Assessment>? Assessments}) {
     return Patient._internal(
       id: id,
-      first_name: first_name ?? this.first_name,
-      last_name: last_name ?? this.last_name,
+      name: name ?? this.name,
+      family_name: family_name ?? this.family_name,
       dob: dob ?? this.dob,
       gender: gender ?? this.gender,
       height_in_inches: height_in_inches ?? this.height_in_inches,
@@ -193,8 +193,8 @@ class Patient extends Model {
   
   Patient.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _first_name = json['first_name'],
-      _last_name = json['last_name'],
+      _name = json['name'],
+      _family_name = json['family_name'],
       _dob = json['dob'] != null ? TemporalDate.fromString(json['dob']) : null,
       _gender = enumFromString<Gender>(json['gender'], Gender.values),
       _height_in_inches = (json['height_in_inches'] as num?)?.toDouble(),
@@ -208,17 +208,17 @@ class Patient extends Model {
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'first_name': _first_name, 'last_name': _last_name, 'dob': _dob?.format(), 'gender': enumToString(_gender), 'height_in_inches': _height_in_inches, 'Assessments': _Assessments?.map((Assessment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'name': _name, 'family_name': _family_name, 'dob': _dob?.format(), 'gender': enumToString(_gender), 'height_in_inches': _height_in_inches, 'Assessments': _Assessments?.map((Assessment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'first_name': _first_name, 'last_name': _last_name, 'dob': _dob, 'gender': _gender, 'height_in_inches': _height_in_inches, 'Assessments': _Assessments, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id, 'name': _name, 'family_name': _family_name, 'dob': _dob, 'gender': _gender, 'height_in_inches': _height_in_inches, 'Assessments': _Assessments, 'createdAt': _createdAt, 'updatedAt': _updatedAt
   };
 
   static final QueryModelIdentifier<PatientModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<PatientModelIdentifier>();
   static final QueryField ID = QueryField(fieldName: "id");
-  static final QueryField FIRST_NAME = QueryField(fieldName: "first_name");
-  static final QueryField LAST_NAME = QueryField(fieldName: "last_name");
+  static final QueryField NAME = QueryField(fieldName: "name");
+  static final QueryField FAMILY_NAME = QueryField(fieldName: "family_name");
   static final QueryField DOB = QueryField(fieldName: "dob");
   static final QueryField GENDER = QueryField(fieldName: "gender");
   static final QueryField HEIGHT_IN_INCHES = QueryField(fieldName: "height_in_inches");
@@ -231,7 +231,10 @@ class Patient extends Model {
     
     modelSchemaDefinition.authRules = [
       AuthRule(
-        authStrategy: AuthStrategy.PUBLIC,
+        authStrategy: AuthStrategy.OWNER,
+        ownerField: "owner",
+        identityClaim: "cognito:username",
+        provider: AuthRuleProvider.USERPOOLS,
         operations: [
           ModelOperation.CREATE,
           ModelOperation.UPDATE,
@@ -243,13 +246,13 @@ class Patient extends Model {
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Patient.FIRST_NAME,
+      key: Patient.NAME,
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Patient.LAST_NAME,
+      key: Patient.FAMILY_NAME,
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
