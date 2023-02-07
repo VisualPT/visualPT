@@ -25,13 +25,14 @@ import 'Patient.dart';
 import 'SkeletalSequence.dart';
 
 export 'Assessment.dart';
+export 'AssessmentType.dart';
 export 'Gender.dart';
 export 'Patient.dart';
 export 'SkeletalSequence.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "eb93377287d2ee82230970a11ad1ab6f";
+  String version = "6816d463b78b5418ba6d1ba2381da496";
   @override
   List<ModelSchema> modelSchemas = [Assessment.schema, Patient.schema, SkeletalSequence.schema];
   static final ModelProvider _instance = ModelProvider();

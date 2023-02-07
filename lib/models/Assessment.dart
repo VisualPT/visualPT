@@ -30,7 +30,7 @@ import 'package:flutter/foundation.dart';
 class Assessment extends Model {
   static const classType = const _AssessmentModelType();
   final String id;
-  final String? _name;
+  final AssessmentType? _type;
   final TemporalTimestamp? _timestamp;
   final String? _pdf_base64;
   final String? _patientID;
@@ -51,9 +51,9 @@ class Assessment extends Model {
       );
   }
   
-  String get name {
+  AssessmentType get type {
     try {
-      return _name!;
+      return _type!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -115,12 +115,12 @@ class Assessment extends Model {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required name, required timestamp, required pdf_base64, required patientID, SkeletalSequences, createdAt, updatedAt}): _name = name, _timestamp = timestamp, _pdf_base64 = pdf_base64, _patientID = patientID, _SkeletalSequences = SkeletalSequences, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required type, required timestamp, required pdf_base64, required patientID, SkeletalSequences, createdAt, updatedAt}): _type = type, _timestamp = timestamp, _pdf_base64 = pdf_base64, _patientID = patientID, _SkeletalSequences = SkeletalSequences, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String name, required TemporalTimestamp timestamp, required String pdf_base64, required String patientID, List<SkeletalSequence>? SkeletalSequences}) {
+  factory Assessment({String? id, required AssessmentType type, required TemporalTimestamp timestamp, required String pdf_base64, required String patientID, List<SkeletalSequence>? SkeletalSequences}) {
     return Assessment._internal(
       id: id == null ? UUID.getUUID() : id,
-      name: name,
+      type: type,
       timestamp: timestamp,
       pdf_base64: pdf_base64,
       patientID: patientID,
@@ -136,7 +136,7 @@ class Assessment extends Model {
     if (identical(other, this)) return true;
     return other is Assessment &&
       id == other.id &&
-      _name == other._name &&
+      _type == other._type &&
       _timestamp == other._timestamp &&
       _pdf_base64 == other._pdf_base64 &&
       _patientID == other._patientID &&
@@ -152,7 +152,7 @@ class Assessment extends Model {
     
     buffer.write("Assessment {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("name=" + "$_name" + ", ");
+    buffer.write("type=" + (_type != null ? enumToString(_type)! : "null") + ", ");
     buffer.write("timestamp=" + (_timestamp != null ? _timestamp!.toString() : "null") + ", ");
     buffer.write("pdf_base64=" + "$_pdf_base64" + ", ");
     buffer.write("patientID=" + "$_patientID" + ", ");
@@ -163,10 +163,10 @@ class Assessment extends Model {
     return buffer.toString();
   }
   
-  Assessment copyWith({String? name, TemporalTimestamp? timestamp, String? pdf_base64, String? patientID, List<SkeletalSequence>? SkeletalSequences}) {
+  Assessment copyWith({AssessmentType? type, TemporalTimestamp? timestamp, String? pdf_base64, String? patientID, List<SkeletalSequence>? SkeletalSequences}) {
     return Assessment._internal(
       id: id,
-      name: name ?? this.name,
+      type: type ?? this.type,
       timestamp: timestamp ?? this.timestamp,
       pdf_base64: pdf_base64 ?? this.pdf_base64,
       patientID: patientID ?? this.patientID,
@@ -175,7 +175,7 @@ class Assessment extends Model {
   
   Assessment.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _name = json['name'],
+      _type = enumFromString<AssessmentType>(json['type'], AssessmentType.values),
       _timestamp = json['timestamp'] != null ? TemporalTimestamp.fromSeconds(json['timestamp']) : null,
       _pdf_base64 = json['pdf_base64'],
       _patientID = json['patientID'],
@@ -189,16 +189,16 @@ class Assessment extends Model {
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'name': _name, 'timestamp': _timestamp?.toSeconds(), 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences?.map((SkeletalSequence? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'type': enumToString(_type), 'timestamp': _timestamp?.toSeconds(), 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences?.map((SkeletalSequence? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'name': _name, 'timestamp': _timestamp, 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id, 'type': _type, 'timestamp': _timestamp, 'pdf_base64': _pdf_base64, 'patientID': _patientID, 'SkeletalSequences': _SkeletalSequences, 'createdAt': _createdAt, 'updatedAt': _updatedAt
   };
 
   static final QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<AssessmentModelIdentifier>();
   static final QueryField ID = QueryField(fieldName: "id");
-  static final QueryField NAME = QueryField(fieldName: "name");
+  static final QueryField TYPE = QueryField(fieldName: "type");
   static final QueryField TIMESTAMP = QueryField(fieldName: "timestamp");
   static final QueryField PDF_BASE64 = QueryField(fieldName: "pdf_base64");
   static final QueryField PATIENTID = QueryField(fieldName: "patientID");
@@ -230,9 +230,9 @@ class Assessment extends Model {
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Assessment.NAME,
+      key: Assessment.TYPE,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      ofType: ModelFieldType(ModelFieldTypeEnum.enumeration)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(

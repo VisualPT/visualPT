@@ -33,7 +33,7 @@ type Patient @model @auth(rules: [{allow: owner}]) {
 
 type Assessment @model @auth(rules: [{allow: owner}]) {
   id: ID!
-  name: String!
+  type: AssessmentType!
   timestamp: AWSTimestamp!
   pdf_base64: String!
   patientID: ID! @index(name: "byPatient")
@@ -43,4 +43,9 @@ type Assessment @model @auth(rules: [{allow: owner}]) {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum AssessmentType {
+  CTSIB
+  GAIT
 }
