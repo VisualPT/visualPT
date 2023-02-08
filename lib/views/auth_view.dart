@@ -13,6 +13,7 @@ class AuthView extends StatelessWidget {
     return CupertinoPageScaffold(
       child: BaseView(
         pageTitle: "Save clicks and minutes",
+        //TODO print debug to figure out why this shit broke
         child: BlocProvider(
           create: (context) => AuthBloc(),
           child: BlocBuilder<AuthBloc, AuthState>(
