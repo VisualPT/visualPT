@@ -15,6 +15,7 @@ class AuthInput extends StatefulWidget {
 
 class _AuthInputState extends State<AuthInput> {
   bool obsController = false;
+  late TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
@@ -24,19 +25,22 @@ class _AuthInputState extends State<AuthInput> {
 
   @override
   Widget build(BuildContext context) {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
     return Stack(
       alignment: Alignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: CupertinoTextField(
+            controller: controller,
             placeholder: widget.type.name.toString(),
             placeholderStyle: Styles.placeholderStyle,
             style: Styles.inputStyle,
             textAlign: TextAlign.center,
             obscureText: obsController,
-            onSubmitted: (value) => BlocProvider.of<AuthBloc>(context)
-                .storeAuthData(widget.type, value),
+            onChanged: (value) {
+              authBloc.storeAuthData(widget.type, value);
+            },
           ),
         ),
         if (widget.obscure)
