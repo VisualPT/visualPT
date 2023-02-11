@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/styles.dart';
 import 'base_view.dart';
-import 'components/components.dart';
+import 'components/_components.dart';
 
 //TODO The first view anyone on the app sees. Synonymous with the loading view
 class LandingView extends StatelessWidget {

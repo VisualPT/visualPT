@@ -15,6 +15,7 @@ class Styles {
   static const Color backgroundComplementory = Color(0xFFf8c098);
 
   static const Color actionPrimary = Color(0xFF1F7A97);
+  static const Color actionSecondary = Color(0x551F7A97);
 
   //Asset Paths
   static const String mainLogoPath = "assets/vpt_mainlogo.png";
@@ -29,4 +30,8 @@ class Styles {
       TextStyle(color: CupertinoColors.inactiveGray, fontSize: 24);
   static const TextStyle inputStyle =
       TextStyle(color: CupertinoColors.black, fontSize: 24);
+  static const TextStyle actionText = TextStyle(
+      color: CupertinoColors.white, fontSize: 32, fontWeight: FontWeight.bold);
+  static const TextStyle subactionText = TextStyle(
+      color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
 }

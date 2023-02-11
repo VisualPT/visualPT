@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/views/styles.dart';
 
-import '../../bloc/bloc.dart';
-
+import '../../bloc/_bloc.dart';
+//TODO this needs to become a formfield
 class AuthInput extends StatefulWidget {
   final AuthDataType type;
   final bool obscure;

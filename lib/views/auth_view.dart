@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/views/styles.dart';
-import '../bloc/bloc.dart';
-import 'base_view.dart';
-import 'components/components.dart';
+import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/views/_views.dart';
+import 'components/_components.dart';
 
 class AuthView extends StatefulWidget {
   const AuthView({super.key});
@@ -27,7 +26,10 @@ class _AuthViewState extends State<AuthView> {
             builder: (context, state) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (state is AuthSuccess) {
-                  context.read<AuthBloc>().close(); //TODO save auth data before closing
+                  //Sync with Amplify services
+                  context
+                      .read<AuthBloc>()
+                      .close(); //TODO save auth data before closing
                   Navigator.popAndPushNamed(context, "/home");
                 } else if (state is AuthError) {
                   _shakeKey.currentState?.shake();
@@ -52,12 +54,16 @@ class _AuthViewState extends State<AuthView> {
         children: [
           //TODO stylize for ciewability
           CupertinoButton(
-            child: const Text("Sign up"),
+            color: Styles.actionSecondary,
+            child: const Text(
+              "Sign up",
+              style: Styles.subactionText,
+            ),
             onPressed: () => addAuthEvent(context, event: AuthToggle()),
           ),
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text("Access your workflows"),
+            child: Text("or Access your workflows"),
           ),
           const AuthInput(AuthDataType.email),
           const AuthInput(AuthDataType.password, obscure: true),
@@ -66,16 +72,13 @@ class _AuthViewState extends State<AuthView> {
             child: GestureDetector(
                 child: Container(
                   alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.width / 3,
-                  width: MediaQuery.of(context).size.width / 3,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
                   decoration: const BoxDecoration(
                       shape: BoxShape.circle, color: Styles.actionPrimary),
                   child: const Text(
                     "Log In",
-                    style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
+                    style: Styles.actionText,
                   ),
                 ),
                 onTap: () => addAuthEvent(context)),
@@ -91,12 +94,13 @@ class _AuthViewState extends State<AuthView> {
       child: Column(
         children: [
           CupertinoButton(
-            child: const Text("Log in"),
+            color: Styles.actionSecondary,
+            child: const Text("Log in", style: Styles.subactionText),
             onPressed: () => addAuthEvent(context, event: AuthToggle()),
           ),
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text("Rethink your workflows"),
+            child: Text("or Rethink your workflows"),
           ),
           const AuthInput(AuthDataType.email),
           const AuthInput(AuthDataType.password, obscure: true),
@@ -106,16 +110,13 @@ class _AuthViewState extends State<AuthView> {
             child: GestureDetector(
               child: Container(
                 alignment: Alignment.center,
-                height: MediaQuery.of(context).size.width / 3,
-                width: MediaQuery.of(context).size.width / 3,
+                height: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 2,
                 decoration: const BoxDecoration(
                     shape: BoxShape.circle, color: Styles.actionPrimary),
                 child: const Text(
                   "Sign Up",
-                  style: TextStyle(
-                      color: CupertinoColors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold),
+                  style: Styles.actionText,
                 ),
               ),
               onTap: () => addAuthEvent(context),

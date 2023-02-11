@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/views/views.dart';
+import 'package:visualpt/views/_views.dart';
 
 void main() {
   runApp(const VisualPT());
@@ -24,7 +24,7 @@ class VisualPT extends StatelessWidget {
               textStyle: TextStyle(
                   fontFamily: "Unbounded", color: CupertinoColors.black))),
       routes: {
-        "/": (context) => const AuthView(),
+        "/": (context) => const AuthView(), //TODO make automatic reference based on auth
         "/auth": (context) => const AuthView(),
         "/home": (context) => const HomeView(),
         "/assessment": (context) => const AssessmentView(),

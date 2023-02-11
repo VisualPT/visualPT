@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/views/views.dart';
-import 'components/components.dart';
+import 'package:visualpt/views/_views.dart';
+import 'components/_components.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
