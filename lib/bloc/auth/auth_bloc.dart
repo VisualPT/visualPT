@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -49,7 +48,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else {
       final tempState = state;
       emit(AuthError("Something went wrong, please try again"));
-      await Future.delayed(const Duration(seconds: 1), () => emit(tempState));
+      await Future.delayed(
+          const Duration(milliseconds: 100), () => emit(tempState));
     }
   }
 
