@@ -1,38 +1,66 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:helpers/helpers.dart';
-import 'package:visualpt/bloc/camera/camera_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/views/assessments/_assessments.dart';
 
 part 'assessment_event.dart';
 part 'assessment_state.dart';
 
 class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   final AssessmentType assessmentType;
-  final List<Widget> assessmentViews;
+  late int assessmentCount;
+
+  final BuildContext context;
+  late List<Widget Function(BuildContext)> introViews;
+  late List<Widget Function(BuildContext)> captureViews;
+
   late List<File> assessmentAssets;
-  late List<SkeletalSequence> skeletalSequence;
-  final DateTime assessmentStart = DateTime.now();
-  late DateTime assessmentEnd;
+  late List<SkeletalSequence> skeletalSequences;
+
+  late DateTime assessmentStart;
+  late Duration assessmentDuration;
   late int index;
 
-  AssessmentBloc(this.assessmentType, this.assessmentViews)
-      : super(AssessmentIntro(assessmentViews[0], 0)) {
-    on<AssessmentInit>((event, emit) {});
-    on<AssessmentBegin>((event, emit) {
-      // TODO: implement event handler
-    });
-    on<AssessmentIncrement>((event, emit) {
-      // TODO: implement event handler
-    });
-    on<AssessmentFinish>((event, emit) {
-      // TODO: implement event handler
-    });
+  AssessmentBloc(this.context, this.assessmentType)
+      : super(AssessmentForm(assessmentType)) {
+    on<AssessmentInit>(_onInit);
+    on<AssessmentBegin>(_onBegin);
+    on<AssessmentIncrement>(_onIncrement);
+
+    assessmentStart = DateTime.now();
+    index = 0;
+    final assessmentRouter = AssessmentRouter(assessmentType);
+    assessmentCount = assessmentRouter.assessmentCount;
+    introViews = assessmentRouter.introWidgets;
+    captureViews = assessmentRouter.captureWidgets;
   }
 
-  //Store persistent bloc data
-  void load() {
-    index = 0;
+  FutureOr<void> _onInit(AssessmentInit event, Emitter<AssessmentState> emit) {
+    emit(AssessmentIntro(index));
   }
+
+  FutureOr<void> _onBegin(
+      AssessmentBegin event, Emitter<AssessmentState> emit) {
+    emit(AssessmentActive(index));
+  }
+
+  FutureOr<void> _onIncrement(
+      AssessmentIncrement event, Emitter<AssessmentState> emit) {
+    assessmentAssets.add(event.assessmentData);
+    index++;
+    if (index == assessmentCount) {
+      assessmentDuration = assessmentStart.difference(DateTime.now());
+      emit(AssessmentSuccess(assessmentAssets, index));
+    } else {
+      emit(AssessmentIntro(index));
+    }
+  }
+
+  Widget getIntroView(BuildContext context, int index) =>
+      introViews[index](context);
+
+  Widget getCaptureView(BuildContext context, int index) =>
+      captureViews[index](context);
 }

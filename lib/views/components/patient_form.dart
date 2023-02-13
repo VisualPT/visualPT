@@ -1,15 +1,16 @@
 import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/styles.dart';
 
 class PatientForm extends StatefulWidget {
   final AssessmentType assessmentType;
-  final Widget child;
-  const PatientForm(
-      {Key? key, required this.assessmentType, required this.child})
-      : super(key: key);
+
+  const PatientForm({Key? key, required this.assessmentType}) : super(key: key);
 
   @override
   State<PatientForm> createState() => _PatientFormState();
@@ -27,59 +28,43 @@ class _PatientFormState extends State<PatientForm> {
       height_in_inches: 0);
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(onTap: showFormDialog, child: widget.child);
-  }
-
-  Future<void> showFormDialog() {
-    return showCupertinoModalPopup(
-      useRootNavigator: false,
-      context: context,
-      builder: (BuildContext context) =>
-          StatefulBuilder(builder: (context, setState) {
-        return CupertinoAlertDialog(
-          title: const Text('Patient Information',
-              style: Styles.defaultTitleOverride),
-          content: Form(
-            key: _formKey,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minHeight: 100,
-                maxHeight: 400,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _formInput("First Name"),
-                  _formInput("Last Name"),
-                  _formInput("Birth Date", inputPopup: datePopup),
-                  _formInput("Gender", inputPopup: genderPopup),
-                  _formInput("Height"),
-                ],
-              ),
-            ),
+    return BaseView(
+      pageTitle: "Patient Information",
+      child: Form(
+        key: _formKey,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: 100,
+            maxHeight: 400,
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CupertinoButton(
-                color: CupertinoColors.link,
-                onPressed: () {
-                  //storeDateTimeData(date);
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    Navigator.pop(context);
-                    //TODO Specify assessment type argument
-                    Navigator.pushNamed(context, "/assessment",
-                        arguments: widget.assessmentType);
-                  }
-                },
-                child: const Text("Next"),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _formInput("First Name"),
+              _formInput("Last Name"),
+              _formInput("Birth Date", inputPopup: datePopup),
+              _formInput("Gender", inputPopup: genderPopup),
+              _formInput("Height"),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CupertinoButton(
+                  color: CupertinoColors.link,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      BlocProvider.of<AssessmentBloc>(context)
+                          .add(AssessmentInit(0));
+                      //TODO store data to backend
+                    }
+                  },
+                  child: const Text("Next"),
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -117,9 +102,21 @@ class _PatientFormState extends State<PatientForm> {
       builder: (BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          CupertinoButton(
-            child: const Text("Ok"),
-            onPressed: () => Navigator.pop(context, value),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.all(8.0),
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            alignment: Alignment.centerRight,
+            child: Row(
+              children: [
+                const Text("Date", style: Styles.inputStyle),
+                const Spacer(),
+                CupertinoButton(
+                    color: CupertinoColors.link,
+                    onPressed: () => Navigator.pop(context, value),
+                    child: const Text("Save")),
+              ],
+            ),
           ),
           Container(
             height: 216,
@@ -153,22 +150,23 @@ class _PatientFormState extends State<PatientForm> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            //Make this a reusable widget
+            //TODO Make this a reusable widget
             Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(8.0),
-                color: CupertinoColors.systemBackground.resolveFrom(context),
-                alignment: Alignment.centerRight,
-                child: Row(
-                  children: [
-                    const Text("Gender", style: Styles.inputStyle),
-                    const Spacer(),
-                    CupertinoButton(
-                        color: CupertinoColors.link,
-                        onPressed: () => Navigator.pop(context, value),
-                        child: const Text("Save")),
-                  ],
-                )),
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(8.0),
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              alignment: Alignment.centerRight,
+              child: Row(
+                children: [
+                  const Text("Gender", style: Styles.inputStyle),
+                  const Spacer(),
+                  CupertinoButton(
+                      color: CupertinoColors.link,
+                      onPressed: () => Navigator.pop(context, value),
+                      child: const Text("Save")),
+                ],
+              ),
+            ),
             Container(
               height: 216,
               padding: const EdgeInsets.only(top: 6.0),
@@ -181,13 +179,9 @@ class _PatientFormState extends State<PatientForm> {
                 child: CupertinoPicker(
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
-                    setState(
-                      () {
-                        value = selectedItem == 0
-                            ? ""
-                            : Gender.values[selectedItem - 1].name.toString();
-                      },
-                    );
+                    value = selectedItem == 0
+                        ? ""
+                        : Gender.values[selectedItem - 1].name.toString();
                   },
                   children: List<Text>.generate(
                     3,

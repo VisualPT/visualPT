@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/assessments/_assessments.dart';
 
 void main() {
   runApp(const VisualPT());
@@ -36,13 +35,9 @@ class VisualPT extends StatelessWidget {
         if (settings.name == "/assessment") {
           final assessmentType = settings.arguments as AssessmentType;
           return CupertinoPageRoute(
-            builder: (_) => AssessmentView(
-              assessmentType: assessmentType,
-              assessmentViews: AssessmentRouter(assessmentType).assessmentRoute,
-            ),
-          );
+              builder: (context) =>
+                  AssessmentView(assessmentType: assessmentType));
         }
-        return null;
       },
     );
   }

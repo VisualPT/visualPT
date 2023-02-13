@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
 class Gait {
-  List<Widget> get content {
+  final sequences = 1;
+
+  List<Widget> content(BuildContext context) {
     return [
       Text("GAIT INTRO"),
       Text("Active"),
@@ -11,7 +13,7 @@ class Gait {
     ];
   }
 
-  Widget IntroSeq1() => Text("TODO");
+  Widget IntroSeq1(BuildContext context) => Text("TODO");
 
-  Widget CaptureSeq1() => Text("TODO");
+  Widget CaptureSeq1(BuildContext context) => Text("TODO");
 }

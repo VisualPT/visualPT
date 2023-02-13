@@ -51,8 +51,10 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   FutureOr<void> _cameraInit(
       CameraInit event, Emitter<CameraState> emit) async {
     try {
-      getCamera();
-      emit(CameraStandby(controller: cameraController!));
+      await getCamera()
+          .then((_) => emit(CameraStandby(controller: cameraController!)))
+          .onError((error, stackTrace) =>
+              emit(CameraError(exception: Exception(error))));
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
@@ -77,6 +79,8 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           emit(CameraError(exception: e));
           break;
       }
+    } on Exception catch (e) {
+      emit(CameraError(exception: e));
     }
   }
 
@@ -95,19 +99,27 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     final XFile data = await cameraController!.stopVideoRecording();
     cameraController!.dispose();
     getCamera();
-    emit(CameraStandby(controller: cameraController!));
   }
 
   Future<void> getCamera() async {
-    final camera = await availableCameras().then((cameras) =>
-        cameras.firstWhere(
-            (camera) => camera.lensDirection == CameraLensDirection.back));
-    cameraController = CameraController(
-      camera,
-      ResolutionPreset.max,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.bgra8888,
-    );
-    await cameraController!.initialize();
+    try {
+      await availableCameras()
+          .then((cameras) => cameras.firstWhere(
+              (camera) => camera.lensDirection == CameraLensDirection.back))
+          .then((camera) => CameraController(
+                camera,
+                ResolutionPreset.max,
+                enableAudio: false,
+                imageFormatGroup: ImageFormatGroup.bgra8888,
+              ))
+          .then((controller) {
+            controller.initialize();
+            return controller;
+          })
+          .then((controller) => cameraController = controller)
+          .onError((error, stackTrace) => throw Exception(error));
+    } on Exception catch (e) {
+      emit(CameraError(exception: e));
+    }
   }
 }

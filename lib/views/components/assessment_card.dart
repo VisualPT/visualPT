@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/views/components/patient_form.dart';
 
 class AssessmentCard extends StatelessWidget {
   final String imagePath;
@@ -18,8 +17,9 @@ class AssessmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: PatientForm(
-        assessmentType: assessmentType,
+      child: GestureDetector(
+        onTap: () => Navigator.pushNamed(context, "/assessment",
+            arguments: assessmentType),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
             height: MediaQuery.of(context).size.height / 4,

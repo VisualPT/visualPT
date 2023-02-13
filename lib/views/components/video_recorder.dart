@@ -4,11 +4,17 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/views/_views.dart';
 
 class VideoRecorder extends StatefulWidget {
+  final String title;
   final CameraController? controller;
   final void Function(File f) onCaptureSaved;
-  const VideoRecorder({Key? key, this.controller, required this.onCaptureSaved})
+  const VideoRecorder(
+      {Key? key,
+      required this.title,
+      this.controller,
+      required this.onCaptureSaved})
       : super(key: key);
 
   @override
@@ -108,17 +114,20 @@ class _VideoRecorderState extends State<VideoRecorder>
         child: BlocBuilder<CameraBloc, CameraState>(
           builder: (context, state) {
             return state is CameraError
-                ? Center(
-                    child: Column(
-                      children: [
-                        Text(state.exception.toString()),
-                        CupertinoButton(
-                            onPressed: () {
-                              // BlocProvider.of<CameraBloc>(context)
-                              //     .resetCamera();
-                            },
-                            child: const Text("Retry"))
-                      ],
+                ? BaseView(
+                    pageTitle: widget.title,
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(state.exception.toString()),
+                          CupertinoButton(
+                              onPressed: () {
+                                // BlocProvider.of<CameraBloc>(context)
+                                //     .resetCamera();
+                              },
+                              child: const Text("Restart Camera"))
+                        ],
+                      ),
                     ),
                   )
                 : cameraWidget(context, state);

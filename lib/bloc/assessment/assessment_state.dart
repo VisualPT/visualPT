@@ -4,33 +4,27 @@ part of 'assessment_bloc.dart';
 abstract class AssessmentState {}
 
 class AssessmentForm extends AssessmentState {
-  final Widget assessmentView;
-  final int index;
   final AssessmentType assessmentType;
-
-  AssessmentForm(this.assessmentView, this.index, this.assessmentType);
+  AssessmentForm(this.assessmentType);
 }
 
 class AssessmentIntro extends AssessmentState {
-  final Widget assessmentView;
   final int index;
 
-  AssessmentIntro(this.assessmentView, this.index);
+  AssessmentIntro(this.index);
 }
 
 class AssessmentActive extends AssessmentState {
-  final Widget assessmentView;
   final int index;
 
-  AssessmentActive(this.assessmentView, this.index);
+  AssessmentActive(this.index);
 }
 
 class AssessmentSuccess extends AssessmentState {
-  final Widget assessmentView;
   final List<File> assessmentAssets;
   final int index;
 
-  AssessmentSuccess(this.assessmentView, this.assessmentAssets, this.index);
+  AssessmentSuccess(this.assessmentAssets, this.index);
 }
 
 class AssessmentError extends AssessmentState {

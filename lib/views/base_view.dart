@@ -39,7 +39,7 @@ class BaseView extends StatelessWidget {
           )),
           //TODO make this better and animatable
           Positioned(
-            top: screenSize.height / 3,
+            top: screenSize.height / 4,
             child: SizedBox(
                 height: screenSize.height * 16 / 24,
                 width: screenSize.width,
