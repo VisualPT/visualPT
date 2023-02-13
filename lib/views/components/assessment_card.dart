@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/components/patient_form.dart';
 
 class AssessmentCard extends StatelessWidget {
   final String imagePath;
-  final String title;
+  final AssessmentType assessmentType;
   final String subtitle;
 
   const AssessmentCard({
     Key? key,
     required this.imagePath,
-    required this.title,
+    required this.assessmentType,
     required this.subtitle,
   }) : super(key: key);
 
@@ -18,6 +19,7 @@ class AssessmentCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: PatientForm(
+        assessmentType: assessmentType,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
             height: MediaQuery.of(context).size.height / 4,
@@ -38,7 +40,7 @@ class AssessmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
+                Text(assessmentType.name,
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 32)),
                 Text(subtitle, style: const TextStyle(fontSize: 24)),

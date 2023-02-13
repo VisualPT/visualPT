@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/assessments/_assessments.dart';
 
 void main() {
   runApp(const VisualPT());
@@ -24,13 +26,24 @@ class VisualPT extends StatelessWidget {
               textStyle: TextStyle(
                   fontFamily: "Unbounded", color: CupertinoColors.black))),
       routes: {
-        "/": (context) => const AuthView(), //TODO make automatic reference based on auth
+        "/": (context) =>
+            const AuthView(), //TODO make automatic reference based on auth
         "/auth": (context) => const AuthView(),
         "/home": (context) => const HomeView(),
-        "/assessment": (context) => const AssessmentView(),
         "/analysis": (context) => const AnalysisView(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == "/assessment") {
+          final assessmentType = settings.arguments as AssessmentType;
+          return CupertinoPageRoute(
+            builder: (_) => AssessmentView(
+              assessmentType: assessmentType,
+              assessmentViews: AssessmentRouter(assessmentType).assessmentRoute,
+            ),
+          );
+        }
+        return null;
       },
     );
   }
 }
- 

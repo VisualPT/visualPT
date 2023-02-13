@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 import 'components/_components.dart';
 
@@ -15,11 +16,11 @@ class HomeView extends StatelessWidget {
           children: const [
             AssessmentCard(
                 imagePath: Styles.ctsibLogoPath,
-                title: "CT-SIB",
+                assessmentType: AssessmentType.CTSIB,
                 subtitle: "3 minutes"),
             AssessmentCard(
                 imagePath: Styles.gvLogoPath,
-                title: "Gait Velocity",
+                assessmentType: AssessmentType.GAIT,
                 subtitle: "5 minutes"),
           ],
         ),

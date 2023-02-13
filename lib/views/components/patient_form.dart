@@ -5,8 +5,11 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/styles.dart';
 
 class PatientForm extends StatefulWidget {
+  final AssessmentType assessmentType;
   final Widget child;
-  const PatientForm({Key? key, required this.child}) : super(key: key);
+  const PatientForm(
+      {Key? key, required this.assessmentType, required this.child})
+      : super(key: key);
 
   @override
   State<PatientForm> createState() => _PatientFormState();
@@ -67,7 +70,8 @@ class _PatientFormState extends State<PatientForm> {
                     _formKey.currentState!.save();
                     Navigator.pop(context);
                     //TODO Specify assessment type argument
-                    Navigator.pushNamed(context, "/assessment");
+                    Navigator.pushNamed(context, "/assessment",
+                        arguments: widget.assessmentType);
                   }
                 },
                 child: const Text("Next"),

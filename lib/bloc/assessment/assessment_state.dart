@@ -3,16 +3,39 @@ part of 'assessment_bloc.dart';
 @immutable
 abstract class AssessmentState {}
 
-class AssessmentTutorial extends AssessmentState {}
+class AssessmentForm extends AssessmentState {
+  final Widget assessmentView;
+  final int index;
+  final AssessmentType assessmentType;
 
-class AssessmentActive extends AssessmentState {}
+  AssessmentForm(this.assessmentView, this.index, this.assessmentType);
+}
 
-class AssessmentPaused extends AssessmentState {}
+class AssessmentIntro extends AssessmentState {
+  final Widget assessmentView;
+  final int index;
 
-class AssessmentAborted extends AssessmentState {}
+  AssessmentIntro(this.assessmentView, this.index);
+}
 
-class AssessmentSuccess extends AssessmentState {}
+class AssessmentActive extends AssessmentState {
+  final Widget assessmentView;
+  final int index;
+
+  AssessmentActive(this.assessmentView, this.index);
+}
+
+class AssessmentSuccess extends AssessmentState {
+  final Widget assessmentView;
+  final List<File> assessmentAssets;
+  final int index;
+
+  AssessmentSuccess(this.assessmentView, this.assessmentAssets, this.index);
+}
 
 class AssessmentError extends AssessmentState {
-  final String = "hello";
+  //TODO Establish VisualPT Error Codes
+  final Exception e;
+
+  AssessmentError(this.e);
 }
