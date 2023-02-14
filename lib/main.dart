@@ -7,7 +7,6 @@ void main() {
 }
 
 //TODO VisualPT
-//Follow Figma Model
 //Connect PDF to email (until EMR integration is available)
 //Asseessment tutorial
 //Marketing content

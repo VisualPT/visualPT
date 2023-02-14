@@ -122,10 +122,10 @@ class _VideoRecorderState extends State<VideoRecorder>
                           Text(state.exception.toString()),
                           CupertinoButton(
                               onPressed: () {
-                                // BlocProvider.of<CameraBloc>(context)
-                                //     .resetCamera();
+                                BlocProvider.of<CameraBloc>(context)
+                                    .add(CameraInit());
                               },
-                              child: const Text("Restart Camera"))
+                              child: const Text("Restart")),
                         ],
                       ),
                     ),
@@ -199,8 +199,8 @@ class _VideoRecorderState extends State<VideoRecorder>
               Positioned(
                 bottom: 10,
                 child: GestureDetector(
-                  // onTap: () => BlocProvider.of<CameraBloc>(context)
-                  //     .triggerState(context, state),
+                  onTap: () =>
+                      BlocProvider.of<CameraBloc>(context).add(CameraPlay()),
                   child: const Icon(
                     CupertinoIcons.circle,
                     color: CupertinoColors.black,

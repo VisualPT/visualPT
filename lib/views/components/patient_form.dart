@@ -1,11 +1,10 @@
-import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/styles.dart';
+import 'package:visualpt/views/components/_components.dart';
 
 class PatientForm extends StatefulWidget {
   final AssessmentType assessmentType;
@@ -20,12 +19,12 @@ class PatientForm extends StatefulWidget {
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
   DateTime date = DateTime.now();
-  Patient patient = Patient(
-      name: "TODO",
-      family_name: "TODO",
-      dob: TemporalDate(DateTime.now()),
-      gender: Gender.MALE,
-      height_in_inches: 0);
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
+  TextEditingController heightController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return BaseView(
@@ -41,11 +40,31 @@ class _PatientFormState extends State<PatientForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _formInput("First Name"),
-              _formInput("Last Name"),
-              _formInput("Birth Date", inputPopup: datePopup),
-              _formInput("Gender", inputPopup: genderPopup),
-              _formInput("Height"),
+              FormInput(
+                "First Name",
+                firstNameController,
+                inputType: TextInputType.name,
+              ),
+              FormInput(
+                "Last Name",
+                lastNameController,
+                inputType: TextInputType.name,
+              ),
+              FormInput(
+                "Birth Date",
+                dobController,
+                inputPopup: datePopup,
+              ),
+              FormInput(
+                "Gender",
+                genderController,
+                inputPopup: genderPopup,
+              ),
+              FormInput(
+                "Height",
+                heightController,
+                inputType: TextInputType.number,
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CupertinoButton(
@@ -53,6 +72,13 @@ class _PatientFormState extends State<PatientForm> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      Patient patient = Patient(
+                        name: firstNameController.text,
+                        family_name: lastNameController.text,
+                        dob: TemporalDate(DateTime.parse(dobController.text)),
+                        gender: genderParse(genderController.text),
+                        height_in_inches: double.parse(heightController.text),
+                      );
                       BlocProvider.of<AssessmentBloc>(context)
                           .add(AssessmentInit(0));
                       //TODO store data to backend
@@ -66,33 +92,6 @@ class _PatientFormState extends State<PatientForm> {
         ),
       ),
     );
-  }
-
-  Widget _formInput(String field, {Future<String?> Function()? inputPopup}) {
-    TextEditingController controller = TextEditingController();
-    return CupertinoTextFormFieldRow(
-        controller: controller,
-        textAlign: TextAlign.center,
-        style: Styles.inputStyle,
-        autocorrect: false,
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemBackground,
-          border: Border.all(),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        textCapitalization: TextCapitalization.words,
-        placeholder: field,
-        validator: (value) => value == null || value.isEmpty
-            ? 'Please enter a valid response'
-            : null,
-        onSaved: (String? value) {
-          storeValue(field, value);
-        },
-        //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
-        onTap: () => inputPopup != null
-            ? inputPopup()
-                .then((value) => value != null ? controller.text = value : null)
-            : null);
   }
 
   Future<String?> datePopup() {
@@ -197,33 +196,6 @@ class _PatientFormState extends State<PatientForm> {
           ]),
     );
   }
-
-  void storeValue(String field, String? value) {
-    try {
-      switch (field) {
-        case "First Name":
-          patient = patient.copyWith(name: value!);
-          break;
-        case "Last Name":
-          patient = patient.copyWith(family_name: value!);
-          break;
-        case "Birth Date":
-          patient = patient.copyWith(dob: TemporalDate.fromString(value!));
-          break;
-        case "Gender":
-          //TODO FIX WITH BLOC PATTERN
-          patient = patient.copyWith(gender: Gender.MALE);
-          break;
-        case "Height":
-          patient = patient.copyWith(height_in_inches: double.tryParse(value!));
-          break;
-        default:
-          throw Exception("Invalid field or value used");
-      }
-    } catch (e) {
-      log(e.toString());
-    }
-  }
 }
 
 // void storeDateTimeData(DateTime date) {
@@ -240,3 +212,16 @@ class _PatientFormState extends State<PatientForm> {
 //   patientData.date = nowDate;
 //   patientData.time = nowTime;
 // }
+
+Gender genderParse(String text) {
+  switch (text) {
+    case "MALE":
+      return Gender.MALE;
+
+    case "FEMALE":
+      return Gender.FEMALE;
+
+    default:
+      return Gender.MALE;
+  }
+}
