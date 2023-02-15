@@ -13,35 +13,35 @@ class AuthView extends StatefulWidget {
 
 class _AuthViewState extends State<AuthView> {
   final GlobalKey<ShakerState> _shakeKey = GlobalKey<ShakerState>();
+  //TODO BLOC FORM WHEN MVP IS DONE
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: BaseView(
-        pageTitle: "Save clicks and minutes",
-        //TODO print debug to figure out why this shit broke
-        child: BlocProvider(
-          create: (context) => AuthBloc(),
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (state is AuthSuccess) {
-                  //Sync with Amplify services
-                  context
-                      .read<AuthBloc>()
-                      .close(); //TODO save auth data before closing
-                  Navigator.popAndPushNamed(context, "/home");
-                } else if (state is AuthError) {
-                  _shakeKey.currentState?.shake();
-                }
-              });
-              if (state is AuthSignUp) {
-                return signupForm(context);
-              } else {
-                return loginForm(context);
+    return BaseView(
+      pageTitle: "Save clicks and minutes",
+      //TODO print debug to figure out why this shit broke
+      child: BlocProvider(
+        create: (context) => AuthBloc(),
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (state is AuthSuccess) {
+                //Sync with Amplify services
+                context
+                    .read<AuthBloc>()
+                    .close(); //TODO save auth data before closing
+                Navigator.popAndPushNamed(context, "/home");
+              } else if (state is AuthError) {
+                _shakeKey.currentState?.shake();
               }
-            },
-          ),
+            });
+            if (state is AuthSignUp) {
+              return signupForm(context);
+            } else {
+              return loginForm(context);
+            }
+          },
         ),
       ),
     );
@@ -50,40 +50,23 @@ class _AuthViewState extends State<AuthView> {
   Widget loginForm(BuildContext context) {
     return Shaker(
       key: _shakeKey,
-      child: Column(
-        children: [
-          //TODO stylize for ciewability
-          CupertinoButton(
-            color: Styles.actionSecondary,
-            child: const Text(
-              "Sign up",
-              style: Styles.subactionText,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            //TODO stylize for ciewability
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Access your workflows"),
             ),
-            onPressed: () => addAuthEvent(context, event: AuthToggle()),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text("or Access your workflows"),
-          ),
-          const AuthInput(AuthDataType.email),
-          const AuthInput(AuthDataType.password, obscure: true),
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: GestureDetector(
-                child: Container(
-                  alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.width / 2,
-                  width: MediaQuery.of(context).size.width / 2,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Styles.actionPrimary),
-                  child: const Text(
-                    "Log In",
-                    style: Styles.actionText,
-                  ),
-                ),
-                onTap: () => addAuthEvent(context)),
-          )
-        ],
+            const FormInput("email",
+                authType: AuthDataType.email,
+                inputType: TextInputType.emailAddress),
+            const FormInput("password",
+                authType: AuthDataType.password, obscure: true),
+            authButtons(context, true)
+          ],
+        ),
       ),
     );
   }
@@ -91,39 +74,66 @@ class _AuthViewState extends State<AuthView> {
   Widget signupForm(BuildContext context) {
     return Shaker(
       key: _shakeKey,
-      child: Column(
-        children: [
-          CupertinoButton(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Rethink your workflows"),
+            ),
+            const FormInput("email",
+                authType: AuthDataType.email,
+                inputType: TextInputType.emailAddress),
+            const FormInput("password",
+                authType: AuthDataType.password, obscure: true),
+            const FormInput("confirm password",
+                authType: AuthDataType.confirmPassword, obscure: true),
+            authButtons(context, false)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget authButtons(BuildContext context, bool isLogin) {
+    String login = "Log In";
+    String signup = "Sign up";
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GestureDetector(
+            child: Container(
+              alignment: Alignment.center,
+              height: MediaQuery.of(context).size.width / 2,
+              width: MediaQuery.of(context).size.width / 2,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Styles.actionPrimary),
+              child: Text(isLogin ? login : signup, style: Styles.actionText),
+            ),
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
+                addAuthEvent(context);
+                //TODO store data to backend
+              }
+            },
+          ),
+        ),
+        const Text("or"),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoButton(
             color: Styles.actionSecondary,
-            child: const Text("Log in", style: Styles.subactionText),
+            child: Text(
+              isLogin ? signup : login,
+              style: Styles.subactionText,
+            ),
             onPressed: () => addAuthEvent(context, event: AuthToggle()),
           ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text("or Rethink your workflows"),
-          ),
-          const AuthInput(AuthDataType.email),
-          const AuthInput(AuthDataType.password, obscure: true),
-          const AuthInput(AuthDataType.confirmPassword, obscure: true),
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: GestureDetector(
-              child: Container(
-                alignment: Alignment.center,
-                height: MediaQuery.of(context).size.width / 2,
-                width: MediaQuery.of(context).size.width / 2,
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Styles.actionPrimary),
-                child: const Text(
-                  "Sign Up",
-                  style: Styles.actionText,
-                ),
-              ),
-              onTap: () => addAuthEvent(context),
-            ),
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 

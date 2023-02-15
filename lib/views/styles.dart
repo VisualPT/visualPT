@@ -34,4 +34,6 @@ class Styles {
       color: CupertinoColors.white, fontSize: 32, fontWeight: FontWeight.bold);
   static const TextStyle subactionText = TextStyle(
       color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
+  static const TextStyle popupSelectionStyle =
+      TextStyle(color: CupertinoColors.black);
 }

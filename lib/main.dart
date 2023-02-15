@@ -20,6 +20,7 @@ class VisualPT extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoApp(
       theme: const CupertinoThemeData(
+          brightness: Brightness.light,
           textTheme: CupertinoTextThemeData(
               textStyle: TextStyle(
                   fontFamily: "Unbounded", color: CupertinoColors.black))),

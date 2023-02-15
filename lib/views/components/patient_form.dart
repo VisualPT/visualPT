@@ -34,59 +34,39 @@ class _PatientFormState extends State<PatientForm> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             minHeight: 100,
-            maxHeight: 400,
+            maxHeight: 500,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            //TODO BLOC this shit UP into a form BLOC and add a reset button
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               FormInput(
                 "First Name",
-                firstNameController,
+                controller: firstNameController,
                 inputType: TextInputType.name,
               ),
               FormInput(
                 "Last Name",
-                lastNameController,
+                controller: lastNameController,
                 inputType: TextInputType.name,
               ),
               FormInput(
                 "Birth Date",
-                dobController,
+                controller: dobController,
                 inputPopup: datePopup,
               ),
               FormInput(
                 "Gender",
-                genderController,
+                controller: genderController,
                 inputPopup: genderPopup,
               ),
               FormInput(
                 "Height",
-                heightController,
-                inputType: TextInputType.number,
+                controller: heightController,
+                inputPopup: numberPopup,
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CupertinoButton(
-                  color: CupertinoColors.link,
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      Patient patient = Patient(
-                        name: firstNameController.text,
-                        family_name: lastNameController.text,
-                        dob: TemporalDate(DateTime.parse(dobController.text)),
-                        gender: genderParse(genderController.text),
-                        height_in_inches: double.parse(heightController.text),
-                      );
-                      BlocProvider.of<AssessmentBloc>(context)
-                          .add(AssessmentInit(0));
-                      //TODO store data to backend
-                    }
-                  },
-                  child: const Text("Next"),
-                ),
-              ),
+              Buttons(context)
             ],
           ),
         ),
@@ -104,7 +84,7 @@ class _PatientFormState extends State<PatientForm> {
           Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(8.0),
-            color: CupertinoColors.systemBackground.resolveFrom(context),
+            color: CupertinoColors.white,
             alignment: Alignment.centerRight,
             child: Row(
               children: [
@@ -123,10 +103,11 @@ class _PatientFormState extends State<PatientForm> {
             margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            color: CupertinoColors.systemBackground.resolveFrom(context),
+            color: CupertinoColors.white,
             child: SafeArea(
               top: false,
               child: CupertinoDatePicker(
+                backgroundColor: CupertinoColors.white,
                 initialDateTime: date,
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (DateTime newDate) =>
@@ -153,7 +134,7 @@ class _PatientFormState extends State<PatientForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.systemBackground.resolveFrom(context),
+              color: CupertinoColors.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
@@ -172,10 +153,11 @@ class _PatientFormState extends State<PatientForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.systemBackground.resolveFrom(context),
+              color: CupertinoColors.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
+                  backgroundColor: CupertinoColors.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
@@ -186,14 +168,102 @@ class _PatientFormState extends State<PatientForm> {
                     3,
                     (index) => index == 0
                         ? const Text("")
-                        : Text(
-                            Gender.values[index - 1].name.toString(),
-                          ),
+                        : Text(Gender.values[index - 1].name.toString(),
+                            style: Styles.popupSelectionStyle),
                   ),
                 ),
               ),
             ),
           ]),
+    );
+  }
+
+  Future<String?> numberPopup() {
+    List<Text> heightList = List<Text>.generate(
+        80,
+        (index) => Text("${(index + 36) ~/ 12}'${(index + 36) % 12}''",
+            style: Styles.popupSelectionStyle));
+    String? value;
+    return showCupertinoModalPopup<String>(
+      context: context,
+      builder: (BuildContext context) => Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            //TODO Make this a reusable widget
+            Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(8.0),
+              color: CupertinoColors.white,
+              alignment: Alignment.centerRight,
+              child: Row(
+                children: [
+                  const Text("Height", style: Styles.inputStyle),
+                  const Spacer(),
+                  CupertinoButton(
+                      color: CupertinoColors.link,
+                      onPressed: () => Navigator.pop(context, value),
+                      child: const Text("Save")),
+                ],
+              ),
+            ),
+            Container(
+              height: 216,
+              padding: const EdgeInsets.only(top: 6.0),
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              color: CupertinoColors.white,
+              child: SafeArea(
+                top: false,
+                child: CupertinoPicker(
+                  backgroundColor: CupertinoColors.white,
+                  itemExtent: Styles.kItemExtent,
+                  onSelectedItemChanged: (int selectedItem) {
+                    value = heightList[selectedItem].data.toString();
+                  },
+                  children: List<Text>.generate(
+                    80,
+                    (index) => heightList[index],
+                  ),
+                ),
+              ),
+            ),
+          ]),
+    );
+  }
+
+  Widget Buttons(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GestureDetector(
+            child: Container(
+              alignment: Alignment.center,
+              height: MediaQuery.of(context).size.width / 2,
+              width: MediaQuery.of(context).size.width / 2,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Styles.actionPrimary),
+              child: Text("Next", style: Styles.actionText),
+            ),
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
+                Patient patient = Patient(
+                  name: firstNameController.text,
+                  family_name: lastNameController.text,
+                  dob: TemporalDate(DateTime.parse(dobController.text)),
+                  gender: genderParse(genderController.text),
+                  height_in_inches: double.parse(heightController.text),
+                );
+                BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(0));
+                //TODO store data to backend
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 }

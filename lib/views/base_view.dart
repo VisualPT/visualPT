@@ -13,6 +13,7 @@ class BaseView extends StatelessWidget {
 
     return CupertinoPageScaffold(
       child: Stack(
+        alignment: Alignment.center,
         children: [
           const ViewBackground(),
           SafeArea(
@@ -40,9 +41,10 @@ class BaseView extends StatelessWidget {
           //TODO make this better and animatable
           Positioned(
             top: screenSize.height / 4,
+            width: screenSize.width,
             child: SizedBox(
-                height: screenSize.height * 16 / 24,
-                width: screenSize.width,
+                //TODO dynamically make the <rest of the screen> instead of this hard coded whack chat
+                height: screenSize.height * 20 / 27,
                 child: Container(child: child)),
           )
         ],
