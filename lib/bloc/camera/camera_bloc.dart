@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,11 +12,12 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
   Duration duration = const Duration(seconds: 0);
+  late File output;
   CameraBloc() : super(CameraLoading()) {
-    on<CameraInit>(_cameraInit);
-    on<CameraPlay>(_cameraPlay);
-    on<CameraPause>(_cameraPause);
-    on<CameraSave>(_cameraSave);
+    on<CameraInit>(_onInit);
+    on<CameraPlay>(_onPlay);
+    on<CameraPause>(_onPause);
+    on<CameraStop>(_onStop);
   }
 
   void resetTimer() {
@@ -23,38 +25,26 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     duration = const Duration(seconds: 0);
   }
 
-  // void triggerState(BuildContext context, CameraState state) async {
-  //   try {
-  //     if (state is CameraRecording) {
-  //       resetTimer();
-  //       XFile file = await state.controller.stopVideoRecording();
-  //       CupertinoPageRoute route = CupertinoPageRoute(
-  //           fullscreenDialog: true,
-  //           builder: (_) => EditorPage(file: File(file.path)));
-  //       Navigator.push(context, route);
-  //       initCamera();
-  //     } else if (state is CameraStandby) {
-  //       startTimer(state.controller);
-  //       state.controller.startVideoRecording();
-  //     }
-  //   } on Exception catch (e) {
-  //     resetTimer();
-  //     emit(CameraError(exception: e));
-  //   }
-  // }
-
-  // void resetCamera() async {
-  //   emit(CameraLoading());
-  //   initCamera();
-  // }
-
-  FutureOr<void> _cameraInit(
-      CameraInit event, Emitter<CameraState> emit) async {
+  FutureOr<void> _onInit(CameraInit event, Emitter<CameraState> emit) async {
+    log("camera init");
     try {
-      await getCamera()
-          .then((_) => emit(CameraStandby(controller: cameraController!)))
-          .onError((error, stackTrace) =>
-              emit(CameraError(exception: Exception(error))));
+      await availableCameras()
+          .then(
+        (cameras) => CameraController(
+          cameras.firstWhere(
+              (camera) => camera.lensDirection == CameraLensDirection.back),
+          ResolutionPreset.max,
+          enableAudio: false,
+          imageFormatGroup: ImageFormatGroup.bgra8888,
+        ),
+      )
+          .then((controller) async {
+        await controller.initialize();
+        cameraController = controller;
+        emit(CameraStandby(cameraController!));
+      });
+
+      log("In standby");
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
@@ -84,42 +74,29 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
   }
 
-  FutureOr<void> _cameraPlay(CameraPlay event, Emitter<CameraState> emit) {
-    timer = Timer.periodic(const Duration(milliseconds: 10), (_) {
-      duration = Duration(milliseconds: duration.inMilliseconds + 10);
+  FutureOr<void> _onPlay(CameraPlay event, Emitter<CameraState> emit) async {
+    log("camera play");
+    await cameraController!.startVideoRecording();
 
-      emit(CameraRecording(controller: cameraController!, duration: duration));
-    });
+    emit(CameraRecording(cameraController!));
   }
 
-  FutureOr<void> _cameraPause(CameraPause event, Emitter<CameraState> emit) {}
+  FutureOr<void> _onPause(CameraPause event, Emitter<CameraState> emit) {
+    log("camera pause");
+  }
 
-  FutureOr<void> _cameraSave(
-      CameraSave event, Emitter<CameraState> emit) async {
-    final XFile data = await cameraController!.stopVideoRecording();
+  FutureOr<void> _onStop(CameraStop event, Emitter<CameraState> emit) async {
+    output = await cameraController!
+        .stopVideoRecording()
+        .then((file) => File(file.path));
+    log(output.toString());
+    //TODO Pass data up!
     cameraController!.dispose();
-    getCamera();
+    emit(const CameraLoading());
   }
 
-  Future<void> getCamera() async {
-    try {
-      await availableCameras()
-          .then((cameras) => cameras.firstWhere(
-              (camera) => camera.lensDirection == CameraLensDirection.back))
-          .then((camera) => CameraController(
-                camera,
-                ResolutionPreset.max,
-                enableAudio: false,
-                imageFormatGroup: ImageFormatGroup.bgra8888,
-              ))
-          .then((controller) {
-            controller.initialize();
-            return controller;
-          })
-          .then((controller) => cameraController = controller)
-          .onError((error, stackTrace) => throw Exception(error));
-    } on Exception catch (e) {
-      emit(CameraError(exception: e));
-    }
+  Future<File> getData() async {
+    //TODO Make more reliable!
+    return await Future.delayed(const Duration(seconds: 1), () => output);
   }
 }

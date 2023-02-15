@@ -1,25 +1,28 @@
 part of 'camera_bloc.dart';
 
 @immutable
-abstract class CameraState {}
+abstract class CameraState {
+  final IconData icon;
+  final CameraController? controller;
+  const CameraState(this.icon, this.controller);
+}
 
-class CameraLoading extends CameraState {}
+class CameraLoading extends CameraState {
+  const CameraLoading() : super(CupertinoIcons.hourglass, null);
+}
 
 class CameraRecording extends CameraState {
-  final IconData icon = CupertinoIcons.square;
-  final CameraController controller;
-  final Duration duration;
-  CameraRecording({required this.controller, required this.duration});
+  const CameraRecording(CameraController controller)
+      : super(CupertinoIcons.square, controller);
 }
 
 class CameraStandby extends CameraState {
-  final IconData icon = CupertinoIcons.circle;
-  final CameraController controller;
-  CameraStandby({required this.controller});
+  const CameraStandby(CameraController controller)
+      : super(CupertinoIcons.circle, controller);
 }
 
 class CameraError extends CameraState {
-  final IconData icon = CupertinoIcons.restart;
   final Exception exception;
-  CameraError({required this.exception});
+  const CameraError({required this.exception})
+      : super(CupertinoIcons.restart, null);
 }

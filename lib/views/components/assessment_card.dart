@@ -1,32 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
+import '../styles.dart';
+
 class AssessmentCard extends StatelessWidget {
   final String imagePath;
   final AssessmentType assessmentType;
   final String subtitle;
+  final bool available;
 
-  const AssessmentCard({
-    Key? key,
-    required this.imagePath,
-    required this.assessmentType,
-    required this.subtitle,
-  }) : super(key: key);
+  const AssessmentCard(
+      {Key? key,
+      required this.imagePath,
+      required this.assessmentType,
+      required this.subtitle,
+      this.available = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
-        onTap: () => Navigator.pushNamed(context, "/assessment",
-            arguments: assessmentType),
+        onTap: () => available
+            ? Navigator.pushNamed(context, "/assessment",
+                arguments: assessmentType)
+            : null,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
             height: MediaQuery.of(context).size.height / 4,
             width: MediaQuery.of(context).size.height / 4,
             child: Container(
               decoration: BoxDecoration(
-                color: CupertinoColors.white,
+                color:
+                    available ? CupertinoColors.white : Styles.comingSoonColor,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Padding(
@@ -40,10 +47,8 @@ class AssessmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(assessmentType.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 32)),
-                Text(subtitle, style: const TextStyle(fontSize: 24)),
+                Text(assessmentType.name, style: Styles.actionText),
+                Text(subtitle, style: Styles.subtitle),
               ],
             ),
           ),
@@ -51,4 +56,10 @@ class AssessmentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget comingSoon(Widget child) {
+  return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      child: Container(color: Styles.comingSoonColor, child: child));
 }

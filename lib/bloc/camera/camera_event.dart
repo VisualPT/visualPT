@@ -9,4 +9,4 @@ class CameraPlay extends CameraEvent {}
 
 class CameraPause extends CameraEvent {}
 
-class CameraSave extends CameraEvent {}
+class CameraStop extends CameraEvent {}

@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-import 'package:visualpt/views/assessments/ctsib.dart';
-import 'package:visualpt/views/assessments/gait.dart';
-
-export 'ctsib.dart';
-export 'gait.dart';
+import 'package:visualpt/views/assessments/ctsib/ctsib.dart';
+import 'package:visualpt/views/assessments/gait/gait.dart';
 
 class AssessmentRouter {
   final AssessmentType assessmentType;
@@ -26,7 +23,7 @@ class AssessmentRouter {
           break;
         case AssessmentType.GAIT:
           //TODO assessmentWidgets = Gait().content();
-          assessmentCount = Ctsib().sequences;
+          assessmentCount = Gait().sequences;
 
           break;
         default:
