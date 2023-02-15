@@ -75,6 +75,8 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - printing (1.0.0):
+    - Flutter
   - SQLite.swift (0.13.2):
     - SQLite.swift/standard (= 0.13.2)
   - SQLite.swift/standard (0.13.2)
@@ -95,6 +97,7 @@ DEPENDENCIES:
   - ffmpeg_kit_flutter_min_gpl (from `.symlinks/plugins/ffmpeg_kit_flutter_min_gpl/ios`)
   - Flutter (from `Flutter`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - printing (from `.symlinks/plugins/printing/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
   - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
 
@@ -132,6 +135,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/ios"
+  printing:
+    :path: ".symlinks/plugins/printing/ios"
   video_player_avfoundation:
     :path: ".symlinks/plugins/video_player_avfoundation/ios"
   video_thumbnail:
@@ -157,6 +162,7 @@ SPEC CHECKSUMS:
   libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  printing: eafa00acb682c0ca029d4d98d0798f55a1e27102
   SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
   SwiftFormat: fc64190719f3655079b7b4c246182383bd89026f
   SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447

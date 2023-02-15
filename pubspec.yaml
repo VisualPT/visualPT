@@ -39,6 +39,9 @@ dependencies:
   amplify_datastore: ^0.6.0
   amplify_auth_cognito: ^0.6.0
   vector_math: ^2.1.4
+  equatable: ^2.0.5
+  pdf: ^3.9.0
+  printing: ^5.10.1
 
 dev_dependencies:
   flutter_test:
