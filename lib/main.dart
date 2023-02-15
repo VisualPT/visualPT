@@ -29,7 +29,6 @@ class VisualPT extends StatelessWidget {
             const AuthView(), //TODO make automatic reference based on auth
         "/auth": (context) => const AuthView(),
         "/home": (context) => const HomeView(),
-        "/analysis": (context) => const AnalysisView(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == "/assessment") {
@@ -37,6 +36,14 @@ class VisualPT extends StatelessWidget {
           return CupertinoPageRoute(
               builder: (context) =>
                   AssessmentView(assessmentType: assessmentType));
+        }
+        if (settings.name == "/analysis") {
+          final data = settings.arguments as List;
+          final type = data[0];
+          final assets = data[1];
+          return CupertinoPageRoute(
+              builder: (context) =>
+                  AnalysisView(assessmentType: type, assessmentAssets: assets));
         }
       },
     );
