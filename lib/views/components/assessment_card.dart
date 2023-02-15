@@ -38,7 +38,10 @@ class AssessmentCard extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Image(image: AssetImage(imagePath), fit: BoxFit.contain),
+                child: Image(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
@@ -47,8 +50,12 @@ class AssessmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(assessmentType.name, style: Styles.actionText),
-                Text(subtitle, style: Styles.subtitle),
+                Text(assessmentType.name,
+                    style: available ? Styles.title : Styles.comingSoonTitle),
+                Text(subtitle,
+                    style: available
+                        ? Styles.subtitle
+                        : Styles.comingSoonSubtitle),
               ],
             ),
           ),

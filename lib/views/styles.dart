@@ -17,7 +17,7 @@ class Styles {
   static const Color actionPrimary = Color(0xFF1F7A97);
   static const Color actionSecondary = Color(0x551F7A97);
 
-  static const Color comingSoonColor = Color(0x66000000);
+  static const Color comingSoonColor = Color(0x77777777);
 
   //Asset Paths
   static const String mainLogoPath = "assets/vpt_mainlogo.png";
@@ -25,9 +25,9 @@ class Styles {
   static const String gvLogoPath = "assets/gv_mainlogo.png";
 
   //Text Styles
-  static const TextStyle subtitle = TextStyle(fontSize: 24);
-  static const TextStyle defaultTitleOverride = TextStyle(
+  static const TextStyle title = TextStyle(
       fontFamily: "Unbounded", fontSize: 32, fontWeight: FontWeight.bold);
+  static const TextStyle subtitle = TextStyle(fontSize: 24);
   static const TextStyle placeholderStyle =
       TextStyle(color: CupertinoColors.inactiveGray, fontSize: 24);
   static const TextStyle inputStyle =
@@ -38,4 +38,9 @@ class Styles {
       color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle popupSelectionText =
       TextStyle(color: CupertinoColors.black);
+
+  static const TextStyle comingSoonTitle = TextStyle(
+      color: comingSoonColor, fontSize: 32, fontWeight: FontWeight.bold);
+  static const TextStyle comingSoonSubtitle = TextStyle(
+      color: comingSoonColor, fontSize: 24, fontWeight: FontWeight.bold);
 }

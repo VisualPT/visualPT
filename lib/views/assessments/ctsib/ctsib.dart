@@ -31,7 +31,7 @@ class Ctsib {
 Widget introView(BuildContext context, String title, int index) => Builder(
       builder: (context) => Column(
         children: [
-          Text(title, style: Styles.defaultTitleOverride),
+          Text(title, style: Styles.title),
           Text(index.toString()),
           const Text("Ensure device is kept still"),
           const Text(
