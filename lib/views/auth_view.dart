@@ -31,7 +31,7 @@ class _AuthViewState extends State<AuthView> {
                 context
                     .read<AuthBloc>()
                     .close(); //TODO save auth data before closing
-                Navigator.popAndPushNamed(context, "/home");
+                Navigator.pushReplacementNamed(context, "/home");
               } else if (state is AuthError) {
                 _shakeKey.currentState?.shake();
               }
@@ -54,7 +54,6 @@ class _AuthViewState extends State<AuthView> {
         key: _formKey,
         child: Column(
           children: [
-            //TODO stylize for ciewability
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text("Access your workflows"),
@@ -115,9 +114,9 @@ class _AuthViewState extends State<AuthView> {
             onTap: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                addAuthEvent(context);
                 //TODO store data to backend
               }
+              addAuthEvent(context);
             },
           ),
         ),

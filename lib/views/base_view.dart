@@ -13,7 +13,7 @@ class BaseView extends StatelessWidget {
 
     return CupertinoPageScaffold(
       child: Stack(
-        alignment: Alignment.center,
+        //alignment: Alignment.center,
         children: [
           const ViewBackground(),
           SafeArea(
@@ -32,7 +32,7 @@ class BaseView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 21.0),
                 child: Text(
                   pageTitle,
-                  style: Styles.subtitleStyle,
+                  style: Styles.subtitle,
                   overflow: TextOverflow.visible,
                 ),
               )

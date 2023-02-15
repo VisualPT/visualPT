@@ -10,7 +10,7 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: BaseView(
-        pageTitle: "",
+        pageTitle: "Select an assessment",
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: const [
