@@ -18,7 +18,6 @@ class PatientForm extends StatefulWidget {
 //TODO FIX WITH BLOC (post nap)
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
-  DateTime date = DateTime.now();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
@@ -64,9 +63,9 @@ class _PatientFormState extends State<PatientForm> {
               FormInput(
                 "Height",
                 controller: heightController,
-                inputPopup: numberPopup,
+                inputPopup: heightPopup,
               ),
-              Buttons(context)
+              buttons(context)
             ],
           ),
         ),
@@ -108,7 +107,7 @@ class _PatientFormState extends State<PatientForm> {
               top: false,
               child: CupertinoDatePicker(
                 backgroundColor: CupertinoColors.white,
-                initialDateTime: date,
+                initialDateTime: DateTime.now(),
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (DateTime newDate) =>
                     value = newDate.toString().split(" ")[0],
@@ -169,7 +168,7 @@ class _PatientFormState extends State<PatientForm> {
                     (index) => index == 0
                         ? const Text("")
                         : Text(Gender.values[index - 1].name.toString(),
-                            style: Styles.popupSelectionStyle),
+                            style: Styles.popupSelectionText),
                   ),
                 ),
               ),
@@ -178,11 +177,15 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 
-  Future<String?> numberPopup() {
+  Future<String?> heightPopup() {
+    const int minHeight = 36; //Minimum listable height on the picker (inches)
+    const int maxHeight = 120;
+
     List<Text> heightList = List<Text>.generate(
-        80,
-        (index) => Text("${(index + 36) ~/ 12}'${(index + 36) % 12}''",
-            style: Styles.popupSelectionStyle));
+        maxHeight - minHeight,
+        (index) => Text(
+            "${(index + minHeight) ~/ 12}'${(index + minHeight) % 12}''",
+            style: Styles.popupSelectionText));
     String? value;
     return showCupertinoModalPopup<String>(
       context: context,
@@ -219,11 +222,11 @@ class _PatientFormState extends State<PatientForm> {
                 child: CupertinoPicker(
                   backgroundColor: CupertinoColors.white,
                   itemExtent: Styles.kItemExtent,
-                  onSelectedItemChanged: (int selectedItem) {
-                    value = heightList[selectedItem].data.toString();
+                  onSelectedItemChanged: (int heightInches) {
+                    value = "${heightInches + minHeight}\"";
                   },
                   children: List<Text>.generate(
-                    80,
+                    maxHeight - minHeight,
                     (index) => heightList[index],
                   ),
                 ),
@@ -233,7 +236,7 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 
-  Widget Buttons(BuildContext context) {
+  Widget buttons(BuildContext context) {
     return Column(
       children: [
         Padding(
@@ -248,6 +251,7 @@ class _PatientFormState extends State<PatientForm> {
               child: Text("Next", style: Styles.actionText),
             ),
             onTap: () {
+              //TODO <are you sure this data is correct?> modal
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 Patient patient = Patient(
@@ -255,7 +259,8 @@ class _PatientFormState extends State<PatientForm> {
                   family_name: lastNameController.text,
                   dob: TemporalDate(DateTime.parse(dobController.text)),
                   gender: genderParse(genderController.text),
-                  height_in_inches: double.parse(heightController.text),
+                  height_in_inches:
+                      double.parse(heightController.text.split("\"")[0]),
                 );
                 BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(0));
                 //TODO store data to backend

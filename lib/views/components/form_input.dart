@@ -51,50 +51,55 @@ class _FormInputState extends State<FormInput> {
 
   @override
   Widget build(BuildContext context) {
-    return
-        //Stack(
-        // alignment: Alignment.center,
-        // children: [
-        CupertinoTextFormFieldRow(
-      controller: widget.controller,
-      textAlign: TextAlign.center,
-      autocorrect: false,
-      keyboardType: widget.inputType ?? keyboardTypeChooser(widget.authType),
-      textCapitalization: TextCapitalization.words,
-      style: Styles.inputStyle,
-      placeholder: widget.field,
-      placeholderStyle: Styles.placeholderStyle,
-      obscureText: widget.obscure,
-      decoration: BoxDecoration(
-        color: CupertinoColors.white,
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      validator: (value) => value == null || value.isEmpty
-          ? 'Please enter a valid response'
-          : null,
-      onTap: () => widget.inputPopup != null
-          ? widget.inputPopup!()
-              .then((value) => widget.controller!.text = value ?? "")
-          : null,
-      onChanged: (value) => widget.authType != null
-          ? BlocProvider.of<AuthBloc>(context)
-              .storeAuthData(widget.authType!, value)
-          //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
-          : null,
-      //)
-      //   Positioned(
-      //     right: 24,
-      //     child: GestureDetector(
-      //       child: Icon(
-      //           widget.obscure
-      //               ? CupertinoIcons.eye_fill
-      //               : CupertinoIcons.eye_slash_fill,
-      //           color: CupertinoColors.inactiveGray),
-      //       onTap: () => setState(() => obsController = !obsController),
-      //     ),
-      //   ),
-      // ],
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: CupertinoTextFormFieldRow(
+            controller: widget.controller,
+            textAlign: TextAlign.center,
+            autocorrect: false,
+            keyboardType:
+                widget.inputType ?? keyboardTypeChooser(widget.authType),
+            textCapitalization: TextCapitalization.words,
+            style: Styles.inputStyle,
+            placeholder: widget.field,
+            placeholderStyle: Styles.placeholderStyle,
+            obscureText: obsController,
+            decoration: BoxDecoration(
+              color: CupertinoColors.white,
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            validator: (value) => value == null || value.isEmpty
+                ? 'Please enter a valid response'
+                : null,
+            onTap: () => widget.inputPopup != null
+                ? widget.inputPopup!()
+                    .then((value) => widget.controller!.text = value ?? "")
+                : null,
+            onChanged: (value) => widget.authType != null
+                ? BlocProvider.of<AuthBloc>(context)
+                    .storeAuthData(widget.authType!, value)
+                //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
+                : null,
+          ),
+        ),
+        widget.obscure
+            ? Positioned(
+                right: 36,
+                child: GestureDetector(
+                  child: Icon(
+                      obsController
+                          ? CupertinoIcons.eye_fill
+                          : CupertinoIcons.eye_slash_fill,
+                      color: CupertinoColors.inactiveGray),
+                  onTap: () => setState(() => obsController = !obsController),
+                ),
+              )
+            : Container()
+      ],
     );
   }
 }
