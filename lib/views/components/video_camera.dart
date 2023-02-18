@@ -9,14 +9,10 @@ import 'package:visualpt/views/components/_components.dart';
 
 class VideoRecorder extends StatefulWidget {
   final String title;
-  final CameraController? controller;
-  final void Function(File f) onCaptureSaved;
-  const VideoRecorder(
-      {Key? key,
-      required this.title,
-      this.controller,
-      required this.onCaptureSaved})
-      : super(key: key);
+  const VideoRecorder({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
 
   @override
   State<VideoRecorder> createState() => _VideoRecorderState();
@@ -36,37 +32,37 @@ class _VideoRecorderState extends State<VideoRecorder>
     super.dispose();
   }
 
-  // #docregion AppLifecycle
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final CameraController? cameraController = widget.controller;
+  // // #docregion AppLifecycle
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   final CameraController? cameraController = widget.controller;
 
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return;
-    }
+  //   // App state changed before we got the chance to initialize.
+  //   if (cameraController == null || !cameraController.value.isInitialized) {
+  //     return;
+  //   }
 
-    if (state == AppLifecycleState.inactive) {
-      cameraController.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-      // onNewCameraSelected(cameraController.description);
-    }
-  }
+  //   if (state == AppLifecycleState.inactive) {
+  //     cameraController.dispose();
+  //   } else if (state == AppLifecycleState.resumed) {
+  //     // onNewCameraSelected(cameraController.description);
+  //   }
+  // }
 
-  void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-    if (widget.controller == null) {
-      return;
-    }
+  // void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
+  //   if (widget.controller == null) {
+  //     return;
+  //   }
 
-    final CameraController cameraController = widget.controller!;
+  //   final CameraController cameraController = widget.controller!;
 
-    final Offset offset = Offset(
-      details.localPosition.dx / constraints.maxWidth,
-      details.localPosition.dy / constraints.maxHeight,
-    );
-    cameraController.setExposurePoint(offset);
-    cameraController.setFocusPoint(offset);
-  }
+  //   final Offset offset = Offset(
+  //     details.localPosition.dx / constraints.maxWidth,
+  //     details.localPosition.dy / constraints.maxHeight,
+  //   );
+  //   cameraController.setExposurePoint(offset);
+  //   cameraController.setFocusPoint(offset);
+  // }
 
   // Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
   //   final CameraController? oldController = widget.controller;
@@ -124,7 +120,7 @@ class _VideoRecorderState extends State<VideoRecorder>
             try {
               if (state is CameraStandby || state is CameraRecording) {
                 return cameraWidget(context, state);
-              } else {
+              } else if (state is CameraLoading) {
                 //TODO Loading View or throws error message
                 return BaseView(
                   pageTitle: widget.title,
@@ -137,6 +133,8 @@ class _VideoRecorderState extends State<VideoRecorder>
                     ),
                   ),
                 );
+              } else {
+                throw Exception("Invalid State");
               }
             } on Exception catch (e) {
               return BaseView(
@@ -146,11 +144,12 @@ class _VideoRecorderState extends State<VideoRecorder>
                     children: [
                       Text(e.toString()),
                       CupertinoButton(
-                          onPressed: () {
-                            BlocProvider.of<CameraBloc>(context)
-                                .add(CameraInit());
-                          },
-                          child: const Text("Restart")),
+                        onPressed: () {
+                          BlocProvider.of<CameraBloc>(context)
+                              .add(CameraInit());
+                        },
+                        child: const Text("Restart"),
+                      ),
                     ],
                   ),
                 ),
@@ -175,11 +174,11 @@ class _VideoRecorderState extends State<VideoRecorder>
         width: MediaQuery.of(context).size.width,
         child: CameraPreview(
           state.controller!,
-          child: LayoutBuilder(
-              builder: (_, constraints) => GestureDetector(
-                    onTapDown: (details) =>
-                        onViewFinderTap(details, constraints),
-                  )),
+          // child: LayoutBuilder(
+          //     builder: (_, constraints) => GestureDetector(
+          //           onTapDown: (details) =>
+          //               onViewFinderTap(details, constraints),
+          //         )),
         ),
       ),
       Positioned(

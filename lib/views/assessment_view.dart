@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
-
-import '../bloc/_bloc.dart';
 
 class AssessmentView extends StatelessWidget {
   final AssessmentType assessmentType;
