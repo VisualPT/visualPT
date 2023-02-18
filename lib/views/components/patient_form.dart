@@ -263,6 +263,8 @@ class _PatientFormState extends State<PatientForm> {
                       double.parse(heightController.text.split("\"")[0]),
                 );
                 BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(0));
+                showCupertinoDialog(
+                    context: context, builder: (_) => const AppLoading());
                 //TODO store data to backend
               }
             },
