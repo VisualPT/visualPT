@@ -15,8 +15,8 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late int assessmentCount;
 
   final BuildContext context;
-  late List<Widget Function(BuildContext)> introViews;
-  late List<Widget Function(BuildContext)> captureViews;
+  late List<Widget Function(BuildContext, String)> introViews;
+  late List<Widget Function(BuildContext, String)> captureViews;
 
   List<File> assessmentAssets = [];
   List<SkeletalSequence> skeletalSequences = [];
@@ -62,14 +62,16 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     }
   }
 
-  Widget getIntroView(BuildContext context, int index) =>
-      introViews[index](context);
+  Widget getIntroView(BuildContext context, String assessmentName, int index) =>
+      introViews[index](context, assessmentName);
 
-  Widget getCaptureView(BuildContext context, int index) =>
-      captureViews[index](context);
+  Widget getCaptureView(
+          BuildContext context, String assessmentName, int index) =>
+      captureViews[index](context, assessmentName);
 }
 
-void saveCameraDataToAssessment(AssessmentBloc assessment, CameraBloc camera) {
+void saveCameraDataToAssessment(
+    BuildContext context, AssessmentBloc assessment, CameraBloc camera) {
   camera.add(CameraStop());
   camera.getData().then((data) => assessment.add(AssessmentIncrement(data)));
 }

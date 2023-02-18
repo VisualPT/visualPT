@@ -7,8 +7,8 @@ import 'package:visualpt/views/assessments/gait/gait.dart';
 class AssessmentRouter {
   final AssessmentType assessmentType;
 
-  late List<Widget Function(BuildContext)> introWidgets;
-  late List<Widget Function(BuildContext)> captureWidgets;
+  late List<Widget Function(BuildContext, String)> introWidgets;
+  late List<Widget Function(BuildContext, String)> captureWidgets;
 
   late int assessmentCount;
 
@@ -19,7 +19,7 @@ class AssessmentRouter {
           introWidgets = Ctsib().introContent();
           captureWidgets = Ctsib().captureContent();
 
-          assessmentCount = Ctsib().sequences;
+          assessmentCount = Ctsib.sequences;
           break;
         case AssessmentType.GAIT:
           //TODO assessmentWidgets = Gait().content();

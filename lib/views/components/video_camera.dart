@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,10 +6,10 @@ import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class VideoRecorder extends StatefulWidget {
-  final String title;
+  final int sequence;
   const VideoRecorder({
     Key? key,
-    required this.title,
+    required this.sequence,
   }) : super(key: key);
 
   @override
@@ -122,36 +120,29 @@ class _VideoRecorderState extends State<VideoRecorder>
                 return cameraWidget(context, state);
               } else if (state is CameraLoading) {
                 //TODO Loading View or throws error message
-                return BaseView(
-                  pageTitle: widget.title,
-                  child: Center(
-                    child: Column(
-                      children: const [
-                        Text("Loading"),
-                        CupertinoActivityIndicator()
-                      ],
-                    ),
+                return Center(
+                  child: Column(
+                    children: const [
+                      Text("Loading"),
+                      CupertinoActivityIndicator()
+                    ],
                   ),
                 );
               } else {
                 throw Exception("Invalid State");
               }
             } on Exception catch (e) {
-              return BaseView(
-                pageTitle: widget.title,
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text(e.toString()),
-                      CupertinoButton(
-                        onPressed: () {
-                          BlocProvider.of<CameraBloc>(context)
-                              .add(CameraInit());
-                        },
-                        child: const Text("Restart"),
-                      ),
-                    ],
-                  ),
+              return Center(
+                child: Column(
+                  children: [
+                    Text(e.toString()),
+                    CupertinoButton(
+                      onPressed: () {
+                        BlocProvider.of<CameraBloc>(context).add(CameraInit());
+                      },
+                      child: const Text("Restart"),
+                    ),
+                  ],
                 ),
               );
             }
@@ -169,7 +160,6 @@ class _VideoRecorderState extends State<VideoRecorder>
     final timerBloc = BlocProvider.of<TimerBloc>(context);
 
     return Stack(alignment: Alignment.center, children: [
-      const ViewBackground(),
       SizedBox(
         width: MediaQuery.of(context).size.width,
         child: CameraPreview(
@@ -182,12 +172,52 @@ class _VideoRecorderState extends State<VideoRecorder>
         ),
       ),
       Positioned(
-        bottom: 10,
-        child: GestureDetector(
+        bottom: 0,
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              color: Styles.backgroundAccent),
+          child: Column(
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                          onTap: () => BlocProvider.of<AssessmentBloc>(context)
+                              .add(AssessmentInit(widget.sequence)),
+                          child: const Icon(CupertinoIcons.restart,
+                              color: CupertinoColors.black, size: 40)),
+                    ),
+                    const Spacer(),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: VideoTimer(),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              )
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 20,
+        child: Center(
+          child: GestureDetector(
             onTap: () {
               if (state is CameraRecording) {
+                showCupertinoDialog(
+                    context: context, builder: (context) => const AppLoading());
                 timerBloc.add(const TimerReset());
-                saveCameraDataToAssessment(assessmentBloc, cameraBloc);
+                saveCameraDataToAssessment(context, assessmentBloc, cameraBloc);
               } else {
                 cameraBloc.add(CameraPlay());
                 timerBloc.add(const TimerStarted());
@@ -197,9 +227,10 @@ class _VideoRecorderState extends State<VideoRecorder>
                 ? const Icon(CupertinoIcons.stop,
                     color: Styles.backgroundComplementory, size: 80)
                 : const Icon(CupertinoIcons.circle,
-                    color: Styles.actionPrimary, size: 80)),
-      ),
-      const Positioned(top: 10, child: VideoTimer())
+                    color: Styles.actionPrimary, size: 80),
+          ),
+        ),
+      )
     ]);
   }
 }

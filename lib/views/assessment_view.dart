@@ -27,22 +27,30 @@ class AssessmentView extends StatelessWidget {
               return PatientForm(assessmentType: assessmentType);
               //return PatientForm(assessmentType: assessmentType,child: )
             } else if (state is AssessmentIntro) {
-              return BaseView(
-                  pageTitle: "Performing ${assessmentType.name}",
-                  child: BlocProvider.of<AssessmentBloc>(context)
-                      .getIntroView(context, state.index));
-            } else if (state is AssessmentActive) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => Navigator.pop(context)); //Clear the loading screen
+
               return BlocProvider.of<AssessmentBloc>(context)
-                  .getCaptureView(context, state.index);
+                  .getIntroView(context, assessmentType.name, state.index);
+            } else if (state is AssessmentActive) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => Navigator.pop(context)); //Clear the loading screen
+              return BlocProvider.of<AssessmentBloc>(context)
+                  .getCaptureView(context, assessmentType.name, state.index);
             } else if (state is AssessmentSuccess) {
-              Navigator.pushReplacementNamed(context, "analysis",
-                  arguments: [assessmentType.name, state.assessmentAssets]);
+              WidgetsBinding.instance.addPostFrameCallback((_) =>
+                  Navigator.pushReplacementNamed(context, "/analysis",
+                      arguments: [
+                        assessmentType.name,
+                        state.assessmentAssets
+                      ]));
+
               //TODO Return loading Page
               return const CupertinoActivityIndicator();
             } else {
               throw Exception("Undefined State");
             }
-          } on Exception catch (e) {
+          } catch (e) {
             return BaseView(pageTitle: "Error", child: Text(e.toString()));
           }
         },
