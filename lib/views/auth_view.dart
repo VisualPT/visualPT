@@ -25,17 +25,19 @@ class _AuthViewState extends State<AuthView> {
         create: (context) => AuthBloc(),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (state is AuthSuccess) {
-                //Sync with Amplify services
-                context
-                    .read<AuthBloc>()
-                    .close(); //TODO save auth data before closing
-                Navigator.pushReplacementNamed(context, "/home");
-              } else if (state is AuthError) {
-                _shakeKey.currentState?.shake();
-              }
-            });
+            // WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (state is AuthSuccess) {
+              Future(() async {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, "/home", (_) => false);
+              });
+              //Sync with Amplify services
+              // context
+              //     .read<AuthBloc>()
+              //     .close(); //TODO save auth data before closing
+            } else if (state is AuthError) {
+              _shakeKey.currentState?.shake();
+            }
             if (state is AuthSignUp) {
               return signupForm(context);
             } else {
