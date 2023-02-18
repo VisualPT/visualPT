@@ -1,66 +1,22 @@
 //DO NOT IMPORT material.dart without renaming it with <as> keyword, will conflict with pdf/widgets.dart
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:printing/printing.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/assessments/gait/_gait.dart';
 
-class GaitPdf {
-  late Font baseFont;
-  late Font boldFont;
-  late Font italicFont;
-  late Font boldItalicFont;
+import '../pdf.dart';
 
-  late PdfColor primaryColor;
-  late PdfColor secondaryColor;
-  late PdfColor black;
-
-  late BorderSide borderSide;
-
-  final double inch = 72.0;
-  final double halfinch = 36.0;
-
-  late TextStyle header;
-  late TextStyle headerItalic;
-  late TextStyle subTitle;
-  late TextStyle detail;
-  late TextStyle detailBold;
-  late TextStyle subHeader;
-  late TextStyle disclaimer;
-
-  Future<void> configPdfStyles() async {
-    baseFont = await PdfGoogleFonts.openSansRegular();
-    boldFont = await PdfGoogleFonts.openSansBold();
-    italicFont = await PdfGoogleFonts.openSansItalic();
-    boldItalicFont = await PdfGoogleFonts.openSansBoldItalic();
-
-    primaryColor = PdfColor.fromHex('#008ed6');
-    secondaryColor = PdfColor.fromHex('#24446c');
-    black = PdfColors.black;
-
-    borderSide = BorderSide(width: 2, color: secondaryColor);
-
-    header = TextStyle(font: boldFont, fontSize: 30.0, lineSpacing: 2.0);
-    headerItalic =
-        TextStyle(font: boldItalicFont, fontSize: 30.0, lineSpacing: 2.0);
-    subTitle = TextStyle(font: boldFont, fontSize: 20.0, lineSpacing: 2.0);
-    detail = TextStyle(font: baseFont, fontSize: 15.0, lineSpacing: 2.0);
-    detailBold = TextStyle(font: boldFont, fontSize: 15.0, lineSpacing: 2.0);
-    subHeader = TextStyle(font: boldFont, fontSize: 50.0, lineSpacing: 2.0);
-    disclaimer = TextStyle(font: baseFont, fontSize: 10.0, lineSpacing: 2.0);
-    return;
-  }
-
-  Future<Uint8List> generatePdf(GaitPatientData patientData) async {
+class GaitPDF extends PDF {
+  @override
+  Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
     await configPdfStyles();
-    //final fyzLogo = await rootBundle.loadString('assets/fyzical-logo.svg');
     final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
-        title: patientData.lastname +
-            patientData.firstname +
-            patientData.age.toString(),
-        creator: "gaitr Systems");
+        title: patient.family_name + patient.name + patient.dob.toString(),
+        creator: "VisualPT Systems");
 
     pdf.addPage(
       Page(
@@ -113,7 +69,7 @@ class GaitPdf {
                                         text: "Patient Name: ", style: detail),
                                     TextSpan(
                                         text:
-                                            "${patientData.firstname} ${patientData.lastname}",
+                                            "${patient.name} ${patient.family_name}",
                                         style: detailBold),
                                   ]),
                                 ),
@@ -123,7 +79,7 @@ class GaitPdf {
                                     TextSpan(
                                         text: "Birth Date: ", style: detail),
                                     TextSpan(
-                                        text: patientData.bday,
+                                        text: patient.dob.toString(),
                                         style: detailBold),
                                   ]),
                                 ),
@@ -136,7 +92,8 @@ class GaitPdf {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Date: ", style: detail),
                                   TextSpan(
-                                      text: patientData.date,
+                                      text: assessment.timestamp
+                                          .toString(), //TODO timestamp=>datetime
                                       style: detailBold),
                                 ])),
                                 Spacer(),
@@ -144,7 +101,7 @@ class GaitPdf {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Time: ", style: detail),
                                   TextSpan(
-                                      text: patientData.time,
+                                      text: assessment.timestamp.toString(),
                                       style: detailBold),
                                 ])),
                               ]),
@@ -153,7 +110,9 @@ class GaitPdf {
                     RichText(
                       text: TextSpan(children: [
                         TextSpan(text: "Age: ", style: detail),
-                        TextSpan(text: patientData.age, style: detailBold),
+                        TextSpan(
+                            text: patient.dob.toString(),
+                            style: detailBold), //TODO DOB to age
                       ]),
                     ),
                     Spacer(),
@@ -161,8 +120,7 @@ class GaitPdf {
                       text: TextSpan(children: [
                         TextSpan(text: "Gender: ", style: detail),
                         TextSpan(
-                            text: patientData.isMale ? "Male" : "Female",
-                            style: detailBold),
+                            text: patient.gender.toString(), style: detailBold),
                       ]),
                     ),
                     Spacer(),
@@ -170,7 +128,8 @@ class GaitPdf {
                       text: TextSpan(children: [
                         TextSpan(text: "Measurement Method: ", style: detail),
                         TextSpan(
-                            text: patientData.isVideo ? "Video" : "Stopwatch",
+                            text:
+                                "Video", //TODO add measurement method or fix to video
                             style: detailBold),
                       ]),
                     ),
@@ -179,8 +138,9 @@ class GaitPdf {
                       text: TextSpan(children: [
                         TextSpan(text: "Measurement Duration: ", style: detail),
                         TextSpan(
-                            text: patientData.measurementDuration
-                                .toStringAsPrecision(3),
+                            text: assessment.timestamp
+                                .toSeconds()
+                                .toString(), //TODO add duration type to
                             style: detailBold),
                         TextSpan(text: " seconds", style: detail),
                       ]),
@@ -189,7 +149,8 @@ class GaitPdf {
                     RichText(
                         text: TextSpan(children: [
                       TextSpan(text: "Gait Velocity: ", style: detail),
-                      TextSpan(text: patientData.velocity, style: detailBold),
+                      TextSpan(
+                          text: "<<<MODEL OUTPUT???>>>", style: detailBold),
                       TextSpan(text: " meters/second", style: detail),
                     ])),
                   ]),
@@ -239,7 +200,7 @@ class GaitPdf {
                     ),
                     Positioned(
                       top: 0.1,
-                      left: positioner(patientData.velocity),
+                      left: positioner("<<<MODEL OUTPUT>>>"),
                       child: Container(
                         height: 0.25 * inch,
                         width: 0.25 * inch,
@@ -251,7 +212,7 @@ class GaitPdf {
                     Positioned(
                       top: 0.1,
                       left: positioner(GaitNorms.getVelocityFromAge(
-                              patientData.isMale, int.parse(patientData.age))
+                              patient.gender, patient.dob)
                           .toString()),
                       child: Container(
                         height: 0.25 * inch,
@@ -305,8 +266,7 @@ class GaitPdf {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: detailBold,
-                  text: getComparisonMessage(double.parse(patientData.velocity),
-                      patientData.isMale, int.parse(patientData.age)),
+                  text: getComparisonMessage(30, patient.gender, patient.dob),
                 ),
               ),
             ),
@@ -316,7 +276,7 @@ class GaitPdf {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                     style: subTitle,
-                    text: double.parse(patientData.velocity) < 1
+                    text: 10 < 1 // TODO FIX WITH MODEL OUTPUT
                         ? "Needs intervention to reduce risk of fall"
                         : "Low likelihood of experiencing a fall"),
               ),
@@ -385,9 +345,10 @@ class GaitPdf {
       (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
 }
 
-String getComparisonMessage(double velocity, bool isMale, int age) {
+String getComparisonMessage(double velocity, Gender gender, TemporalDate dob) {
   double percent =
-      GaitNorms.getPercentDifferenceFromNorm(velocity, isMale, age);
+      GaitNorms.getPercentDifferenceFromNorm(velocity, gender, dob);
+  int age = getAge(dob);
   int index = (age / 10).round();
   String speedComparison = percent > 0 ? "faster" : "slower";
   String ageRange = index > 8 ? "80+" : "${index}0 - ${index}9";

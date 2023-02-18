@@ -1,4 +1,6 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class Gait {
   final sequences = 1;
@@ -24,14 +26,15 @@ class GaitNorms {
   static const maleNorm = [1.19, 1.2, 1.4, 1.48, 1.48, 1.4, 1.39, 1.34, 1.1];
   static const femaleNorm = [1.14, 1.2, 1.4, 1.4, 1.4, 1.39, 1.22, 1.19, 1.0];
 
-  static double getVelocityFromAge(bool isMale, int age) {
+  static double getVelocityFromAge(Gender gender, TemporalDate dob) {
+    int age = getAge(dob);
     final int index = (age / 10).round().clamp(0, 8);
-    return isMale ? maleNorm[index] : femaleNorm[index];
+    return gender == Gender.MALE ? maleNorm[index] : femaleNorm[index];
   }
 
   static double getPercentDifferenceFromNorm(
-      double patientVelocity, bool isMale, int age) {
-    final double normVelocity = getVelocityFromAge(isMale, age);
+      double patientVelocity, Gender gender, TemporalDate dob) {
+    final double normVelocity = getVelocityFromAge(gender, dob);
     return (((patientVelocity - normVelocity) /
                 ((patientVelocity + normVelocity) / 2)) *
             100)
@@ -39,6 +42,11 @@ class GaitNorms {
   }
 }
 
+int getAge(TemporalDate dob) {
+  return 10; //TODO implement
+}
+
+//TOOD PHASE OUT ASAP
 class GaitPatientData {
   late String managingtherapistEmail = 'sample@example.com';
   late String firstname = 'sample';
