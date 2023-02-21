@@ -1,9 +1,43 @@
-type Assessment @model @auth(rules: [{allow: public}]) {
+type SkeletalSequence @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  frame_num: Int!
+  nose: String
+  left_eye: String
+  right_eye: String
+  left_ear: String
+  right_ear: String
+  left_shoulder: String
+  right_shoulder: String
+  left_elbow: String
+  right_elbow: String
+  left_wrist: String
+  right_wrist: String
+  left_hip: String
+  right_hip: String
+  left_knee: String
+  right_knee: String
+  left_ankle: String
+  right_ankle: String
+  assessmentID: ID! @index(name: "byAssessment")
+}
+
+type Patient @model @auth(rules: [{allow: owner}]) {
   id: ID!
   name: String!
+  family_name: String!
+  dob: AWSDate!
+  gender: Gender!
+  height_in_inches: Float!
+  Assessments: [Assessment] @hasMany(indexName: "byPatient", fields: ["id"])
+}
+
+type Assessment @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  type: AssessmentType!
   timestamp: AWSTimestamp!
   pdf_base64: String!
   patientID: ID! @index(name: "byPatient")
+  SkeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
 }
 
 enum Gender {
@@ -11,12 +45,7 @@ enum Gender {
   FEMALE
 }
 
-type Patient @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  first_name: String!
-  last_name: String!
-  dob: AWSDate!
-  gender: Gender!
-  height_in_inches: Float!
-  Assessments: [Assessment] @hasMany(indexName: "byPatient", fields: ["id"])
+enum AssessmentType {
+  CTSIB
+  GAIT
 }

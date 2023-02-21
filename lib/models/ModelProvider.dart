@@ -22,16 +22,19 @@
 import 'package:amplify_core/amplify_core.dart';
 import 'Assessment.dart';
 import 'Patient.dart';
+import 'SkeletalSequence.dart';
 
 export 'Assessment.dart';
+export 'AssessmentType.dart';
 export 'Gender.dart';
 export 'Patient.dart';
+export 'SkeletalSequence.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "25e072c1c8a2f446d05486cb116b9a84";
+  String version = "6816d463b78b5418ba6d1ba2381da496";
   @override
-  List<ModelSchema> modelSchemas = [Assessment.schema, Patient.schema];
+  List<ModelSchema> modelSchemas = [Assessment.schema, Patient.schema, SkeletalSequence.schema];
   static final ModelProvider _instance = ModelProvider();
   @override
   List<ModelSchema> customTypeSchemas = [];
@@ -44,6 +47,8 @@ class ModelProvider implements ModelProviderInterface {
         return Assessment.classType;
       case "Patient":
         return Patient.classType;
+      case "SkeletalSequence":
+        return SkeletalSequence.classType;
       default:
         throw Exception("Failed to find model in model provider for model name: " + modelName);
     }
