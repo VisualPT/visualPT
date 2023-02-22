@@ -44,6 +44,7 @@ dependencies:
   printing: ^5.10.1
   flutter_pdfview: ^1.2.5
   google_fonts: ^4.0.3
+  tflite_flutter: ^0.9.0
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +68,10 @@ flutter:
   # uses-material-design: true #Uncomment this line if we decide to use Material instead of Cupertino
 
   assets:
-    - assets/vpt_mainlogo.png
-    - assets/ctsib_mainlogo.png
-    - assets/gv_mainlogo.png
+    - assets/imgages/vpt_mainlogo.png
+    - assets/imgages/ctsib_mainlogo.png
+    - assets/imgages/gv_mainlogo.png
+    - 
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -80,7 +82,7 @@ flutter:
   fonts:
     - family: Unbounded
       fonts:
-        - asset: assets/unbounded.ttf
+        - asset: assets/fonts/unbounded.ttf
 
   #   - family: Trajan Pro
   #     fonts:
