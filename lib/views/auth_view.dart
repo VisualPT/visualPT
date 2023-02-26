@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
@@ -19,36 +21,36 @@ class _AuthViewState extends State<AuthView> {
   @override
   Widget build(BuildContext context) {
     return BaseView(
-      pageTitle: "Save clicks and minutes",
+      pageTitle: "Faster Workflows.",
       //TODO print debug to figure out why this shit broke
       child: BlocProvider(
-        create: (context) => AuthBloc(),
+        create: (context) => AuthBloc()
+          ..fetchAuth()
+          ..setShake(_shakeKey),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            // WidgetsBinding.instance.addPostFrameCallback((_) {
             if (state is AuthSuccess) {
               Future(() async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, "/home", (_) => false);
+                Navigator.of(context).pushReplacementNamed("/home");
               });
               //Sync with Amplify services
               // context
               //     .read<AuthBloc>()
               //     .close(); //TODO save auth data before closing
-            } else if (state is AuthError) {
-              _shakeKey.currentState?.shake();
             }
             if (state is AuthSignUp) {
               return signupForm(context);
-            } else {
+            } else if (state is AuthLogIn) {
               return loginForm(context);
             }
+            return const AppLoading();
           },
         ),
       ),
     );
   }
 
+  //TODO fortify validators
   Widget loginForm(BuildContext context) {
     return Shaker(
       key: _shakeKey,
@@ -58,13 +60,16 @@ class _AuthViewState extends State<AuthView> {
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Access your workflows"),
+              child: Text("Access your accelerators"),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
-                inputType: TextInputType.emailAddress),
+                inputType: TextInputType.emailAddress,
+                validator: validateEmail),
             const FormInput("password",
-                authType: AuthDataType.password, obscure: true),
+                authType: AuthDataType.password,
+                obscure: true,
+                validator: validatePassword),
             authButtons(context, true)
           ],
         ),
@@ -72,6 +77,7 @@ class _AuthViewState extends State<AuthView> {
     );
   }
 
+  //TODO fortify validators
   Widget signupForm(BuildContext context) {
     return Shaker(
       key: _shakeKey,
@@ -81,15 +87,20 @@ class _AuthViewState extends State<AuthView> {
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Rethink your workflows"),
+              child: Text("Speed things up, just a few fields first"),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
-                inputType: TextInputType.emailAddress),
+                inputType: TextInputType.emailAddress,
+                validator: validateEmail),
             const FormInput("password",
-                authType: AuthDataType.password, obscure: true),
+                authType: AuthDataType.password,
+                obscure: true,
+                validator: validatePassword),
             const FormInput("confirm password",
-                authType: AuthDataType.confirmPassword, obscure: true),
+                authType: AuthDataType.confirmPassword,
+                obscure: true,
+                validator: validatePassword),
             authButtons(context, false)
           ],
         ),
@@ -116,6 +127,7 @@ class _AuthViewState extends State<AuthView> {
             onTap: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                log("Auth Data Validated");
                 //TODO store data to backend
               }
               addAuthEvent(context);
@@ -146,3 +158,18 @@ class _AuthViewState extends State<AuthView> {
         : authBloc.add(event);
   }
 }
+
+String? validateEmail(String? string) => string != null
+    ? string.contains(RegExp(
+            r'''(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'''))
+        ? null
+        : "Please provide a valid email"
+    : "Please provide a valid email";
+
+//TODO explain what a valid password consists of
+String? validatePassword(String? string) => string != null
+    ? string.contains(RegExp(
+            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'))
+        ? null
+        : "Please provide a valid password"
+    : "Please provide a valid password";
