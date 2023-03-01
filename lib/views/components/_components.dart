@@ -6,3 +6,4 @@ export 'shaker.dart';
 export 'form_input.dart';
 export 'video_timer.dart';
 export 'app_loading.dart';
+export 'consent_dialog.dart';

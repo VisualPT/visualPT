@@ -1,45 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/components/_components.dart';
 
 class AppLoading extends StatefulWidget {
   const AppLoading({super.key});
 
   @override
-  _AppLoadingState createState() => _AppLoadingState();
+  AppLoadingState createState() => AppLoadingState();
 }
 
-class _AppLoadingState extends State<AppLoading> with TickerProviderStateMixin {
+class AppLoadingState extends State<AppLoading> with TickerProviderStateMixin {
   late AnimationController breathingController;
-  var breathe = 0.0;
+  double breathe = 0.0;
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  //   breathingController = AnimationController(
-  //       vsync: this, duration: const Duration(milliseconds: 1000));
-  //   breathingController.addStatusListener((status) {
-  //     if (status == AnimationStatus.completed) {
-  //       breathingController.reverse();
-  //     } else if (status == AnimationStatus.dismissed) {
-  //       breathingController.forward();
-  //     }
-  //   });
+    breathingController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1000));
+    breathingController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        breathingController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        breathingController.forward();
+      }
+    });
 
-  //   breathingController.addListener(() {
-  //     setState(() {
-  //       breathe = breathingController.value;
-  //     });
-  //   });
-  //   breathingController.forward();
-  // }
+    breathingController.addListener(() {
+      setState(() {
+        breathe = breathingController.value;
+      });
+    });
+    breathingController.forward();
+  }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   breathingController.dispose();
-  // }
+  @override
+  void dispose() {
+    breathingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
