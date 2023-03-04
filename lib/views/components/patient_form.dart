@@ -1,4 +1,3 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
@@ -248,20 +247,20 @@ class _PatientFormState extends State<PatientForm> {
               width: MediaQuery.of(context).size.width / 2,
               decoration: const BoxDecoration(
                   shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: Text("Next", style: Styles.actionText),
+              child: const Text("Next", style: Styles.actionText),
             ),
             onTap: () {
               //TODO <are you sure this data is correct?> modal
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                Patient patient = Patient(
-                  name: firstNameController.text,
-                  family_name: lastNameController.text,
-                  dob: TemporalDate(DateTime.parse(dobController.text)),
-                  gender: genderParse(genderController.text),
-                  height_in_inches:
-                      double.parse(heightController.text.split("\"")[0]),
-                );
+
+                BlocProvider.of<PatientBloc>(context).add(PatientUpdate(
+                    firstNameController.text,
+                    lastNameController.text,
+                    dobController.text,
+                    genderController.text,
+                    heightController.text));
+
                 BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(0));
                 showCupertinoDialog(
                     context: context, builder: (_) => const AppLoading());
@@ -289,16 +288,3 @@ class _PatientFormState extends State<PatientForm> {
 //   patientData.date = nowDate;
 //   patientData.time = nowTime;
 // }
-
-Gender genderParse(String text) {
-  switch (text) {
-    case "MALE":
-      return Gender.MALE;
-
-    case "FEMALE":
-      return Gender.FEMALE;
-
-    default:
-      return Gender.MALE;
-  }
-}
