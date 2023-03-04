@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-Future<void> consentDialog(
+Future<void> appDialog(
     {required BuildContext context,
     String title = "Proceed",
     String content = "Are you sure?",

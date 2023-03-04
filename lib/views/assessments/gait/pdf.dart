@@ -15,7 +15,7 @@ class GaitPDF extends PDF {
     final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
-        title: patient.family_name + patient.name + patient.dob.toString(),
+        title: patient.last_name + patient.first_name + patient.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
@@ -69,7 +69,7 @@ class GaitPDF extends PDF {
                                         text: "Patient Name: ", style: detail),
                                     TextSpan(
                                         text:
-                                            "${patient.name} ${patient.family_name}",
+                                            "${patient.first_name} ${patient.last_name}",
                                         style: detailBold),
                                   ]),
                                 ),

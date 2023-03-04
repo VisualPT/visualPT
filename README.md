@@ -2,7 +2,9 @@
 
 A tool to optimize physical therapist workflows in the visual-digital age
 
-## Getting Started
+## Architecture
+
+* Inference - Service - Bloc - View
 
 This project is a starting point for a Flutter application.
 
