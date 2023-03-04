@@ -7,12 +7,14 @@ void main() {
 }
 
 //TODO VisualPT
+//Connect to Auth to store user persistantly
 //Connect PDF to email (until EMR integration is available)
-//Asseessment tutorial
 //Marketing content
 //Pitch to physical therapists
 //Contact EMR services for connection ($2k investment)
 
+///Root of Application
+///Global routes and themes defined here
 class VisualPT extends StatelessWidget {
   const VisualPT({super.key});
 
@@ -25,9 +27,7 @@ class VisualPT extends StatelessWidget {
               textStyle: TextStyle(
                   fontFamily: "Unbounded", color: CupertinoColors.black))),
       routes: {
-        "/": (context) =>
-            const AuthView(), //TODO make automatic reference based on auth
-        "/auth": (context) => const AuthView(),
+        "/": (context) => const LandingView(),
         "/home": (context) => const HomeView(),
       },
       onGenerateRoute: (settings) {
@@ -37,14 +37,14 @@ class VisualPT extends StatelessWidget {
               builder: (context) =>
                   AssessmentView(assessmentType: assessmentType));
         }
-        if (settings.name == "/analysis") {
-          final data = settings.arguments as List;
-          final type = data[0];
-          final assets = data[1];
-          return CupertinoPageRoute(
-              builder: (context) =>
-                  AnalysisView(assessmentType: type, assessmentAssets: assets));
-        }
+        // if (settings.name == "/analysis") {
+        //   final data = settings.arguments as List;
+        //   final type = data[0];
+        //   final assets = data[1];
+        //   return CupertinoPageRoute(
+        //       builder: (context) => AnalysisView(
+        //           assessmentType: type, assessmentAssets: assets));
+        // }
       },
     );
   }
