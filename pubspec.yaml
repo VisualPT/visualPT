@@ -48,6 +48,7 @@ dependencies:
   connectivity_plus: ^3.0.3
   amplify_api: ^0.6.12
   amplify_storage_s3: ^0.6.12
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
