@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/base_view.dart';
+import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
 class LandingView extends StatelessWidget {
@@ -22,14 +22,7 @@ class LandingView extends StatelessWidget {
                 builder: (context, state) {
                   try {
                     if (state is BackendOnline) {
-                      Future(() async {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                              transitionDuration: const Duration(seconds: 0),
-                              pageBuilder: (_, __, ___) => const AuthView()),
-                        );
-                      });
+                      AppNav().setAuth(context);
                       return const AppLoading();
                     } else if (state is BackendOffline) {
                       //Return a reason with a retry button

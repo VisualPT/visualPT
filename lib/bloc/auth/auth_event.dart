@@ -1,17 +1,20 @@
 part of 'auth_bloc.dart';
 
-enum AuthMethod { signUp, logIn }
-
 @immutable
 abstract class AuthEvent {}
 
-class AuthAuto extends AuthEvent {}
+class AuthAuto extends AuthEvent {
+  AuthAuto();
+}
 
 class AuthToggle extends AuthEvent {
   AuthToggle();
 }
 
 class AuthAttempt extends AuthEvent {
-  final AuthData authData;
-  AuthAttempt({required this.authData});
+  AuthAttempt();
+}
+
+class AuthConfirm extends AuthEvent {
+  AuthConfirm();
 }

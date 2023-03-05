@@ -3,7 +3,9 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
 class AuthView extends StatefulWidget {
@@ -25,23 +27,19 @@ class _AuthViewState extends State<AuthView> {
       //TODO print debug to figure out why this shit broke
       child: BlocProvider(
         create: (context) => AuthBloc()
-          ..fetchAuth()
+          ..add(AuthAuto())
           ..setShake(_shakeKey),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is AuthSuccess) {
-              Future(() async {
-                Navigator.of(context).pushReplacementNamed("/home");
-              });
-              //Sync with Amplify services
-              // context
-              //     .read<AuthBloc>()
-              //     .close(); //TODO save auth data before closing
+              AppNav().setHome(context);
             }
             if (state is AuthSignUp) {
               return signupForm(context);
             } else if (state is AuthLogIn) {
               return loginForm(context);
+            } else if (state is AuthValidate) {
+              return validationForm(context);
             }
             return const AppLoading();
           },
@@ -108,6 +106,50 @@ class _AuthViewState extends State<AuthView> {
     );
   }
 
+  //TODO fortify validators
+  Widget validationForm(BuildContext context) {
+    return Shaker(
+      key: _shakeKey,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Check your email"),
+            ),
+            const FormInput("confirmation code",
+                authType: AuthDataType.confirmCode, validator: validateCode),
+            confirmButton(context)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget confirmButton(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GestureDetector(
+            child: Container(
+              alignment: Alignment.center,
+              height: MediaQuery.of(context).size.width / 2,
+              width: MediaQuery.of(context).size.width / 2,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Styles.actionPrimary),
+              child: const Text("Confirm", style: Styles.actionText),
+            ),
+            onTap: () {
+              BlocProvider.of<AuthBloc>(context).add(AuthConfirm());
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget authButtons(BuildContext context, bool isLogin) {
     String login = "Log In";
     String signup = "Sign up";
@@ -127,10 +169,11 @@ class _AuthViewState extends State<AuthView> {
             onTap: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                _formKey.currentState!.reset();
                 log("Auth Data Validated");
                 //TODO store data to backend
               }
-              addAuthEvent(context);
+              BlocProvider.of<AuthBloc>(context).add(AuthAttempt());
             },
           ),
         ),
@@ -143,19 +186,12 @@ class _AuthViewState extends State<AuthView> {
               isLogin ? signup : login,
               style: Styles.subactionText,
             ),
-            onPressed: () => addAuthEvent(context, event: AuthToggle()),
+            onPressed: () =>
+                BlocProvider.of<AuthBloc>(context).add(AuthToggle()),
           ),
         ),
       ],
     );
-  }
-
-  ///If event is null, [AuthAttempt] is assumed and [AuthData] is passed from the bloc
-  void addAuthEvent(BuildContext context, {AuthEvent? event}) {
-    final authBloc = BlocProvider.of<AuthBloc>(context);
-    event == null
-        ? authBloc.add(AuthAttempt(authData: authBloc.authData))
-        : authBloc.add(event);
   }
 }
 
@@ -173,3 +209,9 @@ String? validatePassword(String? string) => string != null
         ? null
         : "Please provide a valid password"
     : "Please provide a valid password";
+
+String? validateCode(String? string) => string != null
+    ? string.contains(RegExp(r'^[0-9]{6}$'))
+        ? null
+        : "Please provide a six digit code"
+    : "Please provide a six digit code";
