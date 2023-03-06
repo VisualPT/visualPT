@@ -46,11 +46,12 @@ type Patient @model @auth(rules: [{allow: owner}]) {
 
 type Assessment @model @auth(rules: [{allow: owner}]) {
   id: ID!
+  patientID: ID! @index(name: "byPatient")
   type: AssessmentType!
   timestamp: AWSTimestamp!
-  pdf_base64: String!
-  patientID: ID! @index(name: "byPatient")
-  SkeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
+  skeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
+  duration: Int
+  pdf: String
 }
 
 enum Gender {

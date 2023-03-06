@@ -143,8 +143,8 @@ class AnalysisView extends StatelessWidget {
         primaryCallback: () {
           AppNav().loading(context);
 
-          AssessmentService().createAssessment(
-              assessment.type, DateTime.now(), pdf, patient.id);
+          AssessmentService()
+              .createAssessment(assessment.type, DateTime.now(), patient.id);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               patient: patient,
               assessment: assessment,
