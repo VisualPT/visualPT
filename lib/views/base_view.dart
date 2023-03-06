@@ -45,6 +45,7 @@ class BaseView extends StatelessWidget {
             child: SizedBox(
                 //TODO dynamically make the <rest of the screen> instead of this hard coded whack chat
                 height: screenSize.height * 20 / 27,
+                width: screenSize.width,
                 child: Container(child: child)),
           )
         ],

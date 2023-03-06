@@ -23,7 +23,7 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
       'patient_name': "${event.patient.first_name} ${event.patient.last_name}",
       'patient_dob': event.patient.dob.toString(),
       'user_email': event.patient.provider_contact,
-      'patient_pdf': event.assessment.pdf_base64,
+      'patient_pdf': event.assessment.pdf!,
     };
     EmailService().sendAssessmentPDF(templateParams).then((success) {
       if (success) {

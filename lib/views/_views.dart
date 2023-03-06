@@ -1,9 +1,10 @@
 ///Barrel File for ALL views. Use this when importing more than 1 view into a file.
-
-export 'auth_view.dart';
-export 'home_view.dart';
 export 'assessment_view.dart';
-export 'landing_view.dart';
 export 'analysis_view.dart';
+export 'auth_view.dart';
 export 'base_view.dart';
+export 'home_view.dart';
+export 'landing_view.dart';
+export 'video/video_view.dart';
+
 export 'styles.dart';

@@ -6,7 +6,7 @@ abstract class AppService {
   void getData(Model model) {}
 
   void saveData(Model model) {
-    log("Saving ${model.toJson()} to DataStore |||| t: ${DateTime.now().microsecond}");
+    log("Saving ${model.toJson()} to DataStore");
     Amplify.DataStore.save(model);
   }
 }
