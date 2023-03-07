@@ -1,0 +1,156 @@
+import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/components/_components.dart';
+import 'package:visualpt/views/video/video_provider.dart';
+
+class VideoView extends StatefulWidget {
+  final int sequence;
+  const VideoView({super.key, required this.sequence});
+
+  @override
+  State<VideoView> createState() => VideoViewState();
+}
+
+class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
+  late VideoProviders controller;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(border: Border.all()),
+        child: VideoProvider(
+          getProviders: (context) {
+            controller = VideoProviders(context: context);
+          },
+          onRecording: mainCamera,
+          onStandby: mainCamera,
+          onLoading: loadingCamera,
+          onError: errorCamera,
+        ));
+  }
+
+  /// /// /// /// /// /// ///
+  ///    WIDGETS BELOW    ///
+  /// /// /// /// /// /// ///
+
+  Widget mainCamera(BuildContext context, CameraState state) {
+    assert(state is CameraRecording || state is CameraStandby);
+
+    return Stack(alignment: Alignment.center, children: [
+      SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: CameraPreview(
+          state.controller!,
+          // child: LayoutBuilder(
+          //     builder: (_, constraints) => GestureDetector(
+          //           onTapDown: (details) =>
+          //               onViewFinderTap(details, constraints),
+          //         )),
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              color: Styles.backgroundAccent),
+          child: Column(
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                          onTap: () => controller.assessmentBloc
+                              .add(AssessmentInit(widget.sequence)),
+                          child: const Icon(CupertinoIcons.restart,
+                              color: CupertinoColors.black, size: 40)),
+                    ),
+                    const Spacer(),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: VideoTimer(),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              )
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 20,
+        child: Center(
+          child: GestureDetector(
+            onTap: () {
+              if (state is CameraRecording) {
+                showCupertinoDialog(
+                    context: context, builder: (context) => const AppLoading());
+                controller.timerBloc.add(const TimerReset());
+                //TODO only pass what is necessary
+                saveCameraDataToAssessment(
+                    context, controller.assessmentBloc, controller.cameraBloc);
+              } else {
+                controller.cameraBloc.add(CameraPlay());
+                BlocProvider.of<TimerBloc>(context).add(const TimerStarted());
+              }
+            },
+            child: state is CameraRecording
+                ? const Icon(CupertinoIcons.stop,
+                    color: Styles.backgroundComplementory, size: 80)
+                : const Icon(CupertinoIcons.circle,
+                    color: Styles.actionPrimary, size: 80),
+          ),
+        ),
+      )
+    ]);
+  }
+
+  Widget loadingCamera(BuildContext _, CameraState __) {
+    return Center(
+      child: Column(
+        children: const [Text("Loading"), CupertinoActivityIndicator()],
+      ),
+    );
+  }
+
+  Widget errorCamera(BuildContext context, CameraState _, Exception e) {
+    return Center(
+      child: Column(
+        children: [
+          Text(e.toString()),
+          CupertinoButton(
+            onPressed: () {
+              BlocProvider.of<CameraBloc>(context).add(CameraInit());
+            },
+            child: const Text("Restart"),
+          ),
+        ],
+      ),
+    );
+  }
+}

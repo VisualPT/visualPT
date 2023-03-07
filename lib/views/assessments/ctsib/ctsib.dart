@@ -99,7 +99,7 @@ Widget captureView(
     Builder(
       builder: (context) => Stack(
         children: [
-          VideoRecorder(sequence: index),
+          VideoView(sequence: index),
           Positioned(
             top: 0,
             child: SizedBox(

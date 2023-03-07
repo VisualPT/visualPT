@@ -100,3 +100,69 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     return await Future.delayed(const Duration(seconds: 1), () => output);
   }
 }
+
+//TODO create an onFocus state for this
+// void onFocus(TapDownDetails details, BoxConstraints constraints) {
+//   if (cameraController == null) {
+//     return;
+//   }
+
+//   final Offset offset = Offset(
+//     details.localPosition.dx / constraints.maxWidth,
+//     details.localPosition.dy / constraints.maxHeight,
+//   );
+//   cameraController.setExposurePoint(offset);
+//   cameraController.setFocusPoint(offset);
+// }
+
+
+// // #docregion AppLifecycle
+// @override
+// void didChangeAppLifecycleState(AppLifecycleState state) {
+//   final CameraController? cameraController = widget.controller;
+
+//   // App state changed before we got the chance to initialize.
+//   if (cameraController == null || !cameraController.value.isInitialized) {
+//     return;
+//   }
+
+//   if (state == AppLifecycleState.inactive) {
+//     cameraController.dispose();
+//   } else if (state == AppLifecycleState.resumed) {
+//     // onNewCameraSelected(cameraController.description);
+//   }
+// }
+
+// Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
+//   final CameraController? oldController = widget.controller;
+//   if (oldController != null) {
+//     // `controller` needs to be set to null before getting disposed,
+//     // to avoid a race condition when we use the controller that is being
+//     // disposed. This happens when camera permission dialog shows up,
+//     // which triggers `didChangeAppLifecycleState`, which disposes and
+//     // re-creates the controller.
+//     widget.controller = null;
+//     await oldController.dispose();
+//   }
+
+//   final CameraController cameraController = CameraController(
+//     cameraDescription,
+//     ResolutionPreset.max,
+//   );
+
+//   widget.controller = cameraController;
+
+//   // If the controller is updated then update the UI.
+//   cameraController.addListener(() {
+//     if (mounted) {
+//       setState(() {});
+//     }
+//     if (cameraController.value.hasError) {
+//       log('Camera error ${cameraController.value.errorDescription}');
+//     }
+//   });
+
+//   if (mounted) {
+//     setState(() {});
+//   }
+// }

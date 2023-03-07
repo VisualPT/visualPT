@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/views/_views.dart';
 
-///Requires that a BlocProvider wrap it to function
-///TODO verify how to do this without sacrificing DX
+//TODO combine with camera to video UI and extract bloc logic into new file
 class VideoTimer extends StatelessWidget {
   const VideoTimer({super.key});
 
@@ -24,6 +23,7 @@ class VideoTimer extends StatelessWidget {
     );
   }
 }
+
 String formatter(Duration duration) => [
       duration.inSeconds.remainder(60).toString().padLeft(2, '0'),
       duration.inMilliseconds.remainder(1000).toString().padLeft(3, '0')[0]
