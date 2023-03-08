@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/service/auth_service.dart';
+import 'package:visualpt/service/user_service.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 part 'auth_event.dart';
@@ -25,7 +26,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _onAuto(AuthAuto event, Emitter<AuthState> emit) async {
     log("Attempting auto auth");
     //TODO Get all the users data and put it in a singleton
-    await auth.fetchSession(onSignedIn: () => emit(AuthSuccess()));
+    await auth.fetchSession(onSignedIn: () async {
+      await userService.currentUserEmail();
+      emit(AuthSuccess());
+    });
   }
 
   void _onToggle(AuthToggle event, Emitter<AuthState> emit) {

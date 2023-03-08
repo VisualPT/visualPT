@@ -2,16 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 
-class VideoProviders {
+class BlocProviders {
   final BuildContext context;
   late CameraBloc cameraBloc;
   late TimerBloc timerBloc;
   late AssessmentBloc assessmentBloc;
+  late PatientBloc patientBloc;
 
-  VideoProviders({required this.context}) {
+  BlocProviders({required this.context}) {
     cameraBloc = BlocProvider.of<CameraBloc>(context);
     timerBloc = BlocProvider.of<TimerBloc>(context);
     assessmentBloc = BlocProvider.of<AssessmentBloc>(context);
+    patientBloc = BlocProvider.of<PatientBloc>(context);
   }
 }
 

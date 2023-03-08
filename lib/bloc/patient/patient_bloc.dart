@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -11,15 +10,14 @@ part 'patient_state.dart';
 class PatientBloc extends Bloc<PatientEvent, PatientState> {
   late Patient currentPatient;
   PatientBloc() : super(const PatientNull()) {
-    on<PatientUpdate>(_onUpdate);
+    on<PatientSet>(_onSet);
   }
 
-  FutureOr<void> _onUpdate(
-      PatientUpdate event, Emitter<PatientState> emit) async {
-    final Patient patient = await PatientService().savePatientFromString(
+  FutureOr<void> _onSet(PatientSet event, Emitter<PatientState> emit) {
+    final Patient patient = patientService.setPatientFromString(
         event.firstName, event.lastName, event.dob, event.gender, event.height);
     currentPatient = patient;
-    await Amplify.DataStore.save(patient);
+    patientService.savePatient(currentPatient);
     emit(PatientActive(patient: patient));
   }
 }

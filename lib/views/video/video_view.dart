@@ -15,7 +15,7 @@ class VideoView extends StatefulWidget {
 }
 
 class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
-  late VideoProviders controller;
+  late BlocProviders controller;
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         decoration: BoxDecoration(border: Border.all()),
         child: VideoProvider(
           getProviders: (context) {
-            controller = VideoProviders(context: context);
+            controller = BlocProviders(context: context);
           },
           onRecording: mainCamera,
           onStandby: mainCamera,
@@ -82,8 +82,9 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
-                          onTap: () => controller.assessmentBloc
-                              .add(AssessmentInit(widget.sequence)),
+                          onTap: () => controller.assessmentBloc.add(
+                              AssessmentInit(widget.sequence,
+                                  controller.patientBloc.currentPatient)),
                           child: const Icon(CupertinoIcons.restart,
                               color: CupertinoColors.black, size: 40)),
                     ),

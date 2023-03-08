@@ -14,7 +14,7 @@ class PatientForm extends StatefulWidget {
   State<PatientForm> createState() => _PatientFormState();
 }
 
-//TODO FIX WITH BLOC (post nap)
+//TODO FIX WITH BLOC
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
@@ -249,21 +249,27 @@ class _PatientFormState extends State<PatientForm> {
                   shape: BoxShape.circle, color: Styles.actionPrimary),
               child: const Text("Next", style: Styles.actionText),
             ),
-            onTap: () {
+            onTap: () async {
               //TODO <are you sure this data is correct?> modal
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
 
-                BlocProvider.of<PatientBloc>(context).add(PatientUpdate(
+                BlocProvider.of<PatientBloc>(context).add(PatientSet(
                     firstNameController.text,
                     lastNameController.text,
                     dobController.text,
                     genderController.text,
                     heightController.text));
 
-                BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(0));
                 showCupertinoDialog(
                     context: context, builder: (_) => const AppLoading());
+                //TODO DO NOT DELAY, make it smooth
+                Future.delayed(const Duration(seconds: 2), () {
+                  final patient =
+                      BlocProvider.of<PatientBloc>(context).currentPatient;
+                  BlocProvider.of<AssessmentBloc>(context)
+                      .add(AssessmentInit(0, patient));
+                });
                 //TODO store data to backend
               }
             },

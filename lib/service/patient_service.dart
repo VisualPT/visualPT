@@ -3,21 +3,26 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 import 'package:visualpt/service/user_service.dart';
 
-class PatientService extends AppService {
-  late Patient currentPatient;
+PatientService patientService = PatientService();
 
+class PatientService extends AppService {
   PatientService();
 
-  Future<Patient> savePatientFromString(String first_name, String last_name,
-      String dob, String gender, String height) async {
+  Patient setPatientFromString(String firstName, String lastName, String dob,
+      String gender, String height) {
     Patient patient = Patient(
-        first_name: first_name,
-        last_name: last_name,
-        dob: TemporalDate(DateTime.parse(dob)),
-        gender: _PatientHelpers.genderParse(gender),
-        height_in_inches: double.parse(height.split("\"")[0]),
-        provider_contact: await UserService().currentUserEmail());
+      first_name: firstName,
+      last_name: lastName,
+      dob: TemporalDate(DateTime.parse(dob)),
+      gender: _PatientHelpers.genderParse(gender),
+      height_in_inches: double.parse(height.split("\"")[0]),
+      provider_contact: currentEmail,
+    );
+    saveData(patient);
+    return patient;
+  }
 
+  Future<Patient> savePatient(Patient patient) async {
     saveData(patient);
     return patient;
   }

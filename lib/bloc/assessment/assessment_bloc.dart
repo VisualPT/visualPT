@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/service/assessment_service.dart';
 import 'package:visualpt/views/analysis_view.dart';
 import 'package:visualpt/views/assessments/_assessments.dart';
 
@@ -42,6 +43,11 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   FutureOr<void> _onInit(AssessmentInit event, Emitter<AssessmentState> emit) {
     //TODO transition visual
+    ///Creates the assessment instance when the sequence first begins
+    event.index == 0
+        ? assessment = AssessmentService()
+            .createAssessment(assessmentType, DateTime.now(), event.patient.id)
+        : null;
     emit(AssessmentIntro(index));
   }
 

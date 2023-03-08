@@ -4,36 +4,36 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 
-late Assessment? currentAssessment;
-
 class AssessmentService extends AppService {
   AssessmentService();
 
-  createAssessment(AssessmentType type, DateTime now, String patientID) {
-    currentAssessment = Assessment(
+  Assessment createAssessment(
+      AssessmentType type, DateTime now, String patientID) {
+    return Assessment(
         patientID: patientID,
         type: type,
         timestamp: TemporalTimestamp.fromSeconds(
             now.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond));
   }
 
-  void addPDF(String pdf) {
+  Assessment addPDF(Assessment assessment, String pdf) {
     log("Adding pdf to assessment object");
-    currentAssessment!.copyWith(pdf: pdf);
+    return assessment.copyWith(pdf: pdf);
   }
 
-  void addSequences(List<SkeletalSequence> sequences) {
+  Assessment addSequences(
+      Assessment assessment, List<SkeletalSequence> sequences) {
     log("Adding skeletal sequences to assessment object");
-    currentAssessment!.copyWith(skeletalSequences: sequences);
+    return assessment.copyWith(skeletalSequences: sequences);
   }
 
-  void addDuration(int durationSeconds) {
+  Assessment addDuration(Assessment assessment, int durationSeconds) {
     log("Adding duration (in seconds) to assessment object");
-    currentAssessment!.copyWith(duration: durationSeconds);
+    return assessment.copyWith(duration: durationSeconds);
   }
 
-  void save() {
+  void save(Assessment assessment) {
     log("Saving assessment");
-    saveData(currentAssessment!);
+    saveData(assessment);
   }
 }

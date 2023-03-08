@@ -10,6 +10,7 @@ class AssessmentView extends StatelessWidget {
   const AssessmentView({super.key, required this.assessmentType});
 
   @override
+  //TODO create assessment provider
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -19,16 +20,12 @@ class AssessmentView extends StatelessWidget {
         BlocProvider(
           create: (context) => AssessmentBloc(context, assessmentType),
         ),
-        BlocProvider(
-          create: (context) => CameraBloc(),
-        )
       ],
       child: BlocBuilder<AssessmentBloc, AssessmentState>(
         builder: (context, assessmentState) {
           try {
             if (assessmentState is AssessmentForm) {
               return PatientForm(assessmentType: assessmentType);
-              //return PatientForm(assessmentType: assessmentType,child: )
             } else if (assessmentState is AssessmentIntro) {
               WidgetsBinding.instance.addPostFrameCallback(
                   (_) => Navigator.pop(context)); //Clear the loading screen
