@@ -1,5 +1,22 @@
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+/// Inference Model Interface
+///
+/// Abstract Class: Pose Detection
+///
+/// ARGUMENTS / INPUTS
+/// Types:
+/// Size:
+///
+///
+/// RETURNS / OUTPUTS
+/// Types:
+/// Size:
+///
+/// Description:
+///
+///
+/// end
 class PoseDetectionModel {
   //TODO create pose detection methods
   /*

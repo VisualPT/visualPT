@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/views/_views.dart';
 
 class FormInput extends StatefulWidget {
@@ -45,6 +46,8 @@ class _FormInputState extends State<FormInput> {
         return TextInputType.visiblePassword;
       case AuthDataType.confirmPassword:
         return TextInputType.visiblePassword;
+      case AuthDataType.confirmCode:
+        return TextInputType.number;
       default:
         //Assume inputPopup is the supplied parameter
         return TextInputType.none;
@@ -82,9 +85,9 @@ class _FormInputState extends State<FormInput> {
                 ? widget.inputPopup!()
                     .then((value) => widget.controller!.text = value ?? "")
                 : null,
-            onChanged: (value) => widget.authType != null
+            onChanged: (data) => widget.authType != null
                 ? BlocProvider.of<AuthBloc>(context)
-                    .storeAuthData(widget.authType!, value)
+                    .setData(widget.authType!, data)
                 //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
                 : null,
           ),

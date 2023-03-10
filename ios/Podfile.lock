@@ -211,7 +211,7 @@ SPEC CHECKSUMS:
   AWSMobileClient: c898658a4d15e64e07d39c7dc6354fd3ea3055a9
   AWSPluginsCore: 93f813579479fa4c5bfff58817df89e0e10f9f3b
   AWSS3: 4bc7118f373a6c25543d99e67c55b409eaf769fd
-  camera_avfoundation: 07c77549ea54ad95d8581be86617c094a46280d9
+  camera_avfoundation: 3125e8cd1a4387f6f31c6c63abb8a55892a9eeeb
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
   ffmpeg-kit-ios-min-gpl: ac5eb47f98b27e26d14c009de3ce9181007ce688
   ffmpeg_kit_flutter_min_gpl: f657651b493b7608fad9dda3ad606eb0946c9faa
@@ -219,7 +219,7 @@ SPEC CHECKSUMS:
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
   libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
-  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
   printing: eafa00acb682c0ca029d4d98d0798f55a1e27102
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
@@ -227,7 +227,7 @@ SPEC CHECKSUMS:
   SwiftFormat: fc64190719f3655079b7b4c246182383bd89026f
   SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447
   tflite_flutter: 9157a660578930a99728974f247369af1c3595d5
-  video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff
+  video_player_avfoundation: 81e49bb3d9fb63dccf9fa0f6d877dc3ddbeac126
   video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
 
 PODFILE CHECKSUM: c24c27344913105c54b95f33f73882923a0bd103

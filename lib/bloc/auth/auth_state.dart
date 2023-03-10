@@ -7,9 +7,9 @@ class AuthSignUp extends AuthState {}
 
 class AuthLogIn extends AuthState {}
 
-class AuthSuccess extends AuthState {}
+class AuthValidate extends AuthState {}
 
-class AuthLoading extends AuthState {}
+class AuthSuccess extends AuthState {}
 
 class AuthError extends AuthState {
   final String message;

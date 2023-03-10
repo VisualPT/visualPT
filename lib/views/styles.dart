@@ -20,10 +20,12 @@ class Styles {
 
   static const Color comingSoonColor = Color(0x77777777);
 
+  static const Color white = CupertinoColors.white;
+
   //Asset Paths
-  static const String mainLogoPath = "assets/vpt_mainlogo.png";
-  static const String ctsibLogoPath = "assets/ctsib_mainlogo.png";
-  static const String gvLogoPath = "assets/gv_mainlogo.png";
+  static const String mainLogoPath = "assets/images/vpt_mainlogo.png";
+  static const String ctsibLogoPath = "assets/images/ctsib_mainlogo.png";
+  static const String gvLogoPath = "assets/images/gv_mainlogo.png";
 
   //Text Styles
   static const TextStyle title = TextStyle(
@@ -48,30 +50,6 @@ class Styles {
   static const TextStyle comingSoonSubtitle = TextStyle(
       color: comingSoonColor, fontSize: 24, fontWeight: FontWeight.bold);
 
-  //////////?GAITR STYLES////////////
-  static const Color transparent = Color(0x00000000);
-  static const Color black = CupertinoColors.black;
-  static const Color white = CupertinoColors.white;
-  static const Color brandPrimary = Color(0xFF0091DA);
-  static const Color brandSecondaryDark = Color(0xFF1B365D);
-  static const Color brandTertiaryOrange = Color(0xFFEC7723);
-
-  static const TextStyle inputPlaceholderStyle =
-      TextStyle(fontWeight: FontWeight.w200, color: black);
-
-  static const TextStyle inputTextStyle =
-      TextStyle(fontWeight: FontWeight.w400, color: black, fontSize: 15);
-
-  static const TextStyle inputPromptStyle = TextStyle(
-      fontWeight: FontWeight.bold,
-      color: CupertinoColors.label,
-      fontSize: 15.0);
-
-  static const TextStyle buttonLabelStyle = TextStyle(fontSize: 30);
-
-  static const TextStyle titleTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
-
   static TextStyle timerTextStyle = GoogleFonts.robotoMono(
-      fontWeight: FontWeight.bold, fontSize: 20, color: white.withOpacity(0.8));
+      fontWeight: FontWeight.bold, fontSize: 24, color: white.withOpacity(0.8));
 }

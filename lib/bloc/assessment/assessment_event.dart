@@ -5,8 +5,9 @@ abstract class AssessmentEvent {}
 
 class AssessmentInit extends AssessmentEvent {
   final int index;
+  final Patient patient;
 
-  AssessmentInit(this.index);
+  AssessmentInit(this.index, this.patient);
 }
 
 class AssessmentBegin extends AssessmentEvent {}
