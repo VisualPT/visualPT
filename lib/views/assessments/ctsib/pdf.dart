@@ -11,8 +11,8 @@ class CtsibPDF extends PDF {
   @override
   Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
     await configPdfStyles();
-    //final fyzLogo = await rootBundle.loadString('assets/fyzical-logo.svg');
-    final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
+//TODO create SVG version of VisualPT logo
+    // final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
         title: patient.last_name + patient.first_name + patient.dob.toString(),
@@ -30,13 +30,14 @@ class CtsibPDF extends PDF {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Header(
                 child: Column(children: [
-              SizedBox(
-                height: inch,
-                width: 8.5 * inch,
-                child: Center(
-                  child: SvgImage(svg: gaitrLogo, fit: BoxFit.fitHeight),
-                ),
-              ),
+              //TODO SVG logo
+              // SizedBox(
+              //   height: inch,
+              //   width: 8.5 * inch,
+              //   child: Center(
+              //     child: SvgImage(svg: gaitrLogo, fit: BoxFit.fitHeight),
+              //   ),
+              // ),
               RichText(
                   text: TextSpan(
                     children: [
@@ -200,7 +201,8 @@ class CtsibPDF extends PDF {
                     ),
                     Positioned(
                       top: 0.1,
-                      left: positioner("<<<MODEL OUTPUT>>>"),
+                      //TODO fix with model output
+                      //left: positioner("<<<MODEL OUTPUT>>>"),
                       child: Container(
                         height: 0.25 * inch,
                         width: 0.25 * inch,

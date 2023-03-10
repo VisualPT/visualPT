@@ -200,7 +200,8 @@ class GaitPDF extends PDF {
                     ),
                     Positioned(
                       top: 0.1,
-                      left: positioner("<<<MODEL OUTPUT>>>"),
+                      //TODO fix with model output
+                      //left: positioner("<<<MODEL OUTPUT>>>"),
                       child: Container(
                         height: 0.25 * inch,
                         width: 0.25 * inch,

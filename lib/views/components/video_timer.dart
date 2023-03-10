@@ -17,8 +17,7 @@ class VideoTimer extends StatelessWidget {
         if (state is TimerRunComplete) {
           saveCameraDataToAssessment(context, assessmentBloc, cameraBloc);
         }
-        return Text(formatter(state.duration), style: Styles.subtitle);
-        //TODO this style should be the font that has even spacing
+        return Text(formatter(state.duration), style: Styles.timerTextStyle);
       },
     );
   }
