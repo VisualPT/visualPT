@@ -33,6 +33,7 @@ class _AuthViewState extends State<AuthView> {
           builder: (context, state) {
             if (state is AuthSuccess) {
               AppNav().setHome(context);
+              BlocProvider.of<UserBloc>(context).add(UserFetch());
             }
             if (state is AuthSignUp) {
               return signupForm(context);

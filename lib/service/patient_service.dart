@@ -16,7 +16,7 @@ class PatientService extends AppService {
       dob: TemporalDate(DateTime.parse(dob)),
       gender: _PatientHelpers.genderParse(gender),
       height_in_inches: double.parse(height.split("\"")[0]),
-      provider_contact: currentEmail,
+      provider_contact: currentUser.email,
     );
     saveData(patient);
     return patient;
