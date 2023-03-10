@@ -1,10 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
-import 'package:visualpt/views/video/video_provider.dart';
 
 class VideoView extends StatefulWidget {
   final int sequence;
@@ -37,7 +36,8 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         decoration: BoxDecoration(border: Border.all()),
         child: VideoProvider(
           getProviders: (context) {
-            controller = BlocProviders(context: context);
+            controller = BlocProviders(
+                context: context, assessment: true, camera: true, timer: true);
           },
           onRecording: mainCamera,
           onStandby: mainCamera,
@@ -82,9 +82,9 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
-                          onTap: () => controller.assessmentBloc.add(
+                          onTap: () => controller.assessmentBloc!.add(
                               AssessmentInit(widget.sequence,
-                                  controller.patientBloc.currentPatient)),
+                                  controller.patientBloc!.currentPatient)),
                           child: const Icon(CupertinoIcons.restart,
                               color: CupertinoColors.black, size: 40)),
                     ),
@@ -111,13 +111,13 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
               if (state is CameraRecording) {
                 showCupertinoDialog(
                     context: context, builder: (context) => const AppLoading());
-                controller.timerBloc.add(const TimerReset());
+                controller.timerBloc!.add(const TimerReset());
                 //TODO only pass what is necessary
-                saveCameraDataToAssessment(
-                    context, controller.assessmentBloc, controller.cameraBloc);
+                saveCameraDataToAssessment(context, controller.assessmentBloc!,
+                    controller.cameraBloc!);
               } else {
-                controller.cameraBloc.add(CameraPlay());
-                BlocProvider.of<TimerBloc>(context).add(const TimerStarted());
+                controller.cameraBloc!.add(CameraPlay());
+                controller.timerBloc!.add(const TimerStarted());
               }
             },
             child: state is CameraRecording
@@ -146,7 +146,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
           Text(e.toString()),
           CupertinoButton(
             onPressed: () {
-              BlocProvider.of<CameraBloc>(context).add(CameraInit());
+              controller.cameraBloc!.add(CameraInit());
             },
             child: const Text("Restart"),
           ),

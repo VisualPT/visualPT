@@ -2,21 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 
-class BlocProviders {
-  final BuildContext context;
-  late CameraBloc cameraBloc;
-  late TimerBloc timerBloc;
-  late AssessmentBloc assessmentBloc;
-  late PatientBloc patientBloc;
-
-  BlocProviders({required this.context}) {
-    cameraBloc = BlocProvider.of<CameraBloc>(context);
-    timerBloc = BlocProvider.of<TimerBloc>(context);
-    assessmentBloc = BlocProvider.of<AssessmentBloc>(context);
-    patientBloc = BlocProvider.of<PatientBloc>(context);
-  }
-}
-
 class VideoProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;
   final Widget Function(BuildContext context, CameraState state) onLoading;
