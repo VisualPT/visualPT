@@ -5,11 +5,11 @@ abstract class PdfState {}
 
 class PdfLoading extends PdfState {}
 
-class PdfLoaded extends PdfState {
+class PdfReady extends PdfState {
   final PDFView pdfView;
   final Patient patient;
   final Assessment assessment;
-  PdfLoaded(
+  PdfReady(
       {required this.pdfView, required this.patient, required this.assessment});
 }
 

@@ -44,7 +44,7 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
             onError: (error) => emit(PdfError(exception: error)),
             onPageError: (page, error) => emit(PdfError(exception: error)),
             pageSnap: false);
-        emit(PdfLoaded(
+        emit(PdfReady(
             pdfView: view,
             patient: event.patient,
             assessment: event.assessment));
