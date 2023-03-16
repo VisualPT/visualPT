@@ -52,7 +52,6 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
 
   Widget mainCamera(BuildContext context, CameraState state) {
     assert(state is CameraRecording || state is CameraStandby);
-
     return Stack(alignment: Alignment.center, children: [
       SizedBox(
         width: MediaQuery.of(context).size.width,

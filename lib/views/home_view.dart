@@ -42,6 +42,10 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
+            CupertinoButton(
+                child: const Text("Go to Camera"),
+                onPressed: () => AppNav().goToPath(context, "/camera")),
+            const Spacer(),
           ],
         ),
       ),

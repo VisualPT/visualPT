@@ -7,6 +7,7 @@ abstract class AppService {
 
   void saveData(Model model) {
     log("Saving ${model.toJson()} to DataStore");
-    Amplify.DataStore.save(model);
+    //TODO save this data to the DataStore when production ready
+    //Amplify.DataStore.save(model);
   }
 }

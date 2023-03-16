@@ -35,4 +35,10 @@ class AppNav {
       Navigator.of(context).pushReplacementNamed("/home");
     });
   }
+
+  goToPath(BuildContext context, String path) {
+    Future(() async {
+      Navigator.of(context).pushNamed(path);
+    });
+  }
 }

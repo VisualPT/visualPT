@@ -76,7 +76,14 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
   FutureOr<void> _onPlay(CameraPlay event, Emitter<CameraState> emit) async {
     log("camera play");
-    await cameraController!.startVideoRecording();
+    await cameraController!.startImageStream((image) {
+      print("=============Image Instance============");
+      print(image.format.group);
+      print(image.format.raw);
+      print(image.height);
+      print(image.planes[0].bytes);
+      print(image.planes[0].bytesPerRow);
+    });
 
     emit(CameraRecording(cameraController!));
   }

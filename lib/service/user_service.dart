@@ -62,7 +62,7 @@ class UserService extends AppService {
       last_name: lastName,
       status: status,
     );
-    await Amplify.DataStore.save(user);
+    saveData(user);
     return user;
   }
 
