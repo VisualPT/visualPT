@@ -36,6 +36,7 @@ dependencies:
   helpers: ^1.2.0
   flutter_bloc: ^8.1.0
   amplify_flutter: ^0.6.0
+  amplify_api: ^0.6.12
   amplify_datastore: ^0.6.0
   amplify_auth_cognito: ^0.6.0
   vector_math: ^2.1.4
@@ -46,8 +47,6 @@ dependencies:
   google_fonts: ^4.0.3
   tflite_flutter: ^0.9.0
   connectivity_plus: ^3.0.3
-  amplify_api: ^0.6.12
-  amplify_storage_s3: ^0.6.12
   http: ^0.13.5
   tflite_flutter_helper: ^0.2.1
   scidart: ^0.0.2-dev.12

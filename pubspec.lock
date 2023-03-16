@@ -97,30 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.12"
-  amplify_storage_s3:
-    dependency: "direct main"
-    description:
-      name: amplify_storage_s3
-      sha256: e910ab26b75514cde29314377c2228d96b933d60c04236106d2f62f7e7a67dc4
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.12"
-  amplify_storage_s3_android:
-    dependency: transitive
-    description:
-      name: amplify_storage_s3_android
-      sha256: "6556d5b021147724d04044b0b2f895fcbe99382730c0f7720376f268549a86ee"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.12"
-  amplify_storage_s3_ios:
-    dependency: transitive
-    description:
-      name: amplify_storage_s3_ios
-      sha256: b0a25e8c27fe0355b846134d4707d3ec23edd0309ec59b04a602267228a534fb
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.12"
   archive:
     dependency: transitive
     description:

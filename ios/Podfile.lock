@@ -32,11 +32,6 @@ PODS:
     - Flutter
     - SwiftFormat/CLI
     - SwiftLint (= 0.48.0)
-  - amplify_storage_s3_ios (0.0.1):
-    - Amplify (= 1.28.3)
-    - amplify_core
-    - AmplifyPlugins/AWSS3StoragePlugin (= 1.28.3)
-    - Flutter
   - AmplifyPlugins/AWSAPIPlugin (1.28.3):
     - AppSyncRealTimeClient (~> 2.0)
     - AWSCore (~> 2.28.0)
@@ -52,10 +47,6 @@ PODS:
     - AWSCore (~> 2.28.0)
     - AWSPluginsCore (= 1.28.3)
     - SQLite.swift (= 0.13.2)
-  - AmplifyPlugins/AWSS3StoragePlugin (1.28.3):
-    - AWSCore (~> 2.28.0)
-    - AWSPluginsCore (= 1.28.3)
-    - AWSS3 (~> 2.28.0)
   - AppSyncRealTimeClient (2.1.1):
     - Starscream (~> 4.0.4)
   - AWSAuthCore (2.28.5):
@@ -74,8 +65,6 @@ PODS:
   - AWSPluginsCore (1.28.3):
     - Amplify (= 1.28.3)
     - AWSCore (~> 2.28.0)
-  - AWSS3 (2.28.5):
-    - AWSCore (= 2.28.5)
   - camera_avfoundation (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -127,7 +116,6 @@ DEPENDENCIES:
   - amplify_core (from `.symlinks/plugins/amplify_core/ios`)
   - amplify_datastore (from `.symlinks/plugins/amplify_datastore/ios`)
   - amplify_flutter_ios (from `.symlinks/plugins/amplify_flutter_ios/ios`)
-  - amplify_storage_s3_ios (from `.symlinks/plugins/amplify_storage_s3_ios/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - ffmpeg_kit_flutter_min_gpl (from `.symlinks/plugins/ffmpeg_kit_flutter_min_gpl/ios`)
@@ -150,7 +138,6 @@ SPEC REPOS:
     - AWSCore
     - AWSMobileClient
     - AWSPluginsCore
-    - AWSS3
     - ffmpeg-kit-ios-min-gpl
     - libwebp
     - ObjectMapper
@@ -171,8 +158,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/amplify_datastore/ios"
   amplify_flutter_ios:
     :path: ".symlinks/plugins/amplify_flutter_ios/ios"
-  amplify_storage_s3_ios:
-    :path: ".symlinks/plugins/amplify_storage_s3_ios/ios"
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
@@ -201,7 +186,6 @@ SPEC CHECKSUMS:
   amplify_core: 0876b2fbbcec7619f5b58b20c59ecc0118f65a47
   amplify_datastore: 4aa847727e99901625642db923deb86ee4c33817
   amplify_flutter_ios: 8943b5e5fb995a7aa3eb5c5238a6822756703584
-  amplify_storage_s3_ios: 4742284f7820a0f5c87e0592bc4e1678cf5041ae
   AmplifyPlugins: 98bcd23f2c13179f75c733b887e80dd06243be5e
   AppSyncRealTimeClient: 937360221f2b664c4c33ae142a60643e64f480cd
   AWSAuthCore: e728d73a2b4eed9e826506a1f0fcc58171537267
@@ -210,7 +194,6 @@ SPEC CHECKSUMS:
   AWSCore: 4bad3f0eb17393b4926a9491e32b835991c56382
   AWSMobileClient: c898658a4d15e64e07d39c7dc6354fd3ea3055a9
   AWSPluginsCore: 93f813579479fa4c5bfff58817df89e0e10f9f3b
-  AWSS3: 4bc7118f373a6c25543d99e67c55b409eaf769fd
   camera_avfoundation: 3125e8cd1a4387f6f31c6c63abb8a55892a9eeeb
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
   ffmpeg-kit-ios-min-gpl: ac5eb47f98b27e26d14c009de3ce9181007ce688
