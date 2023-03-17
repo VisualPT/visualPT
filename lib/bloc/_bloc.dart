@@ -3,6 +3,7 @@ export 'auth/auth_bloc.dart';
 export 'camera/camera_bloc.dart';
 export 'backend/backend_bloc.dart';
 export 'email/email_bloc.dart';
+export 'inference/inference_bloc.dart';
 export 'patient/patient_bloc.dart';
 export 'pdf/pdf_bloc.dart';
 export 'timer/timer_bloc.dart';

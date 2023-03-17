@@ -26,6 +26,10 @@ class HomeView extends StatelessWidget {
                 )),
             Expanded(
               child: ListView(
+                prototypeItem: const AssessmentCard(
+                    imagePath: Styles.ctsibLogoPath,
+                    assessmentType: AssessmentType.CTSIB,
+                    subtitle: "Prototype Item"),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 children: const [
@@ -42,6 +46,10 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
+            CupertinoButton(
+                child: const Text("Go to Camera"),
+                onPressed: () => AppNav().goToPath(context, "/camera")),
+            const Spacer(),
           ],
         ),
       ),

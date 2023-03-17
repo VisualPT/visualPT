@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/inference/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(const VisualPT());
 }
 
@@ -42,14 +45,6 @@ class VisualPT extends StatelessWidget {
                 builder: (context) =>
                     AssessmentView(assessmentType: assessmentType));
           }
-          // if (settings.name == "/analysis") {
-          //   final data = settings.arguments as List;
-          //   final type = data[0];
-          //   final assets = data[1];
-          //   return CupertinoPageRoute(
-          //       builder: (context) => AnalysisView(
-          //           assessmentType: type, assessmentAssets: assets));
-          // }
         },
       ),
     );

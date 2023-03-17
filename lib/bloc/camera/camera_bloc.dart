@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,8 +11,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
   Duration duration = const Duration(seconds: 0);
-  late File output;
-  CameraBloc() : super(CameraLoading()) {
+  CameraBloc() : super(const CameraLoading()) {
     on<CameraInit>(_onInit);
     on<CameraPlay>(_onPlay);
     on<CameraPause>(_onPause);
@@ -44,7 +42,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         emit(CameraStandby(cameraController!));
       });
 
-      log("In standby");
+      log("Camera initialized, lauming frame reader");
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
@@ -76,8 +74,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
   FutureOr<void> _onPlay(CameraPlay event, Emitter<CameraState> emit) async {
     log("camera play");
-    await cameraController!.startVideoRecording();
-
     emit(CameraRecording(cameraController!));
   }
 
@@ -86,19 +82,17 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   }
 
   FutureOr<void> _onStop(CameraStop event, Emitter<CameraState> emit) async {
-    output = await cameraController!
-        .stopVideoRecording()
-        .then((file) => File(file.path));
-    log(output.toString());
+    log("camera stop");
+    await cameraController!.stopImageStream();
     //TODO Pass data up!
     cameraController!.dispose();
+    cameraController = null;
     emit(const CameraLoading());
   }
 
-  Future<File> getData() async {
-    //TODO Make more reliable!
-    return await Future.delayed(const Duration(seconds: 1), () => output);
-  }
+  //TODO update this to output a Map<String, dynamic> instead of a file
+  // Future<File> getData() async {
+  // }
 }
 
 //TODO create an onFocus state for this

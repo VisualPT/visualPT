@@ -53,9 +53,8 @@ class AssessmentCard extends StatelessWidget {
                 Text(assessmentType.name,
                     style: available ? Styles.title : Styles.comingSoonTitle),
                 Text(subtitle,
-                    style: available
-                        ? Styles.subtitle
-                        : Styles.comingSoonSubtitle),
+                    style:
+                        available ? Styles.subtitle : Styles.comingSoonSubtitle)
               ],
             ),
           ),
