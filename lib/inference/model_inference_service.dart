@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:isolate';
 
 import 'package:camera/camera.dart';
@@ -22,7 +23,7 @@ class ModelInferenceService {
   late Function handler;
   Map<String, dynamic>? inferenceResults;
 
-  Future<Map<String, dynamic>?> inference({
+  Future<void> inference({
     required IsolateUtils isolateUtils,
     required CameraImage cameraImage,
   }) async {
@@ -45,22 +46,22 @@ class ModelInferenceService {
   void setModelConfig(int index) {
     switch (Models.values[index]) {
       case Models.FaceDetection:
-        print("Face Detection model configured");
+        log("Face Detection model configured");
         model = locator<FaceDetection>();
         handler = runFaceDetector;
         break;
       case Models.FaceMesh:
-        print("Face Mesh model configured");
+        log("Face Mesh model configured");
         model = locator<FaceMesh>();
         handler = runFaceMesh;
         break;
       case Models.Hands:
-        print("Hands model configured");
+        log("Hands model configured");
         model = locator<Hands>();
         handler = runHandDetector;
         break;
       case Models.Pose:
-        print("Pose model configured");
+        log("Pose model configured");
         model = locator<Pose>();
         handler = runPoseEstimator;
         break;

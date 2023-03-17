@@ -45,10 +45,10 @@ class _AnalysisProviderState extends State<AnalysisProvider> {
           try {
             if (state is PdfReady) {
               return widget.onReady(context, state);
-            } else if (state is CameraLoading) {
+            } else if (state is PdfLoading) {
               return widget.onLoading(context, state);
             } else {
-              throw Exception("Invalid CameraState");
+              throw Exception("Invalid Pdf State");
             }
           } on Exception catch (e) {
             return widget.onError(context, state, e);

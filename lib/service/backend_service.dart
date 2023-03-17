@@ -5,27 +5,23 @@ import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:visualpt/amplifyconfiguration.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class BackendService {
-  final AmplifyDataStore _dataStorePlugin =
-      AmplifyDataStore(modelProvider: ModelProvider.instance);
-  final AmplifyAPI _apiPlugin = AmplifyAPI();
-  final AmplifyAuthCognito _authPlugin = AmplifyAuthCognito();
-  final AmplifyStorageS3 _storagePlugin = AmplifyStorageS3();
-
   ///Sets up the plugins for Amplify
   ///SHOULD ONLY BE CALLED ONCE in entire codebase
   void initialConfig(
       {required void Function() onSuccess,
       required void Function(String) onFail}) async {
     try {
-      await Amplify.addPlugins(
-          [_dataStorePlugin, _apiPlugin, _authPlugin, _storagePlugin]);
+      await Amplify.addPlugins([
+        AmplifyAuthCognito(),
+        AmplifyAPI(),
+        AmplifyDataStore(modelProvider: ModelProvider.instance),
+      ]);
       await Amplify.configure(amplifyconfig).then((_) {
         kDebugMode ? verboseBackend() : null;
         //kDebugMode ? configDev() : configProd();

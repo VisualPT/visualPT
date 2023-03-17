@@ -4,7 +4,6 @@ import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/inference/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/camera_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +37,6 @@ class VisualPT extends StatelessWidget {
         routes: {
           "/": (context) => const LandingView(),
           "/home": (context) => const HomeView(),
-          "/camera": (context) => const CameraView()
         },
         onGenerateRoute: (settings) {
           if (settings.name == "/assessment") {
