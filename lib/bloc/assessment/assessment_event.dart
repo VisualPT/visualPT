@@ -13,7 +13,6 @@ class AssessmentInit extends AssessmentEvent {
 class AssessmentBegin extends AssessmentEvent {}
 
 class AssessmentIncrement extends AssessmentEvent {
-  final File assessmentData;
-
-  AssessmentIncrement(this.assessmentData);
+  AssessmentIncrement();
+  //TODO add data that should be passed
 }

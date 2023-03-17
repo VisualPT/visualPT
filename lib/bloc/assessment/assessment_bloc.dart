@@ -58,7 +58,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
-    assessmentAssets.add(event.assessmentData);
+    //TODO add map to assessmentassets
     index++;
     if (index == assessmentCount) {
       assessmentDurationSeconds =
@@ -91,5 +91,5 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 void saveCameraDataToAssessment(
     BuildContext context, AssessmentBloc assessment, CameraBloc camera) {
   camera.add(CameraStop());
-  camera.getData().then((data) => assessment.add(AssessmentIncrement(data)));
+  assessment.add(AssessmentIncrement());
 }
