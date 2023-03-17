@@ -1,8 +1,8 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/camera_painters/inference_preview.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class VideoView extends StatefulWidget {
@@ -54,16 +54,10 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
     assert(state is CameraRecording || state is CameraStandby);
     return Stack(alignment: Alignment.center, children: [
       SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: CameraPreview(
-          state.controller!,
-          // child: LayoutBuilder(
-          //     builder: (_, constraints) => GestureDetector(
-          //           onTapDown: (details) =>
-          //               onViewFinderTap(details, constraints),
-          //         )),
-        ),
-      ),
+          width: MediaQuery.of(context).size.width,
+          child: InferencePreview(
+            cameraController: state.controller,
+          )),
       Positioned(
         bottom: 0,
         child: Container(
