@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_editor/video_editor.dart';
 import 'package:helpers/helpers.dart' show OpacityTransition;
@@ -38,7 +37,7 @@ class _EditorPageState extends State<EditorPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-          leading: ElevatedButton(
+          leading: CupertinoButton(
               onPressed: () => Navigator.pop(context),
               child: const Icon(CupertinoIcons.back))),
       child: _c.initialized

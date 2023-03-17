@@ -1,3 +1,15 @@
+enum UserStatus {
+  ADMIN
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  email: AWSEmail!
+  first_name: String!
+  last_name: String!
+  status: UserStatus!
+}
+
 type SkeletalSequence @model @auth(rules: [{allow: public}]) {
   id: ID!
   frame_num: Int!
@@ -23,21 +35,23 @@ type SkeletalSequence @model @auth(rules: [{allow: public}]) {
 
 type Patient @model @auth(rules: [{allow: owner}]) {
   id: ID!
-  name: String!
-  family_name: String!
+  first_name: String!
+  last_name: String!
   dob: AWSDate!
   gender: Gender!
   height_in_inches: Float!
   Assessments: [Assessment] @hasMany(indexName: "byPatient", fields: ["id"])
+  provider_contact: AWSEmail!
 }
 
 type Assessment @model @auth(rules: [{allow: owner}]) {
   id: ID!
+  patientID: ID! @index(name: "byPatient")
   type: AssessmentType!
   timestamp: AWSTimestamp!
-  pdf_base64: String!
-  patientID: ID! @index(name: "byPatient")
-  SkeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
+  skeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
+  duration: Int
+  pdf: String
 }
 
 enum Gender {
@@ -49,3 +63,4 @@ enum AssessmentType {
   CTSIB
   GAIT
 }
+ 

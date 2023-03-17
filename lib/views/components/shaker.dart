@@ -24,6 +24,12 @@ class ShakerState extends State<Shaker> with SingleTickerProviderStateMixin {
     )..addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
   math.Vector3 _shake() {
     double progress = animationController.value;
     double offset =

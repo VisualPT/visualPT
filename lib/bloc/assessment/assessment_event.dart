@@ -5,14 +5,14 @@ abstract class AssessmentEvent {}
 
 class AssessmentInit extends AssessmentEvent {
   final int index;
+  final Patient patient;
 
-  AssessmentInit(this.index);
+  AssessmentInit(this.index, this.patient);
 }
 
 class AssessmentBegin extends AssessmentEvent {}
 
 class AssessmentIncrement extends AssessmentEvent {
-  final File assessmentData;
-
-  AssessmentIncrement(this.assessmentData);
+  AssessmentIncrement();
+  //TODO add data that should be passed
 }

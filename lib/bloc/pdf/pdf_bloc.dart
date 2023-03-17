@@ -1,22 +1,28 @@
+import 'dart:async';
 import 'dart:developer';
-import 'package:meta/meta.dart';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
+
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/assessments/ctsib/pdf.dart';
 import 'package:visualpt/views/assessments/gait/_gait.dart';
+import 'package:visualpt/views/assessments/pdf.dart';
 
+part 'pdf_event.dart';
 part 'pdf_state.dart';
 
-///TODO BUGGGY CODE
-class PdfCubit extends Cubit<PdfState> {
-  PdfCubit() : super(PdfLoading());
-  bool viewCreated = false;
+class PdfBloc extends Bloc<PdfEvent, PdfState> {
+  PdfBloc() : super(PdfLoading()) {
+    on<PdfInit>(_onInit);
+  }
 
-  void initPDFView(Patient patient, Assessment assessment) async {
-    var document;
+  FutureOr<void> _onInit(PdfInit event, Emitter<PdfState> emit) async {
+    late PDF document;
     emit(PdfLoading());
-    switch (assessment.type) {
+    switch (event.assessment.type) {
       case AssessmentType.CTSIB:
         document = CtsibPDF();
         break;
@@ -29,7 +35,7 @@ class PdfCubit extends Cubit<PdfState> {
     try {
       await document
           .configPdfStyles()
-          .then((_) => document.generatePdf(patient, assessment))
+          .then((_) => document.generatePdf(event.patient, event.assessment))
           .then((pdfData) {
         PDFView view = PDFView(
             enableSwipe: false,
@@ -38,7 +44,10 @@ class PdfCubit extends Cubit<PdfState> {
             onError: (error) => emit(PdfError(exception: error)),
             onPageError: (page, error) => emit(PdfError(exception: error)),
             pageSnap: false);
-        emit(PdfLoaded(pdfView: view));
+        emit(PdfReady(
+            pdfView: view,
+            patient: event.patient,
+            assessment: event.assessment));
       });
     } on Exception catch (error) {
       emit(PdfError(exception: error));
@@ -46,4 +55,6 @@ class PdfCubit extends Cubit<PdfState> {
       log(e.toString());
     }
   }
+
+  bool viewCreated = false;
 }

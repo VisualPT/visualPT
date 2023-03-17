@@ -1,72 +1,97 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/service/auth_service.dart';
+import 'package:visualpt/service/user_service.dart';
+import 'package:visualpt/views/components/_components.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
-enum AuthDataType { email, password, confirmPassword }
-
-//TODO possibly a security risk, address this before production
-class AuthData {
-  late String email = "";
-  late String password = "";
-  late String confirmPassword = "";
-
-  void setEmail(String value) => email = value;
-  void setPass(String value) => password = value;
-  void setConfirmPass(String value) => confirmPassword = value;
-  bool isLoginReady() => email.isNotEmpty && password.isNotEmpty;
-//TODO REGEX FOR EMAIL VALIDATION AND PASSWORD STRENGTH
-  bool isSignupReady() =>
-      email.isNotEmpty &&
-      password.isNotEmpty &&
-      confirmPassword.isNotEmpty &&
-      password == confirmPassword;
-  void debugPrint() =>
-      print("email:$email\npass:$password\nconfirm:$confirmPassword\n");
-}
+enum AuthMethod { signUp, logIn }
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthData authData = AuthData();
-  bool method = true; //True = Login/False = Signup
-  AuthBloc() : super(AuthLogin()) {
-    on<AuthToggle>(_authToggled);
-    on<AuthAttempt>(_authAttempted);
-  }
-  void _authToggled(AuthToggle event, Emitter<AuthState> emit) {
-    state is AuthSignUp ? emit(AuthLogin()) : emit(AuthSignUp());
-    method = !method;
+  AuthMethod method = AuthMethod.signUp;
+  late GlobalKey<ShakerState> shake; //For invalid response purposes
+  late AuthService auth = AuthService();
+  AuthBloc() : super(AuthSignUp()) {
+    on<AuthAuto>(_onAuto);
+    on<AuthToggle>(_onToggle);
+    on<AuthAttempt>(_onAttempt);
+    on<AuthConfirm>(_onConfirm);
   }
 
-  void _authAttempted(AuthAttempt event, Emitter<AuthState> emit) async {
-    if (state is AuthLogin && event.authData.isLoginReady()) {
-      //TODO set up the user account in the cloud
+  FutureOr<void> _onAuto(AuthAuto event, Emitter<AuthState> emit) async {
+    log("Attempting auto auth");
+    //TODO Get all the users data and put it in a singleton
+    await auth.fetchSession(onSignedIn: () async {
+      await userService
+          .initUser()
+          .then((user) => log(user.toString(), name: "Authenticated User"));
       emit(AuthSuccess());
-    } else if (state is AuthSignUp && event.authData.isSignupReady()) {
-      //TODO set up the user account in the cloud
-      emit(AuthSuccess());
+    });
+  }
+
+  void _onToggle(AuthToggle event, Emitter<AuthState> emit) {
+    if (state is AuthSignUp) {
+      emit(AuthLogIn());
+      method = AuthMethod.logIn;
     } else {
-      final tempState = state;
-      emit(AuthError("Something went wrong, please try again"));
-      await Future.delayed(
-          const Duration(milliseconds: 100), () => emit(tempState));
+      emit(AuthSignUp());
+      method = AuthMethod.signUp;
     }
   }
 
-  void storeAuthData(AuthDataType type, String data) {
+  void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
+    if (state is AuthLogIn && auth.isLoginValid()) {
+      auth.completeLogin();
+      log("LogIn Data Validated");
+      emit(AuthSuccess());
+    } else if (state is AuthSignUp && auth.isSignupValid()) {
+      log("SignUp Data Validated");
+      auth.completeSignUp();
+      emit(AuthValidate());
+    } else {
+      shake.currentState?.shake();
+    }
+  }
+
+  FutureOr<void> _onConfirm(event, emit) async {
+    if (method == AuthMethod.signUp) {
+      await auth.confirmSignUpCode().then((value) => value
+          ? emit(AuthSuccess())
+          : AuthError("The code entered was invalid"));
+    } else {
+      emit(AuthSuccess());
+
+      // await auth.confirmLogInCode().then((value) => value
+      //     ? emit(AuthSuccess())
+      //     : AuthError("The code entered was invalid"));
+    }
+  }
+
+  void setData(AuthDataType type, String data) {
     if (type == AuthDataType.email) {
-      authData.setEmail(data);
+      auth.setEmail(data);
     } else if (type == AuthDataType.password) {
-      authData.setPass(data);
+      auth.setPass(data);
     } else if (type == AuthDataType.confirmPassword) {
-      authData.setConfirmPass(data);
+      auth.setConfirmPass(data);
+    } else if (type == AuthDataType.confirmCode) {
+      auth.setConfirmCode(data);
     }
   }
 
-  void clearInput(TextEditingController controller) {
-    print("Attempting to Clear");
-    if (state is AuthError) {
-      controller.clear();
-    }
+  setShake(GlobalKey<ShakerState> shakeKey) {
+    shake = shakeKey;
   }
+
+  // void clearInput(TextEditingController controller) {
+  //   print("Attempting to Clear");
+  //   if (state is AuthError) {
+  //     controller.clear();
+  //   }
+  // }
 }

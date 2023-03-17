@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,8 +11,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
   Duration duration = const Duration(seconds: 0);
-  late File output;
-  CameraBloc() : super(CameraLoading()) {
+  CameraBloc() : super(const CameraLoading()) {
     on<CameraInit>(_onInit);
     on<CameraPlay>(_onPlay);
     on<CameraPause>(_onPause);
@@ -44,7 +42,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         emit(CameraStandby(cameraController!));
       });
 
-      log("In standby");
+      log("Camera initialized, lauming frame reader");
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
@@ -76,8 +74,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
   FutureOr<void> _onPlay(CameraPlay event, Emitter<CameraState> emit) async {
     log("camera play");
-    await cameraController!.startVideoRecording();
-
     emit(CameraRecording(cameraController!));
   }
 
@@ -86,17 +82,81 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   }
 
   FutureOr<void> _onStop(CameraStop event, Emitter<CameraState> emit) async {
-    output = await cameraController!
-        .stopVideoRecording()
-        .then((file) => File(file.path));
-    log(output.toString());
+    log("camera stop");
+    await cameraController!.stopImageStream();
     //TODO Pass data up!
     cameraController!.dispose();
+    cameraController = null;
     emit(const CameraLoading());
   }
 
-  Future<File> getData() async {
-    //TODO Make more reliable!
-    return await Future.delayed(const Duration(seconds: 1), () => output);
-  }
+  //TODO update this to output a Map<String, dynamic> instead of a file
+  // Future<File> getData() async {
+  // }
 }
+
+//TODO create an onFocus state for this
+// void onFocus(TapDownDetails details, BoxConstraints constraints) {
+//   if (cameraController == null) {
+//     return;
+//   }
+
+//   final Offset offset = Offset(
+//     details.localPosition.dx / constraints.maxWidth,
+//     details.localPosition.dy / constraints.maxHeight,
+//   );
+//   cameraController.setExposurePoint(offset);
+//   cameraController.setFocusPoint(offset);
+// }
+
+
+// // #docregion AppLifecycle
+// @override
+// void didChangeAppLifecycleState(AppLifecycleState state) {
+//   final CameraController? cameraController = widget.controller;
+
+//   // App state changed before we got the chance to initialize.
+//   if (cameraController == null || !cameraController.value.isInitialized) {
+//     return;
+//   }
+
+//   if (state == AppLifecycleState.inactive) {
+//     cameraController.dispose();
+//   } else if (state == AppLifecycleState.resumed) {
+//     // onNewCameraSelected(cameraController.description);
+//   }
+// }
+
+// Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
+//   final CameraController? oldController = widget.controller;
+//   if (oldController != null) {
+//     // `controller` needs to be set to null before getting disposed,
+//     // to avoid a race condition when we use the controller that is being
+//     // disposed. This happens when camera permission dialog shows up,
+//     // which triggers `didChangeAppLifecycleState`, which disposes and
+//     // re-creates the controller.
+//     widget.controller = null;
+//     await oldController.dispose();
+//   }
+
+//   final CameraController cameraController = CameraController(
+//     cameraDescription,
+//     ResolutionPreset.max,
+//   );
+
+//   widget.controller = cameraController;
+
+//   // If the controller is updated then update the UI.
+//   cameraController.addListener(() {
+//     if (mounted) {
+//       setState(() {});
+//     }
+//     if (cameraController.value.hasError) {
+//       log('Camera error ${cameraController.value.errorDescription}');
+//     }
+//   });
+
+//   if (mounted) {
+//     setState(() {});
+//   }
+// }

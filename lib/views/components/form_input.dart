@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/views/_views.dart';
 
 class FormInput extends StatefulWidget {
@@ -10,12 +11,14 @@ class FormInput extends StatefulWidget {
   final Future<String?> Function()? inputPopup;
   final bool obscure;
   final AuthDataType? authType;
+  final String? Function(String?)? validator;
   const FormInput(this.field,
       {super.key,
       this.controller,
       this.inputPopup,
       this.inputType,
       this.obscure = false,
+      this.validator,
       this.authType})
       //There must exist a way of distinguishing what type of input board to present and how to display the data
       : assert(inputType != null || inputPopup != null || authType != null),
@@ -43,6 +46,8 @@ class _FormInputState extends State<FormInput> {
         return TextInputType.visiblePassword;
       case AuthDataType.confirmPassword:
         return TextInputType.visiblePassword;
+      case AuthDataType.confirmCode:
+        return TextInputType.number;
       default:
         //Assume inputPopup is the supplied parameter
         return TextInputType.none;
@@ -51,12 +56,12 @@ class _FormInputState extends State<FormInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: CupertinoTextFormFieldRow(
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CupertinoTextFormFieldRow(
             controller: widget.controller,
             textAlign: TextAlign.center,
             autocorrect: false,
@@ -72,34 +77,36 @@ class _FormInputState extends State<FormInput> {
               border: Border.all(),
               borderRadius: BorderRadius.circular(8.0),
             ),
-            validator: (value) => value == null || value.isEmpty
-                ? 'Please enter a valid response'
-                : null,
+            validator: widget.validator ??
+                (value) => value == null || value.isEmpty
+                    ? 'Please enter a valid response'
+                    : null,
             onTap: () => widget.inputPopup != null
                 ? widget.inputPopup!()
                     .then((value) => widget.controller!.text = value ?? "")
                 : null,
-            onChanged: (value) => widget.authType != null
+            onChanged: (data) => widget.authType != null
                 ? BlocProvider.of<AuthBloc>(context)
-                    .storeAuthData(widget.authType!, value)
+                    .setData(widget.authType!, data)
                 //TODO Manage the controller.text (maybe do this after the rest of the UI build?)
                 : null,
           ),
-        ),
-        widget.obscure
-            ? Positioned(
-                right: 36,
-                child: GestureDetector(
-                  child: Icon(
-                      obsController
-                          ? CupertinoIcons.eye_fill
-                          : CupertinoIcons.eye_slash_fill,
-                      color: CupertinoColors.inactiveGray),
-                  onTap: () => setState(() => obsController = !obsController),
-                ),
-              )
-            : Container()
-      ],
+          widget.obscure
+              ? Positioned(
+                  top: 16,
+                  right: 16,
+                  child: GestureDetector(
+                    child: Icon(
+                        obsController
+                            ? CupertinoIcons.eye_fill
+                            : CupertinoIcons.eye_slash_fill,
+                        color: CupertinoColors.inactiveGray),
+                    onTap: () => setState(() => obsController = !obsController),
+                  ),
+                )
+              : Container()
+        ],
+      ),
     );
   }
 }

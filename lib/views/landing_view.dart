@@ -1,19 +1,58 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/views/styles.dart';
-import 'base_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
-//TODO The first view anyone on the app sees. Synonymous with the loading view
 class LandingView extends StatelessWidget {
   const LandingView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        child: Stack(
-      children: const [
-        BaseView(pageTitle: "TODO", child: Text("TODO")),
-      ],
-    ));
+      child: Stack(
+        children: [
+          BaseView(
+            pageTitle: "Save 5 clicks & 5 minutes",
+            child: BlocProvider(
+              create: (context) =>
+                  BackendBloc()..add(const BackendAttemptSync()),
+              child: BlocBuilder<BackendBloc, BackendState>(
+                builder: (context, state) {
+                  try {
+                    if (state is BackendOnline) {
+                      AppNav().setAuth(context);
+                      return const AppLoading();
+                    } else if (state is BackendOffline) {
+                      //Return a reason with a retry button
+                      return Column(
+                        children: [
+                          const Text("Backend Offline"),
+                          Text(state.message),
+                          CupertinoButton(
+                              onPressed: () =>
+                                  BlocProvider.of<BackendBloc>(context)
+                                      .add(const BackendAttemptSync()),
+                              child: const Text("Retry"))
+                        ],
+                      );
+                    } else {
+                      //State is BackendLoading
+                      BlocProvider.of<BackendBloc>(context).backendLoading();
+                      return const AppLoading();
+                    }
+                  } on Exception catch (e) {
+                    BlocProvider.of<BackendBloc>(context)
+                        .add(BackendFailSync(e.toString()));
+                    return const AppLoading();
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
