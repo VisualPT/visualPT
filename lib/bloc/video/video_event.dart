@@ -1,16 +1,14 @@
-part of 'camera_bloc.dart';
+part of 'video_bloc.dart';
 
 @immutable
 abstract class CameraEvent {}
 
 class CameraInit extends CameraEvent {
-  final void Function() onComplete;
+  final void Function(VideoOutput) onComplete;
   CameraInit({required this.onComplete});
 }
 
 class CameraPlay extends CameraEvent {}
-
-class CameraPause extends CameraEvent {}
 
 class CameraRestart extends CameraEvent {}
 

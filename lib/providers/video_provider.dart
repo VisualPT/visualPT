@@ -5,7 +5,7 @@ import 'package:visualpt/bloc/_bloc.dart';
 class VideoProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;
   final Widget Function(BuildContext context, CameraState state) onLoading;
-  final void Function() onComplete;
+  final void Function(VideoOutput) onComplete;
   final Widget Function(BuildContext context, CameraState state) onRecording;
   final Widget Function(BuildContext context, CameraState state) onStandby;
   final Widget Function(BuildContext context, CameraState state, Exception e)
@@ -37,13 +37,13 @@ class _VideoProviderState extends State<VideoProvider> {
       providers: [
         BlocProvider(
           create: (context) =>
-              CameraBloc()..add(CameraInit(onComplete: widget.onComplete)),
+              VideoBloc()..add(CameraInit(onComplete: widget.onComplete)),
         ),
         BlocProvider(
           create: (context) => TimerBloc(),
         ),
       ],
-      child: BlocBuilder<CameraBloc, CameraState>(
+      child: BlocBuilder<VideoBloc, CameraState>(
         builder: (context, state) {
           widget.getProviders(context);
           try {

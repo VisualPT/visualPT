@@ -1,6 +1,6 @@
 export 'assessment/assessment_bloc.dart';
 export 'auth/auth_bloc.dart';
-export 'camera/camera_bloc.dart';
+export 'video/video_bloc.dart';
 export 'backend/backend_bloc.dart';
 export 'email/email_bloc.dart';
 export 'inference/inference_bloc.dart';
