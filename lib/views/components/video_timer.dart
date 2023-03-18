@@ -5,17 +5,15 @@ import 'package:visualpt/views/_views.dart';
 
 //TODO combine with camera to video UI and extract bloc logic into new file
 class VideoTimer extends StatelessWidget {
-  const VideoTimer({super.key});
+  final void Function() onComplete;
+  const VideoTimer({super.key, required this.onComplete});
 
   @override
   Widget build(BuildContext context) {
-    final assessmentBloc = BlocProvider.of<AssessmentBloc>(context);
-    final cameraBloc = BlocProvider.of<CameraBloc>(context);
-
     return BlocBuilder<TimerBloc, TimerState>(
       builder: (context, state) {
         if (state is TimerRunComplete) {
-          saveCameraDataToAssessment(context, assessmentBloc, cameraBloc);
+          onComplete();
         }
         return Text(formatter(state.duration), style: Styles.timerTextStyle);
       },

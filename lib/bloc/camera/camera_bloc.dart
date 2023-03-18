@@ -11,11 +11,13 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
   Duration duration = const Duration(seconds: 0);
+  static late void Function() onComplete;
+
   CameraBloc() : super(const CameraLoading()) {
-    on<CameraInit>(_onInit);
-    on<CameraPlay>(_onPlay);
-    on<CameraPause>(_onPause);
-    on<CameraStop>(_onStop);
+    on<CameraInit>(onInit);
+    on<CameraPlay>(onPlay);
+    on<CameraPause>(onPause);
+    on<CameraStop>(onStop);
   }
 
   void resetTimer() {
@@ -23,8 +25,9 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     duration = const Duration(seconds: 0);
   }
 
-  FutureOr<void> _onInit(CameraInit event, Emitter<CameraState> emit) async {
+  FutureOr<void> onInit(CameraInit event, Emitter<CameraState> emit) async {
     log("camera init");
+    onComplete = event.onComplete;
     try {
       await availableCameras()
           .then(
@@ -72,16 +75,16 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
   }
 
-  FutureOr<void> _onPlay(CameraPlay event, Emitter<CameraState> emit) async {
+  FutureOr<void> onPlay(CameraPlay event, Emitter<CameraState> emit) async {
     log("camera play");
     emit(CameraRecording(cameraController!));
   }
 
-  FutureOr<void> _onPause(CameraPause event, Emitter<CameraState> emit) {
+  FutureOr<void> onPause(CameraPause event, Emitter<CameraState> emit) {
     log("camera pause");
   }
 
-  FutureOr<void> _onStop(CameraStop event, Emitter<CameraState> emit) async {
+  FutureOr<void> onStop(CameraStop event, Emitter<CameraState> emit) async {
     log("camera stop");
     await cameraController!.stopImageStream();
     //TODO Pass data up!

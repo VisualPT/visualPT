@@ -23,6 +23,7 @@ class CameraStandby extends CameraState {
 
 class CameraError extends CameraState {
   final Exception exception;
-  const CameraError({required this.exception})
-      : super(CupertinoIcons.restart, null);
+  const CameraError({
+    required this.exception,
+  }) : super(CupertinoIcons.restart, null);
 }
