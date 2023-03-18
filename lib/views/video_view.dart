@@ -80,7 +80,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
                           onTap: () =>
-                              controller.cameraBloc!.add(CameraRestart()),
+                              controller.videoBloc!.add(CameraRestart()),
                           child: const Icon(CupertinoIcons.restart,
                               color: CupertinoColors.black, size: 40)),
                     ),
@@ -91,7 +91,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                           //TODO double check the onComplete function for functionality
                           VideoTimer(
                               onComplete: (output) =>
-                                  controller.cameraBloc!.onComplete(output)),
+                                  controller.videoBloc!.onComplete(output)),
                     )
                   ],
                 ),
@@ -111,11 +111,11 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
               if (state is CameraRecording) {
                 showCupertinoDialog(
                     context: context, builder: (context) => const AppLoading());
-                controller.cameraBloc!.add(CameraStop());
+                controller.videoBloc!.add(CameraStop());
                 controller.timerBloc!.add(const TimerReset());
                 //TODO only pass what is necessary
               } else {
-                controller.cameraBloc!.add(CameraPlay());
+                controller.videoBloc!.add(CameraPlay());
                 controller.timerBloc!.add(const TimerStarted());
               }
             },
@@ -144,7 +144,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => controller.cameraBloc!.add(CameraRestart()),
+            onPressed: () => controller.videoBloc!.add(CameraRestart()),
             child: const Text("Restart"),
           ),
         ],

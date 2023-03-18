@@ -13,7 +13,7 @@ class BlocProviders {
   AssessmentBloc? assessmentBloc;
   AuthBloc? authBloc;
   BackendBloc? backendBloc;
-  CameraBloc? cameraBloc;
+  VideoBloc? videoBloc;
   EmailBloc? emailBloc;
   PatientBloc? patientBloc;
   PdfBloc? pdfBloc;
@@ -35,7 +35,7 @@ class BlocProviders {
         assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
     authBloc = auth ? BlocProvider.of<AuthBloc>(context) : null;
     backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
-    cameraBloc = camera ? BlocProvider.of<CameraBloc>(context) : null;
+    videoBloc = camera ? BlocProvider.of<VideoBloc>(context) : null;
     emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
     patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
     pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;

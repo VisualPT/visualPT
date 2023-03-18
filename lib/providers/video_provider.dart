@@ -37,13 +37,13 @@ class _VideoProviderState extends State<VideoProvider> {
       providers: [
         BlocProvider(
           create: (context) =>
-              CameraBloc()..add(CameraInit(onComplete: widget.onComplete)),
+              VideoBloc()..add(CameraInit(onComplete: widget.onComplete)),
         ),
         BlocProvider(
           create: (context) => TimerBloc(),
         ),
       ],
-      child: BlocBuilder<CameraBloc, CameraState>(
+      child: BlocBuilder<VideoBloc, CameraState>(
         builder: (context, state) {
           widget.getProviders(context);
           try {

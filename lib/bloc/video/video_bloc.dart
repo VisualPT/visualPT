@@ -4,8 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'camera_event.dart';
-part 'camera_state.dart';
+part 'video_event.dart';
+part 'video_state.dart';
 
 class VideoOutput {
   final XFile? file;
@@ -16,14 +16,14 @@ class VideoOutput {
   toString() => "VideoOutput(file: $file, duration: $duration)";
 }
 
-class CameraBloc extends Bloc<CameraEvent, CameraState> {
+class VideoBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
   late Duration duration = const Duration(seconds: 0);
   late DateTime start;
   late void Function(VideoOutput) onComplete;
 
-  CameraBloc() : super(const CameraLoading()) {
+  VideoBloc() : super(const CameraLoading()) {
     on<CameraInit>(onInit);
     on<CameraPlay>(onPlay);
     on<CameraStop>(onStop);

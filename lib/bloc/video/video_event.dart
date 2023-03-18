@@ -1,4 +1,4 @@
-part of 'camera_bloc.dart';
+part of 'video_bloc.dart';
 
 @immutable
 abstract class CameraEvent {}
