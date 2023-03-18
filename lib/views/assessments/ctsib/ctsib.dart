@@ -99,7 +99,14 @@ Widget captureView(
     Builder(
       builder: (context) => Stack(
         children: [
-          VideoView(sequence: index),
+          VideoView(
+            sequence: index,
+            onComplete: () {
+              BlocProvider.of<CameraBloc>(context).add(CameraStop());
+              BlocProvider.of<AssessmentBloc>(context)
+                  .add(AssessmentIncrement());
+            },
+          ),
           Positioned(
             top: 0,
             child: SizedBox(

@@ -15,6 +15,7 @@ class InferenceService {
 
   late Map<String, dynamic>? aggregatedResponse;
 
+  bool ready = false;
   bool processing = false;
 
   InferenceService() {
@@ -36,9 +37,13 @@ class InferenceService {
     _handIsolateUtils = IsolateUtils();
     _poseIsolateUtils = IsolateUtils();
 
-    await _faceIsolateUtils.initIsolate();
-    await _handIsolateUtils.initIsolate();
-    await _poseIsolateUtils.initIsolate();
+    final futures = [
+      _faceIsolateUtils.initIsolate(),
+      _handIsolateUtils.initIsolate(),
+      _poseIsolateUtils.initIsolate(),
+    ];
+
+    Future.wait(futures).then((value) => ready = true);
   }
 
   Future<void> inference({required CameraImage cameraImage}) async {

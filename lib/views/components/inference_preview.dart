@@ -4,10 +4,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/service/inference_service.dart';
 
-import 'face_detection_painter.dart';
-import 'face_mesh_painter.dart';
-import 'hands_painter.dart';
-import 'pose_painter.dart';
+import '../camera_painters/face_detection_painter.dart';
+import '../camera_painters/face_mesh_painter.dart';
+import '../camera_painters/hands_painter.dart';
+import '../camera_painters/pose_painter.dart';
 
 class InferencePreview extends StatefulWidget {
   const InferencePreview({
@@ -25,7 +25,7 @@ class InferencePreviewState extends State<InferencePreview> {
   late double _ratio;
   late final InferenceService inferenceService;
 
-  late Map<String, dynamic>? results;
+  late Map<String, dynamic>? results = {};
 
   @override
   void initState() {
@@ -33,12 +33,10 @@ class InferencePreviewState extends State<InferencePreview> {
 
     inferenceService = InferenceService();
     widget.cameraController!.startImageStream((CameraImage image) {
-      if (!inferenceService.processing) {
+      if (inferenceService.ready && !inferenceService.processing) {
         inferenceService.inference(cameraImage: image);
       }
-      setState(() {
-        results = inferenceService.aggregatedResponse;
-      });
+      setState(() => results = inferenceService.aggregatedResponse);
     });
   }
 

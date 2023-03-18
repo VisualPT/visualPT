@@ -3,8 +3,9 @@ export 'assessment_view.dart';
 export 'analysis_view.dart';
 export 'auth_view.dart';
 export 'base_view.dart';
+export 'camera_view.dart';
 export 'home_view.dart';
 export 'landing_view.dart';
-export 'video/video_view.dart';
+export 'video_view.dart';
 
 export 'styles.dart';

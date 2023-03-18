@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/camera_painters/inference_preview.dart';
+import 'package:visualpt/views/components/inference_preview.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class VideoView extends StatefulWidget {
   final int sequence;
-  const VideoView({super.key, required this.sequence});
+  final void Function() onComplete;
+  const VideoView(
+      {super.key, required this.sequence, required this.onComplete});
 
   @override
   State<VideoView> createState() => VideoViewState();
@@ -36,11 +38,13 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         decoration: BoxDecoration(border: Border.all()),
         child: VideoProvider(
           getProviders: (context) {
-            controller = BlocProviders(
-                context: context, assessment: true, camera: true, timer: true);
+            controller =
+                BlocProviders(context: context, camera: true, timer: true);
           },
+          onComplete: widget.onComplete,
           onRecording: mainCamera,
           onStandby: mainCamera,
+          //TODO add onRestart
           onLoading: loadingCamera,
           onError: errorCamera,
         ));
@@ -75,16 +79,17 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
-                          onTap: () => controller.assessmentBloc!.add(
-                              AssessmentInit(widget.sequence,
-                                  controller.patientBloc!.currentPatient)),
+                          onTap: () =>
+                              controller.cameraBloc!.add(CameraRestart()),
                           child: const Icon(CupertinoIcons.restart,
                               color: CupertinoColors.black, size: 40)),
                     ),
                     const Spacer(),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: VideoTimer(),
+                      child:
+                          //TODO double check the onComplete function for functionality
+                          VideoTimer(onComplete: () => CameraBloc.onComplete()),
                     )
                   ],
                 ),
@@ -106,8 +111,6 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                     context: context, builder: (context) => const AppLoading());
                 controller.timerBloc!.add(const TimerReset());
                 //TODO only pass what is necessary
-                saveCameraDataToAssessment(context, controller.assessmentBloc!,
-                    controller.cameraBloc!);
               } else {
                 controller.cameraBloc!.add(CameraPlay());
                 controller.timerBloc!.add(const TimerStarted());
@@ -138,9 +141,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () {
-              controller.cameraBloc!.add(CameraInit());
-            },
+            onPressed: () => controller.cameraBloc!.add(CameraRestart()),
             child: const Text("Restart"),
           ),
         ],
