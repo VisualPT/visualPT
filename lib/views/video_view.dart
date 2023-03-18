@@ -7,7 +7,7 @@ import 'package:visualpt/views/components/_components.dart';
 
 class VideoView extends StatefulWidget {
   final int sequence;
-  final void Function() onComplete;
+  final void Function(VideoOutput) onComplete;
   const VideoView(
       {super.key, required this.sequence, required this.onComplete});
 
@@ -89,7 +89,9 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                       padding: EdgeInsets.all(8.0),
                       child:
                           //TODO double check the onComplete function for functionality
-                          VideoTimer(onComplete: () => CameraBloc.onComplete()),
+                          VideoTimer(
+                              onComplete: (output) =>
+                                  controller.cameraBloc!.onComplete(output)),
                     )
                   ],
                 ),
@@ -109,6 +111,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
               if (state is CameraRecording) {
                 showCupertinoDialog(
                     context: context, builder: (context) => const AppLoading());
+                controller.cameraBloc!.add(CameraStop());
                 controller.timerBloc!.add(const TimerReset());
                 //TODO only pass what is necessary
               } else {

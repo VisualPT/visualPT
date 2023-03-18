@@ -101,8 +101,8 @@ Widget captureView(
         children: [
           VideoView(
             sequence: index,
-            onComplete: () {
-              BlocProvider.of<CameraBloc>(context).add(CameraStop());
+            onComplete: (output) {
+              BlocProvider.of<VideoBloc>(context).add(CameraStop());
               BlocProvider.of<AssessmentBloc>(context)
                   .add(AssessmentIncrement());
             },

@@ -32,11 +32,14 @@ class InferencePreviewState extends State<InferencePreview> {
     super.initState();
 
     inferenceService = InferenceService();
-    widget.cameraController!.startImageStream((CameraImage image) {
+    widget.cameraController!.startVideoRecording(
+        onAvailable: (CameraImage image) {
       if (inferenceService.ready && !inferenceService.processing) {
         inferenceService.inference(cameraImage: image);
       }
-      setState(() => results = inferenceService.aggregatedResponse);
+      if (mounted) {
+        setState(() => results = inferenceService.aggregatedResponse);
+      }
     });
   }
 

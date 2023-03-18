@@ -7,16 +7,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'camera_event.dart';
 part 'camera_state.dart';
 
+class VideoOutput {
+  final XFile? file;
+  final Duration? duration;
+  const VideoOutput({this.file, this.duration});
+
+  @override
+  toString() => "VideoOutput(file: $file, duration: $duration)";
+}
+
 class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? cameraController;
   Timer? timer;
-  Duration duration = const Duration(seconds: 0);
-  static late void Function() onComplete;
+  late Duration duration = const Duration(seconds: 0);
+  late DateTime start;
+  late void Function(VideoOutput) onComplete;
 
   CameraBloc() : super(const CameraLoading()) {
     on<CameraInit>(onInit);
     on<CameraPlay>(onPlay);
-    on<CameraPause>(onPause);
     on<CameraStop>(onStop);
   }
 
@@ -49,22 +58,22 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
-          print('You have denied camera access.');
+          log('You have denied camera access.');
           break;
         case 'CameraAccessDeniedWithoutPrompt':
-          print('Please go to Settings app to enable camera access.');
+          log('Please go to Settings app to enable camera access.');
           break;
         case 'CameraAccessRestricted':
-          print('Camera access is restricted.');
+          log('Camera access is restricted.');
           break;
         case 'AudioAccessDenied':
-          print('You have denied audio access.');
+          log('You have denied audio access.');
           break;
         case 'AudioAccessDeniedWithoutPrompt':
-          print('Please go to Settings app to enable audio access.');
+          log('Please go to Settings app to enable audio access.');
           break;
         case 'AudioAccessRestricted':
-          print('Audio access is restricted.');
+          log('Audio access is restricted.');
           break;
         default:
           emit(CameraError(exception: e));
@@ -77,16 +86,16 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
   FutureOr<void> onPlay(CameraPlay event, Emitter<CameraState> emit) async {
     log("camera play");
+    start = DateTime.now();
     emit(CameraRecording(cameraController!));
-  }
-
-  FutureOr<void> onPause(CameraPause event, Emitter<CameraState> emit) {
-    log("camera pause");
   }
 
   FutureOr<void> onStop(CameraStop event, Emitter<CameraState> emit) async {
     log("camera stop");
-    await cameraController!.stopImageStream();
+    await cameraController!.stopVideoRecording().then((file) {
+      duration = DateTime.now().difference(start);
+      onComplete(VideoOutput(file: file, duration: duration));
+    });
     //TODO Pass data up!
     cameraController!.dispose();
     cameraController = null;

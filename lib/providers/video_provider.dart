@@ -5,7 +5,7 @@ import 'package:visualpt/bloc/_bloc.dart';
 class VideoProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;
   final Widget Function(BuildContext context, CameraState state) onLoading;
-  final void Function() onComplete;
+  final void Function(VideoOutput) onComplete;
   final Widget Function(BuildContext context, CameraState state) onRecording;
   final Widget Function(BuildContext context, CameraState state) onStandby;
   final Widget Function(BuildContext context, CameraState state, Exception e)
