@@ -46,7 +46,6 @@ class SkeletalSequence extends Model {
   final String? _right_knee;
   final String? _left_ankle;
   final String? _right_ankle;
-  final String? _assessmentID;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -144,19 +143,6 @@ class SkeletalSequence extends Model {
     return _right_ankle;
   }
   
-  String get assessmentID {
-    try {
-      return _assessmentID!;
-    } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
-  }
-  
   TemporalDateTime? get createdAt {
     return _createdAt;
   }
@@ -165,9 +151,9 @@ class SkeletalSequence extends Model {
     return _updatedAt;
   }
   
-  const SkeletalSequence._internal({required this.id, required frame_num, nose, left_eye, right_eye, left_ear, right_ear, left_shoulder, right_shoulder, left_elbow, right_elbow, left_wrist, right_wrist, left_hip, right_hip, left_knee, right_knee, left_ankle, right_ankle, required assessmentID, createdAt, updatedAt}): _frame_num = frame_num, _nose = nose, _left_eye = left_eye, _right_eye = right_eye, _left_ear = left_ear, _right_ear = right_ear, _left_shoulder = left_shoulder, _right_shoulder = right_shoulder, _left_elbow = left_elbow, _right_elbow = right_elbow, _left_wrist = left_wrist, _right_wrist = right_wrist, _left_hip = left_hip, _right_hip = right_hip, _left_knee = left_knee, _right_knee = right_knee, _left_ankle = left_ankle, _right_ankle = right_ankle, _assessmentID = assessmentID, _createdAt = createdAt, _updatedAt = updatedAt;
+  const SkeletalSequence._internal({required this.id, required frame_num, nose, left_eye, right_eye, left_ear, right_ear, left_shoulder, right_shoulder, left_elbow, right_elbow, left_wrist, right_wrist, left_hip, right_hip, left_knee, right_knee, left_ankle, right_ankle, createdAt, updatedAt}): _frame_num = frame_num, _nose = nose, _left_eye = left_eye, _right_eye = right_eye, _left_ear = left_ear, _right_ear = right_ear, _left_shoulder = left_shoulder, _right_shoulder = right_shoulder, _left_elbow = left_elbow, _right_elbow = right_elbow, _left_wrist = left_wrist, _right_wrist = right_wrist, _left_hip = left_hip, _right_hip = right_hip, _left_knee = left_knee, _right_knee = right_knee, _left_ankle = left_ankle, _right_ankle = right_ankle, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory SkeletalSequence({String? id, required int frame_num, String? nose, String? left_eye, String? right_eye, String? left_ear, String? right_ear, String? left_shoulder, String? right_shoulder, String? left_elbow, String? right_elbow, String? left_wrist, String? right_wrist, String? left_hip, String? right_hip, String? left_knee, String? right_knee, String? left_ankle, String? right_ankle, required String assessmentID}) {
+  factory SkeletalSequence({String? id, required int frame_num, String? nose, String? left_eye, String? right_eye, String? left_ear, String? right_ear, String? left_shoulder, String? right_shoulder, String? left_elbow, String? right_elbow, String? left_wrist, String? right_wrist, String? left_hip, String? right_hip, String? left_knee, String? right_knee, String? left_ankle, String? right_ankle}) {
     return SkeletalSequence._internal(
       id: id == null ? UUID.getUUID() : id,
       frame_num: frame_num,
@@ -187,8 +173,7 @@ class SkeletalSequence extends Model {
       left_knee: left_knee,
       right_knee: right_knee,
       left_ankle: left_ankle,
-      right_ankle: right_ankle,
-      assessmentID: assessmentID);
+      right_ankle: right_ankle);
   }
   
   bool equals(Object other) {
@@ -217,8 +202,7 @@ class SkeletalSequence extends Model {
       _left_knee == other._left_knee &&
       _right_knee == other._right_knee &&
       _left_ankle == other._left_ankle &&
-      _right_ankle == other._right_ankle &&
-      _assessmentID == other._assessmentID;
+      _right_ankle == other._right_ankle;
   }
   
   @override
@@ -248,7 +232,6 @@ class SkeletalSequence extends Model {
     buffer.write("right_knee=" + "$_right_knee" + ", ");
     buffer.write("left_ankle=" + "$_left_ankle" + ", ");
     buffer.write("right_ankle=" + "$_right_ankle" + ", ");
-    buffer.write("assessmentID=" + "$_assessmentID" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -256,7 +239,7 @@ class SkeletalSequence extends Model {
     return buffer.toString();
   }
   
-  SkeletalSequence copyWith({int? frame_num, String? nose, String? left_eye, String? right_eye, String? left_ear, String? right_ear, String? left_shoulder, String? right_shoulder, String? left_elbow, String? right_elbow, String? left_wrist, String? right_wrist, String? left_hip, String? right_hip, String? left_knee, String? right_knee, String? left_ankle, String? right_ankle, String? assessmentID}) {
+  SkeletalSequence copyWith({int? frame_num, String? nose, String? left_eye, String? right_eye, String? left_ear, String? right_ear, String? left_shoulder, String? right_shoulder, String? left_elbow, String? right_elbow, String? left_wrist, String? right_wrist, String? left_hip, String? right_hip, String? left_knee, String? right_knee, String? left_ankle, String? right_ankle}) {
     return SkeletalSequence._internal(
       id: id,
       frame_num: frame_num ?? this.frame_num,
@@ -276,8 +259,7 @@ class SkeletalSequence extends Model {
       left_knee: left_knee ?? this.left_knee,
       right_knee: right_knee ?? this.right_knee,
       left_ankle: left_ankle ?? this.left_ankle,
-      right_ankle: right_ankle ?? this.right_ankle,
-      assessmentID: assessmentID ?? this.assessmentID);
+      right_ankle: right_ankle ?? this.right_ankle);
   }
   
   SkeletalSequence.fromJson(Map<String, dynamic> json)  
@@ -300,16 +282,15 @@ class SkeletalSequence extends Model {
       _right_knee = json['right_knee'],
       _left_ankle = json['left_ankle'],
       _right_ankle = json['right_ankle'],
-      _assessmentID = json['assessmentID'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'frame_num': _frame_num, 'nose': _nose, 'left_eye': _left_eye, 'right_eye': _right_eye, 'left_ear': _left_ear, 'right_ear': _right_ear, 'left_shoulder': _left_shoulder, 'right_shoulder': _right_shoulder, 'left_elbow': _left_elbow, 'right_elbow': _right_elbow, 'left_wrist': _left_wrist, 'right_wrist': _right_wrist, 'left_hip': _left_hip, 'right_hip': _right_hip, 'left_knee': _left_knee, 'right_knee': _right_knee, 'left_ankle': _left_ankle, 'right_ankle': _right_ankle, 'assessmentID': _assessmentID, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'frame_num': _frame_num, 'nose': _nose, 'left_eye': _left_eye, 'right_eye': _right_eye, 'left_ear': _left_ear, 'right_ear': _right_ear, 'left_shoulder': _left_shoulder, 'right_shoulder': _right_shoulder, 'left_elbow': _left_elbow, 'right_elbow': _right_elbow, 'left_wrist': _left_wrist, 'right_wrist': _right_wrist, 'left_hip': _left_hip, 'right_hip': _right_hip, 'left_knee': _left_knee, 'right_knee': _right_knee, 'left_ankle': _left_ankle, 'right_ankle': _right_ankle, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'frame_num': _frame_num, 'nose': _nose, 'left_eye': _left_eye, 'right_eye': _right_eye, 'left_ear': _left_ear, 'right_ear': _right_ear, 'left_shoulder': _left_shoulder, 'right_shoulder': _right_shoulder, 'left_elbow': _left_elbow, 'right_elbow': _right_elbow, 'left_wrist': _left_wrist, 'right_wrist': _right_wrist, 'left_hip': _left_hip, 'right_hip': _right_hip, 'left_knee': _left_knee, 'right_knee': _right_knee, 'left_ankle': _left_ankle, 'right_ankle': _right_ankle, 'assessmentID': _assessmentID, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id, 'frame_num': _frame_num, 'nose': _nose, 'left_eye': _left_eye, 'right_eye': _right_eye, 'left_ear': _left_ear, 'right_ear': _right_ear, 'left_shoulder': _left_shoulder, 'right_shoulder': _right_shoulder, 'left_elbow': _left_elbow, 'right_elbow': _right_elbow, 'left_wrist': _left_wrist, 'right_wrist': _right_wrist, 'left_hip': _left_hip, 'right_hip': _right_hip, 'left_knee': _left_knee, 'right_knee': _right_knee, 'left_ankle': _left_ankle, 'right_ankle': _right_ankle, 'createdAt': _createdAt, 'updatedAt': _updatedAt
   };
 
   static final QueryModelIdentifier<SkeletalSequenceModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<SkeletalSequenceModelIdentifier>();
@@ -332,7 +313,6 @@ class SkeletalSequence extends Model {
   static final QueryField RIGHT_KNEE = QueryField(fieldName: "right_knee");
   static final QueryField LEFT_ANKLE = QueryField(fieldName: "left_ankle");
   static final QueryField RIGHT_ANKLE = QueryField(fieldName: "right_ankle");
-  static final QueryField ASSESSMENTID = QueryField(fieldName: "assessmentID");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "SkeletalSequence";
     modelSchemaDefinition.pluralName = "SkeletalSequences";
@@ -346,10 +326,6 @@ class SkeletalSequence extends Model {
           ModelOperation.DELETE,
           ModelOperation.READ
         ])
-    ];
-    
-    modelSchemaDefinition.indexes = [
-      ModelIndex(fields: const ["assessmentID"], name: "byAssessment")
     ];
     
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
@@ -459,12 +435,6 @@ class SkeletalSequence extends Model {
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
       key: SkeletalSequence.RIGHT_ANKLE,
       isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: SkeletalSequence.ASSESSMENTID,
-      isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     

@@ -1,3 +1,8 @@
+type Segment {
+  file: String!
+  duration_seconds: String
+}
+
 enum UserStatus {
   ADMIN
 }
@@ -30,7 +35,6 @@ type SkeletalSequence @model @auth(rules: [{allow: public}]) {
   right_knee: String
   left_ankle: String
   right_ankle: String
-  assessmentID: ID! @index(name: "byAssessment")
 }
 
 type Patient @model @auth(rules: [{allow: owner}]) {
@@ -49,9 +53,9 @@ type Assessment @model @auth(rules: [{allow: owner}]) {
   patientID: ID! @index(name: "byPatient")
   type: AssessmentType!
   timestamp: AWSTimestamp!
-  skeletalSequences: [SkeletalSequence] @hasMany(indexName: "byAssessment", fields: ["id"])
   duration: Int
   pdf: String
+  segments: [Segment]!
 }
 
 enum Gender {
