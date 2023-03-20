@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/components/_components.dart';
 
 class Ctsib {
   static const sequences = 4;
@@ -15,116 +14,108 @@ class Ctsib {
     for (int i = 70; i <= 79; i++) i: 177.7,
   };
 
-//TODO REMOVE THE INFORMATION FROM BEING PASSED ALL AROUND THE PLACE (ONLY PASS CONTEXT)
-  List<Widget Function(BuildContext, String)> introContent() {
+//TODO REMOVE NAME FROM BEING PASSED ALL AROUND THE PLACE
+  List<Widget Function(BuildContext) Function(String)> introContent() {
     return [
-      (context, name) => introView(context, name, "Eyes Open\nFirm Surface", 1),
-      (context, name) =>
-          introView(context, name, "Eyes Closed\nFirm Surface", 2),
-      (context, name) => introView(context, name, "Eyes Open\nFoam Surface", 3),
-      (context, name) =>
-          introView(context, name, "Eyes Closed\nFoam Surface", 4),
+      (name) => introView(name, "Eyes Open\nFirm Surface", 1),
+      (name) => introView(name, "Eyes Closed\nFirm Surface", 2),
+      (name) => introView(name, "Eyes Open\nFoam Surface", 3),
+      (name) => introView(name, "Eyes Closed\nFoam Surface", 4),
     ];
   }
 
-  List<Widget Function(BuildContext, String)> captureContent() {
+  List<Widget Function(BuildContext) Function(String)> captureContent() {
     return [
-      (context, name) =>
-          captureView(context, name, "Eyes Open\nFirm Surface", 1),
-      (context, name) =>
-          captureView(context, name, "Eyes Closed\nFirm Surface", 2),
-      (context, name) =>
-          captureView(context, name, "Eyes Open\nFoam Surface", 3),
-      (context, name) =>
-          captureView(context, name, "Eyes Closed\nFoam Surface", 4),
+      (name) => captureView(name, "Eyes Open\nFirm Surface", 1),
+      (name) => captureView(name, "Eyes Closed\nFirm Surface", 2),
+      (name) => captureView(name, "Eyes Open\nFoam Surface", 3),
+      (name) => captureView(name, "Eyes Closed\nFoam Surface", 4),
     ];
   }
 }
 
-Widget introView(
-  BuildContext context,
+Widget Function(BuildContext) introView(
   String assessmentName,
   String title,
   int index,
 ) =>
-    BaseView(
-      pageTitle: assessmentName,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: Styles.title,
-            textAlign: TextAlign.center,
+    (context) => BaseView(
+          pageTitle: assessmentName,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: Styles.title,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                  "Criteria ${index.toString()} of ${Ctsib.sequences.toString()}",
+                  style: Styles.subactionText),
+              const Spacer(),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Ensure device is kept still"),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                    "Record all tests from same relative posiotion to patient",
+                    textAlign: TextAlign.center),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: MediaQuery.of(context).size.width / 2,
+                      width: MediaQuery.of(context).size.width / 2,
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Styles.actionPrimary),
+                      child: const Text("Begin", style: Styles.actionText),
+                    ),
+                    onTap: () => BlocProvider.of<AssessmentBloc>(context)
+                        .add(AssessmentBegin(context: context))),
+              ),
+              const Spacer()
+            ],
           ),
-          Text("Criteria ${index.toString()} of ${Ctsib.sequences.toString()}",
-              style: Styles.subactionText),
-          const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text("Ensure device is kept still"),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-                "Record all tests from same relative posiotion to patient",
-                textAlign: TextAlign.center),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-                child: Container(
-                  alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.width / 2,
-                  width: MediaQuery.of(context).size.width / 2,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Styles.actionPrimary),
-                  child: const Text("Begin", style: Styles.actionText),
-                ),
-                onTap: () {
-                  showCupertinoDialog(
-                      context: context, builder: (_) => const AppLoading());
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentBegin());
-                }),
-          ),
-          const Spacer()
-        ],
-      ),
-    );
+        );
 
-Widget captureView(
-        BuildContext context, String assessmentName, String title, int index) =>
-    Builder(
-      builder: (context) => Stack(
-        children: [
-          VideoView(
-            sequence: index,
-            onComplete: (output) {
-              BlocProvider.of<VideoBloc>(context).add(CameraStop());
-              BlocProvider.of<AssessmentBloc>(context)
-                  .add(AssessmentIncrement());
-            },
-          ),
-          Positioned(
-            top: 0,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    color: Styles.backgroundAccent),
-                child: SafeArea(
-                  child: Text(title.replaceAll("\n", " "),
-                      style: Styles.subtitle, textAlign: TextAlign.center),
+Widget Function(BuildContext) captureView(
+        String assessmentName, String title, int index) =>
+    (context) => Builder(
+          builder: (context) => Stack(
+            children: [
+              VideoView(
+                sequence: index,
+                onComplete: (segment) =>
+                    BlocProvider.of<AssessmentBloc>(context).add(
+                        AssessmentIncrement(
+                            patient: BlocProvider.of<PatientBloc>(context)
+                                .currentPatient,
+                            segment: segment,
+                            context: context)),
+              ),
+              Positioned(
+                top: 0,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        color: Styles.backgroundAccent),
+                    child: SafeArea(
+                      child: Text(title.replaceAll("\n", " "),
+                          style: Styles.subtitle, textAlign: TextAlign.center),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
 
 class CtsibNorms {
   CtsibNorms._();

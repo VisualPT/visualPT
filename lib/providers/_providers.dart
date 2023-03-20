@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 
 export 'analysis_provider.dart';
+export 'assessment_provider.dart';
 export 'video_provider.dart';
 
 class BlocProviders {

@@ -267,8 +267,8 @@ class _PatientFormState extends State<PatientForm> {
                 Future.delayed(const Duration(seconds: 2), () {
                   final patient =
                       BlocProvider.of<PatientBloc>(context).currentPatient;
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(0, patient));
+                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+                      index: 0, patient: patient, context: context));
                 });
                 //TODO store data to backend
               }

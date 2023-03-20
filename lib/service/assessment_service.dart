@@ -21,10 +21,9 @@ class AssessmentService extends AppService {
     return assessment.copyWith(pdf: pdf);
   }
 
-  Assessment addSequences(
-      Assessment assessment, List<SkeletalSequence> sequences) {
-    log("Adding skeletal sequences to assessment object");
-    return assessment.copyWith(skeletalSequences: sequences);
+  Assessment addSegments(Assessment assessment, List<Segment> segments) {
+    log("Adding segments to assessment object");
+    return assessment.copyWith(segments: segments);
   }
 
   Assessment addDuration(Assessment assessment, int durationSeconds) {

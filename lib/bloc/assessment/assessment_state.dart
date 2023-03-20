@@ -10,21 +10,23 @@ class AssessmentForm extends AssessmentState {
 
 class AssessmentIntro extends AssessmentState {
   final int index;
+  final Widget Function(BuildContext context) getView;
 
-  AssessmentIntro(this.index);
+  AssessmentIntro(this.index, this.getView);
 }
 
 class AssessmentActive extends AssessmentState {
   final int index;
+  final Widget Function(BuildContext context) getView;
 
-  AssessmentActive(this.index);
+  AssessmentActive(this.index, this.getView);
 }
 
 class AssessmentSuccess extends AssessmentState {
-  final List<File> assessmentAssets;
-  final int index;
+  final Map<dynamic, String> assessmentAssets;
+  final Widget Function(BuildContext context) getView;
 
-  AssessmentSuccess(this.assessmentAssets, this.index);
+  AssessmentSuccess(this.assessmentAssets, this.getView);
 }
 
 class AssessmentError extends AssessmentState {
