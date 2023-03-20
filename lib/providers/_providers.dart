@@ -26,7 +26,7 @@ class BlocProviders {
       bool assessment = false,
       bool auth = false,
       bool backend = false,
-      bool camera = false,
+      bool video = false,
       bool email = false,
       bool patient = false,
       bool pdf = false,
@@ -36,7 +36,7 @@ class BlocProviders {
         assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
     authBloc = auth ? BlocProvider.of<AuthBloc>(context) : null;
     backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
-    videoBloc = camera ? BlocProvider.of<VideoBloc>(context) : null;
+    videoBloc = video ? BlocProvider.of<VideoBloc>(context) : null;
     emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
     patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
     pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;

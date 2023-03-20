@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 part 'video_event.dart';
 part 'video_state.dart';
@@ -16,17 +17,17 @@ class VideoOutput {
   toString() => "VideoOutput(file: $file, duration: $duration)";
 }
 
-class VideoBloc extends Bloc<CameraEvent, CameraState> {
+class VideoBloc extends Bloc<VideoEvent, VideoState> {
   CameraController? cameraController;
   Timer? timer;
   late Duration duration = const Duration(seconds: 0);
   late DateTime start;
-  late void Function(VideoOutput) onComplete;
+  late void Function(Segment) onComplete;
 
-  VideoBloc() : super(const CameraLoading()) {
-    on<CameraInit>(onInit);
-    on<CameraPlay>(onPlay);
-    on<CameraStop>(onStop);
+  VideoBloc() : super(const VideoLoading()) {
+    on<VideoInit>(onInit);
+    on<VideoPlay>(onPlay);
+    on<VideoStop>(onStop);
   }
 
   void resetTimer() {
@@ -34,8 +35,8 @@ class VideoBloc extends Bloc<CameraEvent, CameraState> {
     duration = const Duration(seconds: 0);
   }
 
-  FutureOr<void> onInit(CameraInit event, Emitter<CameraState> emit) async {
-    log("camera init");
+  FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
+    log("Video init");
     onComplete = event.onComplete;
     try {
       await availableCameras()
@@ -51,7 +52,7 @@ class VideoBloc extends Bloc<CameraEvent, CameraState> {
           .then((controller) async {
         await controller.initialize();
         cameraController = controller;
-        emit(CameraStandby(cameraController!));
+        emit(VideoStandby(cameraController!));
       });
 
       log("Camera initialized, lauming frame reader");
@@ -76,38 +77,38 @@ class VideoBloc extends Bloc<CameraEvent, CameraState> {
           log('Audio access is restricted.');
           break;
         default:
-          emit(CameraError(exception: e));
+          emit(VideoError(exception: e));
           break;
       }
     } on Exception catch (e) {
-      emit(CameraError(exception: e));
+      emit(VideoError(exception: e));
     }
   }
 
-  FutureOr<void> onPlay(CameraPlay event, Emitter<CameraState> emit) async {
-    log("camera play");
+  FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
+    log("Video play");
     start = DateTime.now();
-    emit(CameraRecording(cameraController!));
+    emit(VideoRecording(cameraController!));
   }
 
-  FutureOr<void> onStop(CameraStop event, Emitter<CameraState> emit) async {
+  FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
     log("camera stop");
     await cameraController!.stopVideoRecording().then((file) {
       duration = DateTime.now().difference(start);
-      onComplete(VideoOutput(file: file, duration: duration));
+      //TODO store file to S3 bucket
+      onComplete(Segment(
+          file: "TODO store file to S3", duration_seconds: duration.inSeconds));
     });
-    //TODO Pass data up!
     cameraController!.dispose();
     cameraController = null;
-    emit(const CameraLoading());
+    emit(const VideoLoading());
   }
 
-  //TODO update this to output a Map<String, dynamic> instead of a file
   // Future<File> getData() async {
   // }
 }
 
-//TODO create an onFocus state for this
+//TODO create an onFocus state for this in the view file
 // void onFocus(TapDownDetails details, BoxConstraints constraints) {
 //   if (cameraController == null) {
 //     return;
