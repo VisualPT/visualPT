@@ -24,13 +24,15 @@ class HomeView extends StatelessWidget {
                   },
                   child: const Text("SignOut"),
                 )),
-            Expanded(
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
               child: ListView(
                 prototypeItem: const AssessmentCard(
                     imagePath: Styles.ctsibLogoPath,
                     assessmentType: AssessmentType.CTSIB,
                     subtitle: "Prototype Item"),
-                shrinkWrap: true,
+                shrinkWrap: false,
                 scrollDirection: Axis.horizontal,
                 children: const [
                   AssessmentCard(
