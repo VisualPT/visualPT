@@ -27,7 +27,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 class Segment {
   final String? _file;
-  final String? _duration_seconds;
+  final int? _duration_seconds;
 
   String get file {
     try {
@@ -42,13 +42,22 @@ class Segment {
     }
   }
   
-  String? get duration_seconds {
-    return _duration_seconds;
+  int get duration_seconds {
+    try {
+      return _duration_seconds!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  const Segment._internal({required file, duration_seconds}): _file = file, _duration_seconds = duration_seconds;
+  const Segment._internal({required file, required duration_seconds}): _file = file, _duration_seconds = duration_seconds;
   
-  factory Segment({required String file, String? duration_seconds}) {
+  factory Segment({required String file, required int duration_seconds}) {
     return Segment._internal(
       file: file,
       duration_seconds: duration_seconds);
@@ -75,13 +84,13 @@ class Segment {
     
     buffer.write("Segment {");
     buffer.write("file=" + "$_file" + ", ");
-    buffer.write("duration_seconds=" + "$_duration_seconds");
+    buffer.write("duration_seconds=" + (_duration_seconds != null ? _duration_seconds!.toString() : "null"));
     buffer.write("}");
     
     return buffer.toString();
   }
   
-  Segment copyWith({String? file, String? duration_seconds}) {
+  Segment copyWith({String? file, int? duration_seconds}) {
     return Segment._internal(
       file: file ?? this.file,
       duration_seconds: duration_seconds ?? this.duration_seconds);
@@ -89,7 +98,7 @@ class Segment {
   
   Segment.fromJson(Map<String, dynamic> json)  
     : _file = json['file'],
-      _duration_seconds = json['duration_seconds'];
+      _duration_seconds = (json['duration_seconds'] as num?)?.toInt();
   
   Map<String, dynamic> toJson() => {
     'file': _file, 'duration_seconds': _duration_seconds
@@ -111,8 +120,8 @@ class Segment {
     
     modelSchemaDefinition.addField(ModelFieldDefinition.customTypeField(
       fieldName: 'duration_seconds',
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.int)
     ));
   });
 }

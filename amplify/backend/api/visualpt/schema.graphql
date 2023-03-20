@@ -1,6 +1,6 @@
 type Segment {
   file: String!
-  duration_seconds: String
+  duration_seconds: Int!
 }
 
 enum UserStatus {
@@ -55,7 +55,7 @@ type Assessment @model @auth(rules: [{allow: owner}]) {
   timestamp: AWSTimestamp!
   duration: Int
   pdf: String
-  segments: [Segment]!
+  segments: [Segment]
 }
 
 enum Gender {

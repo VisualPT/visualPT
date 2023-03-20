@@ -99,17 +99,8 @@ class Assessment extends Model {
     return _pdf;
   }
   
-  List<Segment> get segments {
-    try {
-      return _segments!;
-    } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
+  List<Segment>? get segments {
+    return _segments;
   }
   
   TemporalDateTime? get createdAt {
@@ -120,9 +111,9 @@ class Assessment extends Model {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required patientID, required type, required timestamp, duration, pdf, required segments, createdAt, updatedAt}): _patientID = patientID, _type = type, _timestamp = timestamp, _duration = duration, _pdf = pdf, _segments = segments, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required patientID, required type, required timestamp, duration, pdf, segments, createdAt, updatedAt}): _patientID = patientID, _type = type, _timestamp = timestamp, _duration = duration, _pdf = pdf, _segments = segments, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String patientID, required AssessmentType type, required TemporalTimestamp timestamp, int? duration, String? pdf, required List<Segment> segments}) {
+  factory Assessment({String? id, required String patientID, required AssessmentType type, required TemporalTimestamp timestamp, int? duration, String? pdf, List<Segment>? segments}) {
     return Assessment._internal(
       id: id == null ? UUID.getUUID() : id,
       patientID: patientID,
@@ -271,7 +262,7 @@ class Assessment extends Model {
     
     modelSchemaDefinition.addField(ModelFieldDefinition.embedded(
       fieldName: 'segments',
-      isRequired: true,
+      isRequired: false,
       isArray: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.embeddedCollection, ofCustomTypeName: 'Segment')
     ));
