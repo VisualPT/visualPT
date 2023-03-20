@@ -23,10 +23,9 @@ class AssessmentActive extends AssessmentState {
 }
 
 class AssessmentSuccess extends AssessmentState {
-  final Map<dynamic, String> assessmentAssets;
   final Widget Function(BuildContext context) getView;
 
-  AssessmentSuccess(this.assessmentAssets, this.getView);
+  AssessmentSuccess(this.getView);
 }
 
 class AssessmentError extends AssessmentState {

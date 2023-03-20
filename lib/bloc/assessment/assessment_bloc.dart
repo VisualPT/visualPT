@@ -18,8 +18,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late int assessmentCount;
   late List<Widget Function(BuildContext) Function(String)> introViews;
   late List<Widget Function(BuildContext) Function(String)> captureViews;
-  late Map<dynamic, String> assessmentAssets = {};
-  late List<SkeletalSequence> skeletalSequences = [];
+  late List<Segment> segments = [];
   late DateTime assessmentStart = DateTime.now();
   late int assessmentDurationSeconds; //TODO store this in Amplify
   late int index = 0;
@@ -52,19 +51,16 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
-    //TODO add map to assessmentassets
+    segments.add(event.segment);
     index++;
     if (index == assessmentCount) {
       assessmentDurationSeconds =
           DateTime.now().difference(assessmentStart).inSeconds;
 
-      log("Time elapsed: $assessmentDurationSeconds seconds \nassests $assessmentAssets");
+      log("Time elapsed: $assessmentDurationSeconds seconds \nassests $segments");
       AssessmentService().addDuration(assessment, assessmentDurationSeconds);
-
-      emit(AssessmentSuccess(
-          assessmentAssets,
-          (context) => AnalysisView(
-              assessment: assessment, assessmentAssets: assessmentAssets)));
+      assessment = assessment.copyWith(segments: segments);
+      emit(AssessmentSuccess((_) => AnalysisView(assessment: assessment)));
     } else {
       emit(AssessmentIntro(index, introViews[index](assessmentType.name)));
     }

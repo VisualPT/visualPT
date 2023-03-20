@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
@@ -10,15 +8,9 @@ import 'package:visualpt/views/app_nav.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class AnalysisView extends StatefulWidget {
-  final Patient patient;
   final Assessment assessment;
-  final List<File> assessmentAssets;
 
-  const AnalysisView(
-      {super.key,
-      required this.patient,
-      required this.assessment,
-      required this.assessmentAssets});
+  const AnalysisView({super.key, required this.assessment});
 
   @override
   State<AnalysisView> createState() => _AnalysisViewState();
@@ -32,14 +24,11 @@ class _AnalysisViewState extends State<AnalysisView> {
     return BaseView(
         pageTitle: "${widget.assessment.type.name} analysis",
         child: AnalysisProvider(
-          getProviders: (context) {
-            controller =
-                BlocProviders(context: context, pdf: true, email: true);
-          },
+          getProviders: (context) => controller =
+              BlocProviders(context: context, pdf: true, email: true),
           onCreate: PdfInit(
-              patient: widget.patient,
-              assessment: widget.assessment,
-              assets: widget.assessmentAssets),
+              patient: BlocProvider.of<PatientBloc>(context).currentPatient,
+              assessment: widget.assessment),
           onReady: pdfReady,
           onLoading: pdfLoading,
           onError: pdfError,
@@ -83,7 +72,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                 color: CupertinoColors.link,
                 onPressed: () => onSend(
                   context,
-                  widget.patient,
+                  BlocProvider.of<PatientBloc>(context).currentPatient,
                   widget.assessment,
                   state.pdfView.pdfData!.toString(),
                 ),
@@ -113,8 +102,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                     patient:
                         BlocProvider.of<PatientBloc>(context).currentPatient,
                     assessment:
-                        BlocProvider.of<AssessmentBloc>(context).assessment,
-                    assets: widget.assessmentAssets),
+                        BlocProvider.of<AssessmentBloc>(context).assessment),
               ))
     ]));
   }
