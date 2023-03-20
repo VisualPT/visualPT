@@ -6,7 +6,7 @@ import 'package:pdf/widgets.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/assessments/gait/_gait.dart';
 
-import '../pdf.dart';
+import '../_pdf.dart';
 
 class GaitPDF extends PDF {
   @override

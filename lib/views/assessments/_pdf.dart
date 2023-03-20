@@ -1,9 +1,10 @@
 import 'dart:typed_data';
-
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+
+// export 'gait/pdf.dart';
 
 abstract class PDF {
   late Font baseFont;

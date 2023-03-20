@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 
 import 'package:equatable/equatable.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/assessments/ctsib/pdf.dart';
 import 'package:visualpt/views/assessments/gait/_gait.dart';
-import 'package:visualpt/views/assessments/pdf.dart';
+import 'package:visualpt/views/assessments/_pdf.dart';
 
 part 'pdf_event.dart';
 part 'pdf_state.dart';

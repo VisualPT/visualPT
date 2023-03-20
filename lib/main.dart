@@ -12,8 +12,7 @@ void main() {
 }
 
 //TODO VisualPT
-//Integrate inference model with camera
-//Integrate inference model with PDF
+//Design scalable PDF
 //Connect PDF to email (until EMR integration is available)
 //Marketing content
 //Pitch to physical therapists
