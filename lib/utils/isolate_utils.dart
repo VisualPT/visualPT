@@ -1,5 +1,6 @@
 import 'dart:isolate';
 
+//TODO wait until isolate is live to accept any user input
 class IsolateUtils {
   Isolate? _isolate;
   late SendPort _sendPort;
