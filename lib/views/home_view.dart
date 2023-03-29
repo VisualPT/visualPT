@@ -15,15 +15,6 @@ class HomeView extends StatelessWidget {
         pageTitle: "Select an assessment",
         child: Column(
           children: [
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CupertinoButton(
-                  onPressed: () {
-                    AuthService().signOut();
-                    AppNav().setAuth(context);
-                  },
-                  child: const Text("SignOut"),
-                )),
             Flexible(
               flex: 1,
               fit: FlexFit.tight,
@@ -48,9 +39,15 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
-            CupertinoButton(
-                child: const Text("Go to Camera"),
-                onPressed: () => AppNav().goToPath(context, "/camera")),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CupertinoButton(
+                  onPressed: () {
+                    AuthService().signOut();
+                    AppNav().setAuth(context);
+                  },
+                  child: const Text("SignOut"),
+                )),
             const Spacer(),
           ],
         ),
