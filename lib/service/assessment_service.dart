@@ -10,10 +10,7 @@ class AssessmentService extends AppService {
   Assessment createAssessment(
       AssessmentType type, DateTime now, String patientID) {
     return Assessment(
-        patientID: patientID,
-        type: type,
-        timestamp: TemporalTimestamp.fromSeconds(
-            now.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond));
+        patientID: patientID, type: type, datetime: TemporalDateTime(now));
   }
 
   Assessment addPDF(Assessment assessment, String pdf) {

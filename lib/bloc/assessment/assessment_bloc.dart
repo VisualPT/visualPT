@@ -19,7 +19,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late List<Widget Function(BuildContext) Function(String)> introViews;
   late List<Widget Function(BuildContext) Function(String)> captureViews;
   late List<Segment> segments = [];
-  late DateTime assessmentStart = DateTime.now();
+  late DateTime assessmentStart;
   late int assessmentDurationSeconds; //TODO store this in Amplify
   late int index = 0;
 
@@ -28,6 +28,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     on<AssessmentBegin>(_onBegin);
     on<AssessmentIncrement>(_onIncrement);
 
+    assessmentStart = DateTime.now();
     assessmentRouter = AssessmentRouter(assessmentType);
     assessmentCount = assessmentRouter.assessmentCount;
     introViews = assessmentRouter.introWidgets;
@@ -58,8 +59,8 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
           DateTime.now().difference(assessmentStart).inSeconds;
 
       log("Time elapsed: $assessmentDurationSeconds seconds \nassests $segments");
-      AssessmentService().addDuration(assessment, assessmentDurationSeconds);
-      assessment = assessment.copyWith(segments: segments);
+      assessment = assessment.copyWith(
+          segments: segments, duration: assessmentDurationSeconds);
       emit(AssessmentSuccess((_) => AnalysisView(assessment: assessment)));
     } else {
       emit(AssessmentIntro(index, introViews[index](assessmentType.name)));

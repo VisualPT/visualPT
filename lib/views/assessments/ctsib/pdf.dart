@@ -9,8 +9,6 @@ class CtsibPDF extends PDF {
   @override
   Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
     await configPdfStyles();
-//TODO create SVG version of VisualPT logo
-    // final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
         title: patient.last_name + patient.first_name + patient.dob.toString(),
@@ -24,13 +22,16 @@ class CtsibPDF extends PDF {
         ),
         build: (Context context) => SizedBox(
           height: 11 * inch,
+          width: 9.5 * inch,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
             patientData(patient, assessment),
             assessmentData(patient, assessment),
-            comparisonData(patient),
+            normativeData(patient),
+            Spacer(),
             diagnosisData(),
+            Spacer(flex: 2),
             footerData(),
           ]),
         ),
@@ -52,6 +53,22 @@ class CtsibPDF extends PDF {
   double positioner(String velocity) =>
       (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
 
+  Widget headerData() {
+    return Header(
+      child: Column(
+        children: [
+          RichTextLogo,
+          RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  text: "Clinical Test of Sensory Integration & Balance Report",
+                  style: header),
+              overflow: TextOverflow.span),
+        ],
+      ),
+    );
+  }
+
   Widget patientData(Patient patient, Assessment assessment) {
     return SizedBox(
       height: 3 * inch,
@@ -61,247 +78,160 @@ class CtsibPDF extends PDF {
             text: TextSpan(
                 style: disclaimer,
                 text:
-                    "A distance of 10 meters is measured over a level surface with 2 meters for acceleration and 2 meters for deceleration.")),
-        Spacer(flex: 2),
+                    "Utilizing the VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
+        Spacer(),
+        RichText(text: TextSpan(text: "Patient Information", style: subHeader)),
         SizedBox(
-            height: 0.65 * inch,
+            height: 2.0 * inch,
             child: Row(children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 RichText(
                   text: TextSpan(children: [
-                    TextSpan(text: "Patient Name: ", style: detail),
+                    TextSpan(text: "Name: ", style: detail),
                     TextSpan(
                         text: "${patient.first_name} ${patient.last_name}",
                         style: detailBold),
                   ]),
                 ),
-                Spacer(),
                 RichText(
                   text: TextSpan(children: [
-                    TextSpan(text: "Birth Date: ", style: detail),
+                    TextSpan(text: "DOB: ", style: detail),
                     TextSpan(text: patient.dob.toString(), style: detailBold),
+                  ]),
+                ),
+                RichText(
+                  text: TextSpan(children: [
+                    TextSpan(text: "Age: ", style: detail),
+                    TextSpan(
+                        text: (DateTime.now()
+                                    .difference(patient.dob.getDateTime())
+                                    .inDays ~/
+                                365)
+                            .toString(),
+                        style: detailBold), //TODO DOB to age
+                  ]),
+                ),
+                RichText(
+                  text: TextSpan(children: [
+                    TextSpan(text: "Gender: ", style: detail),
+                    TextSpan(text: patient.gender.name, style: detailBold),
+                  ]),
+                ),
+                RichText(
+                  text: TextSpan(children: [
+                    TextSpan(text: "Duration: ", style: detail),
+                    TextSpan(
+                        text: assessment.duration.toString(),
+                        style: detailBold),
+                    TextSpan(text: " seconds", style: detail),
                   ]),
                 ),
               ]),
               Spacer(),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                //TODO internationalize this date format to local time
                 RichText(
                     text: TextSpan(children: [
                   TextSpan(text: "Date: ", style: detail),
                   TextSpan(
-                      text: assessment.timestamp
-                          .toString(), //TODO timestamp=>datetime
+                      text: assessment.datetime.toString().substring(0, 10),
                       style: detailBold),
                 ])),
-                Spacer(),
                 RichText(
                     text: TextSpan(children: [
                   TextSpan(text: "Time: ", style: detail),
                   TextSpan(
-                      text: assessment.timestamp.toString(), style: detailBold),
+                      text: assessment.datetime
+                          .toString()
+                          .substring(11)
+                          .split('.')[0]
+                          .substring(0, 5),
+                      style: detailBold),
                 ])),
+                Spacer(),
               ]),
             ])),
-        Spacer(),
-        RichText(
-          text: TextSpan(children: [
-            TextSpan(text: "Age: ", style: detail),
-            TextSpan(
-                text: patient.dob.toString(),
-                style: detailBold), //TODO DOB to age
-          ]),
-        ),
-        Spacer(),
-        RichText(
-          text: TextSpan(children: [
-            TextSpan(text: "Gender: ", style: detail),
-            TextSpan(text: patient.gender.toString(), style: detailBold),
-          ]),
-        ),
-        Spacer(),
-        RichText(
-          text: TextSpan(children: [
-            TextSpan(text: "Measurement Method: ", style: detail),
-            TextSpan(
-                text: "Video", //TODO add measurement method or fix to video
-                style: detailBold),
-          ]),
-        ),
-        Spacer(),
-        RichText(
-          text: TextSpan(children: [
-            TextSpan(text: "Measurement Duration: ", style: detail),
-            TextSpan(
-                text: assessment.timestamp
-                    .toSeconds()
-                    .toString(), //TODO add duration type to
-                style: detailBold),
-            TextSpan(text: " seconds", style: detail),
-          ]),
-        ),
-        Spacer(),
-        RichText(
-            text: TextSpan(children: [
-          TextSpan(text: "Gait Velocity: ", style: detail),
-          TextSpan(text: "<<<MODEL OUTPUT???>>>", style: detailBold),
-          TextSpan(text: " meters/second", style: detail),
-        ])),
       ]),
-    );
-  }
-
-  Widget headerData() {
-    return Header(
-      child: Column(
-        children: [
-          //TODO SVG logo
-          // SizedBox(
-          //   height: inch,
-          //   width: 8.5 * inch,
-          //   child: Center(
-          //     child: SvgImage(svg: gaitrLogo, fit: BoxFit.fitHeight),
-          //   ),
-          // ),
-          RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(text: "Gait Velocity Analysis", style: header),
-                ],
-              ),
-              overflow: TextOverflow.span),
-        ],
-      ),
     );
   }
 
   Widget assessmentData(Patient patient, Assessment assessment) {
+    int index = 0;
     return SizedBox(
-      height: 0.75 * inch,
-      child: Row(children: [
-        Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            SizedBox(
-              height: inch * 1,
-              width: inch * 5,
-              child: Column(children: [
-                Container(
-                  height: inch * 0.25,
-                  width: inch * 5,
-                  foregroundDecoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        PdfColor.fromHex("#1b365d"),
-                        PdfColor.fromHex("#1d3d68"),
-                        PdfColor.fromHex("#1f4573"),
-                        PdfColor.fromHex("#214d7e"),
-                        PdfColor.fromHex("#225589"),
-                        PdfColor.fromHex("#22659f"),
-                        PdfColor.fromHex("#206eab"),
-                        PdfColor.fromHex("#1d76b7"),
-                        PdfColor.fromHex("#197fc2"),
-                        PdfColor.fromHex("#1088ce"),
-                        PdfColor.fromHex("#0091da"),
-                      ],
+        height: 3.5 * inch,
+        child: Column(children: [
+          RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(text: "Assessment Information", style: subHeader)),
+          Table(
+            border: TableBorder.all(color: black),
+            columnWidths: {
+              0: const FlexColumnWidth(2),
+              1: const FlexColumnWidth(1),
+            },
+            children: [
+              // Create table header
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Segment',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Result',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              // Create a table row for each segment
+              for (Segment segment in assessment.segments!)
+                TableRow(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(Ctsib.sequenceNames[index++]),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          "${segment.duration_seconds.toString()} / 30 seconds"),
+                    ),
+                  ],
+                ),
+              // Create a table row for the total duration score
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Total Score',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * Ctsib.sequences} seconds",
                     ),
                   ),
-                ),
-                Row(
-                  children: axisLabel(),
-                ),
-                RichText(
-                  textAlign: TextAlign.center,
-                  text:
-                      TextSpan(style: disclaimer, text: "Gait Velocity (m/s)"),
-                ),
-                Spacer(),
-              ]),
-            ),
-            Positioned(
-              top: 0.1,
-              //TODO fix with model output
-              //left: positioner("<<<MODEL OUTPUT>>>"),
-              child: Container(
-                height: 0.25 * inch,
-                width: 0.25 * inch,
-                decoration: BoxDecoration(
-                    color: PdfColor.fromRYB(1, 0, 0), shape: BoxShape.circle),
+                ],
               ),
-            ),
-            Positioned(
-              top: 0.1,
-              left: positioner(
-                  CtsibNorms.getVelocityFromAge(patient.gender, patient.dob)
-                      .toString()),
-              child: Container(
-                height: 0.25 * inch,
-                width: 0.25 * inch,
-                decoration: BoxDecoration(
-                    color: PdfColor.fromRYB(0, 1, 1), shape: BoxShape.circle),
-              ),
-            ),
-          ],
-        ),
-        Spacer(),
-        Container(
-            decoration: BoxDecoration(
-                border: Border.all(), borderRadius: BorderRadius.circular(2.0)),
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Container(
-                        height: 0.25 * inch,
-                        width: 0.25 * inch,
-                        decoration: BoxDecoration(
-                            color: PdfColor.fromRYB(1, 0, 0),
-                            shape: BoxShape.circle),
-                      ),
-                      Text(" - Patient"),
-                    ]),
-                    Spacer(),
-                    Row(children: [
-                      Container(
-                        height: 0.25 * inch,
-                        width: 0.25 * inch,
-                        decoration: BoxDecoration(
-                            color: PdfColor.fromRYB(0, 1, 1),
-                            shape: BoxShape.circle),
-                      ),
-                      Text(" - Average Peer"),
-                    ]),
-                    Spacer(),
-                  ]),
-            ))
-      ]),
-    );
+            ],
+          ),
+        ]));
   }
 
-  Widget comparisonData(Patient patient) {
-    return Center(
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          style: detailBold,
-          //text: getComparisonMessage(30, patient.gender, patient.dob),
-        ),
-      ),
-    );
+  Widget normativeData(Patient patient) {
+    return Column(children: [
+      RichText(text: TextSpan(text: "Normative Comparison", style: subHeader)),
+    ]);
   }
 
   Widget diagnosisData() {
-    return Center(
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-            style: subTitle,
-            text: 10 < 1 // TODO FIX WITH MODEL OUTPUT
-                ? "Needs intervention to reduce risk of fall"
-                : "Low likelihood of experiencing a fall"),
-      ),
-    );
+    return Column(children: [
+      RichText(
+          text: TextSpan(text: "Diagnostic Information", style: subHeader)),
+    ]);
   }
 
   Widget footerData() {
@@ -312,20 +242,15 @@ class CtsibPDF extends PDF {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(text: const TextSpan(text: " ")),
+            RichText(text: TextSpan(text: " ", style: invisible)),
             RichText(
                 text: TextSpan(
                     style: disclaimer,
-                    text: "© 2022 Gaitr Measurement Softwares")),
+                    text: "© 2022 VisualPT, Inc. All Rights Reserved")),
             RichText(
                 text: TextSpan(
                     style: disclaimer,
                     text: "No Distribution without Permission")),
-            RichText(
-                text: TextSpan(
-                    style: disclaimer,
-                    text:
-                        "Reference: Fritz, Stacy & Lusardi, Michelle. (2009).\n Walking speed: The sixth vital sign. J Geriatr Phys Ther. 32. 46-49. "))
           ]),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.end,

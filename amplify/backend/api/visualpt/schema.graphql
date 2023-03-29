@@ -52,7 +52,7 @@ type Assessment @model @auth(rules: [{allow: owner}]) {
   id: ID!
   patientID: ID! @index(name: "byPatient")
   type: AssessmentType!
-  timestamp: AWSTimestamp!
+  datetime: AWSDateTime!
   duration: Int
   pdf: String
   segments: [Segment]

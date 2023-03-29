@@ -32,7 +32,7 @@ class Assessment extends Model {
   final String id;
   final String? _patientID;
   final AssessmentType? _type;
-  final TemporalTimestamp? _timestamp;
+  final TemporalDateTime? _datetime;
   final int? _duration;
   final String? _pdf;
   final List<Segment>? _segments;
@@ -78,9 +78,9 @@ class Assessment extends Model {
     }
   }
   
-  TemporalTimestamp get timestamp {
+  TemporalDateTime get datetime {
     try {
-      return _timestamp!;
+      return _datetime!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -111,14 +111,14 @@ class Assessment extends Model {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required patientID, required type, required timestamp, duration, pdf, segments, createdAt, updatedAt}): _patientID = patientID, _type = type, _timestamp = timestamp, _duration = duration, _pdf = pdf, _segments = segments, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required patientID, required type, required datetime, duration, pdf, segments, createdAt, updatedAt}): _patientID = patientID, _type = type, _datetime = datetime, _duration = duration, _pdf = pdf, _segments = segments, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String patientID, required AssessmentType type, required TemporalTimestamp timestamp, int? duration, String? pdf, List<Segment>? segments}) {
+  factory Assessment({String? id, required String patientID, required AssessmentType type, required TemporalDateTime datetime, int? duration, String? pdf, List<Segment>? segments}) {
     return Assessment._internal(
       id: id == null ? UUID.getUUID() : id,
       patientID: patientID,
       type: type,
-      timestamp: timestamp,
+      datetime: datetime,
       duration: duration,
       pdf: pdf,
       segments: segments != null ? List<Segment>.unmodifiable(segments) : segments);
@@ -135,7 +135,7 @@ class Assessment extends Model {
       id == other.id &&
       _patientID == other._patientID &&
       _type == other._type &&
-      _timestamp == other._timestamp &&
+      _datetime == other._datetime &&
       _duration == other._duration &&
       _pdf == other._pdf &&
       DeepCollectionEquality().equals(_segments, other._segments);
@@ -152,7 +152,7 @@ class Assessment extends Model {
     buffer.write("id=" + "$id" + ", ");
     buffer.write("patientID=" + "$_patientID" + ", ");
     buffer.write("type=" + (_type != null ? enumToString(_type)! : "null") + ", ");
-    buffer.write("timestamp=" + (_timestamp != null ? _timestamp!.toString() : "null") + ", ");
+    buffer.write("datetime=" + (_datetime != null ? _datetime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("pdf=" + "$_pdf" + ", ");
     buffer.write("segments=" + (_segments != null ? _segments!.toString() : "null") + ", ");
@@ -163,12 +163,12 @@ class Assessment extends Model {
     return buffer.toString();
   }
   
-  Assessment copyWith({String? patientID, AssessmentType? type, TemporalTimestamp? timestamp, int? duration, String? pdf, List<Segment>? segments}) {
+  Assessment copyWith({String? patientID, AssessmentType? type, TemporalDateTime? datetime, int? duration, String? pdf, List<Segment>? segments}) {
     return Assessment._internal(
       id: id,
       patientID: patientID ?? this.patientID,
       type: type ?? this.type,
-      timestamp: timestamp ?? this.timestamp,
+      datetime: datetime ?? this.datetime,
       duration: duration ?? this.duration,
       pdf: pdf ?? this.pdf,
       segments: segments ?? this.segments);
@@ -178,7 +178,7 @@ class Assessment extends Model {
     : id = json['id'],
       _patientID = json['patientID'],
       _type = enumFromString<AssessmentType>(json['type'], AssessmentType.values),
-      _timestamp = json['timestamp'] != null ? TemporalTimestamp.fromSeconds(json['timestamp']) : null,
+      _datetime = json['datetime'] != null ? TemporalDateTime.fromString(json['datetime']) : null,
       _duration = (json['duration'] as num?)?.toInt(),
       _pdf = json['pdf'],
       _segments = json['segments'] is List
@@ -191,18 +191,18 @@ class Assessment extends Model {
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'patientID': _patientID, 'type': enumToString(_type), 'timestamp': _timestamp?.toSeconds(), 'duration': _duration, 'pdf': _pdf, 'segments': _segments?.map((Segment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'patientID': _patientID, 'type': enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'segments': _segments?.map((Segment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'patientID': _patientID, 'type': _type, 'timestamp': _timestamp, 'duration': _duration, 'pdf': _pdf, 'segments': _segments, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id, 'patientID': _patientID, 'type': _type, 'datetime': _datetime, 'duration': _duration, 'pdf': _pdf, 'segments': _segments, 'createdAt': _createdAt, 'updatedAt': _updatedAt
   };
 
   static final QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<AssessmentModelIdentifier>();
   static final QueryField ID = QueryField(fieldName: "id");
   static final QueryField PATIENTID = QueryField(fieldName: "patientID");
   static final QueryField TYPE = QueryField(fieldName: "type");
-  static final QueryField TIMESTAMP = QueryField(fieldName: "timestamp");
+  static final QueryField DATETIME = QueryField(fieldName: "datetime");
   static final QueryField DURATION = QueryField(fieldName: "duration");
   static final QueryField PDF = QueryField(fieldName: "pdf");
   static final QueryField SEGMENTS = QueryField(fieldName: "segments");
@@ -243,9 +243,9 @@ class Assessment extends Model {
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Assessment.TIMESTAMP,
+      key: Assessment.DATETIME,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.timestamp)
+      ofType: ModelFieldType(ModelFieldTypeEnum.dateTime)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(

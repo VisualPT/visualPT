@@ -37,7 +37,7 @@ export 'UserStatus.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "dc8d58f8f60bc9578c3395f59cb23a8a";
+  String version = "068e2e38c946acf9d47d2cb18f0d56c2";
   @override
   List<ModelSchema> modelSchemas = [Assessment.schema, Patient.schema, SkeletalSequence.schema, User.schema];
   static final ModelProvider _instance = ModelProvider();

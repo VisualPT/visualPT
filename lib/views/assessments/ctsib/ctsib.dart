@@ -7,6 +7,13 @@ import 'package:visualpt/views/_views.dart';
 
 class Ctsib {
   static const sequences = 4;
+  static const sequenceNames = [
+    "Eyes Open Firm Surface",
+    "Eyes Closed Firm Surface",
+    "Eyes Open Foam Surface",
+    "Eyes Closed Foam Surface"
+  ];
+
   Map<int, double> norms = {
     for (int i = 20; i <= 49; i++) i: 179.7,
     for (int i = 50; i <= 59; i++) i: 180.0,
