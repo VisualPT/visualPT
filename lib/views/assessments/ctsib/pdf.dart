@@ -224,6 +224,7 @@ class CtsibPDF extends PDF {
   Widget normativeData(Patient patient) {
     return Column(children: [
       RichText(text: TextSpan(text: "Normative Comparison", style: subHeader)),
+      RichText(text: TextSpan(text: "TODO", style: detailBold)),
     ]);
   }
 
@@ -231,6 +232,7 @@ class CtsibPDF extends PDF {
     return Column(children: [
       RichText(
           text: TextSpan(text: "Diagnostic Information", style: subHeader)),
+      RichText(text: TextSpan(text: "THIS IS A DEMO", style: detailBold)),
     ]);
   }
 
@@ -256,18 +258,18 @@ class CtsibPDF extends PDF {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          RichText(
-              text: TextSpan(
-                  style: disclaimer,
-                  text: "Minimal Detectable Change: 0.1m/sec")),
-          RichText(
-              text: TextSpan(
-                  style: disclaimer,
-                  text: "Minimum Clinically Important Difference: 0.1m/sec")),
-          RichText(
-              text: TextSpan(
-                  style: disclaimer,
-                  text: "Test/Re-test Reliability: ICC > 0.7"))
+          // RichText(
+          //     text: TextSpan(
+          //         style: disclaimer,
+          //         text: "Minimal Detectable Change: 0.1m/sec")),
+          // RichText(
+          //     text: TextSpan(
+          //         style: disclaimer,
+          //         text: "Minimum Clinically Important Difference: 0.1m/sec")),
+          // RichText(
+          //     text: TextSpan(
+          //         style: disclaimer,
+          //         text: "Test/Re-test Reliability: ICC > 0.7"))
         ],
       ),
     );

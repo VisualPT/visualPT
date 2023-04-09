@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:http/http.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/email_service.dart';
@@ -25,14 +26,14 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
       'user_email': event.patient.provider_contact,
       'patient_pdf': event.assessment.pdf!,
     };
-    EmailService().sendAssessmentPDF(templateParams).then((success) {
-      if (success) {
-        event.onSuccess();
-        emit(const EmailSent());
-      } else {
-        event.onFail();
-      }
-    });
+    Response response = await EmailService().sendAssessmentPDF(templateParams);
+    if (response.statusCode == 200) {
+      emit(const EmailSent());
+
+      event.onSuccess();
+    } else {
+      event.onFail();
+    }
   }
 }
 

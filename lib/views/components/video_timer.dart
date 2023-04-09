@@ -12,7 +12,7 @@ class VideoTimer extends StatelessWidget {
     return BlocBuilder<TimerBloc, TimerState>(
       builder: (context, state) {
         if (state is TimerRunComplete) {
-          //Should anything be done here?
+          BlocProvider.of<VideoBloc>(context).add(VideoStop());
         }
         return Text(formatter(state.duration), style: Styles.timerTextStyle);
       },

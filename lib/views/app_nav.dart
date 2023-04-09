@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/_views.dart';
 
-//TODO put all navigation here
 class AppNav {
   AppNav();
 

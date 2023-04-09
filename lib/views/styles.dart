@@ -52,4 +52,6 @@ class Styles {
 
   static TextStyle timerTextStyle = GoogleFonts.robotoMono(
       fontWeight: FontWeight.bold, fontSize: 24, color: white.withOpacity(0.8));
+  static const TextStyle error =
+      TextStyle(color: CupertinoColors.destructiveRed);
 }

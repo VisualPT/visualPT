@@ -44,7 +44,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         (cameras) => CameraController(
           cameras.firstWhere(
               (camera) => camera.lensDirection == CameraLensDirection.back),
-          ResolutionPreset.medium,
+          ResolutionPreset.high,
           enableAudio: false,
           imageFormatGroup: ImageFormatGroup.bgra8888,
         ),

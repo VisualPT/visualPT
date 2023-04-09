@@ -11,7 +11,7 @@ class EmailSend extends EmailEvent {
   final Patient patient;
   final Assessment assessment;
   final Function() onSuccess;
-  final Function onFail;
+  final Function() onFail;
   const EmailSend(
       {required this.patient,
       required this.assessment,

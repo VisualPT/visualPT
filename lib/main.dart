@@ -12,8 +12,7 @@ void main() {
 }
 
 //TODO VisualPT
-//Design scalable PDF
-//Connect PDF to email (until EMR integration is available)
+//Create model endpoints on server
 //Marketing content
 //Pitch to physical therapists
 //Contact EMR services for connection ($2k investment)
@@ -45,6 +44,7 @@ class VisualPT extends StatelessWidget {
                 builder: (context) =>
                     AssessmentView(assessmentType: assessmentType));
           }
+          return null;
         },
       ),
     );
