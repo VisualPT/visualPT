@@ -11,26 +11,25 @@ class AssessmentForm extends AssessmentState {
 class AssessmentIntro extends AssessmentState {
   final int index;
   final Widget Function(BuildContext context) getView;
-
   AssessmentIntro(this.index, this.getView);
 }
 
 class AssessmentActive extends AssessmentState {
   final int index;
   final Widget Function(BuildContext context) getView;
-
   AssessmentActive(this.index, this.getView);
 }
 
-class AssessmentSuccess extends AssessmentState {
+class AssessmentAnalysis extends AssessmentState {
   final Widget Function(BuildContext context) getView;
-
-  AssessmentSuccess(this.getView);
+  AssessmentAnalysis(this.getView);
 }
+
+class AssessmentLoading extends AssessmentState {}
 
 class AssessmentError extends AssessmentState {
   //TODO Establish VisualPT Error Codes
-  final Exception e;
+  final Exception? message;
 
-  AssessmentError(this.e);
+  AssessmentError({this.message});
 }

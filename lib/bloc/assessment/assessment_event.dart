@@ -7,11 +7,14 @@ abstract class AssessmentEvent {
 }
 
 class AssessmentInit extends AssessmentEvent {
-  final int index;
+  final bool reset;
   final Patient patient;
 
-  const AssessmentInit(
-      {required this.index, required this.patient, required super.context});
+  const AssessmentInit({
+    required this.reset,
+    required this.patient,
+    required super.context,
+  });
 }
 
 class AssessmentBegin extends AssessmentEvent {

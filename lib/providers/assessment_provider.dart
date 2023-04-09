@@ -11,8 +11,8 @@ class AssessmentProvider extends StatefulWidget {
   final Widget Function(BuildContext context, AssessmentForm state) onForm;
   final Widget Function(BuildContext context, AssessmentIntro state) onIntro;
   final Widget Function(BuildContext context, AssessmentActive state) onActive;
-  final Widget Function(BuildContext context, AssessmentSuccess state)
-      onSuccess;
+  final Widget Function(BuildContext context, AssessmentAnalysis state)
+      onAnalysis;
   final Widget Function(BuildContext context, AssessmentError state) onError;
 
   const AssessmentProvider({
@@ -23,7 +23,7 @@ class AssessmentProvider extends StatefulWidget {
     required this.onForm,
     required this.onIntro,
     required this.onActive,
-    required this.onSuccess,
+    required this.onAnalysis,
     required this.onError,
   });
 
@@ -38,7 +38,6 @@ class AssessmentProviderState extends State<AssessmentProvider> {
       providers: [
         BlocProvider(
             create: (context) => AssessmentBloc(widget.assessmentType)),
-        BlocProvider(create: (context) => PatientBloc()),
       ],
       child: BlocBuilder<AssessmentBloc, AssessmentState>(
         builder: (context, state) {
@@ -47,18 +46,17 @@ class AssessmentProviderState extends State<AssessmentProvider> {
             if (state is AssessmentForm) {
               return widget.onForm(context, state);
             } else if (state is AssessmentIntro) {
-              AppNav()
-                  .back(context); //TODO solve for removing the loading screen
               return widget.onIntro(context, state);
             } else if (state is AssessmentActive) {
               return widget.onActive(context, state);
-            } else if (state is AssessmentSuccess) {
-              return widget.onSuccess(context, state);
+            } else if (state is AssessmentAnalysis) {
+              return widget.onAnalysis(context, state);
             } else {
               throw Exception("Undefined State");
             }
           } catch (e) {
-            return widget.onError(context, AssessmentError(Exception(e)));
+            return widget.onError(
+                context, AssessmentError(message: Exception(e)));
           }
         },
       ),

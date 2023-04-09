@@ -11,43 +11,43 @@ part 'assessment_event.dart';
 part 'assessment_state.dart';
 
 class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
-  final AssessmentType assessmentType;
+  final AssessmentType type;
 
   late Assessment assessment;
-  late AssessmentRouter assessmentRouter;
+  late Patient patient;
+  late AssessmentRouter router;
   late int assessmentCount;
-  late List<Widget Function(BuildContext) Function(String)> introViews;
-  late List<Widget Function(BuildContext) Function(String)> captureViews;
+  late List<Widget Function(BuildContext) Function()> introViews;
+  late List<Widget Function(BuildContext) Function(Patient)> captureViews;
   late List<Segment> segments = [];
-  late DateTime assessmentStart;
-  late int assessmentDurationSeconds; //TODO store this in Amplify
-  late int index = 0;
+  late DateTime startTime;
+  late int index;
 
-  AssessmentBloc(this.assessmentType) : super(AssessmentForm(assessmentType)) {
+  AssessmentBloc(this.type) : super(AssessmentForm(type)) {
     on<AssessmentInit>(_onInit);
     on<AssessmentBegin>(_onBegin);
     on<AssessmentIncrement>(_onIncrement);
 
-    assessmentStart = DateTime.now();
-    assessmentRouter = AssessmentRouter(assessmentType);
-    assessmentCount = assessmentRouter.assessmentCount;
-    introViews = assessmentRouter.introWidgets;
-    captureViews = assessmentRouter.captureWidgets;
+    router = AssessmentRouter(type);
+    assessmentCount = router.assessmentCount;
+    introViews = router.introWidgets;
+    captureViews = router.captureWidgets;
+    startTime = DateTime.now();
+    index = 0;
   }
 
-  FutureOr<void> _onInit(AssessmentInit event, Emitter<AssessmentState> emit) {
-    log("Beginning assessment segment $index");
-    event.index == 0
-        ? assessment = AssessmentService()
-            .createAssessment(assessmentType, DateTime.now(), event.patient.id)
-        : null;
-    emit(AssessmentIntro(index, introViews[index](assessmentType.name)));
+  FutureOr<void> _onInit(
+      AssessmentInit event, Emitter<AssessmentState> emit) async {
+    event.reset ? resetAssessment() : null;
+    patient = event.patient;
+    assessment = AssessmentService().create(type, startTime, patient.id);
+    emit(AssessmentIntro(index, introViews[index]()));
   }
 
   FutureOr<void> _onBegin(
       AssessmentBegin event, Emitter<AssessmentState> emit) {
     log("Beginning assessment segment $index");
-    emit(AssessmentActive(index, captureViews[index](assessmentType.name)));
+    emit(AssessmentActive(index, captureViews[index](patient)));
   }
 
   FutureOr<void> _onIncrement(
@@ -55,15 +55,25 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     segments.add(event.segment);
     index++;
     if (index == assessmentCount) {
-      assessmentDurationSeconds =
-          DateTime.now().difference(assessmentStart).inSeconds;
+      final int assessmentDurationSeconds =
+          DateTime.now().difference(startTime).inSeconds;
 
       log("Time elapsed: $assessmentDurationSeconds seconds \nassests $segments");
       assessment = assessment.copyWith(
           segments: segments, duration: assessmentDurationSeconds);
-      emit(AssessmentSuccess((_) => AnalysisView(assessment: assessment)));
+      emit(AssessmentAnalysis(
+          (_) => AnalysisView(assessment: assessment, patient: event.patient)));
     } else {
-      emit(AssessmentIntro(index, introViews[index](assessmentType.name)));
+      emit(AssessmentIntro(index, introViews[index]()));
     }
+  }
+
+  resetAssessment() {
+    //TODO AssessmentService().delete(assessment);
+    //TODO we will want to use this data to retrain the model if it is of quality
+    assessment = AssessmentService().create(type, startTime, patient.id);
+    segments = [];
+    index = 0;
+    startTime = DateTime.now();
   }
 }

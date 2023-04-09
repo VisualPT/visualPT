@@ -16,7 +16,6 @@ class BlocProviders {
   BackendBloc? backendBloc;
   VideoBloc? videoBloc;
   EmailBloc? emailBloc;
-  PatientBloc? patientBloc;
   PdfBloc? pdfBloc;
   TimerBloc? timerBloc;
   UserBloc? userBloc;
@@ -38,7 +37,6 @@ class BlocProviders {
     backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
     videoBloc = video ? BlocProvider.of<VideoBloc>(context) : null;
     emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
-    patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
     pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;
     timerBloc = timer ? BlocProvider.of<TimerBloc>(context) : null;
     userBloc = user ? BlocProvider.of<UserBloc>(context) : null;

@@ -22,32 +22,31 @@ class Ctsib {
   };
 
 //TODO REMOVE NAME FROM BEING PASSED ALL AROUND THE PLACE
-  List<Widget Function(BuildContext) Function(String)> introContent() {
+  List<Widget Function(BuildContext) Function()> introContent() {
     return [
-      (name) => introView(name, "Eyes Open\nFirm Surface", 1),
-      (name) => introView(name, "Eyes Closed\nFirm Surface", 2),
-      (name) => introView(name, "Eyes Open\nFoam Surface", 3),
-      (name) => introView(name, "Eyes Closed\nFoam Surface", 4),
+      () => introView("Eyes Open\nFirm Surface", 1),
+      () => introView("Eyes Closed\nFirm Surface", 2),
+      () => introView("Eyes Open\nFoam Surface", 3),
+      () => introView("Eyes Closed\nFoam Surface", 4),
     ];
   }
 
-  List<Widget Function(BuildContext) Function(String)> captureContent() {
+  List<Widget Function(BuildContext) Function(Patient)> captureContent() {
     return [
-      (name) => captureView(name, "Eyes Open\nFirm Surface", 1),
-      (name) => captureView(name, "Eyes Closed\nFirm Surface", 2),
-      (name) => captureView(name, "Eyes Open\nFoam Surface", 3),
-      (name) => captureView(name, "Eyes Closed\nFoam Surface", 4),
+      (patient) => captureView(patient, "Eyes Open\nFirm Surface", 1),
+      (patient) => captureView(patient, "Eyes Closed\nFirm Surface", 2),
+      (patient) => captureView(patient, "Eyes Open\nFoam Surface", 3),
+      (patient) => captureView(patient, "Eyes Closed\nFoam Surface", 4),
     ];
   }
 }
 
 Widget Function(BuildContext) introView(
-  String assessmentName,
   String title,
   int index,
 ) =>
     (context) => BaseView(
-          pageTitle: assessmentName,
+          pageTitle: "Ctsib",
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -91,7 +90,7 @@ Widget Function(BuildContext) introView(
         );
 
 Widget Function(BuildContext) captureView(
-        String assessmentName, String title, int index) =>
+        Patient patient, String title, int index) =>
     (context) => Builder(
           builder: (context) => Stack(
             children: [
@@ -100,8 +99,7 @@ Widget Function(BuildContext) captureView(
                 onComplete: (segment) =>
                     BlocProvider.of<AssessmentBloc>(context).add(
                         AssessmentIncrement(
-                            patient: BlocProvider.of<PatientBloc>(context)
-                                .currentPatient,
+                            patient: patient,
                             segment: segment,
                             context: context)),
               ),
