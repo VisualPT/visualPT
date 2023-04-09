@@ -108,8 +108,6 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
           child: GestureDetector(
             onTap: () {
               if (state is VideoRecording) {
-                showCupertinoDialog(
-                    context: context, builder: (context) => const AppLoading());
                 controller.videoBloc!.add(VideoStop());
                 controller.timerBloc!.add(const TimerReset());
 

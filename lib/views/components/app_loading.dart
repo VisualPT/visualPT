@@ -63,8 +63,13 @@ class AppLoadingState extends State<AppLoading> with TickerProviderStateMixin {
           ),
         ),
         height: size,
-        child: const Image(
-            image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Image(image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
+            Text("Loading...")
+          ],
+        ),
       ),
     );
   }
