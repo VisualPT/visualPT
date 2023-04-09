@@ -35,14 +35,20 @@ class AuthService {
     return await Amplify.Auth.fetchUserAttributes();
   }
 
-  void completeLogin() async {
+  Future<void> completeLogin() async {
     log("Logging in...");
     try {
       await Amplify.Auth.signIn(username: email, password: password);
+    } on UserNotFoundException {
+      throw ("User was not found");
+    } on NotAuthorizedException {
+      throw ("User was not authorized");
     } on UserNotConfirmedException {
-      //TODO
+      throw ("User was not created");
     } on Exception catch (e) {
-      log("User was not logged in", name: "Login Error");
+      throw ("User was not logged in");
+    } on PasswordResetRequiredException {
+      //TODO
     }
   }
 

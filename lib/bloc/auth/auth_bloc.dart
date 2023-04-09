@@ -30,7 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await userService
           .initUser()
           .then((user) => log(user.toString(), name: "Authenticated User"));
-      emit(AuthSuccess());
+      event.onSuccess();
     });
   }
 
@@ -46,25 +46,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
     if (state is AuthLogIn && auth.isLoginValid()) {
-      auth.completeLogin();
-      log("LogIn Data Validated");
-      emit(AuthSuccess());
+      try {
+        await auth.completeLogin();
+        emit(AuthValidate());
+        event.onSuccess();
+      } catch (e) {
+        emit(AuthLogIn(message: e.toString()));
+      }
     } else if (state is AuthSignUp && auth.isSignupValid()) {
-      log("SignUp Data Validated");
-      auth.completeSignUp();
-      emit(AuthValidate());
+      try {
+        auth.completeSignUp();
+        emit(AuthValidate());
+        event.onSuccess();
+      } catch (e) {
+        emit(AuthSignUp(message: e.toString()));
+      }
     } else {
       shake.currentState?.shake();
     }
   }
 
-  FutureOr<void> _onConfirm(event, emit) async {
+  FutureOr<void> _onConfirm(AuthConfirm event, Emitter<AuthState> emit) async {
     if (method == AuthMethod.signUp) {
       await auth.confirmSignUpCode().then((value) => value
-          ? emit(AuthSuccess())
-          : AuthError("The code entered was invalid"));
+          ? event.onSuccess()
+          : emit(AuthValidate(message: "The code entered was invalid")));
     } else {
-      emit(AuthSuccess());
+      event.onSuccess();
 
       // await auth.confirmLogInCode().then((value) => value
       //     ? emit(AuthSuccess())
