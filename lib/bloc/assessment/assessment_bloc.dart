@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/assessment_service.dart';
 import 'package:visualpt/views/analysis_view.dart';
@@ -13,83 +11,69 @@ part 'assessment_event.dart';
 part 'assessment_state.dart';
 
 class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
-  final BuildContext context;
-  final AssessmentType assessmentType;
+  final AssessmentType type;
 
   late Assessment assessment;
-  late AssessmentRouter assessmentRouter;
+  late Patient patient;
+  late AssessmentRouter router;
   late int assessmentCount;
-  late List<Widget Function(BuildContext, String)> introViews;
-  late List<Widget Function(BuildContext, String)> captureViews;
-  late List<File> assessmentAssets = [];
-  late List<SkeletalSequence> skeletalSequences = [];
-  late DateTime assessmentStart;
-  late int assessmentDurationSeconds; //TODO store this in Amplify
+  late List<Widget Function(BuildContext) Function()> introViews;
+  late List<Widget Function(BuildContext) Function(Patient)> captureViews;
+  late List<Segment> segments = [];
+  late DateTime startTime;
   late int index;
 
-  AssessmentBloc(this.context, this.assessmentType)
-      : super(AssessmentForm(assessmentType)) {
+  AssessmentBloc(this.type) : super(AssessmentForm(type)) {
     on<AssessmentInit>(_onInit);
     on<AssessmentBegin>(_onBegin);
     on<AssessmentIncrement>(_onIncrement);
 
-    assessmentStart = DateTime.now();
-    assessmentRouter = AssessmentRouter(assessmentType);
-    assessmentCount = assessmentRouter.assessmentCount;
-    introViews = assessmentRouter.introWidgets;
-    captureViews = assessmentRouter.captureWidgets;
+    router = AssessmentRouter(type);
+    assessmentCount = router.assessmentCount;
+    introViews = router.introWidgets;
+    captureViews = router.captureWidgets;
+    startTime = DateTime.now();
     index = 0;
   }
 
-  FutureOr<void> _onInit(AssessmentInit event, Emitter<AssessmentState> emit) {
-    //TODO transition visual
-    ///Creates the assessment instance when the sequence first begins
-    event.index == 0
-        ? assessment = AssessmentService()
-            .createAssessment(assessmentType, DateTime.now(), event.patient.id)
-        : null;
-    emit(AssessmentIntro(index));
+  FutureOr<void> _onInit(
+      AssessmentInit event, Emitter<AssessmentState> emit) async {
+    event.reset ? resetAssessment() : null;
+    patient = event.patient;
+    assessment = AssessmentService().create(type, startTime, patient.id);
+    emit(AssessmentIntro(index, introViews[index]()));
   }
 
   FutureOr<void> _onBegin(
       AssessmentBegin event, Emitter<AssessmentState> emit) {
-    emit(AssessmentActive(index));
+    log("Beginning assessment segment $index");
+    emit(AssessmentActive(index, captureViews[index](patient)));
   }
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
-    //TODO add map to assessmentassets
+    segments.add(event.segment);
     index++;
     if (index == assessmentCount) {
-      assessmentDurationSeconds =
-          DateTime.now().difference(assessmentStart).inSeconds;
-      log("Time elapsed: $assessmentDurationSeconds seconds \nassests $assessmentAssets");
+      final int assessmentDurationSeconds =
+          DateTime.now().difference(startTime).inSeconds;
 
-      emit(AssessmentSuccess(assessmentAssets, index));
+      log("Time elapsed: $assessmentDurationSeconds seconds \nassests $segments");
+      assessment = assessment.copyWith(
+          segments: segments, duration: assessmentDurationSeconds);
+      emit(AssessmentAnalysis(
+          (_) => AnalysisView(assessment: assessment, patient: event.patient)));
     } else {
-      emit(AssessmentIntro(index));
+      emit(AssessmentIntro(index, introViews[index]()));
     }
   }
 
-  Widget getIntroView(BuildContext context, String assessmentName, int index) =>
-      introViews[index](context, assessmentName);
-
-  Widget getCaptureView(
-          BuildContext context, String assessmentName, int index) =>
-      captureViews[index](context, assessmentName);
-
-  Widget getAnalysisView(
-    BuildContext context,
-    Patient patient,
-  ) =>
-      AnalysisView(
-          patient: patient,
-          assessment: assessment,
-          assessmentAssets: assessmentAssets);
-}
-
-void saveCameraDataToAssessment(
-    BuildContext context, AssessmentBloc assessment, CameraBloc camera) {
-  camera.add(CameraStop());
-  assessment.add(AssessmentIncrement());
+  resetAssessment() {
+    //TODO AssessmentService().delete(assessment);
+    //TODO we will want to use this data to retrain the model if it is of quality
+    assessment = AssessmentService().create(type, startTime, patient.id);
+    segments = [];
+    index = 0;
+    startTime = DateTime.now();
+  }
 }

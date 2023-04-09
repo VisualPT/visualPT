@@ -100,7 +100,6 @@ class Hands extends AiModel {
         point[1] / inputSize * image.height,
       ));
     }
-    print("Hands");
     return {'hand': landmarkResults};
   }
 }

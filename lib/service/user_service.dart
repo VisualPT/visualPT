@@ -4,7 +4,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 
-late User currentUser;
+late User? currentUser;
 
 UserService userService = UserService();
 

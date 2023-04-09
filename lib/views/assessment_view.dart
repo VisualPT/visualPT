@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/app_nav.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class AssessmentView extends StatelessWidget {
@@ -12,55 +12,24 @@ class AssessmentView extends StatelessWidget {
   @override
   //TODO create assessment provider
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => PatientBloc(),
-        ),
-        BlocProvider(
-          create: (context) => AssessmentBloc(context, assessmentType),
-        ),
-      ],
-      child: BlocBuilder<AssessmentBloc, AssessmentState>(
-        builder: (context, assessmentState) {
-          try {
-            if (assessmentState is AssessmentForm) {
-              return PatientForm(assessmentType: assessmentType);
-            } else if (assessmentState is AssessmentIntro) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => Navigator.pop(context)); //Clear the loading screen
-
-              return BlocProvider.of<AssessmentBloc>(context).getIntroView(
-                  context, assessmentType.name, assessmentState.index);
-            } else if (assessmentState is AssessmentActive) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => Navigator.pop(context)); //Clear the loading screen
-              return BlocProvider.of<AssessmentBloc>(context).getCaptureView(
-                  context, assessmentType.name, assessmentState.index);
-            } else if (assessmentState is AssessmentSuccess) {
-              return BlocBuilder<PatientBloc, PatientState>(
-                  builder: (context, patientState) {
-                if (patientState is PatientActive) {
-                  return BlocProvider.of<AssessmentBloc>(context)
-                      .getAnalysisView(context, patientState.patient);
-                } else {
-                  ///PatientNull is the current state
-                  ///Should never display this in an assessment
-                  return const BaseView(
-                      pageTitle: "No Patient Set",
-                      child: Text("This should not be happening..."));
-                }
-              });
-
-              //TODO Return loading Page
-            } else {
-              throw Exception("Undefined State");
-            }
-          } catch (e) {
-            return BaseView(pageTitle: "Error", child: Text(e.toString()));
-          }
-        },
-      ),
-    );
+    return AssessmentProvider(
+        assessmentType: assessmentType,
+        getProviders: (context) =>
+            BlocProviders(context: context, assessment: true, patient: true),
+        onForm: (_, __) => PatientForm(assessmentType: assessmentType),
+        onIntro: (context, state) => state.getView(context),
+        onActive: (context, state) => state.getView(context),
+        onAnalysis: (context, state) => state.getView(context),
+        onError: (context, state) => BaseView(
+            pageTitle: "Assessment State Error",
+            //Create a child view that has the error message and a button to go back
+            child: Column(
+              children: [
+                Text(state.message.toString()),
+                CupertinoButton(
+                    onPressed: () => AppNav().back(context),
+                    child: const Text("Restart Assessment"))
+              ],
+            )));
   }
 }

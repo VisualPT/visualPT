@@ -20,7 +20,7 @@ class AssessmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 8.0),
       child: GestureDetector(
         onTap: () => available
             ? Navigator.pushNamed(context, "/assessment",
@@ -45,18 +45,15 @@ class AssessmentCard extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(assessmentType.name,
-                    style: available ? Styles.title : Styles.comingSoonTitle),
-                Text(subtitle,
-                    style:
-                        available ? Styles.subtitle : Styles.comingSoonSubtitle)
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(assessmentType.name,
+                  style: available ? Styles.title : Styles.comingSoonTitle),
+              Text(subtitle,
+                  style:
+                      available ? Styles.subtitle : Styles.comingSoonSubtitle)
+            ],
           ),
         ]),
       ),

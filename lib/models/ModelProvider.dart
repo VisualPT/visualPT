@@ -24,23 +24,25 @@ import 'Assessment.dart';
 import 'Patient.dart';
 import 'SkeletalSequence.dart';
 import 'User.dart';
+import 'Segment.dart';
 
 export 'Assessment.dart';
 export 'AssessmentType.dart';
 export 'Gender.dart';
 export 'Patient.dart';
+export 'Segment.dart';
 export 'SkeletalSequence.dart';
 export 'User.dart';
 export 'UserStatus.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "c508879bf741ea92b0244aab79ad5eaf";
+  String version = "068e2e38c946acf9d47d2cb18f0d56c2";
   @override
   List<ModelSchema> modelSchemas = [Assessment.schema, Patient.schema, SkeletalSequence.schema, User.schema];
   static final ModelProvider _instance = ModelProvider();
   @override
-  List<ModelSchema> customTypeSchemas = [];
+  List<ModelSchema> customTypeSchemas = [Segment.schema];
 
   static ModelProvider get instance => _instance;
   

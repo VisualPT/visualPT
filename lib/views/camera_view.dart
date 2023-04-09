@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
 
@@ -10,7 +10,7 @@ class CameraView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void onComplete(VideoOutput output) {
+    void onComplete(Segment output) {
       log("Put any function in this callback ${output.toString()}");
       AppNav().back(context); //To get out of loading view
       AppNav().back(context); //To get out of camera view

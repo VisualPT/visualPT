@@ -27,20 +27,19 @@ class _AuthViewState extends State<AuthView> {
       //TODO print debug to figure out why this shit broke
       child: BlocProvider(
         create: (context) => AuthBloc()
-          ..add(AuthAuto())
+          ..add(AuthAuto(onSuccess: () {
+            BlocProvider.of<UserBloc>(context).add(UserFetch());
+            AppNav().setHome(context);
+          }))
           ..setShake(_shakeKey),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (state is AuthSuccess) {
-              AppNav().setHome(context);
-              BlocProvider.of<UserBloc>(context).add(UserFetch());
-            }
             if (state is AuthSignUp) {
-              return signupForm(context);
+              return signupForm(context, state);
             } else if (state is AuthLogIn) {
-              return loginForm(context);
+              return loginForm(context, state);
             } else if (state is AuthValidate) {
-              return validationForm(context);
+              return validationForm(context, state);
             }
             return const AppLoading();
           },
@@ -50,7 +49,7 @@ class _AuthViewState extends State<AuthView> {
   }
 
   //TODO fortify validators
-  Widget loginForm(BuildContext context) {
+  Widget loginForm(BuildContext context, AuthLogIn state) {
     return Shaker(
       key: _shakeKey,
       child: Form(
@@ -69,7 +68,9 @@ class _AuthViewState extends State<AuthView> {
                 authType: AuthDataType.password,
                 obscure: true,
                 validator: validatePassword),
-            authButtons(context, true)
+            Text(state.message != null ? state.message! : "",
+                style: Styles.error),
+            authButtons(context, true),
           ],
         ),
       ),
@@ -77,7 +78,7 @@ class _AuthViewState extends State<AuthView> {
   }
 
   //TODO fortify validators
-  Widget signupForm(BuildContext context) {
+  Widget signupForm(BuildContext context, AuthSignUp state) {
     return Shaker(
       key: _shakeKey,
       child: Form(
@@ -100,7 +101,11 @@ class _AuthViewState extends State<AuthView> {
                 authType: AuthDataType.confirmPassword,
                 obscure: true,
                 validator: validatePassword),
-            authButtons(context, false)
+            Text(
+              state.message != null ? state.message! : "",
+              style: Styles.error,
+            ),
+            authButtons(context, false),
           ],
         ),
       ),
@@ -108,7 +113,7 @@ class _AuthViewState extends State<AuthView> {
   }
 
   //TODO fortify validators
-  Widget validationForm(BuildContext context) {
+  Widget validationForm(BuildContext context, AuthValidate state) {
     return Shaker(
       key: _shakeKey,
       child: Form(
@@ -121,7 +126,11 @@ class _AuthViewState extends State<AuthView> {
             ),
             const FormInput("confirmation code",
                 authType: AuthDataType.confirmCode, validator: validateCode),
-            confirmButton(context)
+            Text(
+              state.message != null ? state.message! : "",
+              style: Styles.error,
+            ),
+            confirmButton(context),
           ],
         ),
       ),
@@ -143,7 +152,10 @@ class _AuthViewState extends State<AuthView> {
               child: const Text("Confirm", style: Styles.actionText),
             ),
             onTap: () {
-              BlocProvider.of<AuthBloc>(context).add(AuthConfirm());
+              BlocProvider.of<AuthBloc>(context).add(AuthConfirm(onSuccess: () {
+                BlocProvider.of<UserBloc>(context).add(UserFetch());
+                AppNav().setHome(context);
+              }));
             },
           ),
         ),
@@ -168,13 +180,19 @@ class _AuthViewState extends State<AuthView> {
               child: Text(isLogin ? login : signup, style: Styles.actionText),
             ),
             onTap: () {
+              //Add a loading state
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 _formKey.currentState!.reset();
                 log("Auth Data Validated");
                 //TODO store data to backend
               }
-              BlocProvider.of<AuthBloc>(context).add(AuthAttempt());
+              BlocProvider.of<AuthBloc>(context).add(AuthAttempt(
+                onSuccess: () {
+                  BlocProvider.of<UserBloc>(context).add(UserFetch());
+                  AppNav().setHome(context);
+                },
+              ));
             },
           ),
         ),

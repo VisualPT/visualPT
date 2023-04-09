@@ -10,11 +10,9 @@ abstract class PdfEvent extends Equatable {
 class PdfInit extends PdfEvent {
   final Patient patient;
   final Assessment assessment;
-  final List<File> assets;
 
-  const PdfInit(
-      {required this.patient, required this.assessment, required this.assets});
+  const PdfInit({required this.patient, required this.assessment});
 
   @override
-  List<Object> get props => [patient, assessment, assets];
+  List<Object> get props => [patient, assessment];
 }

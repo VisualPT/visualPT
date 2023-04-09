@@ -15,22 +15,15 @@ class HomeView extends StatelessWidget {
         pageTitle: "Select an assessment",
         child: Column(
           children: [
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CupertinoButton(
-                  onPressed: () {
-                    AuthService().signOut();
-                    AppNav().setAuth(context);
-                  },
-                  child: const Text("SignOut"),
-                )),
-            Expanded(
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
               child: ListView(
                 prototypeItem: const AssessmentCard(
                     imagePath: Styles.ctsibLogoPath,
                     assessmentType: AssessmentType.CTSIB,
                     subtitle: "Prototype Item"),
-                shrinkWrap: true,
+                shrinkWrap: false,
                 scrollDirection: Axis.horizontal,
                 children: const [
                   AssessmentCard(
@@ -46,9 +39,15 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
-            CupertinoButton(
-                child: const Text("Go to Camera"),
-                onPressed: () => AppNav().goToPath(context, "/camera")),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CupertinoButton(
+                  onPressed: () {
+                    AuthService().signOut();
+                    AppNav().setAuth(context);
+                  },
+                  child: const Text("SignOut"),
+                )),
             const Spacer(),
           ],
         ),

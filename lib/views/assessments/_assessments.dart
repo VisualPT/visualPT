@@ -7,8 +7,8 @@ import 'package:visualpt/views/assessments/gait/gait.dart';
 class AssessmentRouter {
   final AssessmentType assessmentType;
 
-  late List<Widget Function(BuildContext, String)> introWidgets;
-  late List<Widget Function(BuildContext, String)> captureWidgets;
+  late List<Widget Function(BuildContext) Function()> introWidgets;
+  late List<Widget Function(BuildContext) Function(Patient)> captureWidgets;
 
   late int assessmentCount;
 

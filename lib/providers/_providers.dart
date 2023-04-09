@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 
 export 'analysis_provider.dart';
+export 'assessment_provider.dart';
 export 'video_provider.dart';
 
 class BlocProviders {
@@ -15,7 +16,6 @@ class BlocProviders {
   BackendBloc? backendBloc;
   VideoBloc? videoBloc;
   EmailBloc? emailBloc;
-  PatientBloc? patientBloc;
   PdfBloc? pdfBloc;
   TimerBloc? timerBloc;
   UserBloc? userBloc;
@@ -25,7 +25,7 @@ class BlocProviders {
       bool assessment = false,
       bool auth = false,
       bool backend = false,
-      bool camera = false,
+      bool video = false,
       bool email = false,
       bool patient = false,
       bool pdf = false,
@@ -35,9 +35,8 @@ class BlocProviders {
         assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
     authBloc = auth ? BlocProvider.of<AuthBloc>(context) : null;
     backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
-    videoBloc = camera ? BlocProvider.of<VideoBloc>(context) : null;
+    videoBloc = video ? BlocProvider.of<VideoBloc>(context) : null;
     emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
-    patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
     pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;
     timerBloc = timer ? BlocProvider.of<TimerBloc>(context) : null;
     userBloc = user ? BlocProvider.of<UserBloc>(context) : null;

@@ -1,24 +1,22 @@
-import 'dart:io';
+import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/service/assessment_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class AnalysisView extends StatefulWidget {
-  final Patient patient;
   final Assessment assessment;
-  final List<File> assessmentAssets;
+  final Patient patient;
 
   const AnalysisView(
-      {super.key,
-      required this.patient,
-      required this.assessment,
-      required this.assessmentAssets});
+      {super.key, required this.assessment, required this.patient});
 
   @override
   State<AnalysisView> createState() => _AnalysisViewState();
@@ -28,18 +26,21 @@ class _AnalysisViewState extends State<AnalysisView> {
   late BlocProviders controller;
 
   @override
+  void initState() {
+    // TODO safely Remove loading screen
+    if (!mounted) AppNav().back(context);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle: "${widget.assessment.type.name} analysis",
         child: AnalysisProvider(
-          getProviders: (context) {
-            controller =
-                BlocProviders(context: context, pdf: true, email: true);
-          },
-          onCreate: PdfInit(
-              patient: widget.patient,
-              assessment: widget.assessment,
-              assets: widget.assessmentAssets),
+          getProviders: (context) => controller =
+              BlocProviders(context: context, pdf: true, email: true),
+          onCreate:
+              PdfInit(patient: widget.patient, assessment: widget.assessment),
           onReady: pdfReady,
           onLoading: pdfLoading,
           onError: pdfError,
@@ -47,9 +48,7 @@ class _AnalysisViewState extends State<AnalysisView> {
   }
 
   Widget pdfReady(BuildContext context, PdfReady state) {
-    //TODO safely Remove loading screen
-    AppNav().back(context);
-
+    print("PDF READY");
     return SafeArea(
       child: Column(children: [
         SizedBox(
@@ -67,12 +66,11 @@ class _AnalysisViewState extends State<AnalysisView> {
               CupertinoButton(
                 padding: const EdgeInsets.all(13.0),
                 color: CupertinoColors.link,
-                onPressed: () => appDialog(
-                    context: context,
-                    title: "Clear patient data",
-                    content: "Do you want to repeat the analysis?",
-                    secondaryCallback: () => Navigator.pop(context),
-                    primaryCallback: () => {/**TODO */}),
+                onPressed: () {
+                  //TODO Add an are you sure popup
+                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+                      reset: true, context: context, patient: widget.patient));
+                },
                 child: const Text(
                   "Redo Assessment",
                 ),
@@ -85,7 +83,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                   context,
                   widget.patient,
                   widget.assessment,
-                  state.pdfView.pdfData!.toString(),
+                  state.pdfView.pdfData!,
                 ),
                 child: const Text(
                   "Save to email",
@@ -109,12 +107,7 @@ class _AnalysisViewState extends State<AnalysisView> {
       CupertinoButton(
           child: const Text("Retry"),
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-                PdfInit(
-                    patient:
-                        BlocProvider.of<PatientBloc>(context).currentPatient,
-                    assessment:
-                        BlocProvider.of<AssessmentBloc>(context).assessment,
-                    assets: widget.assessmentAssets),
+                PdfInit(patient: widget.patient, assessment: widget.assessment),
               ))
     ]));
   }
@@ -125,7 +118,7 @@ class _AnalysisViewState extends State<AnalysisView> {
     BuildContext context,
     Patient patient,
     Assessment assessment,
-    String pdf,
+    Uint8List pdf,
   ) {
     appDialog(
         context: context,
@@ -133,12 +126,12 @@ class _AnalysisViewState extends State<AnalysisView> {
         content: "Email will be sent to: ${patient.provider_contact}",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
-          AppNav().loading(context);
+          assessment = AssessmentService().addPDF(assessment, pdf);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               patient: patient,
               assessment: assessment,
-              onSuccess: () => AppNav().reset(context),
-              onFail: () {/**TODO  */}));
+              onSuccess: () => AppNav().setHome(context),
+              onFail: () => log("Email failed")));
         });
   }
 }

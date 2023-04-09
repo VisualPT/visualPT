@@ -42,26 +42,34 @@ class AppLoadingState extends State<AppLoading> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final size = 200.0 - 100.0 * breathe;
-    return Center(
+    final size = 500.0 - 400.0 * breathe;
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: Styles.backgroundPrimary,
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
             center: Alignment.center,
             colors: [
-              Styles.backgroundPrimary.withOpacity(1.0),
-              Styles.backgroundPrimary.withOpacity(0.8),
-              Styles.backgroundPrimary.withOpacity(0.6),
-              Styles.backgroundPrimary.withOpacity(0.4),
-              Styles.backgroundPrimary.withOpacity(0.2),
-              Styles.backgroundPrimary.withOpacity(0.0),
+              Styles.backgroundAccent.withOpacity(1.0),
+              Styles.backgroundAccent.withOpacity(0.8),
+              Styles.backgroundAccent.withOpacity(0.6),
+              Styles.backgroundAccent.withOpacity(0.4),
+              Styles.backgroundAccent.withOpacity(0.2),
+              Styles.backgroundAccent.withOpacity(0.0),
             ],
           ),
         ),
         height: size,
-        child: const Image(
-            image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Image(image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
+            Text("Loading...")
+          ],
+        ),
       ),
     );
   }

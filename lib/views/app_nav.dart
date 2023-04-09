@@ -1,23 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/_views.dart';
 
-import 'components/app_loading.dart';
-
-//TODO put all navigation here
-//TODO safely pop from loading screen, test edge cases
 class AppNav {
   AppNav();
 
+//TODO resolve bug: FlutterError (setState() or markNeedsBuild() called during build. This Overlay widget cannot be marked as needing to build because the framework is already in the process of building widgets. A widget can be marked as needing to be built during the build phase only if one of its ancestors is currently building. This exception is allowed because the framework builds parent widgets before children, which means a dirty descendant will always be built. Otherwise, the framework might not visit this widget during this build phase.
   void back(BuildContext context) => Navigator.of(context).pop();
-
-  void loading(BuildContext context) =>
-      Navigator.of(context).push(CupertinoPageRoute<void>(
-          builder: (BuildContext context) => const AppLoading()));
-
-  void reset(BuildContext context) => Navigator.popUntil(
-        context,
-        ModalRoute.withName('/'),
-      );
 
   void setAuth(BuildContext context) {
     Future(() async {
@@ -32,13 +20,23 @@ class AppNav {
 
   void setHome(BuildContext context) {
     Future(() async {
-      Navigator.of(context).pushReplacementNamed("/home");
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     });
   }
 
   goToPath(BuildContext context, String path) {
     Future(() async {
       Navigator.of(context).pushNamed(path);
+    });
+  }
+
+  goToView(BuildContext context, Widget view) {
+    Future(() async {
+      Navigator.of(context).push(
+        CupertinoPageRoute<void>(
+          builder: (BuildContext context) => view,
+        ),
+      );
     });
   }
 }

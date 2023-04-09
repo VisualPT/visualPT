@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/service/patient_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
@@ -253,23 +254,18 @@ class _PatientFormState extends State<PatientForm> {
               //TODO <are you sure this data is correct?> modal
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                PatientService()
+                    .create(
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      dob: dobController.text,
+                      gender: genderController.text,
+                      height: heightController.text,
+                    )
+                    .then((patient) => BlocProvider.of<AssessmentBloc>(context)
+                        .add(AssessmentInit(
+                            reset: false, context: context, patient: patient)));
 
-                BlocProvider.of<PatientBloc>(context).add(PatientSet(
-                    firstNameController.text,
-                    lastNameController.text,
-                    dobController.text,
-                    genderController.text,
-                    heightController.text));
-
-                showCupertinoDialog(
-                    context: context, builder: (_) => const AppLoading());
-                //TODO DO NOT DELAY, make it smooth
-                Future.delayed(const Duration(seconds: 2), () {
-                  final patient =
-                      BlocProvider.of<PatientBloc>(context).currentPatient;
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(0, patient));
-                });
                 //TODO store data to backend
               }
             },

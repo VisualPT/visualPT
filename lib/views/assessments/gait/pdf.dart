@@ -6,7 +6,7 @@ import 'package:pdf/widgets.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/assessments/gait/_gait.dart';
 
-import '../pdf.dart';
+import '../_pdf.dart';
 
 class GaitPDF extends PDF {
   @override
@@ -92,7 +92,7 @@ class GaitPDF extends PDF {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Date: ", style: detail),
                                   TextSpan(
-                                      text: assessment.timestamp
+                                      text: assessment.datetime
                                           .toString(), //TODO timestamp=>datetime
                                       style: detailBold),
                                 ])),
@@ -101,7 +101,7 @@ class GaitPDF extends PDF {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Time: ", style: detail),
                                   TextSpan(
-                                      text: assessment.timestamp.toString(),
+                                      text: assessment.datetime.toString(),
                                       style: detailBold),
                                 ])),
                               ]),
@@ -138,8 +138,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Measurement Duration: ", style: detail),
                         TextSpan(
-                            text: assessment.timestamp
-                                .toSeconds()
+                            text: assessment.datetime
                                 .toString(), //TODO add duration type to
                             style: detailBold),
                         TextSpan(text: " seconds", style: detail),
