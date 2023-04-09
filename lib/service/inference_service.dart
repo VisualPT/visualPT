@@ -63,7 +63,7 @@ class InferenceService {
         isolateUtils: _poseIsolateUtils,
         cameraImage: cameraImage,
       );
-      print(aggregatedResponse);
+      //print(aggregatedResponse);
       aggregatedResponse!.clear();
       aggregatedResponse!
           .addAll(_faceInferenceService.inferenceResults ?? {"face": null});

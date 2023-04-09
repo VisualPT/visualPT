@@ -14,7 +14,7 @@ class IsolateUtils {
       _entryPoint,
       _receivePort.sendPort,
     );
-
+    //TODO Fix no element error
     _sendPort = await _receivePort.first;
   }
 
