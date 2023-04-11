@@ -27,9 +27,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     log("Attempting auto auth");
     //TODO Get all the users data and put it in a singleton
     await auth.fetchSession(onSignedIn: () async {
-      await userService
-          .initUser()
-          .then((user) => log(user.toString(), name: "Authenticated User"));
+      //TODO Ensure that the user is confirmed
+      await userService.setUser();
       event.onSuccess();
     });
   }

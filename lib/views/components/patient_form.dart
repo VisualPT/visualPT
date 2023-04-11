@@ -28,45 +28,47 @@ class _PatientFormState extends State<PatientForm> {
   Widget build(BuildContext context) {
     return BaseView(
       pageTitle: "Patient Information",
-      child: Form(
-        key: _formKey,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 100,
-            maxHeight: 500,
-          ),
-          child: Column(
-            //TODO BLOC this shit UP into a form BLOC and add a reset button
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FormInput(
-                "First Name",
-                controller: firstNameController,
-                inputType: TextInputType.name,
-              ),
-              FormInput(
-                "Last Name",
-                controller: lastNameController,
-                inputType: TextInputType.name,
-              ),
-              FormInput(
-                "Birth Date",
-                controller: dobController,
-                inputPopup: datePopup,
-              ),
-              FormInput(
-                "Gender",
-                controller: genderController,
-                inputPopup: genderPopup,
-              ),
-              FormInput(
-                "Height",
-                controller: heightController,
-                inputPopup: heightPopup,
-              ),
-              buttons(context)
-            ],
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: 100,
+              maxHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Column(
+              //TODO BLOC this shit UP into a form BLOC and add a reset button
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FormInput(
+                  "First Name",
+                  controller: firstNameController,
+                  inputType: TextInputType.name,
+                ),
+                FormInput(
+                  "Last Name",
+                  controller: lastNameController,
+                  inputType: TextInputType.name,
+                ),
+                FormInput(
+                  "Birth Date",
+                  controller: dobController,
+                  inputPopup: datePopup,
+                ),
+                FormInput(
+                  "Gender",
+                  controller: genderController,
+                  inputPopup: genderPopup,
+                ),
+                FormInput(
+                  "Height",
+                  controller: heightController,
+                  inputPopup: heightPopup,
+                ),
+                buttons(context)
+              ],
+            ),
           ),
         ),
       ),
@@ -256,12 +258,14 @@ class _PatientFormState extends State<PatientForm> {
                 _formKey.currentState!.save();
                 PatientService()
                     .create(
-                      firstName: firstNameController.text,
-                      lastName: lastNameController.text,
-                      dob: dobController.text,
-                      gender: genderController.text,
-                      height: heightController.text,
-                    )
+                        firstName: firstNameController.text,
+                        lastName: lastNameController.text,
+                        dob: dobController.text,
+                        gender: genderController.text,
+                        height: heightController.text,
+                        email: BlocProvider.of<UserBloc>(context)
+                            .currentUser
+                            .email)
                     .then((patient) => BlocProvider.of<AssessmentBloc>(context)
                         .add(AssessmentInit(
                             reset: false, context: context, patient: patient)));
