@@ -4,17 +4,13 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 
-late User? currentUser;
-
 UserService userService = UserService();
 
 class UserService extends AppService {
-  Future<User> initUser() async {
+  Future<User> setUser() async {
     final userData = await Amplify.Auth.fetchUserAttributes();
     log("userData has returned with the values $userData");
-    late String email, firstName, lastName;
-    //TODO this needs to be set dynamically eventually
-    late String status = "MALE";
+    late String email, firstName = "", lastName = "", status = "MALE";
 
     for (var element in userData) {
       switch (element.userAttributeKey.key) {
