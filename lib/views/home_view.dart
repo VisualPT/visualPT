@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
 class HomeView extends StatelessWidget {
@@ -12,24 +10,25 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: BaseView(
-        pageTitle: "Select an assessment",
         child: Column(
           children: [
+            const Spacer(),
             Flexible(
-              flex: 1,
+              flex: 2,
               fit: FlexFit.tight,
               child: ListView(
                 prototypeItem: const AssessmentCard(
                     imagePath: Styles.ctsibLogoPath,
                     assessmentType: AssessmentType.CTSIB,
-                    subtitle: "Prototype Item"),
+                    subtitle: "Prototype"),
+                padding: const EdgeInsets.all(8.0),
                 shrinkWrap: false,
                 scrollDirection: Axis.horizontal,
                 children: const [
                   AssessmentCard(
                       imagePath: Styles.ctsibLogoPath,
                       assessmentType: AssessmentType.CTSIB,
-                      subtitle: "3 minutes"),
+                      subtitle: "5 minutes"),
                   AssessmentCard(
                     imagePath: Styles.gvLogoPath,
                     assessmentType: AssessmentType.GAIT,
@@ -39,15 +38,6 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CupertinoButton(
-                  onPressed: () {
-                    AuthService().signOut();
-                    AppNav().setAuth(context);
-                  },
-                  child: const Text("SignOut"),
-                )),
             const Spacer(),
           ],
         ),
