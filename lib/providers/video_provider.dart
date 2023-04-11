@@ -60,8 +60,8 @@ class _VideoProviderState extends State<VideoProvider> {
             } else {
               throw Exception("Invalid VideoState");
             }
-          } on Exception catch (e) {
-            return widget.onError(context, state, e);
+          } catch (e) {
+            return widget.onError(context, state, e as Exception);
           }
         },
       ),

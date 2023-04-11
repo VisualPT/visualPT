@@ -27,6 +27,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   VideoBloc() : super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
+    on<VideoRestart>(onRestart);
     on<VideoStop>(onStop);
   }
 
@@ -36,7 +37,6 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
-    log("Video init");
     onComplete = event.onComplete;
     try {
       await availableCameras()
@@ -44,7 +44,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         (cameras) => CameraController(
           cameras.firstWhere(
               (camera) => camera.lensDirection == CameraLensDirection.back),
-          ResolutionPreset.high,
+          ResolutionPreset.medium,
           enableAudio: false,
           imageFormatGroup: ImageFormatGroup.bgra8888,
         ),
@@ -55,7 +55,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         emit(VideoStandby(cameraController!));
       });
 
-      log("Camera initialized, lauming frame reader");
+      //TODO create a popup for these error codes
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
@@ -86,13 +86,17 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
-    log("Video play");
     start = DateTime.now();
     emit(VideoRecording(cameraController!));
   }
 
+  FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
+    cameraController!.stopVideoRecording();
+    resetTimer();
+    emit(VideoStandby(cameraController!));
+  }
+
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    log("camera stop");
     await cameraController!.stopVideoRecording().then((file) {
       duration = DateTime.now().difference(start);
       //TODO store file to S3 bucket
