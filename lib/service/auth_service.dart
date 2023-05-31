@@ -27,8 +27,12 @@ class AuthService {
 
   Future<void> fetchSession({required void Function() onSignedIn}) async {
     log("Observing auth session");
-    await Amplify.Auth.fetchAuthSession()
-        .then((value) => value.isSignedIn ? onSignedIn() : null);
+    try {
+      await Amplify.Auth.fetchAuthSession()
+          .then((value) => value.isSignedIn ? onSignedIn() : null);
+    } on Exception catch (e) {
+      log("Error fetching session: ${e.toString()}");
+    }
   }
 
   Future<List<AuthUserAttribute>> fetchAttributes() async {
@@ -41,8 +45,8 @@ class AuthService {
       await Amplify.Auth.signIn(username: email, password: password);
     } on UserNotFoundException {
       throw ("User was not found");
-    } on NotAuthorizedException {
-      throw ("User was not authorized");
+      // } on NotAuthorizedException {
+      //   throw ("User was not authorized");
     } on UserNotConfirmedException {
       throw ("User was not created");
     } on Exception catch (e) {
