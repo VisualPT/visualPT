@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/service/auth_service.dart';
@@ -46,17 +47,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
     if (state is AuthLogIn && auth.isLoginValid()) {
       try {
-        await auth.completeLogin();
-        emit(AuthValidate());
-        event.onSuccess();
+        final result = await auth.completeLogin();
+        //TODO check if the user has verified their email
+        auth.handleSignInResult(
+            result: result,
+            onValidate: () => emit(AuthValidate()),
+            onSuccess: event.onSuccess);
       } catch (e) {
         emit(AuthLogIn(message: e.toString()));
       }
     } else if (state is AuthSignUp && auth.isSignupValid()) {
       try {
-        auth.completeSignUp();
-        emit(AuthValidate());
-        event.onSuccess();
+        final result = await auth.completeSignUp();
+        auth.handleSignUpResult(
+            result: result,
+            onValidate: () => emit(AuthValidate()),
+            onSuccess: event.onSuccess);
       } catch (e) {
         emit(AuthSignUp(message: e.toString()));
       }
@@ -67,9 +73,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _onConfirm(AuthConfirm event, Emitter<AuthState> emit) async {
     if (method == AuthMethod.signUp) {
-      await auth.confirmSignUpCode().then((value) => value
-          ? event.onSuccess()
-          : emit(AuthValidate(message: "The code entered was invalid")));
+      log("Attempting to confirm signup");
+      final result = await auth.confirmSignUpCode();
+      auth.handleSignUpResult(
+          result: result,
+          onValidate: () => emit(AuthValidate()),
+          onSuccess: event.onSuccess);
     } else {
       event.onSuccess();
 
@@ -91,7 +100,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  setShake(GlobalKey<ShakerState> shakeKey) {
+  void setShake(GlobalKey<ShakerState> shakeKey) {
     shake = shakeKey;
   }
 

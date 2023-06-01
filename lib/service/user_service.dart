@@ -10,7 +10,11 @@ class UserService extends AppService {
   Future<User> setUser() async {
     final userData = await Amplify.Auth.fetchUserAttributes();
     log("userData has returned with the values $userData");
-    late String email, firstName = "", lastName = "", status = "MALE";
+    late String email,
+        firstName = "",
+        lastName = "",
+        status = "MALE",
+        verified = "false";
 
     for (var element in userData) {
       switch (element.userAttributeKey.key) {
@@ -25,6 +29,9 @@ class UserService extends AppService {
           break;
         case "status":
           status = element.value;
+          break;
+        case "email_verified":
+          verified = element.value;
           break;
         default:
           log("Could not store ${element.userAttributeKey.key}========${element.value}");

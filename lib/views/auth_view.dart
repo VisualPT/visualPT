@@ -20,6 +20,12 @@ class _AuthViewState extends State<AuthView> {
   //TODO BLOC FORM WHEN MVP IS DONE
   final _formKey = GlobalKey<FormState>();
 
+  authAutoSuccess() {
+    BlocProvider.of<UserBloc>(context).add(UserFetch());
+    log("Setting home");
+    AppNav().setHome(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseView(
@@ -27,10 +33,7 @@ class _AuthViewState extends State<AuthView> {
       //TODO print debug to figure out why this shit broke
       child: BlocProvider(
         create: (context) => AuthBloc()
-          ..add(AuthAuto(onSuccess: () {
-            BlocProvider.of<UserBloc>(context).add(UserFetch());
-            AppNav().setHome(context);
-          }))
+          ..add(AuthAuto(onSuccess: authAutoSuccess))
           ..setShake(_shakeKey),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
@@ -58,7 +61,7 @@ class _AuthViewState extends State<AuthView> {
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Access your accelerators"),
+              child: Text("Accelerate assessments"),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
@@ -152,10 +155,8 @@ class _AuthViewState extends State<AuthView> {
               child: const Text("Confirm", style: Styles.actionText),
             ),
             onTap: () {
-              BlocProvider.of<AuthBloc>(context).add(AuthConfirm(onSuccess: () {
-                BlocProvider.of<UserBloc>(context).add(UserFetch());
-                AppNav().setHome(context);
-              }));
+              BlocProvider.of<AuthBloc>(context)
+                  .add(AuthConfirm(onSuccess: authAutoSuccess));
             },
           ),
         ),
@@ -164,8 +165,7 @@ class _AuthViewState extends State<AuthView> {
   }
 
   Widget authButtons(BuildContext context, bool isLogin) {
-    String login = "Log In";
-    String signup = "Sign up";
+    String login = "Log In", signup = "Sign up";
     return Column(
       children: [
         Padding(
@@ -173,8 +173,8 @@ class _AuthViewState extends State<AuthView> {
           child: GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery.of(context).size.width / 3,
               decoration: const BoxDecoration(
                   shape: BoxShape.circle, color: Styles.actionPrimary),
               child: Text(isLogin ? login : signup, style: Styles.actionText),
@@ -188,10 +188,7 @@ class _AuthViewState extends State<AuthView> {
                 //TODO store data to backend
               }
               BlocProvider.of<AuthBloc>(context).add(AuthAttempt(
-                onSuccess: () {
-                  BlocProvider.of<UserBloc>(context).add(UserFetch());
-                  AppNav().setHome(context);
-                },
+                onSuccess: authAutoSuccess,
               ));
             },
           ),

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/bloc/auth/auth_bloc.dart';
 
 enum AuthDataType { email, password, confirmPassword, confirmCode }
 
@@ -39,49 +40,104 @@ class AuthService {
     return await Amplify.Auth.fetchUserAttributes();
   }
 
-  Future<void> completeLogin() async {
+  Future<SignInResult> completeLogin() async {
     log("Logging in...");
     try {
-      await Amplify.Auth.signIn(username: email, password: password);
+      final result =
+          await Amplify.Auth.signIn(username: email, password: password);
+      return result;
     } on UserNotFoundException {
       throw ("User was not found");
-      // } on NotAuthorizedException {
-      //   throw ("User was not authorized");
     } on UserNotConfirmedException {
       throw ("User was not created");
-    } on Exception catch (e) {
-      throw ("User was not logged in");
     } on PasswordResetRequiredException {
-      //TODO
+      throw ("Password reset required");
+    } on Exception catch (e) {
+      log("here");
+      throw (e.toString());
     }
   }
 
-  void completeSignUp() async {
+  Future<void> handleSignInResult(
+      {required SignInResult result,
+      required void Function() onValidate,
+      required void Function() onSuccess}) async {
+    switch (result.nextStep.signInStep) {
+      case AuthSignInStep.confirmSignInWithSmsMfaCode:
+        log("SMS code sent");
+        break;
+      case AuthSignInStep.confirmSignInWithNewPassword:
+        log("New password required");
+        break;
+      case AuthSignInStep.confirmSignInWithCustomChallenge:
+        log("Custom challenge required");
+        break;
+        log("Password reset required");
+        break;
+      case AuthSignInStep.confirmSignUp:
+        //TODO: Error prone code. User signed up but not confirmed
+        onValidate();
+        break;
+      case AuthSignInStep.resetPassword:
+        // TODO: Handle this case.
+        break;
+      case AuthSignInStep.done:
+        onSuccess();
+        break;
+    }
+  }
+
+  Future<SignUpResult> completeSignUp() async {
     log("Signing In...");
-    //TODO make this dynamically added soon
     try {
+      //TODO make this dynamically added soon
       final userAttributes = <CognitoUserAttributeKey, String>{
         CognitoUserAttributeKey.name: "Temp",
         CognitoUserAttributeKey.familyName: "Temp",
 
         // additional attributes as needed
       };
-      await Amplify.Auth.signUp(
+      return await Amplify.Auth.signUp(
           username: email,
           password: password,
-          options: CognitoSignUpOptions(userAttributes: userAttributes));
+          options: SignUpOptions(userAttributes: userAttributes));
     } on UsernameExistsException {
-      // TODO
-    } catch (e) {
-      // TODO
+      throw ("User already exists");
+    } on InvalidParameterException {
+      throw ("Invalid parameters");
+    } on PasswordResetRequiredException {
+      throw ("Password reset required");
+    } on Exception catch (e) {
+      throw ("User was not signed up");
     }
   }
 
-  Future<bool> confirmSignUpCode() async {
+  Future<void> handleSignUpResult(
+      {required SignUpResult result,
+      required void Function() onValidate,
+      required void Function() onSuccess}) async {
+    switch (result.nextStep.signUpStep) {
+      case AuthSignUpStep.confirmSignUp:
+        final codeDeliveryDetails = result.nextStep.codeDeliveryDetails;
+        onValidate();
+        break;
+      case AuthSignUpStep.done:
+        onSuccess();
+        break;
+    }
+  }
+
+  void handleCodeDelivery(AuthCodeDeliveryDetails codeDeliveryDetails) {
+    log(
+      'A confirmation code has been sent to ${codeDeliveryDetails.destination}. '
+      'Please check your ${codeDeliveryDetails.deliveryMedium.name} for the code.',
+    );
+  }
+
+  Future<SignUpResult> confirmSignUpCode() async {
     log("Confirming Sign up with code: $confirmCode");
     return await Amplify.Auth.confirmSignUp(
-            username: email, confirmationCode: confirmCode)
-        .then((value) => value.isSignUpComplete);
+        username: email, confirmationCode: confirmCode);
   }
 
   Future<bool> confirmLogInCode() async {
