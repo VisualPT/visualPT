@@ -40,7 +40,9 @@ class BaseView extends StatelessWidget {
           width: screenSize.width,
           child: Stack(alignment: Alignment.center, children: [
             const ViewBackground(),
-            child,
+            SingleChildScrollView(
+              child: child,
+            ),
           ]),
         ));
   }

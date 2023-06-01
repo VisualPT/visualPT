@@ -47,7 +47,7 @@ class Styles {
   static const TextStyle inputStyle =
       TextStyle(color: CupertinoColors.black, fontSize: 24);
   static const TextStyle actionText = TextStyle(
-      color: CupertinoColors.white, fontSize: 32, fontWeight: FontWeight.bold);
+      color: CupertinoColors.white, fontSize: 28, fontWeight: FontWeight.bold);
   static const TextStyle subactionText = TextStyle(
       color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle popupSelectionText =
