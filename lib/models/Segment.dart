@@ -26,22 +26,9 @@ import 'package:flutter/foundation.dart';
 /** This is an auto generated class representing the Segment type in your schema. */
 @immutable
 class Segment {
-  final String? _file;
   final int? _duration_seconds;
+  final String? _file;
 
-  String get file {
-    try {
-      return _file!;
-    } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
-  }
-  
   int get duration_seconds {
     try {
       return _duration_seconds!;
@@ -55,12 +42,25 @@ class Segment {
     }
   }
   
-  const Segment._internal({required file, required duration_seconds}): _file = file, _duration_seconds = duration_seconds;
+  String get file {
+    try {
+      return _file!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
   
-  factory Segment({required String file, required int duration_seconds}) {
+  const Segment._internal({required duration_seconds, required file}): _duration_seconds = duration_seconds, _file = file;
+  
+  factory Segment({required int duration_seconds, required String file}) {
     return Segment._internal(
-      file: file,
-      duration_seconds: duration_seconds);
+      duration_seconds: duration_seconds,
+      file: file);
   }
   
   bool equals(Object other) {
@@ -71,8 +71,8 @@ class Segment {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is Segment &&
-      _file == other._file &&
-      _duration_seconds == other._duration_seconds;
+      _duration_seconds == other._duration_seconds &&
+      _file == other._file;
   }
   
   @override
@@ -83,29 +83,29 @@ class Segment {
     var buffer = new StringBuffer();
     
     buffer.write("Segment {");
-    buffer.write("file=" + "$_file" + ", ");
-    buffer.write("duration_seconds=" + (_duration_seconds != null ? _duration_seconds!.toString() : "null"));
+    buffer.write("duration_seconds=" + (_duration_seconds != null ? _duration_seconds!.toString() : "null") + ", ");
+    buffer.write("file=" + "$_file");
     buffer.write("}");
     
     return buffer.toString();
   }
   
-  Segment copyWith({String? file, int? duration_seconds}) {
+  Segment copyWith({int? duration_seconds, String? file}) {
     return Segment._internal(
-      file: file ?? this.file,
-      duration_seconds: duration_seconds ?? this.duration_seconds);
+      duration_seconds: duration_seconds ?? this.duration_seconds,
+      file: file ?? this.file);
   }
   
   Segment.fromJson(Map<String, dynamic> json)  
-    : _file = json['file'],
-      _duration_seconds = (json['duration_seconds'] as num?)?.toInt();
+    : _duration_seconds = (json['duration_seconds'] as num?)?.toInt(),
+      _file = json['file'];
   
   Map<String, dynamic> toJson() => {
-    'file': _file, 'duration_seconds': _duration_seconds
+    'duration_seconds': _duration_seconds, 'file': _file
   };
   
   Map<String, Object?> toMap() => {
-    'file': _file, 'duration_seconds': _duration_seconds
+    'duration_seconds': _duration_seconds, 'file': _file
   };
 
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
@@ -113,15 +113,15 @@ class Segment {
     modelSchemaDefinition.pluralName = "Segments";
     
     modelSchemaDefinition.addField(ModelFieldDefinition.customTypeField(
-      fieldName: 'file',
-      isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.customTypeField(
       fieldName: 'duration_seconds',
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.int)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.customTypeField(
+      fieldName: 'file',
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
   });
 }
