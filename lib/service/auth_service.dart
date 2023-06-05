@@ -26,7 +26,7 @@ class AuthService {
   void debugPrint() =>
       log("email:$email\npass:$password\nconfirm:$confirmPassword\n");
 
-  Future<void> fetchSession({required void Function() onSignedIn}) async {
+  Future<void> fetchSession(void Function() onSignedIn) async {
     log("Observing auth session");
     try {
       await Amplify.Auth.fetchAuthSession()
@@ -53,7 +53,6 @@ class AuthService {
     } on PasswordResetRequiredException {
       throw ("Password reset required");
     } on Exception catch (e) {
-      log("here");
       throw (e.toString());
     }
   }
