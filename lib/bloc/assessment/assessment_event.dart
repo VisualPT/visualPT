@@ -1,24 +1,30 @@
 part of 'assessment_bloc.dart';
 
 @immutable
-abstract class AssessmentEvent {
+abstract class AssessmentEvent extends Equatable {
   final BuildContext context;
   const AssessmentEvent({required this.context});
 }
 
-class AssessmentInit extends AssessmentEvent {
+class AssessmentInitial extends AssessmentEvent {
   final bool reset;
   final Patient patient;
 
-  const AssessmentInit({
-    required this.reset,
+  const AssessmentInitial({
     required this.patient,
     required super.context,
+    this.reset = false,
   });
+
+  @override
+  List<Object?> get props => [patient, reset];
 }
 
 class AssessmentBegin extends AssessmentEvent {
   const AssessmentBegin({required super.context});
+
+  @override
+  List<Object?> get props => [];
 }
 
 class AssessmentIncrement extends AssessmentEvent {
@@ -26,4 +32,7 @@ class AssessmentIncrement extends AssessmentEvent {
   final Segment segment;
   const AssessmentIncrement(
       {required this.patient, required this.segment, required super.context});
+
+  @override
+  List<Object?> get props => [patient, segment];
 }

@@ -68,8 +68,11 @@ class _AnalysisViewState extends State<AnalysisView> {
                 color: CupertinoColors.link,
                 onPressed: () {
                   //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-                      reset: true, context: context, patient: widget.patient));
+                  BlocProvider.of<AssessmentBloc>(context).add(
+                      AssessmentInitial(
+                          reset: true,
+                          context: context,
+                          patient: widget.patient));
                 },
                 child: const Text(
                   "Redo Assessment",
@@ -132,6 +135,7 @@ class _AnalysisViewState extends State<AnalysisView> {
               assessment: assessment,
               onSuccess: () => AppNav().setHome(context),
               onFail: () => log("Email failed")));
+          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
         });
   }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:visualpt/views/_views.dart';
 
 class AppLoading extends StatefulWidget {
-  const AppLoading({super.key});
+  final String? message;
+  const AppLoading({super.key, this.message});
 
   @override
   AppLoadingState createState() => AppLoadingState();
@@ -65,9 +66,10 @@ class AppLoadingState extends State<AppLoading> with TickerProviderStateMixin {
         height: size,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Image(image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
-            Text("Loading...")
+          children: [
+            const Image(
+                image: AssetImage(Styles.mainLogoPath), fit: BoxFit.contain),
+            Text(widget.message != null ? widget.message! : "Loading...")
           ],
         ),
       ),

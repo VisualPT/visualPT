@@ -43,7 +43,7 @@ class VisualPT extends StatelessWidget {
             final assessmentType = settings.arguments as AssessmentType;
             return CupertinoPageRoute(
                 builder: (context) =>
-                    AssessmentView(assessmentType: assessmentType));
+                    PatientView(assessmentType: assessmentType));
           }
           return null;
         },

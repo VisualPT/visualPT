@@ -49,6 +49,7 @@ Widget Function(BuildContext) introView(
           pageTitle: "CTSIB",
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Spacer(),
               Text(

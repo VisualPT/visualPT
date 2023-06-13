@@ -46,8 +46,15 @@ class BackendService {
   }
 
   void verboseBackend() {
-    Amplify.Hub.listen(([HubChannel.DataStore, HubChannel.Auth]), (hubEvent) {
-      log("${hubEvent.eventName} ${hubEvent.payload}", name: "Amplify");
+    Amplify.Hub.listen((HubChannel.DataStore), (hubEvent) {
+      log("${hubEvent.eventName} ${hubEvent.payload}",
+          name: "Amplify DataStore");
+    });
+    Amplify.Hub.listen((HubChannel.Api), (hubEvent) {
+      log("${hubEvent.eventName} ${hubEvent.payload}", name: "Amplify Api");
+    });
+    Amplify.Hub.listen((HubChannel.Api), (hubEvent) {
+      log("${hubEvent.eventName} ${hubEvent.payload}", name: "Amplify Api");
     });
   }
 

@@ -1,6 +1,6 @@
 type Segment {
-  file: String!
   duration_seconds: Int!
+  file: String!
 }
 
 enum UserStatus {

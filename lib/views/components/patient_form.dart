@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/service/patient_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
@@ -15,7 +14,6 @@ class PatientForm extends StatefulWidget {
   State<PatientForm> createState() => _PatientFormState();
 }
 
-//TODO FIX WITH BLOC
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
@@ -37,7 +35,7 @@ class _PatientFormState extends State<PatientForm> {
               maxHeight: MediaQuery.of(context).size.height,
             ),
             child: Column(
-              //TODO BLOC this shit UP into a form BLOC and add a reset button
+              //TODO: add a reset button
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -256,21 +254,14 @@ class _PatientFormState extends State<PatientForm> {
               //TODO <are you sure this data is correct?> modal
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                PatientService()
-                    .create(
-                        firstName: firstNameController.text,
-                        lastName: lastNameController.text,
-                        dob: dobController.text,
-                        gender: genderController.text,
-                        height: heightController.text,
-                        email: BlocProvider.of<UserBloc>(context)
-                            .currentUser
-                            .email)
-                    .then((patient) => BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentInit(
-                            reset: false, context: context, patient: patient)));
-
-                //TODO store data to backend
+                BlocProvider.of<PatientBloc>(context).add(PatientInit(
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text,
+                    dateOfBirth: dobController.text,
+                    gender: genderController.text,
+                    height: heightController.text,
+                    email:
+                        BlocProvider.of<UserBloc>(context).currentUser.email));
               }
             },
           ),
