@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -23,8 +24,8 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late DateTime startTime;
   late int index;
 
-  AssessmentBloc(this.type) : super(AssessmentForm(type)) {
-    on<AssessmentInit>(_onInit);
+  AssessmentBloc(this.type) : super(AssessmentLoading()) {
+    on<AssessmentInitial>(_onInitial);
     on<AssessmentBegin>(_onBegin);
     on<AssessmentIncrement>(_onIncrement);
 
@@ -36,9 +37,9 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     index = 0;
   }
 
-  FutureOr<void> _onInit(
-      AssessmentInit event, Emitter<AssessmentState> emit) async {
-    event.reset ? resetAssessment() : null;
+  FutureOr<void> _onInitial(
+      AssessmentInitial event, Emitter<AssessmentState> emit) async {
+    event.reset && resetAssessment();
     patient = event.patient;
     assessment = AssessmentService().create(type, startTime, patient.id);
     emit(AssessmentIntro(index, introViews[index]()));
@@ -69,7 +70,6 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   }
 
   resetAssessment() {
-    //TODO AssessmentService().delete(assessment);
     //TODO we will want to use this data to retrain the model if it is of quality
     assessment = AssessmentService().create(type, startTime, patient.id);
     segments = [];
