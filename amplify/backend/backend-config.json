@@ -1,5 +1,19 @@
 {
   "api": {
+    "triggerServerApi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "visualpt": {
       "dependsOn": [
         {
@@ -70,6 +84,39 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "function": {
+    "serverTrigger": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_serverTrigger_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_instanceId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
     }
   }
 }
