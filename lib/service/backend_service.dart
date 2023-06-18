@@ -66,4 +66,16 @@ class BackendService {
         log(event.toString());
         event == ConnectivityResult.none ? onConnectionNone() : null;
       });
+
+  void launchInstanceThroughLambda() async {
+    try {
+      final response = Amplify.API
+          .post("/trigger", headers: {"Content-Type": "application/json"});
+      final output =
+          await response.response.then((value) => value.decodeBody());
+      log("Lambda response: $output");
+    } on ApiException catch (e) {
+      log("Lambda function failed with error $e");
+    }
+  }
 }
