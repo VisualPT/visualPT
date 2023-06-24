@@ -11,6 +11,8 @@ class InferenceService {
       final Uint8List imageData = _cameraImageToBytes(image);
       var args = <String, dynamic>{
         "image": imageData,
+        "width": image.width,
+        "height": image.height,
       };
       return await _channel.invokeMethod('getPoseDetection', args);
     } catch (e) {
