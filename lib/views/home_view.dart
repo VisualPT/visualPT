@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/service/_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'components/_components.dart';
 
@@ -14,7 +15,7 @@ class HomeView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              flex: 2,
+              flex: 1,
               fit: FlexFit.loose,
               child: SizedBox(
                 height: MediaQuery.of(context).size.height,

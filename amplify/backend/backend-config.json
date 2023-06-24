@@ -71,5 +71,38 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "function": {
+    "serverTrigger": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_serverTrigger_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_instanceId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    }
   }
 }
