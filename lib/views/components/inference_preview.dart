@@ -32,21 +32,8 @@ class InferencePreviewState extends State<InferencePreview> {
     super.initState();
 
     inferenceService = InferenceService();
-    widget.cameraController!.startVideoRecording(
-        onAvailable: (CameraImage image) {
-      if (inferenceService.ready && !inferenceService.processing) {
-        inferenceService.inference(cameraImage: image);
-      }
-      if (mounted) {
-        setState(() => results = inferenceService.aggregatedResponse);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    inferenceService.dispose();
-    super.dispose();
+    widget.cameraController!
+        .startVideoRecording(onAvailable: (CameraImage image) {});
   }
 
   @override
