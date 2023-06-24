@@ -28,10 +28,13 @@ class InferencePreviewState extends State<InferencePreview> {
     super.initState();
 
     widget.cameraController!.startVideoRecording(
-        onAvailable: (CameraImage image) {
-      final data = InferenceService.getPoseDetection(image);
-      log("data: $data");
-    });
+        onAvailable: (CameraImage image) =>
+            InferenceService.getPoseDetection(image)
+                .then((value) => log(value))
+                .catchError(
+                  (error) => log(error.toString()),
+                )
+                .whenComplete(() => log("completed")));
   }
 
   @override
