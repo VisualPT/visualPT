@@ -1,18 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
-import 'package:visualpt/inference/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
   runApp(const VisualPT());
 }
 
 //TODO VisualPT
-//Create model endpoints on server
 //Marketing content
 //Pitch to physical therapists
 //Contact EMR services for connection ($2k investment)
@@ -36,13 +33,14 @@ class VisualPT extends StatelessWidget {
           "/": (context) => const LandingView(),
           "/home": (context) => const HomeView(),
           "/camera": (context) => const CameraView(),
+          "/settings": (context) => const SettingsView(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == "/assessment") {
             final assessmentType = settings.arguments as AssessmentType;
             return CupertinoPageRoute(
                 builder: (context) =>
-                    AssessmentView(assessmentType: assessmentType));
+                    PatientView(assessmentType: assessmentType));
           }
           return null;
         },

@@ -21,6 +21,7 @@ class Styles {
   static const Color comingSoonColor = Color(0x77777777);
 
   static const Color white = CupertinoColors.white;
+  static const Color black = CupertinoColors.black;
 
   //Asset Paths
   static const String mainLogoPath = "assets/images/vpt_mainlogo.png";
@@ -33,13 +34,20 @@ class Styles {
     fontSize: 32,
     fontWeight: FontWeight.bold,
   );
-  static const TextStyle subtitle = TextStyle(fontSize: 24);
+  static const TextStyle subtitle =
+      TextStyle(fontFamily: "Unbounded", fontSize: 24);
+  static const TextStyle heading1 =
+      TextStyle(fontFamily: "Unbounded", fontSize: 22);
+  static const TextStyle heading2 =
+      TextStyle(fontFamily: "Unbounded", fontSize: 20);
+  static const TextStyle heading3 =
+      TextStyle(fontFamily: "Unbounded", fontSize: 18);
   static const TextStyle placeholderStyle =
       TextStyle(color: CupertinoColors.inactiveGray, fontSize: 24);
   static const TextStyle inputStyle =
       TextStyle(color: CupertinoColors.black, fontSize: 24);
   static const TextStyle actionText = TextStyle(
-      color: CupertinoColors.white, fontSize: 32, fontWeight: FontWeight.bold);
+      color: CupertinoColors.white, fontSize: 28, fontWeight: FontWeight.bold);
   static const TextStyle subactionText = TextStyle(
       color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle popupSelectionText =

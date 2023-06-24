@@ -1,7 +1,6 @@
 ///Sourced from https://github.com/felangel/bloc/tree/master/examples/flutter_timer
 
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

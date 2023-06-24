@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
+import '../providers/auth_provider.dart';
 import 'components/_components.dart';
 
 class AuthView extends StatefulWidget {
@@ -16,49 +18,40 @@ class AuthView extends StatefulWidget {
 }
 
 class _AuthViewState extends State<AuthView> {
-  final GlobalKey<ShakerState> _shakeKey = GlobalKey<ShakerState>();
   //TODO BLOC FORM WHEN MVP IS DONE
   final _formKey = GlobalKey<FormState>();
+
+  void onSuccess() {
+    BlocProvider.of<UserBloc>(context).add(UserFetch());
+    log("Setting home");
+    AppNav().setHome(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return BaseView(
-      pageTitle: "Faster Workflows.",
-      //TODO print debug to figure out why this shit broke
-      child: BlocProvider(
-        create: (context) => AuthBloc()
-          ..add(AuthAuto(onSuccess: () {
-            BlocProvider.of<UserBloc>(context).add(UserFetch());
-            AppNav().setHome(context);
-          }))
-          ..setShake(_shakeKey),
-        child: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthSignUp) {
-              return signupForm(context, state);
-            } else if (state is AuthLogIn) {
-              return loginForm(context, state);
-            } else if (state is AuthValidate) {
-              return validationForm(context, state);
-            }
-            return const AppLoading();
-          },
-        ),
-      ),
-    );
+        pageTitle: "Faster Workflows.",
+        child: AuthProvider(
+          getProviders: (context) =>
+              BlocProviders(context: context, auth: true),
+          onSignUp: (context, state) => signupForm(context, state),
+          onLogIn: (context, state) => loginForm(context, state),
+          onValidate: (context, state) => validationForm(context, state),
+          onLoad: (context, state) => AppLoading(message: state.message),
+          onError: (context, state) => authError(context, state.error),
+        ));
   }
 
   //TODO fortify validators
   Widget loginForm(BuildContext context, AuthLogIn state) {
-    return Shaker(
-      key: _shakeKey,
+    return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Column(
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Access your accelerators"),
+              child: Text("Accelerate assessments"),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
@@ -79,8 +72,7 @@ class _AuthViewState extends State<AuthView> {
 
   //TODO fortify validators
   Widget signupForm(BuildContext context, AuthSignUp state) {
-    return Shaker(
-      key: _shakeKey,
+    return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Column(
@@ -114,8 +106,7 @@ class _AuthViewState extends State<AuthView> {
 
   //TODO fortify validators
   Widget validationForm(BuildContext context, AuthValidate state) {
-    return Shaker(
-      key: _shakeKey,
+    return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Column(
@@ -152,10 +143,8 @@ class _AuthViewState extends State<AuthView> {
               child: const Text("Confirm", style: Styles.actionText),
             ),
             onTap: () {
-              BlocProvider.of<AuthBloc>(context).add(AuthConfirm(onSuccess: () {
-                BlocProvider.of<UserBloc>(context).add(UserFetch());
-                AppNav().setHome(context);
-              }));
+              BlocProvider.of<AuthBloc>(context)
+                  .add(AuthConfirm(onSuccess: onSuccess));
             },
           ),
         ),
@@ -164,8 +153,7 @@ class _AuthViewState extends State<AuthView> {
   }
 
   Widget authButtons(BuildContext context, bool isLogin) {
-    String login = "Log In";
-    String signup = "Sign up";
+    String login = "Log In", signup = "Sign up";
     return Column(
       children: [
         Padding(
@@ -173,14 +161,13 @@ class _AuthViewState extends State<AuthView> {
           child: GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery.of(context).size.width / 3,
               decoration: const BoxDecoration(
                   shape: BoxShape.circle, color: Styles.actionPrimary),
               child: Text(isLogin ? login : signup, style: Styles.actionText),
             ),
             onTap: () {
-              //Add a loading state
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 _formKey.currentState!.reset();
@@ -188,10 +175,7 @@ class _AuthViewState extends State<AuthView> {
                 //TODO store data to backend
               }
               BlocProvider.of<AuthBloc>(context).add(AuthAttempt(
-                onSuccess: () {
-                  BlocProvider.of<UserBloc>(context).add(UserFetch());
-                  AppNav().setHome(context);
-                },
+                onSuccess: onSuccess,
               ));
             },
           ),
@@ -211,6 +195,10 @@ class _AuthViewState extends State<AuthView> {
         ),
       ],
     );
+  }
+
+  Widget authError(BuildContext context, Exception? error) {
+    return Text(error.toString(), style: Styles.error);
   }
 }
 

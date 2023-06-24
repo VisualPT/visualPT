@@ -46,18 +46,34 @@ Widget Function(BuildContext) introView(
   int index,
 ) =>
     (context) => BaseView(
-          pageTitle: "Ctsib",
+          pageTitle: "CTSIB",
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
+              const Spacer(),
+              Text(
+                  "Criteria ${index.toString()} of ${Ctsib.sequences.toString()}",
+                  style: Styles.subactionText),
+              const Spacer(),
+              Container(
+                height: 2,
+                width: MediaQuery.of(context).size.width * 0.8,
+                color: Styles.black,
+              ),
               Text(
                 title,
                 style: Styles.title,
                 textAlign: TextAlign.center,
               ),
-              Text(
-                  "Criteria ${index.toString()} of ${Ctsib.sequences.toString()}",
-                  style: Styles.subactionText),
+              Container(
+                height: 2,
+                width: MediaQuery.of(context).size.width * 0.8,
+                color: Styles.black,
+              ),
+              const Spacer(),
+              const Text("Before getting started: ",
+                  style: Styles.heading3, textAlign: TextAlign.center),
               const Spacer(),
               const Padding(
                 padding: EdgeInsets.all(8.0),
@@ -66,7 +82,7 @@ Widget Function(BuildContext) introView(
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                    "Record all tests from same relative posiotion to patient",
+                    "Record all tests from same relative position to patient",
                     textAlign: TextAlign.center),
               ),
               const Spacer(),
@@ -91,36 +107,14 @@ Widget Function(BuildContext) introView(
 
 Widget Function(BuildContext) captureView(
         Patient patient, String title, int index) =>
-    (context) => Builder(
-          builder: (context) => Stack(
-            children: [
-              VideoView(
-                sequence: index,
-                onComplete: (segment) =>
-                    BlocProvider.of<AssessmentBloc>(context).add(
-                        AssessmentIncrement(
-                            patient: patient,
-                            segment: segment,
-                            context: context)),
-              ),
-              Positioned(
-                top: 0,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        color: Styles.backgroundAccent),
-                    child: SafeArea(
-                      child: Text(title.replaceAll("\n", " "),
-                          style: Styles.subtitle, textAlign: TextAlign.center),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+    (context) => BaseView(
+        pageTitle: title,
+        child: VideoView(
+          sequence: index,
+          onComplete: (segment) => BlocProvider.of<AssessmentBloc>(context).add(
+              AssessmentIncrement(
+                  patient: patient, segment: segment, context: context)),
+        ));
 
 class CtsibNorms {
   CtsibNorms._();

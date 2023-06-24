@@ -9,11 +9,22 @@
       "UnauthRoleName": "amplify-visualpt-dev-12505-unauthRole",
       "StackName": "amplify-visualpt-dev-12505",
       "StackId": "arn:aws:cloudformation:us-east-1:774447013133:stack/amplify-visualpt-dev-12505/30dadfc0-988b-11ed-8b39-0aa27aef0297",
-      "AmplifyAppId": "d1ye5bd9i53uck"
+      "AmplifyAppId": "d1ye5bd9i53uck",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-visualpt-dev-12505-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
         "visualpt": {}
+      },
+      "api": {
+        "visualpt": {}
+      },
+      "function": {
+        "serverTrigger": {
+          "instanceId": "i-09dd7fe2402816bba",
+          "deploymentBucketName": "amplify-visualpt-dev-12505-deployment",
+          "s3Key": "amplify-builds/serverTrigger-31414134666c4f7a6945-build.zip"
+        }
       }
     }
   }

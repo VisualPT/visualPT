@@ -37,12 +37,6 @@ class InferencePreviewState extends State<InferencePreview> {
   }
 
   @override
-  void dispose() {
-    inferenceService.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     _ratio =

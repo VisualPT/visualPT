@@ -3,53 +3,48 @@ import 'package:visualpt/views/components/_components.dart';
 import 'package:visualpt/views/styles.dart';
 
 class BaseView extends StatelessWidget {
-  const BaseView({super.key, required this.child, required this.pageTitle});
+  const BaseView({super.key, required this.child, this.pageTitle});
   final Widget child;
-  final String pageTitle;
+  final String? pageTitle;
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return CupertinoPageScaffold(
-      child: Stack(
-        //alignment: Alignment.center,
-        children: [
-          const ViewBackground(),
-          SafeArea(
-              //TODO If not signed in, this should be in the middle of the page and bigger
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.7),
-                child: const Image(
-                    image: AssetImage(Styles.mainLogoPath),
-                    fit: BoxFit.fitWidth),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 21.0),
-                child: Text(
-                  pageTitle,
-                  style: Styles.subtitle,
-                  overflow: TextOverflow.visible,
-                ),
-              )
-            ],
-          )),
-          //TODO make this better and animatable
-          Positioned(
-            top: screenSize.height / 6,
-            width: screenSize.width,
-            child: SizedBox(
-                //TODO dynamically make the <rest of the screen> instead of this hard coded whack chat 20/27
-                height: screenSize.height - (screenSize.height / 6),
+        navigationBar: CupertinoNavigationBar(
+          backgroundColor: Styles.backgroundAccent,
+          middle: ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7),
+              child: pageTitle == null
+                  ? const Image(
+                      image: AssetImage(Styles.mainLogoPath),
+                      fit: BoxFit.fitWidth)
+                  : Text(
+                      pageTitle!,
+                      style: Styles.heading3,
+                      textAlign: TextAlign.center,
+                    )),
+          trailing: pageTitle == null
+              ? GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, "/settings"),
+                  child: const Icon(
+                    CupertinoIcons.settings,
+                    color: Styles.black,
+                  ))
+              : null,
+        ),
+        child: SizedBox(
+          height: screenSize.height,
+          width: screenSize.width,
+          child: Stack(alignment: Alignment.center, children: [
+            const ViewBackground(),
+            SizedBox(
+                height: screenSize.height,
                 width: screenSize.width,
-                child: Container(child: child)),
-          )
-        ],
-      ),
-    );
+                child: child),
+          ]),
+        ));
   }
 }

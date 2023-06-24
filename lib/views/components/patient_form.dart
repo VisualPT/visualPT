@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/service/patient_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
@@ -15,7 +14,6 @@ class PatientForm extends StatefulWidget {
   State<PatientForm> createState() => _PatientFormState();
 }
 
-//TODO FIX WITH BLOC
 class _PatientFormState extends State<PatientForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
@@ -28,45 +26,80 @@ class _PatientFormState extends State<PatientForm> {
   Widget build(BuildContext context) {
     return BaseView(
       pageTitle: "Patient Information",
-      child: Form(
-        key: _formKey,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: 100,
-            maxHeight: 500,
-          ),
-          child: Column(
-            //TODO BLOC this shit UP into a form BLOC and add a reset button
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FormInput(
-                "First Name",
-                controller: firstNameController,
-                inputType: TextInputType.name,
-              ),
-              FormInput(
-                "Last Name",
-                controller: lastNameController,
-                inputType: TextInputType.name,
-              ),
-              FormInput(
-                "Birth Date",
-                controller: dobController,
-                inputPopup: datePopup,
-              ),
-              FormInput(
-                "Gender",
-                controller: genderController,
-                inputPopup: genderPopup,
-              ),
-              FormInput(
-                "Height",
-                controller: heightController,
-                inputPopup: heightPopup,
-              ),
-              buttons(context)
-            ],
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: 100,
+              maxHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Column(
+              //TODO: add a reset button
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FormInput(
+                  "First Name",
+                  controller: firstNameController,
+                  inputType: TextInputType.name,
+                ),
+                FormInput(
+                  "Last Name",
+                  controller: lastNameController,
+                  inputType: TextInputType.name,
+                ),
+                FormInput(
+                  "Birth Date",
+                  controller: dobController,
+                  inputPopup: datePopup,
+                ),
+                FormInput(
+                  "Gender",
+                  controller: genderController,
+                  inputPopup: genderPopup,
+                ),
+                FormInput(
+                  "Height",
+                  controller: heightController,
+                  inputPopup: heightPopup,
+                ),
+                Text(BlocProvider.of<UserBloc>(context).currentUser.email),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GestureDetector(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: MediaQuery.of(context).size.width / 2,
+                      width: MediaQuery.of(context).size.width / 2,
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Styles.actionPrimary),
+                      child: const Text("Next", style: Styles.actionText),
+                    ),
+                    onTap: () {
+                      //TODO <are you sure this data is correct?> modal
+                      try {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          BlocProvider.of<PatientBloc>(context).add(PatientInit(
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              dateOfBirth: dobController.text,
+                              gender: genderController.text,
+                              height: heightController.text,
+                              email: BlocProvider.of<UserBloc>(context)
+                                  .currentUser
+                                  .email));
+                        }
+                      } catch (e) {
+                        BlocProvider.of<PatientBloc>(context)
+                            .add(PatientSaveFailure(message: e.toString()));
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -233,45 +266,6 @@ class _PatientFormState extends State<PatientForm> {
               ),
             ),
           ]),
-    );
-  }
-
-  Widget buttons(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: const Text("Next", style: Styles.actionText),
-            ),
-            onTap: () async {
-              //TODO <are you sure this data is correct?> modal
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                PatientService()
-                    .create(
-                      firstName: firstNameController.text,
-                      lastName: lastNameController.text,
-                      dob: dobController.text,
-                      gender: genderController.text,
-                      height: heightController.text,
-                    )
-                    .then((patient) => BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentInit(
-                            reset: false, context: context, patient: patient)));
-
-                //TODO store data to backend
-              }
-            },
-          ),
-        ),
-      ],
     );
   }
 }

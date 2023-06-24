@@ -3,20 +3,20 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
-import 'package:visualpt/views/components/_components.dart';
 
 class AssessmentView extends StatelessWidget {
   final AssessmentType assessmentType;
-  const AssessmentView({super.key, required this.assessmentType});
+  final Patient patient;
+  const AssessmentView(
+      {super.key, required this.assessmentType, required this.patient});
 
   @override
-  //TODO create assessment provider
   Widget build(BuildContext context) {
     return AssessmentProvider(
         assessmentType: assessmentType,
+        patient: patient,
         getProviders: (context) =>
             BlocProviders(context: context, assessment: true, patient: true),
-        onForm: (_, __) => PatientForm(assessmentType: assessmentType),
         onIntro: (context, state) => state.getView(context),
         onActive: (context, state) => state.getView(context),
         onAnalysis: (context, state) => state.getView(context),

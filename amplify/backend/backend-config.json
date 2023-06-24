@@ -14,18 +14,19 @@
         "authConfig": {
           "additionalAuthenticationProviders": [
             {
-              "authenticationType": "AWS_IAM"
-            },
-            {
               "authenticationType": "AMAZON_COGNITO_USER_POOLS",
               "userPoolConfig": {
                 "userPoolId": "authvisualpt"
               }
+            },
+            {
+              "authenticationType": "AWS_IAM"
             }
           ],
           "defaultAuthentication": {
             "apiKeyConfig": {
-              "apiKeyExpirationDays": 30,
+              "apiKeyExpirationDate": "2024-05-30T04:17:24.551Z",
+              "apiKeyExpirationDays": 365,
               "description": "api key description"
             },
             "authenticationType": "API_KEY"
@@ -69,6 +70,39 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "function": {
+    "serverTrigger": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_serverTrigger_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_instanceId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
+    },
+    "AMPLIFY_function_serverTrigger_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "serverTrigger"
+        }
+      ]
     }
   }
 }
