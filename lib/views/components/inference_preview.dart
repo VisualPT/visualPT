@@ -2,11 +2,8 @@ import 'dart:developer';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/service/inference_service.dart';
 
-import '../camera_painters/face_detection_painter.dart';
-import '../camera_painters/face_mesh_painter.dart';
-import '../camera_painters/hands_painter.dart';
+import '../../service/inference_service.dart';
 import '../camera_painters/pose_painter.dart';
 
 class InferencePreview extends StatefulWidget {
@@ -23,7 +20,6 @@ class InferencePreview extends StatefulWidget {
 
 class InferencePreviewState extends State<InferencePreview> {
   late double _ratio;
-  late final InferenceService inferenceService;
 
   late Map<String, dynamic>? results = {};
 
@@ -31,22 +27,11 @@ class InferencePreviewState extends State<InferencePreview> {
   void initState() {
     super.initState();
 
-    inferenceService = InferenceService();
     widget.cameraController!.startVideoRecording(
         onAvailable: (CameraImage image) {
-      if (inferenceService.ready && !inferenceService.processing) {
-        inferenceService.inference(cameraImage: image);
-      }
-      if (mounted) {
-        setState(() => results = inferenceService.aggregatedResponse);
-      }
+      final data = InferenceService.getPoseDetection(image);
+      log("data: $data");
     });
-  }
-
-  @override
-  void dispose() {
-    inferenceService.dispose();
-    super.dispose();
   }
 
   @override
@@ -70,39 +55,12 @@ class InferencePreviewState extends State<InferencePreview> {
         CameraPreview(widget.cameraController!),
         Stack(
           children: [
-            //_drawBoundingBox,
-            _drawLandmarks,
-            _drawHands,
             _drawPose,
           ],
         )
       ],
     );
   }
-
-  // Widget get _drawBoundingBox {
-  //   final bbox = results?['bbox'];
-  //   return _ModelPainter(
-  //     customPainter: FaceDetectionPainter(
-  //       bbox: bbox ?? Rect.zero,
-  //       ratio: _ratio,
-  //     ),
-  //   );
-  // }
-
-  Widget get _drawLandmarks => _ModelPainter(
-        customPainter: FaceMeshPainter(
-          points: results?['face'] ?? [],
-          ratio: _ratio,
-        ),
-      );
-
-  Widget get _drawHands => _ModelPainter(
-        customPainter: HandsPainter(
-          points: results?['hand'] ?? [],
-          ratio: _ratio,
-        ),
-      );
 
   Widget get _drawPose => _ModelPainter(
         customPainter: PosePainter(
