@@ -18,13 +18,6 @@
       },
       "api": {
         "visualpt": {}
-      },
-      "function": {
-        "serverTrigger": {
-          "instanceId": "i-09dd7fe2402816bba",
-          "deploymentBucketName": "amplify-visualpt-dev-12505-deployment",
-          "s3Key": "amplify-builds/serverTrigger-31414134666c4f7a6945-build.zip"
-        }
       }
     }
   }

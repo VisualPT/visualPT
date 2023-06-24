@@ -1,9 +1,0 @@
-{
-  "lambdaLayers": [],
-  "environmentVariableList": [
-    {
-      "cloudFormationParameterName": "instanceId",
-      "environmentVariableName": "instanceID"
-    }
-  ]
-}
