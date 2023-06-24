@@ -1,19 +1,5 @@
 {
   "api": {
-    "triggerServerApi": {
-      "dependsOn": [
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
-          "resourceName": "serverTrigger"
-        }
-      ],
-      "providerPlugin": "awscloudformation",
-      "service": "API Gateway"
-    },
     "visualpt": {
       "dependsOn": [
         {

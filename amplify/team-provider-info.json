@@ -17,8 +17,7 @@
         "visualpt": {}
       },
       "api": {
-        "visualpt": {},
-        "triggerServerApi": {}
+        "visualpt": {}
       },
       "function": {
         "serverTrigger": {
