@@ -12,23 +12,36 @@ class PatientView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PatientProvider(
-        getProviders: (context) =>
-            BlocProviders(context: context, patient: true),
-        onInitial: (context, state) => PatientForm(
-              assessmentType: assessmentType,
-            ),
-        onSet: (context, state) => AssessmentView(
-            assessmentType: assessmentType, patient: state.patient),
-        onError: (context, state) => BaseView(
-            pageTitle: "Patient State Error",
-            child: Column(
-              children: [
-                Text(state.message.toString()),
-                CupertinoButton(
-                    onPressed: () => AppNav().back(context),
-                    child: const Text("Restart Assessment"))
-              ],
-            )));
+    try {
+      return PatientProvider(
+          getProviders: (context) =>
+              BlocProviders(context: context, patient: true),
+          onInitial: (context, state) => PatientForm(
+                assessmentType: assessmentType,
+              ),
+          onSet: (context, state) => AssessmentView(
+              assessmentType: assessmentType, patient: state.patient),
+          onError: (context, state) => BaseView(
+              pageTitle: "Patient State Error",
+              child: Column(
+                children: [
+                  Text(state.message.toString()),
+                  CupertinoButton(
+                      onPressed: () => AppNav().back(context),
+                      child: const Text("Restart Assessment"))
+                ],
+              )));
+    } catch (e) {
+      return BaseView(
+          pageTitle: "Patient View Error",
+          child: Column(
+            children: [
+              Text(e.toString()),
+              CupertinoButton(
+                  onPressed: () => AppNav().back(context),
+                  child: const Text("Restart Assessment"))
+            ],
+          ));
+    }
   }
 }
