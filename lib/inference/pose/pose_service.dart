@@ -15,7 +15,7 @@ class Pose extends AiModel {
     loadModel();
   }
   final int inputSize = 256;
-  final double threshold = 0.8;
+  final double threshold = 0.9;
 
   @override
   Interpreter? interpreter;
@@ -102,7 +102,6 @@ class Pose extends AiModel {
         point[1] / inputSize * image.height,
       ));
     }
-    print("Pose");
     return {'pose': landmarkResults};
   }
 }
