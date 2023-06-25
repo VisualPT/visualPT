@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/service/inference_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/inference_preview.dart';
 import 'package:visualpt/views/components/_components.dart';
@@ -17,6 +18,7 @@ class VideoView extends StatefulWidget {
 }
 
 class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
+  final InferenceService inferenceService = InferenceService();
   late BlocProviders controller;
 
   @override
@@ -29,6 +31,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+    inferenceService.dispose();
   }
 
   @override
@@ -58,6 +61,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: InferencePreview(
+            inferenceService: inferenceService,
             cameraController: state.controller,
           ),
         ),

@@ -1,3 +1,5 @@
+//import 'dart:developer';
+
 import 'dart:developer';
 
 import 'package:camera/camera.dart';
@@ -8,10 +10,11 @@ import '../camera_painters/pose_painter.dart';
 
 class InferencePreview extends StatefulWidget {
   const InferencePreview({
+    required this.inferenceService,
     required this.cameraController,
     Key? key,
   }) : super(key: key);
-
+  final InferenceService inferenceService;
   final CameraController? cameraController;
 
   @override
@@ -21,20 +24,24 @@ class InferencePreview extends StatefulWidget {
 class InferencePreviewState extends State<InferencePreview> {
   late double _ratio;
 
-  late Map<String, dynamic>? results = {};
+  late List<Offset> results = [];
 
   @override
   void initState() {
     super.initState();
 
-    widget.cameraController!
-        .startVideoRecording(onAvailable: (CameraImage image) {});
-    // InferenceService.getPoseDetection(image)
-    //     .then((value) => log(value))
-    //     .catchError(
-    //       (error) => log(error.toString()),
-    //     )
-    //     .whenComplete(() => log("completed")));
+    try {
+      widget.cameraController!.startVideoRecording(onAvailable: (image) async {
+        final data = await widget.inferenceService.getPoseDetection(image);
+        if (mounted && data is List<Offset> && data.isNotEmpty) {
+          setState(
+            () => results = data,
+          );
+        }
+      });
+    } catch (e) {
+      log("An error occured in the Inference Preview $e");
+    }
   }
 
   @override
@@ -67,7 +74,7 @@ class InferencePreviewState extends State<InferencePreview> {
 
   Widget get _drawPose => _ModelPainter(
         customPainter: PosePainter(
-          points: results?['pose'] ?? [],
+          points: results,
           ratio: _ratio,
         ),
       );

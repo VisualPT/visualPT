@@ -32,7 +32,7 @@ class PosePainter extends CustomPainter {
 
       canvas.drawPoints(
         PointMode.points,
-        points.sublist(0, 34).map((point) => point * ratio).toList(),
+        points.sublist(0, 33).map((point) => point * ratio).toList(),
         pointPaint,
       );
 

@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:flutter/services.dart';
+
 //TODO wait until isolate is live to accept any user input
 class IsolateUtils {
   Isolate? _isolate;
