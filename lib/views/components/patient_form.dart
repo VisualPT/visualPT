@@ -64,7 +64,40 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                buttons(context)
+                Text(BlocProvider.of<UserBloc>(context).currentUser.email),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GestureDetector(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: MediaQuery.of(context).size.width / 2,
+                      width: MediaQuery.of(context).size.width / 2,
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Styles.actionPrimary),
+                      child: const Text("Next", style: Styles.actionText),
+                    ),
+                    onTap: () {
+                      //TODO <are you sure this data is correct?> modal
+                      try {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          BlocProvider.of<PatientBloc>(context).add(PatientInit(
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              dateOfBirth: dobController.text,
+                              gender: genderController.text,
+                              height: heightController.text,
+                              email: BlocProvider.of<UserBloc>(context)
+                                  .currentUser
+                                  .email));
+                        }
+                      } catch (e) {
+                        BlocProvider.of<PatientBloc>(context)
+                            .add(PatientSaveFailure(message: e.toString()));
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -233,40 +266,6 @@ class _PatientFormState extends State<PatientForm> {
               ),
             ),
           ]),
-    );
-  }
-
-  Widget buttons(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: const Text("Next", style: Styles.actionText),
-            ),
-            onTap: () async {
-              //TODO <are you sure this data is correct?> modal
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                BlocProvider.of<PatientBloc>(context).add(PatientInit(
-                    firstName: firstNameController.text,
-                    lastName: lastNameController.text,
-                    dateOfBirth: dobController.text,
-                    gender: genderController.text,
-                    height: heightController.text,
-                    email:
-                        BlocProvider.of<UserBloc>(context).currentUser.email));
-              }
-            },
-          ),
-        ),
-      ],
     );
   }
 }

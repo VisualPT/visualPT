@@ -13,6 +13,7 @@ class PatientBloc extends Bloc<PatientEvent, PatientState> {
     _patientService = PatientService();
     on<PatientInit>(_onPatientInit);
     on<PatientClear>(_onPatientClear);
+    on<PatientSaveFailure>(_onPatientSaveFailure);
   }
 
   FutureOr<void> _onPatientInit(
@@ -35,5 +36,10 @@ class PatientBloc extends Bloc<PatientEvent, PatientState> {
   FutureOr<void> _onPatientClear(
       PatientClear event, Emitter<PatientState> emit) async {
     emit(PatientInitial());
+  }
+
+  FutureOr<void> _onPatientSaveFailure(
+      PatientSaveFailure event, Emitter<PatientState> emit) {
+    emit(PatientError(message: event.message));
   }
 }

@@ -31,3 +31,12 @@ class PatientInit extends PatientEvent {
 class PatientClear extends PatientEvent {
   const PatientClear();
 }
+
+class PatientSaveFailure extends PatientEvent {
+  final String message;
+
+  const PatientSaveFailure({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
