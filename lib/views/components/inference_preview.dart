@@ -58,8 +58,8 @@ class InferencePreviewState extends State<InferencePreview> {
         Stack(
           children: [
             //_drawBoundingBox,
-            _drawLandmarks,
-            _drawHands,
+            // _drawLandmarks,
+            // _drawHands,
             _drawPose,
           ],
         )
