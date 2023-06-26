@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:isolate';
 
 //TODO wait until isolate is live to accept any user input
@@ -14,8 +15,11 @@ class IsolateUtils {
       _entryPoint,
       _receivePort.sendPort,
     );
-    //TODO Fix no element error
-    _sendPort = await _receivePort.first;
+    try {
+      _sendPort = await _receivePort.first;
+    } on Exception catch (e) {
+      log("Error: $e");
+    }
   }
 
   static void _entryPoint(SendPort mainSendPort) async {
