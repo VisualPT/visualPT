@@ -44,9 +44,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+//TODO: Redesign _onAttempt to give more detailed validation responses
   void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
-    print(state);
-    if (state is AuthLogIn && auth.isLoginValid()) {
+    void onInvalid(String message) =>
+        emit(AuthError(error: Exception(message)));
+
+    ;
+
+    if (state is AuthLogIn && auth.validateLogin(onInvalid: onInvalid)) {
       emit(AuthLoad(
           message: "Attempting to ${method.toString().split(".")[1]}"));
 
@@ -60,7 +65,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         emit(AuthLogIn(message: e.toString()));
       }
-    } else if (state is AuthSignUp && auth.isSignupValid()) {
+    } else if (state is AuthSignUp &&
+        auth.validateSignup(onInvalid: onInvalid)) {
       emit(AuthLoad(
           message: "Attempting to ${method.toString().split(".")[1]}"));
 
