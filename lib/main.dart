@@ -35,7 +35,6 @@ class VisualPT extends StatelessWidget {
         routes: {
           "/": (context) => const LandingView(),
           "/home": (context) => const HomeView(),
-          "/camera": (context) => const CameraView(),
           "/settings": (context) => const SettingsView(),
         },
         onGenerateRoute: (settings) {

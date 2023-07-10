@@ -16,6 +16,6 @@ class CameraView extends StatelessWidget {
       AppNav().back(context); //To get out of camera view
     }
 
-    return VideoView(sequence: 0, onComplete: onComplete);
+    return VideoView(onComplete: onComplete);
   }
 }

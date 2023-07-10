@@ -110,7 +110,6 @@ Widget Function(BuildContext) captureView(
     (context) => BaseView(
         pageTitle: title,
         child: VideoView(
-          sequence: index,
           onComplete: (segment) => BlocProvider.of<AssessmentBloc>(context).add(
               AssessmentIncrement(
                   patient: patient, segment: segment, context: context)),
