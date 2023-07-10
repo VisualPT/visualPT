@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -65,6 +66,16 @@ class _PatientFormState extends State<PatientForm> {
                   inputPopup: heightPopup,
                 ),
                 Text(BlocProvider.of<UserBloc>(context).currentUser.email),
+                if (kDebugMode)
+                  CupertinoButton(
+                      onPressed: () {
+                        firstNameController.text = "Sample";
+                        lastNameController.text = "Patient";
+                        dobController.text = "2000-01-01";
+                        genderController.text = "MALE";
+                        heightController.text = "60\"";
+                      },
+                      child: const Text("Autofill")),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: GestureDetector(
