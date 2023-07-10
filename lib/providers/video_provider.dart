@@ -5,8 +5,8 @@ import 'package:visualpt/models/ModelProvider.dart';
 
 class VideoProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;
-  final Widget Function(BuildContext context, VideoState state) onLoading;
   final void Function(Segment) onComplete;
+  final Widget Function(BuildContext context, VideoState state) onLoading;
   final Widget Function(BuildContext context, VideoState state) onRecording;
   final Widget Function(BuildContext context, VideoState state) onStandby;
   final Widget Function(BuildContext context, VideoState state, Exception e)
@@ -43,22 +43,22 @@ class _VideoProviderState extends State<VideoProvider> {
         BlocProvider(
           create: (context) => TimerBloc(),
         ),
+        BlocProvider(
+          create: (context) => InferenceBloc()..add(const InferenceInit()),
+        )
       ],
       child: BlocBuilder<VideoBloc, VideoState>(
         builder: (context, state) {
           widget.getProviders(context);
           try {
             if (state is VideoStandby) {
-              return widget.onStandby(
-                context,
-                state,
-              );
+              return widget.onStandby(context, state);
             } else if (state is VideoRecording) {
               return widget.onRecording(context, state);
             } else if (state is VideoLoading) {
               return widget.onLoading(context, state);
             } else {
-              throw Exception("Invalid VideoState");
+              throw Exception("Invalid Video State");
             }
           } catch (e) {
             return widget.onError(context, state, e as Exception);

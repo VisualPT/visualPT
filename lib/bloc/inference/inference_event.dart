@@ -1,24 +1,24 @@
-// part of 'inference_bloc.dart';
+part of 'inference_bloc.dart';
 
-// abstract class InferenceEvent extends Equatable {
-//   const InferenceEvent();
+abstract class InferenceEvent extends Equatable {
+  const InferenceEvent();
 
-//   @override
-//   List<Object> get props => [];
-// }
+  @override
+  List<Object> get props => [];
+}
 
-// class InferenceInit extends InferenceEvent {
-//   const InferenceInit();
-// }
+class InferenceInit extends InferenceEvent {
+  const InferenceInit();
+}
 
-// class InferenceInput extends InferenceEvent {
-//   final CameraImage input;
-//   const InferenceInput({required this.input});
+class InferenceInput extends InferenceEvent {
+  final CameraImage input;
+  const InferenceInput({required this.input});
 
-//   @override
-//   List<Object> get props => [input];
-// }
+  @override
+  List<Object> get props => [input];
+}
 
-// class InferenceEnd extends InferenceEvent {
-//   const InferenceEnd();
-// }
+class InferenceEnd extends InferenceEvent {
+  const InferenceEnd();
+}

@@ -1,26 +1,26 @@
-// part of 'inference_bloc.dart';
+part of 'inference_bloc.dart';
 
-// abstract class InferenceState extends Equatable {
-//   const InferenceState();
+abstract class InferenceState extends Equatable {
+  const InferenceState();
 
-//   @override
-//   List<Object> get props => [];
-// }
+  @override
+  List<Object> get props => [];
+}
 
-// class InferenceLoading extends InferenceState {}
+class InferenceLoading extends InferenceState {}
 
-// class InferenceRunning extends InferenceState {
-//   final Map<String, dynamic> response;
-//   const InferenceRunning({required this.response});
+class InferenceDone extends InferenceState {
+  final Map<String, dynamic> response;
+  const InferenceDone({required this.response});
 
-//   @override
-//   List<Object> get props => [response];
-// }
+  @override
+  List<Object> get props => [response];
+}
 
-// class InferenceError extends InferenceState {
-//   final String message;
-//   const InferenceError({required this.message});
+class InferenceError extends InferenceState {
+  final String message;
+  const InferenceError({required this.message});
 
-//   @override
-//   List<Object> get props => [message];
-// }
+  @override
+  List<Object> get props => [message];
+}

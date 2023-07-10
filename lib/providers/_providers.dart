@@ -21,6 +21,7 @@ class BlocProviders {
   PdfBloc? pdfBloc;
   TimerBloc? timerBloc;
   UserBloc? userBloc;
+  InferenceBloc? inferenceBloc;
 
   BlocProviders(
       {required this.context,
@@ -32,16 +33,23 @@ class BlocProviders {
       bool patient = false,
       bool pdf = false,
       bool timer = false,
-      bool user = false}) {
-    assessmentBloc =
-        assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
-    authBloc = auth ? BlocProvider.of<AuthBloc>(context) : null;
-    backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
-    videoBloc = video ? BlocProvider.of<VideoBloc>(context) : null;
-    emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
-    patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
-    pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;
-    timerBloc = timer ? BlocProvider.of<TimerBloc>(context) : null;
-    userBloc = user ? BlocProvider.of<UserBloc>(context) : null;
+      bool user = false,
+      bool inference = false}) {
+    try {
+      assessmentBloc =
+          assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
+      authBloc = auth ? BlocProvider.of<AuthBloc>(context) : null;
+      backendBloc = backend ? BlocProvider.of<BackendBloc>(context) : null;
+      videoBloc = video ? BlocProvider.of<VideoBloc>(context) : null;
+      emailBloc = email ? BlocProvider.of<EmailBloc>(context) : null;
+      patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
+      pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;
+      timerBloc = timer ? BlocProvider.of<TimerBloc>(context) : null;
+      userBloc = user ? BlocProvider.of<UserBloc>(context) : null;
+      inferenceBloc =
+          inference ? BlocProvider.of<InferenceBloc>(context) : null;
+    } catch (e) {
+      throw ("BlocProvider error: $e");
+    }
   }
 }
