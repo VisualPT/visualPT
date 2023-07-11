@@ -7,7 +7,6 @@ import 'package:visualpt/utils/auth_utils.dart';
 enum AuthDataType { email, password, confirmPassword, confirmCode }
 
 class AuthService {
-  final AuthUtils authUtils = AuthUtils();
   late String email = "";
   late String password = "";
   late String confirmPassword = "";
@@ -27,8 +26,8 @@ class AuthService {
   //If you want to allow any symbol (not just the select ones), you can change [@$!%*?&] to [\p{P}\p{S}]. This would match all punctuation and symbol characters according to the Unicode categories. This would look like:
 
   bool validateLogin({required void Function(String) onInvalid}) {
-    return authUtils.validateEmail(email: email, onInvalid: onInvalid) &&
-        authUtils.validatePassword(password: password, onInvalid: onInvalid);
+    return AuthUtils.validateEmail(email) == null &&
+        AuthUtils.validatePassword(password) == null;
   }
 
   bool validateSignup({required void Function(String) onInvalid}) {
