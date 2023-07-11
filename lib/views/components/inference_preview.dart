@@ -71,6 +71,11 @@ class InferencePreviewState extends State<InferencePreview> {
             // _drawLandmarks,
             // _drawHands,
             _drawPose,
+            Center(
+              child: Text(results.toString(),
+                  style: const TextStyle(
+                      color: CupertinoColors.white, fontSize: 4)),
+            )
           ],
         )
       ],
