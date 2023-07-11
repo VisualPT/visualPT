@@ -44,13 +44,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+//TODO: Redesign _onAttempt to give more detailed validation responses
   void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
-    print(state);
-    if (state is AuthLogIn && auth.isLoginValid()) {
+    if (state is AuthLogIn) {
       emit(AuthLoad(
           message: "Attempting to ${method.toString().split(".")[1]}"));
 
       try {
+        auth.validateLogin(
+            onInvalid: (message) => emit(AuthLogIn(message: message)));
         final result = await auth.completeLogin();
         //TODO check if the user has verified their email
         auth.handleSignInResult(
@@ -60,11 +62,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         emit(AuthLogIn(message: e.toString()));
       }
-    } else if (state is AuthSignUp && auth.isSignupValid()) {
+    }
+    if (state is AuthSignUp) {
       emit(AuthLoad(
           message: "Attempting to ${method.toString().split(".")[1]}"));
-
       try {
+        auth.validateSignup(
+            onInvalid: (message) => emit(AuthLogIn(message: message)));
+
         final result = await auth.completeSignUp();
         auth.handleSignUpResult(
             result: result,
@@ -73,7 +78,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         emit(AuthSignUp(message: e.toString()));
       }
-    } else {}
+    } else {
+      emit(AuthError(error: Exception("AuthBloc.onAttempt: Invalid State")));
+    }
   }
 
   FutureOr<void> _onConfirm(AuthConfirm event, Emitter<AuthState> emit) async {

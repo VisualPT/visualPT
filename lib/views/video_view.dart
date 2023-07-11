@@ -7,10 +7,8 @@ import 'package:visualpt/views/components/inference_preview.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class VideoView extends StatefulWidget {
-  final int sequence;
   final void Function(Segment) onComplete;
-  const VideoView(
-      {super.key, required this.sequence, required this.onComplete});
+  const VideoView({super.key, required this.onComplete});
 
   @override
   State<VideoView> createState() => VideoViewState();
@@ -35,7 +33,8 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return VideoProvider(
       getProviders: (context) {
-        controller = BlocProviders(context: context, video: true, timer: true);
+        controller = BlocProviders(
+            context: context, video: true, timer: true, inference: true);
       },
       onComplete: widget.onComplete,
       onRecording: mainVideo,
@@ -58,6 +57,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: InferencePreview(
+            inferenceController: controller.inferenceBloc,
             cameraController: state.controller,
           ),
         ),
@@ -71,33 +71,63 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
               children: [
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Column(
                     children: [
-                      state is VideoRecording
-                          ? Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: GestureDetector(
-                                  onTap: () =>
-                                      controller.videoBloc!.add(VideoRestart()),
-                                  child: const Icon(CupertinoIcons.restart,
-                                      color: CupertinoColors.black, size: 40)),
-                            )
-                          : const SizedBox(),
-                      const Spacer(),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child:
-                            //TODO double check the onComplete function for functionality
-                            VideoTimer(),
-                      )
+                      Row(
+                        children: [
+                          //TODO: Add functionality to the buttons
+                          CupertinoButton(
+                            onPressed: () {
+                              print("At Risk Pressed");
+                            },
+                            child: const Text(
+                              "At Risk",
+                              style: Styles.actionText,
+                            ),
+                          ),
+                          const Spacer(),
+                          CupertinoButton(
+                            onPressed: () {
+                              print("No Risk Pressed");
+                            },
+                            child: const Text(
+                              "No Risk",
+                              style: Styles.actionText,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 3,
+                        width: MediaQuery.of(context).size.width,
+                        color: Styles.backgroundPrimary,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          state is VideoRecording
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                      onTap: () => controller.videoBloc!
+                                          .add(VideoRestart()),
+                                      child: const Icon(CupertinoIcons.restart,
+                                          color: CupertinoColors.black,
+                                          size: 40)),
+                                )
+                              : const SizedBox(),
+                          const Spacer(),
+                          const SafeArea(
+                            child:
+                                //TODO double check the onComplete function for functionality
+                                VideoTimer(),
+                          )
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                )
               ],
             ),
           ),
@@ -112,7 +142,8 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                   controller.timerBloc!.add(const TimerReset());
 
                   //TODO only pass what is necessary
-                } else {
+                }
+                if (state is VideoStandby) {
                   controller.videoBloc!.add(VideoPlay());
                   controller.timerBloc!.add(const TimerStarted());
                 }
@@ -120,7 +151,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
               child: state is VideoRecording
                   ? const Icon(CupertinoIcons.stop,
                       color: Styles.backgroundComplementory, size: 80)
-                  : const Icon(CupertinoIcons.circle,
+                  : const Icon(CupertinoIcons.circle_fill,
                       color: Styles.actionPrimary, size: 80),
             ),
           ),
@@ -130,11 +161,7 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
   }
 
   Widget loadingVideo(BuildContext _, VideoState __) {
-    return Center(
-      child: Column(
-        children: const [Text("Loading"), CupertinoActivityIndicator()],
-      ),
-    );
+    return const Center(child: AppLoading(message: "Loading Camera"));
   }
 
   Widget errorVideo(BuildContext context, VideoState _, Exception e) {

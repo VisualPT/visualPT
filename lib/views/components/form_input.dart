@@ -79,7 +79,7 @@ class _FormInputState extends State<FormInput> {
             ),
             validator: widget.validator ??
                 (value) => value == null || value.isEmpty
-                    ? 'Please enter a valid response'
+                    ? 'Please enter a non-empty value'
                     : null,
             onTap: () => widget.inputPopup != null
                 ? widget.inputPopup!()

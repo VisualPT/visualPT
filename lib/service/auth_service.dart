@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt/bloc/auth/auth_bloc.dart';
+import 'package:visualpt/utils/auth_utils.dart';
 
 enum AuthDataType { email, password, confirmPassword, confirmCode }
 
@@ -17,14 +17,27 @@ class AuthService {
   void setConfirmPass(String value) => confirmPassword = value;
   void setConfirmCode(String value) => confirmCode = value;
 
-  bool isLoginValid() =>
-      email.contains(RegExp(
-          r'''(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])''')) &&
-      password.contains(RegExp(
-          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'));
-  bool isSignupValid() => isLoginValid() && password == confirmPassword;
-  void debugPrint() =>
-      log("email:$email\npass:$password\nconfirm:$confirmPassword\n");
+  //TODO: set new validation regex
+  //The string must contain at least one lowercase alphabetical character ((?=.*[a-z])).
+  //The string must contain at least one uppercase alphabetical character ((?=.*[A-Z])).
+  //The string must contain at least one numerical character ((?=.*\d)).
+  //The string must contain at least one of these special characters: @, $, !, %, *, ?, & ((?=.*[@$!%*?&])).
+  //The string must be at least 8 characters long and can contain any of the characters specified in the previous conditions ([A-Za-z\d@$!%*?&]{8,}$).
+  //If you want to allow any symbol (not just the select ones), you can change [@$!%*?&] to [\p{P}\p{S}]. This would match all punctuation and symbol characters according to the Unicode categories. This would look like:
+
+  bool validateLogin({required void Function(String) onInvalid}) {
+    return AuthUtils.validateEmail(email) == null &&
+        AuthUtils.validatePassword(password) == null;
+  }
+
+  bool validateSignup({required void Function(String) onInvalid}) {
+    validateLogin(onInvalid: onInvalid);
+    if (password != confirmPassword) {
+      onInvalid("Passwords do not match");
+      return false;
+    }
+    return true;
+  }
 
   Future<void> fetchSession(void Function() onSignedIn) async {
     log("Observing auth session");
