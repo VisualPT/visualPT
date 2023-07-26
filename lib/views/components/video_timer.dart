@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
@@ -5,14 +6,15 @@ import 'package:visualpt/views/_views.dart';
 
 //TODO combine with camera to video UI and extract bloc logic into new file
 class VideoTimer extends StatelessWidget {
-  const VideoTimer({super.key});
+  final CameraController cameraController;
+  const VideoTimer({super.key, required this.cameraController});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
       builder: (context, state) {
         if (state is TimerRunComplete) {
-          BlocProvider.of<VideoBloc>(context).add(VideoStop());
+          BlocProvider.of<VideoBloc>(context).add(VideoStop(cameraController));
         }
         return Text(formatter(state.duration), style: Styles.timerTextStyle);
       },

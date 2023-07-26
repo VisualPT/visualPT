@@ -18,7 +18,6 @@ class VideoOutput {
 }
 
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  CameraController? cameraController;
   Timer? timer;
   late Duration duration = const Duration(seconds: 0);
   late DateTime start;
@@ -51,8 +50,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       )
           .then((controller) async {
         await controller.initialize();
-        cameraController = controller;
-        emit(VideoStandby(cameraController!));
+        emit(VideoStandby(controller));
       });
 
       //TODO create a popup for these error codes
@@ -87,24 +85,28 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
 
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
     start = DateTime.now();
-    emit(VideoRecording(cameraController!));
+    emit(VideoRecording(event.controller));
   }
 
   FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
-    cameraController!.stopVideoRecording();
+    print("Restarting video");
+    event.controller.stopVideoRecording();
     resetTimer();
-    emit(VideoStandby(cameraController!));
+    emit(VideoStandby(event.controller));
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    await cameraController!.stopVideoRecording().then((file) {
-      duration = DateTime.now().difference(start);
-      //TODO store file to S3 bucket
-      onComplete(Segment(
-          file: "TODO store file to S3", duration_seconds: duration.inSeconds));
-    });
-    cameraController!.dispose();
-    cameraController = null;
+    if (event.controller.value.isRecordingVideo) {
+      await event.controller.stopVideoRecording();
+    } else {
+      print("Video was already stopped");
+    }
+    duration = DateTime.now().difference(start);
+    //TODO store file to S3 bucket
+    onComplete(Segment(
+        file: "TODO store file to S3", duration_seconds: duration.inSeconds));
+
+    event.controller.dispose();
     emit(const VideoLoading());
   }
 
