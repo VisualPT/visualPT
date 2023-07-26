@@ -3,7 +3,7 @@ import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/components/inference_preview.dart';
+import 'package:visualpt/views/components/inference_painter.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class VideoView extends StatefulWidget {
@@ -56,9 +56,10 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
         SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          child: InferencePreview(
+          child: InferencePainter(
             inferenceController: controller.inferenceBloc,
             cameraController: state.controller,
+            isRecording: state is VideoRecording,
           ),
         ),
         Positioned(
@@ -73,30 +74,6 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                   width: MediaQuery.of(context).size.width,
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          //TODO: Add functionality to the buttons
-                          CupertinoButton(
-                            onPressed: () {
-                              print("At Risk Pressed");
-                            },
-                            child: const Text(
-                              "At Risk",
-                              style: Styles.actionText,
-                            ),
-                          ),
-                          const Spacer(),
-                          CupertinoButton(
-                            onPressed: () {
-                              print("No Risk Pressed");
-                            },
-                            child: const Text(
-                              "No Risk",
-                              style: Styles.actionText,
-                            ),
-                          ),
-                        ],
-                      ),
                       Container(
                         height: 3,
                         width: MediaQuery.of(context).size.width,
@@ -110,18 +87,24 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                               ? Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GestureDetector(
-                                      onTap: () => controller.videoBloc!
-                                          .add(VideoRestart()),
+                                      onTap: () {
+                                        controller.videoBloc!.add(
+                                            VideoRestart(state.controller!));
+                                        controller.timerBloc!
+                                            .add(const TimerReset());
+                                        controller.timerBloc!
+                                            .add(const TimerStarted());
+                                      },
                                       child: const Icon(CupertinoIcons.restart,
                                           color: CupertinoColors.black,
                                           size: 40)),
                                 )
                               : const SizedBox(),
                           const Spacer(),
-                          const SafeArea(
+                          SafeArea(
                             child:
                                 //TODO double check the onComplete function for functionality
-                                VideoTimer(),
+                                VideoTimer(cameraController: state.controller!),
                           )
                         ],
                       ),
@@ -138,14 +121,16 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
             child: GestureDetector(
               onTap: () {
                 if (state is VideoRecording) {
-                  controller.videoBloc!.add(VideoStop());
+                  controller.inferenceBloc!.add(const InferenceEnd());
                   controller.timerBloc!.add(const TimerReset());
+                  controller.videoBloc!.add(VideoStop(state.controller!));
 
                   //TODO only pass what is necessary
                 }
                 if (state is VideoStandby) {
-                  controller.videoBloc!.add(VideoPlay());
+                  controller.videoBloc!.add(VideoPlay(state.controller!));
                   controller.timerBloc!.add(const TimerStarted());
+                  controller.inferenceBloc!.add(const InferenceStart());
                 }
               },
               child: state is VideoRecording
@@ -164,13 +149,16 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
     return const Center(child: AppLoading(message: "Loading Camera"));
   }
 
-  Widget errorVideo(BuildContext context, VideoState _, Exception e) {
+  Widget errorVideo(BuildContext context, VideoState state, Exception e) {
     return Center(
       child: Column(
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => controller.videoBloc!.add(VideoRestart()),
+            onPressed: () => state.controller != null
+                ? controller.videoBloc!.add(VideoRestart(state.controller!))
+                : controller.videoBloc!
+                    .add(VideoInit(onComplete: widget.onComplete)),
             child: const Text("Restart"),
           ),
         ],

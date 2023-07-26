@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -11,14 +9,11 @@ import '../ai_model.dart';
 
 // ignore: must_be_immutable
 class Pose extends AiModel {
-  Pose({this.interpreter}) {
+  Pose({super.interpreter}) {
     loadModel();
   }
   final int inputSize = 256;
-  final double threshold = 0.9;
-
-  @override
-  Interpreter? interpreter;
+  final double threshold = 0.95;
 
   @override
   List<Object> get props => [];
@@ -57,7 +52,7 @@ class Pose extends AiModel {
   }
 
   @override
-  Map<String, dynamic>? predict(image_lib.Image image) {
+  PoseOutput? predict(image_lib.Image image) {
     if (interpreter == null) {
       print('Interpreter not initialized');
       return null;
@@ -93,20 +88,16 @@ class Pose extends AiModel {
       return null;
     }
 
+    //TODO: there are 33 landmarks, why is there 39 defined here?
     final landmarkPoints = outputLandmarks.getDoubleList().reshape([39, 5]);
-    final landmarkResults = <Offset>[];
 
-    for (var point in landmarkPoints) {
-      landmarkResults.add(Offset(
-        point[0] / inputSize * image.width,
-        point[1] / inputSize * image.height,
-      ));
+    if (landmarkPoints != null) {
+      return PoseOutput(landmarkPoints, inputSize, image.width, image.height);
     }
-    return {'pose': landmarkResults};
   }
 }
 
-Map<String, dynamic>? runPoseEstimator(Map<String, dynamic> params) {
+PoseOutput? runPoseEstimator(Map<String, dynamic> params) {
   final pose =
       Pose(interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
@@ -114,4 +105,36 @@ Map<String, dynamic>? runPoseEstimator(Map<String, dynamic> params) {
   final result = pose.predict(image!);
 
   return result;
+}
+
+class PoseOutput extends AiModelOutput {
+  PoseOutput(super.output, int inputSize, int width, int height) {
+    for (var point in output) {
+      landmarks.add(Offset(
+        point[0] / inputSize * width,
+        point[1] / inputSize * height,
+      ));
+      depthPoints.add(point[2]);
+      visibilityPoints.add(point[3]);
+      presencePoints.add(point[4]);
+    }
+  }
+  static const length = 33;
+  final List<Offset> landmarks = [];
+  final List<double> depthPoints = [];
+  final List<double> visibilityPoints = [];
+  final List<double> presencePoints = [];
+
+  toMap() {
+    return {
+      'landmarkPoints': landmarks,
+      'depthPoints': depthPoints,
+      'visibilityPoints': visibilityPoints,
+      'presencePoints': presencePoints
+    };
+  }
+
+  toRaw() {
+    return output;
+  }
 }

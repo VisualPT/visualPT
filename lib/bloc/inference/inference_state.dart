@@ -1,26 +1,30 @@
 part of 'inference_bloc.dart';
 
 abstract class InferenceState extends Equatable {
-  const InferenceState();
+  final AiModelOutput? response;
+  const InferenceState(this.response);
 
   @override
   List<Object> get props => [];
 }
 
-class InferenceLoading extends InferenceState {}
-
-class InferenceDone extends InferenceState {
-  final Map<String, dynamic> response;
-  const InferenceDone({required this.response});
+class InferenceLoading extends InferenceState {
+  const InferenceLoading(super.response);
 
   @override
-  List<Object> get props => [response];
+  List<Object> get props => [];
+}
+
+class InferenceDone extends InferenceState {
+  const InferenceDone(super.response);
+
+  @override
+  List<Object> get props => [];
 }
 
 class InferenceError extends InferenceState {
-  final String message;
-  const InferenceError({required this.message});
+  const InferenceError(super.response);
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [];
 }

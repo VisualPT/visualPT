@@ -12,11 +12,7 @@ void main() {
 }
 
 //TODO VisualPT
-//Create model endpoints on server
-//Marketing content
-//Pitch to physical therapists
-//Contact EMR services for connection ($2k investment)
-
+// 4 times per second, check if the results have a value, if so, store the results and the classification in a list
 ///Root of Application
 ///Global routes and themes defined here
 class VisualPT extends StatelessWidget {
