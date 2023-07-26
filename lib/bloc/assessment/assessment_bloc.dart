@@ -39,7 +39,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   FutureOr<void> _onInitial(
       AssessmentInitial event, Emitter<AssessmentState> emit) async {
-    event.reset && resetAssessment();
+    if (event.reset) resetAssessment();
     patient = event.patient;
     assessment = AssessmentService().create(type, startTime, patient.id);
     emit(AssessmentIntro(index, introViews[index]()));
