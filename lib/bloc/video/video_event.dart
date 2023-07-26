@@ -8,8 +8,17 @@ class VideoInit extends VideoEvent {
   VideoInit({required this.onComplete});
 }
 
-class VideoPlay extends VideoEvent {}
+class VideoPlay extends VideoEvent {
+  final CameraController controller;
+  VideoPlay(this.controller);
+}
 
-class VideoRestart extends VideoEvent {}
+class VideoRestart extends VideoEvent {
+  final CameraController controller;
+  VideoRestart(this.controller);
+}
 
-class VideoStop extends VideoEvent {}
+class VideoStop extends VideoEvent {
+  final CameraController controller;
+  VideoStop(this.controller);
+}

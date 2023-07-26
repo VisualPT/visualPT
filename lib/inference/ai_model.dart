@@ -19,5 +19,14 @@ abstract class AiModel extends Equatable {
 
   Future<void> loadModel();
   TensorImage getProcessedImage(TensorImage inputImage);
-  Map<String, dynamic>? predict(image_lib.Image image);
+  AiModelOutput? predict(image_lib.Image image);
+}
+
+abstract class AiModelOutput extends Equatable {
+  final List<dynamic> output;
+
+  const AiModelOutput(this.output);
+
+  @override
+  List<dynamic> get props => output;
 }

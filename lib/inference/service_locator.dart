@@ -9,8 +9,8 @@ import 'pose/pose_service.dart';
 final locator = GetIt.instance;
 
 void setupLocator() {
-  locator.registerSingleton<FaceDetection>(FaceDetection());
-  locator.registerSingleton<FaceMesh>(FaceMesh());
-  locator.registerSingleton<Hands>(Hands());
+  // locator.registerSingleton<FaceDetection>(FaceDetection());
+  // locator.registerSingleton<FaceMesh>(FaceMesh());
+  // locator.registerSingleton<Hands>(Hands());
   locator.registerSingleton<Pose>(Pose());
 }

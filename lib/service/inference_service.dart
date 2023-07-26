@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:camera/camera.dart';
+import 'package:visualpt/inference/ai_model.dart';
 import 'package:visualpt/inference/model_inference_service.dart';
 import 'package:visualpt/utils/isolate_utils.dart';
 
@@ -9,18 +10,13 @@ class InferenceService {
 
   late ModelInferenceService _poseInferenceService;
 
-  late Map<String, dynamic>? aggregatedResponse;
-
   bool ready = false;
   bool processing = false;
 
   InferenceService() {
     log("Configuring Models and Isolates");
     _poseInferenceService = ModelInferenceService();
-
     _poseInferenceService.setModelConfig(3);
-
-    aggregatedResponse = {};
     asyncConstructor();
   }
 
@@ -34,8 +30,7 @@ class InferenceService {
     Future.wait(futures).then((value) => ready = true);
   }
 
-  Future<Map<String, dynamic>?> inference(
-      {required CameraImage cameraImage}) async {
+  Future<AiModelOutput?> inference({required CameraImage cameraImage}) async {
     if (!ready ||
         processing ||
         _poseInferenceService.model.interpreter == null) {
@@ -46,11 +41,7 @@ class InferenceService {
       isolateUtils: _poseIsolateUtils,
       cameraImage: cameraImage,
     );
-    aggregatedResponse!
-      ..clear()
-      ..addAll(_poseInferenceService.inferenceResults ?? {"pose": null});
-
-    return aggregatedResponse;
+    return _poseInferenceService.inferenceResults;
   }
 
   void dispose() {
