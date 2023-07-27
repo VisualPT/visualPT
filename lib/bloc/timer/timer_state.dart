@@ -5,7 +5,7 @@ abstract class TimerState extends Equatable {
   final Duration duration;
 
   @override
-  List<Object> get props => [duration];
+  List<Object> get props => [duration.inMilliseconds];
 }
 
 class TimerInitial extends TimerState {
@@ -17,6 +17,9 @@ class TimerInitial extends TimerState {
 
 class TimerRunInProgress extends TimerState {
   const TimerRunInProgress(super.duration);
+
+  @override
+  List<Object> get props => [duration.inMilliseconds];
 
   @override
   String toString() => 'TimerRunInProgress { duration: $duration }';
