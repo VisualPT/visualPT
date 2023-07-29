@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/bloc/timer/timer_bloc.dart';
+import 'package:visualpt/bloc/video/video_bloc.dart';
 import 'package:visualpt/inference/pose/pose_service.dart';
 import 'package:visualpt/views/styles.dart';
 import '../../bloc/inference/inference_bloc.dart';
@@ -11,48 +13,49 @@ import '../camera_painters/pose_painter.dart';
 class InferencePainter extends StatefulWidget {
   const InferencePainter({
     required this.inferenceController,
-    required this.cameraController,
-    required this.isRecording,
+    required this.timerController,
+    required this.videoState,
     Key? key,
   }) : super(key: key);
-
   final InferenceBloc? inferenceController;
-  final CameraController? cameraController;
-  final bool isRecording;
+  final TimerBloc? timerController;
+  final VideoState videoState;
   @override
   State<InferencePainter> createState() => InferencePainterState();
 }
 
 class InferencePainterState extends State<InferencePainter> {
-  Timer? timer;
   late double _ratio;
   bool classification = true;
   List<Offset>? results = [];
+  int elapsedTime = 0;
 
   @override
   void initState() {
     super.initState();
-    widget.cameraController!.startVideoRecording(
+    widget.videoState.controller!.startVideoRecording(
         onAvailable: (CameraImage image) {
-      if (mounted && widget.isRecording && widget.inferenceController != null) {
-        widget.inferenceController!.add(InferenceInput(input: image));
+      if (mounted &&
+          widget.videoState is VideoRecording &&
+          widget.inferenceController != null) {
+        widget.inferenceController!
+            .add(InferenceInput(input: image, classification: classification));
       }
     });
   }
 
   @override
   void dispose() {
-    //inferenceService.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    _ratio =
-        screenSize.width / widget.cameraController!.value.previewSize!.height;
-    if (widget.cameraController == null ||
-        !widget.cameraController!.value.isInitialized) {
+    _ratio = screenSize.width /
+        widget.videoState.controller!.value.previewSize!.height;
+    if (widget.videoState.controller == null ||
+        !widget.videoState.controller!.value.isInitialized) {
       return Container(
         color: CupertinoColors.black,
         child: const Center(
@@ -63,8 +66,15 @@ class InferencePainterState extends State<InferencePainter> {
 
     return BlocBuilder<InferenceBloc, InferenceState>(
       builder: (context, state) {
-        print(state);
         final response = state.response as PoseOutput?;
+
+        if (widget.timerController!.state is TimerRunInProgress &&
+            widget.timerController!.state.duration.inMilliseconds % 250 == 0) {
+          //Save a data element
+
+          print(widget.timerController!.state.duration.inMilliseconds);
+        }
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (response != null) {
             setState(() {
@@ -73,12 +83,12 @@ class InferencePainterState extends State<InferencePainter> {
           }
         });
         return Stack(children: [
-          CameraPreview(widget.cameraController!),
+          CameraPreview(widget.videoState.controller!),
           // _drawBoundingBox,
           // _drawLandmarks,
           // _drawHands,
           _drawPose(results),
-          widget.isRecording
+          widget.videoState is VideoRecording
               ? Stack(children: [
                   Center(
                     child: Text(results.toString(),

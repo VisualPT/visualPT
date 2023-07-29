@@ -49,7 +49,10 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     }
     emit(const InferenceLoading(null));
     final data = await _inferenceService.inference(cameraImage: event.input);
-    if (!isClosed) add(InferenceOutput(output: data));
+    if (!isClosed) add(InferenceOutput(image: event.input, output: data));
+    if (data != null) {
+      _inferenceService.store(event.input, event.classification, data);
+    }
   }
 
   FutureOr<void> _onOutput(

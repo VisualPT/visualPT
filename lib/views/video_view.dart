@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
@@ -48,100 +49,114 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
   ///    WIDGETS BELOW    ///
   /// /// /// /// /// /// ///
 
-  Widget mainVideo(BuildContext context, VideoState state) {
-    assert(state is VideoRecording || state is VideoStandby);
-    return Center(
-      child:
-          Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: InferencePainter(
-            inferenceController: controller.inferenceBloc,
-            cameraController: state.controller,
-            isRecording: state is VideoRecording,
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: Container(
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                color: Styles.backgroundAccent),
-            child: Column(
+  Widget mainVideo(BuildContext context, VideoState videoState) {
+    assert(videoState is VideoRecording || videoState is VideoStandby);
+    return BlocBuilder<TimerBloc, TimerState>(
+      builder: (context, timerState) {
+        if (timerState is TimerRunComplete) {
+          BlocProvider.of<VideoBloc>(context)
+              .add(VideoStop(videoState.controller!));
+        }
+        return Center(
+          child: Stack(
+              alignment: Alignment.center,
+              fit: StackFit.expand,
               children: [
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 3,
-                        width: MediaQuery.of(context).size.width,
-                        color: Styles.backgroundPrimary,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          state is VideoRecording
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: GestureDetector(
-                                      onTap: () {
-                                        controller.videoBloc!.add(
-                                            VideoRestart(state.controller!));
-                                        controller.timerBloc!
-                                            .add(const TimerReset());
-                                        controller.timerBloc!
-                                            .add(const TimerStarted());
-                                      },
-                                      child: const Icon(CupertinoIcons.restart,
-                                          color: CupertinoColors.black,
-                                          size: 40)),
-                                )
-                              : const SizedBox(),
-                          const Spacer(),
-                          SafeArea(
-                            child:
-                                //TODO double check the onComplete function for functionality
-                                VideoTimer(cameraController: state.controller!),
-                          )
-                        ],
-                      ),
-                    ],
+                  height: MediaQuery.of(context).size.height,
+                  child: InferencePainter(
+                      inferenceController: controller.inferenceBloc,
+                      timerController: controller.timerBloc,
+                      videoState: videoState),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        color: Styles.backgroundAccent),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 3,
+                                width: MediaQuery.of(context).size.width,
+                                color: Styles.backgroundPrimary,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  videoState is VideoRecording
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: GestureDetector(
+                                              onTap: () {
+                                                controller.videoBloc!.add(
+                                                    VideoRestart(videoState
+                                                        .controller!));
+                                                controller.timerBloc!
+                                                    .add(const TimerReset());
+                                                controller.timerBloc!
+                                                    .add(const TimerStarted());
+                                              },
+                                              child: const Icon(
+                                                  CupertinoIcons.restart,
+                                                  color: CupertinoColors.black,
+                                                  size: 40)),
+                                        )
+                                      : const SizedBox(),
+                                  const Spacer(),
+                                  SafeArea(
+                                    child: VideoTimer(
+                                        cameraController:
+                                            videoState.controller!,
+                                        duration: timerState.duration),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 20,
-          child: Center(
-            child: GestureDetector(
-              onTap: () {
-                if (state is VideoRecording) {
-                  controller.inferenceBloc!.add(const InferenceEnd());
-                  controller.timerBloc!.add(const TimerReset());
-                  controller.videoBloc!.add(VideoStop(state.controller!));
+                Positioned(
+                  bottom: 20,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (videoState is VideoRecording) {
+                          controller.inferenceBloc!.add(const InferenceEnd());
+                          controller.timerBloc!.add(const TimerReset());
+                          controller.videoBloc!
+                              .add(VideoStop(videoState.controller!));
 
-                  //TODO only pass what is necessary
-                }
-                if (state is VideoStandby) {
-                  controller.videoBloc!.add(VideoPlay(state.controller!));
-                  controller.timerBloc!.add(const TimerStarted());
-                  controller.inferenceBloc!.add(const InferenceStart());
-                }
-              },
-              child: state is VideoRecording
-                  ? const Icon(CupertinoIcons.stop,
-                      color: Styles.backgroundComplementory, size: 80)
-                  : const Icon(CupertinoIcons.circle_fill,
-                      color: Styles.actionPrimary, size: 80),
-            ),
-          ),
-        )
-      ]),
+                          //TODO only pass what is necessary
+                        }
+                        if (videoState is VideoStandby) {
+                          controller.videoBloc!
+                              .add(VideoPlay(videoState.controller!));
+                          controller.timerBloc!.add(const TimerStarted());
+                          controller.inferenceBloc!.add(const InferenceStart());
+                        }
+                      },
+                      child: videoState is VideoRecording
+                          ? const Icon(CupertinoIcons.stop,
+                              color: Styles.backgroundComplementory, size: 80)
+                          : const Icon(CupertinoIcons.circle_fill,
+                              color: Styles.actionPrimary, size: 80),
+                    ),
+                  ),
+                )
+              ]),
+        );
+      },
     );
   }
 
