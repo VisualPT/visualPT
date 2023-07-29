@@ -36,8 +36,9 @@ class AssessmentService extends AppService {
     return assessment.copyWith(duration: durationSeconds);
   }
 
-  void save(Assessment assessment) {
+  @override
+  void saveData(Model model) {
     log("Saving assessment");
-    saveData(assessment);
+    super.saveData(model);
   }
 }

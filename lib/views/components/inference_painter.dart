@@ -38,14 +38,14 @@ class InferencePainterState extends State<InferencePainter> {
       if (mounted &&
           widget.videoState is VideoRecording &&
           widget.inferenceController != null) {
-        widget.inferenceController!.add(InferenceInput(input: image));
+        widget.inferenceController!
+            .add(InferenceInput(input: image, classification: classification));
       }
     });
   }
 
   @override
   void dispose() {
-    //inferenceService.dispose();
     super.dispose();
   }
 

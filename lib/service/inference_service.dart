@@ -48,4 +48,10 @@ class InferenceService {
     _poseIsolateUtils.dispose();
     _poseInferenceService.inferenceResults = null;
   }
+
+  void store(CameraImage input, bool classification, AiModelOutput data) {
+    //Put the image in the S3, wait for the response to get the ID
+    //Put the ID, classification and data in the database in the format:
+    //ID, classification, data
+  }
 }

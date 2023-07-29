@@ -17,15 +17,17 @@ class InferenceStart extends InferenceEvent {
 
 class InferenceInput extends InferenceEvent {
   final CameraImage input;
-  const InferenceInput({required this.input});
+  final bool classification;
+  const InferenceInput({required this.input, required this.classification});
 
   @override
   List<Object> get props => [input];
 }
 
 class InferenceOutput extends InferenceEvent {
+  final CameraImage? image;
   final AiModelOutput? output;
-  const InferenceOutput({required this.output});
+  const InferenceOutput({required this.image, required this.output});
 
   @override
   List<Object?> get props => [output];
