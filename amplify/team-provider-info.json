@@ -18,6 +18,9 @@
       },
       "api": {
         "visualpt": {}
+      },
+      "storage": {
+        "visualPTstorage": {}
       }
     }
   }

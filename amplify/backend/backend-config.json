@@ -72,5 +72,12 @@
       "service": "Cognito"
     }
   },
-  "function": {}
+  "function": {},
+  "storage": {
+    "visualPTstorage": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
+  }
 }

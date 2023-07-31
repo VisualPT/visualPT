@@ -87,7 +87,22 @@ const amplifyconfig = ''' {
                             "EMAIL"
                         ]
                     }
+                },
+                "S3TransferUtility": {
+                    "Default": {
+                        "Bucket": "visualpt8b87e7c9718e44adb9981f71033ff9d912505-dev",
+                        "Region": "us-east-1"
+                    }
                 }
+            }
+        }
+    },
+    "storage": {
+        "plugins": {
+            "awsS3StoragePlugin": {
+                "bucket": "visualpt8b87e7c9718e44adb9981f71033ff9d912505-dev",
+                "region": "us-east-1",
+                "defaultAccessLevel": "guest"
             }
         }
     }
