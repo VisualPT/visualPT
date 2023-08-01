@@ -540,10 +540,10 @@ packages:
     dependency: "direct main"
     description:
       name: helpers
-      sha256: d82a48e5acd45e3650af20779cf61326dd9c1aaf729fdab4ae721dc48f28b840
+      sha256: "7b2354fe7a3be05635766426a298ba9272dd7e1ceb8036d9c7ecb63ede300b9c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.3"
+    version: "1.2.0"
   html:
     dependency: transitive
     description:
