@@ -126,34 +126,41 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: 20,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (videoState is VideoRecording) {
-                          controller.inferenceBloc!.add(const InferenceEnd());
-                          controller.timerBloc!.add(const TimerReset());
-                          controller.videoBloc!
-                              .add(VideoStop(videoState.controller!));
-
-                          //TODO only pass what is necessary
-                        }
-                        if (videoState is VideoStandby) {
-                          controller.videoBloc!
-                              .add(VideoPlay(videoState.controller!));
-                          controller.timerBloc!.add(const TimerStarted());
-                          controller.inferenceBloc!.add(const InferenceStart());
-                        }
-                      },
-                      child: videoState is VideoRecording
-                          ? const Icon(CupertinoIcons.stop,
-                              color: Styles.backgroundComplementory, size: 80)
-                          : const Icon(CupertinoIcons.circle_fill,
-                              color: Styles.actionPrimary, size: 80),
-                    ),
-                  ),
-                )
+                BlocBuilder<InferenceBloc, InferenceState>(
+                    builder: (context, state) {
+                  if (state.ready) {
+                    return Positioned(
+                      bottom: 20,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (videoState is VideoRecording) {
+                              controller.inferenceBloc!
+                                  .add(const InferenceEnd());
+                              controller.timerBloc!.add(const TimerReset());
+                              controller.videoBloc!
+                                  .add(VideoStop(videoState.controller!));
+                            }
+                            if (videoState is VideoStandby) {
+                              controller.videoBloc!
+                                  .add(VideoPlay(videoState.controller!));
+                              controller.timerBloc!.add(const TimerStarted());
+                              controller.inferenceBloc!
+                                  .add(const InferenceStart());
+                            }
+                          },
+                          child: videoState is VideoRecording
+                              ? const Icon(CupertinoIcons.stop,
+                                  color: Styles.backgroundComplementory,
+                                  size: 80)
+                              : const Icon(CupertinoIcons.circle_fill,
+                                  color: Styles.actionPrimary, size: 80),
+                        ),
+                      ),
+                    );
+                  }
+                  return Container();
+                })
               ]),
         );
       },

@@ -89,7 +89,9 @@ class Pose extends AiModel {
     }
 
     //TODO: there are 33 landmarks, why is there 39 defined here?
-    final landmarkPoints = outputLandmarks.getDoubleList().reshape([39, 5]);
+    final landmarkPoints = outputLandmarks
+        .getDoubleList()
+        .reshape<double>([39, 5]) as List<List<double>>;
 
     if (landmarkPoints != null) {
       return PoseOutput(landmarkPoints, inputSize, image.width, image.height);

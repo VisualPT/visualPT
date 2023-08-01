@@ -1,8 +1,13 @@
 import 'dart:developer';
 
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
+import 'package:helpers/helpers.dart';
 import 'package:visualpt/inference/ai_model.dart';
 import 'package:visualpt/inference/model_inference_service.dart';
+import 'package:visualpt/inference/pose/pose_service.dart';
+import 'package:visualpt/utils/image_utils.dart';
 import 'package:visualpt/utils/isolate_utils.dart';
 
 class InferenceService {
@@ -50,8 +55,20 @@ class InferenceService {
   }
 
   void store(CameraImage input, bool classification, AiModelOutput data) {
-    //Put the image in the S3, wait for the response to get the ID
-    //Put the ID, classification and data in the database in the format:
-    //ID, classification, data
+    final lines = data.output.map((line) => line.join(",")).join("\n");
+    final detection = '${classification ? "1" : "0"}\n$lines';
+    final image = ImageUtils.convertCameraImage(input);
+    if (image == null) {
+      throw Exception("Image is null");
+    }
+    final imagePayload = S3DataPayload.bytes(image.getBytes());
+    final dataPayload = S3DataPayload.string(detection);
+
+    final key = "${DateTime.now().millisecondsSinceEpoch}";
+    final imageUpload =
+        Amplify.Storage.uploadData(data: imagePayload, key: 'raw/$key=image');
+    final detectionUpload =
+        Amplify.Storage.uploadData(data: dataPayload, key: 'raw/$key.csv');
+    print("upload success");
   }
 }

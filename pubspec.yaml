@@ -34,12 +34,13 @@ dependencies:
   path_provider: ^2.0.11
   video_player: ^2.4.10
   video_editor: ^2.2.0
-  helpers: ^1.2.0
+  helpers: 1.2.0
   flutter_bloc: ^8.1.0
   amplify_flutter: ^1.0.0
   amplify_api: ^1.0.0
   amplify_datastore: ^1.0.0-supports-only-mobile
   amplify_auth_cognito: ^1.0.0
+  amplify_storage_s3: ^1.0.0
   vector_math: ^2.1.4
   equatable: ^2.0.5
   pdf: ^3.8.4
