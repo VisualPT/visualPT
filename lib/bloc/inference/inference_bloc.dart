@@ -19,7 +19,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
   late InferenceService _inferenceService;
   late int storageBacklog = 0;
 
-  InferenceBloc() : super(const InferenceDone(null)) {
+  InferenceBloc() : super(const InferenceDone(false, null)) {
     //TODO dynamically load models through constructor
     _inferenceService = InferenceService();
 
@@ -37,6 +37,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     _poseInferenceService.setModelConfig(3);
     _poseIsolateUtils = IsolateUtils();
     await _poseIsolateUtils.initIsolate();
+    emit(const InferenceDone(true, null));
   }
 
   FutureOr<void> _onStart(
@@ -51,7 +52,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     if (state is InferenceLoading) {
       return;
     }
-    emit(const InferenceLoading(null));
+    emit(const InferenceLoading(true, null));
     final data = await _inferenceService.inference(cameraImage: event.input);
     if (!isClosed) add(InferenceOutput(image: event.input, output: data));
     if (data != null && storageBacklog > 0) {
@@ -62,7 +63,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
 
   FutureOr<void> _onOutput(
       InferenceOutput event, Emitter<InferenceState> emit) async {
-    emit(InferenceDone(event.output));
+    emit(InferenceDone(true, event.output));
   }
 
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
