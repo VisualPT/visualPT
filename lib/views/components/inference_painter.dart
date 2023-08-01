@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +7,8 @@ import 'package:visualpt/inference/pose/pose_service.dart';
 import 'package:visualpt/views/styles.dart';
 import '../../bloc/inference/inference_bloc.dart';
 import '../camera_painters/pose_painter.dart';
+
+const sampleRateFPS = 15;
 
 class InferencePainter extends StatefulWidget {
   const InferencePainter({
@@ -26,6 +26,7 @@ class InferencePainter extends StatefulWidget {
 
 class InferencePainterState extends State<InferencePainter> {
   late double _ratio;
+  int frameCount = 0;
   bool classification = true;
   List<Offset>? results = [];
   int elapsedTime = 0;
@@ -35,11 +36,16 @@ class InferencePainterState extends State<InferencePainter> {
     super.initState();
     widget.videoState.controller!.startVideoRecording(
         onAvailable: (CameraImage image) {
+      setState(() {
+        frameCount++;
+      });
       if (mounted &&
           widget.videoState is VideoRecording &&
           widget.inferenceController != null) {
-        widget.inferenceController!
-            .add(InferenceInput(input: image, classification: classification));
+        widget.inferenceController!.add(InferenceInput(
+            input: image,
+            classification: classification,
+            store: frameCount % sampleRateFPS == 0));
       }
     });
   }
@@ -67,13 +73,6 @@ class InferencePainterState extends State<InferencePainter> {
     return BlocBuilder<InferenceBloc, InferenceState>(
       builder: (context, state) {
         final response = state.response as PoseOutput?;
-
-        if (widget.timerController!.state is TimerRunInProgress &&
-            widget.timerController!.state.duration.inMilliseconds % 250 == 0) {
-          //Save a data element
-
-          print(widget.timerController!.state.duration.inMilliseconds);
-        }
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (response != null) {
