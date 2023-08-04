@@ -55,12 +55,14 @@ class InferenceService {
   }
 
   void store(CameraImage input, bool classification, AiModelOutput data) {
-    final lines = data.output.map((line) => line.join(",")).join("\n");
-    final detection = '${classification ? "1" : "0"}\n$lines';
     final image = ImageUtils.convertCameraImage(input);
     if (image == null) {
       throw Exception("Image is null");
     }
+    final lines = data.output.map((line) => line.join(",")).join("\n");
+    final detection =
+        '${image.height},${image.width},${classification ? "1" : "0"}\n$lines';
+
     final imagePayload = S3DataPayload.bytes(image.getBytes());
     final dataPayload = S3DataPayload.string(detection);
 
