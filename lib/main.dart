@@ -13,7 +13,7 @@ void main() {
 }
 
 //TODO VisualPT
-// validation interface
+//validation interface
 ///Root of Application
 ///Global routes and themes defined here
 class VisualPT extends StatelessWidget {

@@ -8,8 +8,6 @@ import 'package:visualpt/views/styles.dart';
 import '../../bloc/inference/inference_bloc.dart';
 import '../camera_painters/pose_painter.dart';
 
-const sampleRateFPS = 15;
-
 class InferencePainter extends StatefulWidget {
   const InferencePainter({
     required this.inferenceController,
@@ -36,16 +34,11 @@ class InferencePainterState extends State<InferencePainter> {
     super.initState();
     widget.videoState.controller!.startVideoRecording(
         onAvailable: (CameraImage image) {
-      setState(() {
-        frameCount++;
-      });
       if (mounted &&
           widget.videoState is VideoRecording &&
           widget.inferenceController != null) {
         widget.inferenceController!.add(InferenceInput(
-            input: image,
-            classification: classification,
-            store: frameCount % sampleRateFPS == 0));
+            input: image, classification: classification, frame: frameCount++));
       }
     });
   }
@@ -83,45 +76,12 @@ class InferencePainterState extends State<InferencePainter> {
         });
         return Stack(children: [
           CameraPreview(widget.videoState.controller!),
-          Positioned(
-              top: 0,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width,
-                    maxHeight: MediaQuery.of(context).size.height),
-                child: Row(
-                  children: [
-                    Text(
-                      widget.inferenceController == null
-                          ? "Loading..."
-                          : widget.inferenceController!.state.toString(),
-                    ),
-                    const Spacer(),
-                    Text(
-                      widget.inferenceController!.inferenceService
-                          .poseInferenceService.model
-                          .toString(),
-                    ),
-                    const Spacer(),
-                    Text(widget.inferenceController!.inferenceService.ready
-                        .toString()),
-                  ],
-                ),
-              )),
           // _drawBoundingBox,
           // _drawLandmarks,
           // _drawHands,
           _drawPose(results),
           widget.videoState is VideoRecording
               ? Stack(children: [
-                  Center(
-                    child: Text(
-                        widget.inferenceController!.inferenceService
-                            .poseInferenceService.inferenceResults
-                            .toString(),
-                        style: const TextStyle(
-                            color: CupertinoColors.white, fontSize: 4)),
-                  ),
                   Positioned(
                     bottom: 100,
                     child: Container(
