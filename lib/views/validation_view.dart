@@ -28,7 +28,7 @@ class ValidationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseView(
-      pageTitle: "Settings",
+      pageTitle: "Validate ",
       child: Stack(
         children: [
           const ViewBackground(),
