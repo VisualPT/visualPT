@@ -12,18 +12,18 @@ part 'inference_event.dart';
 part 'inference_state.dart';
 
 class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
+  final sampleRateFPS = 15;
   late IsolateUtils _poseIsolateUtils;
   late ModelInferenceService _poseInferenceService;
-  late InferenceService inferenceService;
-  late int debug;
+  late InferenceService _inferenceService;
   late int storageBacklog = 0;
+  late AiModelOutput? data;
 
   InferenceBloc() : super(const InferenceDone(false, null)) {
     //TODO dynamically load models through constructor
-    inferenceService = InferenceService();
+    _inferenceService = InferenceService();
 
     on<InferenceInit>(_onInit);
-    on<InferenceStart>(_onStart);
     on<InferenceInput>(_onInput);
     on<InferenceOutput>(_onOutput);
     on<InferenceEnd>(_onEnd);
@@ -39,24 +39,20 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     emit(const InferenceDone(true, null));
   }
 
-  FutureOr<void> _onStart(
-      InferenceStart event, Emitter<InferenceState> emit) async {}
-
 //TODO temporary fix until I create a InferenceProvider
   FutureOr<void> _onInput(
       InferenceInput event, Emitter<InferenceState> emit) async {
-    if (event.store) {
+    if (event.frame % sampleRateFPS == 0) {
       storageBacklog++;
     }
-    if (state is InferenceLoading) {
-      return;
-    }
+    if (state is InferenceLoading) return null;
+
     emit(const InferenceLoading(true, null));
-    final data = await inferenceService.inference(cameraImage: event.input);
+    data = await _inferenceService.inference(cameraImage: event.input);
     if (!isClosed) add(InferenceOutput(image: event.input, output: data));
     if (data != null && storageBacklog > 0) {
       storageBacklog--;
-      inferenceService.store(event.input, event.classification, data);
+      _inferenceService.store(event.input, event.classification, data!);
     }
   }
 

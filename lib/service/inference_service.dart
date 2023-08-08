@@ -11,14 +11,14 @@ import 'package:visualpt/utils/isolate_utils.dart';
 class InferenceService {
   late IsolateUtils _poseIsolateUtils;
 
-  late ModelInferenceService poseInferenceService;
+  late ModelInferenceService _poseInferenceService;
 
   bool ready = false;
 
   InferenceService() {
     log("Configuring Models and Isolates");
-    poseInferenceService = ModelInferenceService();
-    poseInferenceService.setModelConfig(3);
+    _poseInferenceService = ModelInferenceService();
+    _poseInferenceService.setModelConfig(3);
     asyncConstructor();
   }
 
@@ -33,20 +33,20 @@ class InferenceService {
   }
 
   Future<AiModelOutput?> inference({required CameraImage cameraImage}) async {
-    if (!ready || poseInferenceService.model.interpreter == null) {
+    if (!ready || _poseInferenceService.model.interpreter == null) {
       return null;
     }
 
-    await poseInferenceService.inference(
+    await _poseInferenceService.inference(
       isolateUtils: _poseIsolateUtils,
       cameraImage: cameraImage,
     );
-    return poseInferenceService.inferenceResults;
+    return _poseInferenceService.inferenceResults;
   }
 
   void dispose() {
     _poseIsolateUtils.dispose();
-    poseInferenceService.inferenceResults = null;
+    _poseInferenceService.inferenceResults = null;
   }
 
   void store(CameraImage input, bool classification, AiModelOutput data) {
