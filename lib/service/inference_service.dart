@@ -3,25 +3,22 @@ import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
-import 'package:helpers/helpers.dart';
 import 'package:visualpt/inference/ai_model.dart';
 import 'package:visualpt/inference/model_inference_service.dart';
-import 'package:visualpt/inference/pose/pose_service.dart';
 import 'package:visualpt/utils/image_utils.dart';
 import 'package:visualpt/utils/isolate_utils.dart';
 
 class InferenceService {
   late IsolateUtils _poseIsolateUtils;
 
-  late ModelInferenceService _poseInferenceService;
+  late ModelInferenceService poseInferenceService;
 
   bool ready = false;
-  bool processing = false;
 
   InferenceService() {
     log("Configuring Models and Isolates");
-    _poseInferenceService = ModelInferenceService();
-    _poseInferenceService.setModelConfig(3);
+    poseInferenceService = ModelInferenceService();
+    poseInferenceService.setModelConfig(3);
     asyncConstructor();
   }
 
@@ -36,22 +33,20 @@ class InferenceService {
   }
 
   Future<AiModelOutput?> inference({required CameraImage cameraImage}) async {
-    if (!ready ||
-        processing ||
-        _poseInferenceService.model.interpreter == null) {
+    if (!ready || poseInferenceService.model.interpreter == null) {
       return null;
     }
 
-    await _poseInferenceService.inference(
+    await poseInferenceService.inference(
       isolateUtils: _poseIsolateUtils,
       cameraImage: cameraImage,
     );
-    return _poseInferenceService.inferenceResults;
+    return poseInferenceService.inferenceResults;
   }
 
   void dispose() {
     _poseIsolateUtils.dispose();
-    _poseInferenceService.inferenceResults = null;
+    poseInferenceService.inferenceResults = null;
   }
 
   void store(CameraImage input, bool classification, AiModelOutput data) {

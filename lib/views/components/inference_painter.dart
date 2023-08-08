@@ -83,6 +83,31 @@ class InferencePainterState extends State<InferencePainter> {
         });
         return Stack(children: [
           CameraPreview(widget.videoState.controller!),
+          Positioned(
+              top: 0,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width,
+                    maxHeight: MediaQuery.of(context).size.height),
+                child: Row(
+                  children: [
+                    Text(
+                      widget.inferenceController == null
+                          ? "Loading..."
+                          : widget.inferenceController!.state.toString(),
+                    ),
+                    const Spacer(),
+                    Text(
+                      widget.inferenceController!.inferenceService
+                          .poseInferenceService.model
+                          .toString(),
+                    ),
+                    const Spacer(),
+                    Text(widget.inferenceController!.inferenceService.ready
+                        .toString()),
+                  ],
+                ),
+              )),
           // _drawBoundingBox,
           // _drawLandmarks,
           // _drawHands,
@@ -90,7 +115,10 @@ class InferencePainterState extends State<InferencePainter> {
           widget.videoState is VideoRecording
               ? Stack(children: [
                   Center(
-                    child: Text(results.toString(),
+                    child: Text(
+                        widget.inferenceController!.inferenceService
+                            .poseInferenceService.inferenceResults
+                            .toString(),
                         style: const TextStyle(
                             color: CupertinoColors.white, fontSize: 4)),
                   ),

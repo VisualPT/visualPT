@@ -1,5 +1,3 @@
-//TODO address memory leak with this bloc
-
 import 'dart:async';
 import 'dart:developer';
 import 'package:camera/camera.dart';
@@ -16,12 +14,13 @@ part 'inference_state.dart';
 class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
   late IsolateUtils _poseIsolateUtils;
   late ModelInferenceService _poseInferenceService;
-  late InferenceService _inferenceService;
+  late InferenceService inferenceService;
+  late int debug;
   late int storageBacklog = 0;
 
   InferenceBloc() : super(const InferenceDone(false, null)) {
     //TODO dynamically load models through constructor
-    _inferenceService = InferenceService();
+    inferenceService = InferenceService();
 
     on<InferenceInit>(_onInit);
     on<InferenceStart>(_onStart);
@@ -32,7 +31,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
 
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
-    log("Configuring Models and Isolates");
+    log("Initializing inference bloc");
     _poseInferenceService = ModelInferenceService();
     _poseInferenceService.setModelConfig(3);
     _poseIsolateUtils = IsolateUtils();
@@ -53,11 +52,11 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
       return;
     }
     emit(const InferenceLoading(true, null));
-    final data = await _inferenceService.inference(cameraImage: event.input);
+    final data = await inferenceService.inference(cameraImage: event.input);
     if (!isClosed) add(InferenceOutput(image: event.input, output: data));
     if (data != null && storageBacklog > 0) {
       storageBacklog--;
-      _inferenceService.store(event.input, event.classification, data);
+      inferenceService.store(event.input, event.classification, data);
     }
   }
 
