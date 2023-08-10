@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
+import 'package:visualpt/views/app_nav.dart';
 
 class ValidationProvider extends StatelessWidget {
   final void Function(BuildContext) getProviders;
@@ -19,6 +20,10 @@ class ValidationProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void onDispose(BuildContext context) {
+      AppNav().back(context);
+    }
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -33,6 +38,10 @@ class ValidationProvider extends StatelessWidget {
               return onLoad(context, state);
             } else if (state is ValidationDisplay) {
               return onDisplay(context, state);
+            } else if (state is ValidationDispose) {
+              onDispose(context);
+              //TODO: Fix this
+              return Container();
             } else {
               throw Exception("Undefined State");
             }
