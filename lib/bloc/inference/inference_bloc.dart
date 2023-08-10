@@ -52,7 +52,8 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     if (!isClosed) add(InferenceOutput(image: event.input, output: data));
     if (data != null && storageBacklog > 0) {
       storageBacklog--;
-      _inferenceService.store(event.input, event.classification, data!);
+      _inferenceService.store(
+          event.input, event.classification, event.ratio, data!);
     }
   }
 

@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:helpers/helpers.dart';
+import 'package:visualpt/inference/pose/pose_service.dart';
 
-List<Offset> parseOffsets(String input) {
+List<Offset> parsePoseOffsets(String input, double height, double width) {
+  const inputSize = Pose.inputSize;
   // Split the input by lines
   var lines = input.split('\n').removeNulls();
   lines.removeWhere((element) => element.isEmpty);
@@ -11,7 +13,7 @@ List<Offset> parseOffsets(String input) {
     var values = line.split(',');
     var x = double.parse(values[0]);
     var y = double.parse(values[1]);
-    return Offset(x, y);
+    return Offset(x / inputSize * width, y / inputSize * height);
   }).toList();
 
   return offsets;

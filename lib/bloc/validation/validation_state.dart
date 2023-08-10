@@ -17,19 +17,31 @@ class ValidationLoad extends ValidationState {
 
 class ValidationDisplay extends ValidationState {
   final String key;
-  final Uint8List imageData;
-  final double imageRatio;
+  final String imageUrl;
+  final int imageHeight;
+  final int imageWidth;
+  final double ratio;
   final int classification;
   final List<Offset> offsets;
   const ValidationDisplay(super.keys,
       {required this.key,
-      required this.imageData,
-      required this.imageRatio,
+      required this.imageUrl,
+      required this.imageHeight,
+      required this.imageWidth,
+      required this.ratio,
       required this.classification,
       required this.offsets});
 
   @override
-  List<Object> get props => [imageData, imageRatio, classification, offsets];
+  List<Object> get props =>
+      [imageUrl, imageHeight, imageWidth, classification, offsets];
+}
+
+class ValidationDispose extends ValidationState {
+  const ValidationDispose(super.keys);
+
+  @override
+  List<Object> get props => [];
 }
 
 class ValidationError extends ValidationState {

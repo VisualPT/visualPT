@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +16,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     on<ValidationFetch>(_onFetch);
     on<ValidationNext>(_onNext);
     on<ValidationInput>(_onInput);
+    on<ValidationEnd>(_onEnd);
   }
 
   FutureOr<void> _onFetch(
@@ -55,28 +55,32 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
             throw Exception('No data file found');
           }
         }
-        final imageResult = await storage.download(imageID).result;
+        final imageResult = await storage.getUrl(imageID).result;
         final dataResult = await storage.download(dataID).result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
         final imageMetadata = dataOutput.split('\n').first.split(',');
 
-        //TODO: Pass this to a proper image format for visualization
-        final Uint8List uint8list = Uint8List.fromList(imageResult.bytes);
-        final classification = int.parse(imageMetadata.elementAt(0));
+        final imageHeight = int.parse(imageMetadata.elementAt(0));
+        final imageWidth = int.parse(imageMetadata.elementAt(1));
+        final ratio = double.parse(imageMetadata.elementAt(2));
+        final classification = int.parse(imageMetadata.elementAt(3));
         final detection = dataOutput.substring(dataOutput.indexOf('\n'));
 
-        final offsets = parseOffsets(detection);
+        final offsets = parsePoseOffsets(
+            detection, imageHeight.toDouble(), imageWidth.toDouble());
 
-        print("displaying");
         emit(ValidationDisplay(
           event.keys,
           key: dataID,
-          imageData: uint8list,
-          imageRatio: double.parse(imageMetadata.elementAt(0)) /
-              double.parse(imageMetadata.elementAt(0)),
+          imageUrl: imageResult.url.toString(),
+          imageHeight: imageHeight,
+          imageWidth: imageWidth,
+          ratio: ratio,
           classification: classification,
           offsets: offsets,
         ));
+      } else {
+        add(const ValidationEnd());
       }
     } on Exception catch (e) {
       print(e);
@@ -91,5 +95,10 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         sourceKey: 'raw/${event.key}', destinationKey: 'valid/${event.key}');
     //Start the next validation
     add(ValidationNext(keys: event.keys));
+  }
+
+  FutureOr<void> _onEnd(ValidationEnd event, Emitter<ValidationState> emit) {
+    print("No more data to validate");
+    emit(const ValidationDispose([]));
   }
 }

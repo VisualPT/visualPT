@@ -12,7 +12,7 @@ class Pose extends AiModel {
   Pose({super.interpreter}) {
     loadModel();
   }
-  final int inputSize = 256;
+  static const int inputSize = 256;
   final double threshold = 0.95;
 
   @override

@@ -32,3 +32,10 @@ class ValidationInput extends ValidationEvent {
   @override
   List<Object> get props => [key, input];
 }
+
+class ValidationEnd extends ValidationEvent {
+  const ValidationEnd();
+
+  @override
+  List<Object> get props => [];
+}

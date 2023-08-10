@@ -23,7 +23,7 @@ class InferencePainter extends StatefulWidget {
 }
 
 class InferencePainterState extends State<InferencePainter> {
-  late double _ratio;
+  late double ratio;
   int frameCount = 0;
   bool classification = true;
   List<Offset>? results = [];
@@ -38,7 +38,10 @@ class InferencePainterState extends State<InferencePainter> {
           widget.videoState is VideoRecording &&
           widget.inferenceController != null) {
         widget.inferenceController!.add(InferenceInput(
-            input: image, classification: classification, frame: frameCount++));
+            input: image,
+            classification: classification,
+            frame: frameCount++,
+            ratio: ratio));
       }
     });
   }
@@ -51,7 +54,7 @@ class InferencePainterState extends State<InferencePainter> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    _ratio = screenSize.width /
+    ratio = screenSize.width /
         widget.videoState.controller!.value.previewSize!.height;
     if (widget.videoState.controller == null ||
         !widget.videoState.controller!.value.isInitialized) {
@@ -141,7 +144,7 @@ class InferencePainterState extends State<InferencePainter> {
     return _ModelPainter(
       customPainter: PosePainter(
         points: points ?? [],
-        ratio: _ratio,
+        ratio: ratio,
       ),
     );
   }

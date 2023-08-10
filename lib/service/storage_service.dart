@@ -1,4 +1,5 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
 class StorageService {
   StorageService();
@@ -9,6 +10,11 @@ class StorageService {
   StorageDownloadDataOperation<StorageDownloadDataRequest,
       StorageDownloadDataResult<StorageItem>> download(String key) {
     return Amplify.Storage.downloadData(key: key);
+  }
+
+  StorageGetUrlOperation<StorageGetUrlRequest, StorageGetUrlResult> getUrl(
+      String key) {
+    return Amplify.Storage.getUrl(key: key);
   }
 
   Future<List<String>> listRawData() async {
@@ -22,12 +28,14 @@ class StorageService {
           options: StorageListOptions(
             pageSize: 1000,
             nextToken: nextToken,
+            pluginOptions: const S3ListPluginOptions(
+              excludeSubPaths: true,
+            ),
           ),
         ).result;
         fileKeys.addAll(result.items.map((e) => e.key));
         nextToken = result.nextToken;
         hasNextPage = result.hasNextPage;
-        print(nextToken);
       } while (hasNextPage);
       return fileKeys;
     } on StorageException catch (e) {
