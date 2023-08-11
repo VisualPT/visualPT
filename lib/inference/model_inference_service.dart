@@ -5,9 +5,9 @@ import 'package:camera/camera.dart';
 
 import '../utils/isolate_utils.dart';
 import 'ai_model.dart';
-// import 'face_detection/face_detection_service.dart';
-// import 'face_mesh/face_mesh_service.dart';
-// import 'hands/hands_service.dart';
+import 'face_detection/face_detection_service.dart';
+import 'face_mesh/face_mesh_service.dart';
+import 'hands/hands_service.dart';
 import 'pose/pose_service.dart';
 import 'service_locator.dart';
 
@@ -45,21 +45,21 @@ class ModelInferenceService {
 
   void setModelConfig(int index) {
     switch (Models.values[index]) {
-      // case Models.FaceDetection:
-      //   log("Face Detection model configured");
-      //   model = locator<FaceDetection>();
-      //   handler = runFaceDetector;
-      //   break;
-      // case Models.FaceMesh:
-      //   log("Face Mesh model configured");
-      //   model = locator<FaceMesh>();
-      //   handler = runFaceMesh;
-      //   break;
-      // case Models.Hands:
-      //   log("Hands model configured");
-      //   model = locator<Hands>();
-      //   handler = runHandDetector;
-      //   break;
+      case Models.FaceDetection:
+        log("Face Detection model configured");
+        model = locator<FaceDetection>();
+        handler = runFaceDetector;
+        break;
+      case Models.FaceMesh:
+        log("Face Mesh model configured");
+        model = locator<FaceMesh>();
+        handler = runFaceMesh;
+        break;
+      case Models.Hands:
+        log("Hands model configured");
+        model = locator<Hands>();
+        handler = runHandDetector;
+        break;
       case Models.Pose:
         log("Pose model configured");
         model = locator<Pose>();

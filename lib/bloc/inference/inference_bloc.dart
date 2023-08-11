@@ -33,7 +33,6 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     emit(const InferenceDone(true, null));
   }
 
-//TODO temporary fix until I create a InferenceProvider
   FutureOr<void> _onInput(
       InferenceInput event, Emitter<InferenceState> emit) async {
     if (event.frame % sampleRateFPS == 0) {

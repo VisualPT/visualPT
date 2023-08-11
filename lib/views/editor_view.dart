@@ -85,7 +85,7 @@ class _EditorPageState extends State<EditorPage> {
                                     ),
                                   )),
                               onPressed: () {
-                                final _duration = _c.endTrim - _c.startTrim;
+                                final duration = _c.endTrim - _c.startTrim;
                                 //TODO Export the video here
                                 final v = VideoPlayer(_c.video);
                                 _c.video.pause().then((_) {});

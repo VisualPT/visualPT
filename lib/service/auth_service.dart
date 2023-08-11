@@ -84,6 +84,7 @@ class AuthService {
       case AuthSignInStep.confirmSignInWithCustomChallenge:
         log("Custom challenge required");
         break;
+        //TODO: add case for password reset required
         log("Password reset required");
         break;
       case AuthSignInStep.confirmSignUp:
@@ -119,7 +120,7 @@ class AuthService {
       throw ("Invalid parameters");
     } on PasswordResetRequiredException {
       throw ("Password reset required");
-    } on Exception catch (e) {
+    } on Exception {
       throw ("User was not signed up");
     }
   }

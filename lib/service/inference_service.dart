@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:isolate';
 
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
@@ -57,7 +56,6 @@ class InferenceService {
 
   void store(CameraImage input, bool classification, double ratio,
       AiModelOutput data) async {
-    final recievePort = ReceivePort();
     final image = ImageUtils.convertCameraImage(input);
     if (image == null) {
       throw Exception("Image is null");

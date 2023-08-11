@@ -12,8 +12,6 @@ void main() {
   runApp(const VisualPT());
 }
 
-//TODO VisualPT
-//validation interface
 ///Root of Application
 ///Global routes and themes defined here
 class VisualPT extends StatelessWidget {

@@ -89,7 +89,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
-    print("Restarting video");
+    log("Restarting video");
     event.controller.stopVideoRecording();
     resetTimer();
     emit(VideoStandby(event.controller));
@@ -99,7 +99,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     if (event.controller.value.isRecordingVideo) {
       await event.controller.stopVideoRecording();
     } else {
-      print("Video was already stopped");
+      log("Video was already stopped");
     }
     duration = DateTime.now().difference(start);
     //TODO store file to S3 bucket
