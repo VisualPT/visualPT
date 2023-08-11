@@ -1,41 +1,31 @@
 PODS:
-  - Amplify (1.29.2):
-    - Amplify/Default (= 1.29.2)
-  - Amplify/Default (1.29.2)
-  - amplify_api_ios (0.0.1):
-    - Amplify (= 1.29.2)
-    - amplify_flutter_ios
-    - AmplifyPlugins/AWSAPIPlugin (= 1.29.2)
+  - Amplify (1.30.4):
+    - Amplify/Default (= 1.30.4)
+  - Amplify/Default (1.30.4)
+  - amplify_auth_cognito (0.0.1):
     - Flutter
-  - amplify_auth_cognito_ios (0.0.1):
-    - Amplify (= 1.29.2)
-    - amplify_flutter_ios
-    - Flutter
+    - FlutterMacOS
   - amplify_datastore (0.0.1):
-    - Amplify (= 1.29.2)
-    - amplify_flutter_ios
-    - AmplifyPlugins/AWSDataStorePlugin (= 1.29.2)
-    - Flutter
-  - amplify_flutter_ios (0.0.1):
-    - Amplify (= 1.29.2)
-    - AWSPluginsCore (= 1.29.2)
+    - Amplify (= 1.30.4)
+    - AmplifyPlugins/AWSAPIPlugin (= 1.30.4)
+    - AmplifyPlugins/AWSDataStorePlugin (= 1.30.4)
     - Flutter
   - amplify_secure_storage (0.0.1):
     - Flutter
-  - AmplifyPlugins/AWSAPIPlugin (1.29.2):
-    - AppSyncRealTimeClient (~> 3.0)
-    - AWSCore (~> 2.30.1)
-    - AWSPluginsCore (= 1.29.2)
-  - AmplifyPlugins/AWSDataStorePlugin (1.29.2):
-    - AWSCore (~> 2.30.1)
-    - AWSPluginsCore (= 1.29.2)
+  - AmplifyPlugins/AWSAPIPlugin (1.30.4):
+    - AppSyncRealTimeClient (~> 3.1)
+    - AWSCore (~> 2.33.0)
+    - AWSPluginsCore (= 1.30.4)
+  - AmplifyPlugins/AWSDataStorePlugin (1.30.4):
+    - AWSCore (~> 2.33.0)
+    - AWSPluginsCore (= 1.30.4)
     - SQLite.swift (= 0.13.2)
   - AppSyncRealTimeClient (3.1.0):
     - Starscream (~> 4.0.4)
-  - AWSCore (2.30.4)
-  - AWSPluginsCore (1.29.2):
-    - Amplify (= 1.29.2)
-    - AWSCore (~> 2.30.1)
+  - AWSCore (2.33.3)
+  - AWSPluginsCore (1.30.4):
+    - Amplify (= 1.30.4)
+    - AWSCore (~> 2.33.0)
   - camera_avfoundation (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -53,15 +43,18 @@ PODS:
   - Flutter (1.0.0)
   - flutter_pdfview (1.0.2):
     - Flutter
-  - libwebp (1.2.4):
-    - libwebp/demux (= 1.2.4)
-    - libwebp/mux (= 1.2.4)
-    - libwebp/webp (= 1.2.4)
-  - libwebp/demux (1.2.4):
+  - libwebp (1.3.1):
+    - libwebp/demux (= 1.3.1)
+    - libwebp/mux (= 1.3.1)
+    - libwebp/sharpyuv (= 1.3.1)
+    - libwebp/webp (= 1.3.1)
+  - libwebp/demux (1.3.1):
     - libwebp/webp
-  - libwebp/mux (1.2.4):
+  - libwebp/mux (1.3.1):
     - libwebp/demux
-  - libwebp/webp (1.2.4)
+  - libwebp/sharpyuv (1.3.1)
+  - libwebp/webp (1.3.1):
+    - libwebp/sharpyuv
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -74,16 +67,18 @@ PODS:
     - SQLite.swift/standard (= 0.13.2)
   - SQLite.swift/standard (0.13.2)
   - Starscream (4.0.4)
-  - TensorFlowLiteC (2.12.0):
-    - TensorFlowLiteC/Core (= 2.12.0)
-  - TensorFlowLiteC/Core (2.12.0)
-  - TensorFlowLiteSwift (2.12.0):
-    - TensorFlowLiteSwift/Core (= 2.12.0)
-  - TensorFlowLiteSwift/Core (2.12.0):
-    - TensorFlowLiteC (= 2.12.0)
+  - TensorFlowLiteC (2.13.0):
+    - TensorFlowLiteC/Core (= 2.13.0)
+  - TensorFlowLiteC/Core (2.13.0)
+  - TensorFlowLiteSwift (2.13.0):
+    - TensorFlowLiteSwift/Core (= 2.13.0)
+  - TensorFlowLiteSwift/Core (2.13.0):
+    - TensorFlowLiteC (= 2.13.0)
   - tflite_flutter (0.1.0):
     - Flutter
     - TensorFlowLiteSwift
+  - tflite_flutter_helper (0.0.1):
+    - Flutter
   - video_player_avfoundation (0.0.1):
     - Flutter
   - video_thumbnail (0.0.1):
@@ -91,10 +86,8 @@ PODS:
     - libwebp
 
 DEPENDENCIES:
-  - amplify_api_ios (from `.symlinks/plugins/amplify_api_ios/ios`)
-  - amplify_auth_cognito_ios (from `.symlinks/plugins/amplify_auth_cognito_ios/ios`)
+  - amplify_auth_cognito (from `.symlinks/plugins/amplify_auth_cognito/darwin`)
   - amplify_datastore (from `.symlinks/plugins/amplify_datastore/ios`)
-  - amplify_flutter_ios (from `.symlinks/plugins/amplify_flutter_ios/ios`)
   - amplify_secure_storage (from `.symlinks/plugins/amplify_secure_storage/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
@@ -103,9 +96,10 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_pdfview (from `.symlinks/plugins/flutter_pdfview/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - printing (from `.symlinks/plugins/printing/ios`)
   - tflite_flutter (from `.symlinks/plugins/tflite_flutter/ios`)
+  - tflite_flutter_helper (from `.symlinks/plugins/tflite_flutter_helper/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
   - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
 
@@ -125,14 +119,10 @@ SPEC REPOS:
     - TensorFlowLiteSwift
 
 EXTERNAL SOURCES:
-  amplify_api_ios:
-    :path: ".symlinks/plugins/amplify_api_ios/ios"
-  amplify_auth_cognito_ios:
-    :path: ".symlinks/plugins/amplify_auth_cognito_ios/ios"
+  amplify_auth_cognito:
+    :path: ".symlinks/plugins/amplify_auth_cognito/darwin"
   amplify_datastore:
     :path: ".symlinks/plugins/amplify_datastore/ios"
-  amplify_flutter_ios:
-    :path: ".symlinks/plugins/amplify_flutter_ios/ios"
   amplify_secure_storage:
     :path: ".symlinks/plugins/amplify_secure_storage/ios"
   camera_avfoundation:
@@ -150,44 +140,45 @@ EXTERNAL SOURCES:
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/ios"
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   printing:
     :path: ".symlinks/plugins/printing/ios"
   tflite_flutter:
     :path: ".symlinks/plugins/tflite_flutter/ios"
+  tflite_flutter_helper:
+    :path: ".symlinks/plugins/tflite_flutter_helper/ios"
   video_player_avfoundation:
     :path: ".symlinks/plugins/video_player_avfoundation/ios"
   video_thumbnail:
     :path: ".symlinks/plugins/video_thumbnail/ios"
 
 SPEC CHECKSUMS:
-  Amplify: 955400b4b5f29832357f682e15c659d049028306
-  amplify_api_ios: 931226e738de68fd845bc8897f8156357279e8cd
-  amplify_auth_cognito_ios: 34fde9ef483cc1a822086d70b6b3dc29e4dd8fba
-  amplify_datastore: edbdc72d56d84edd2857987c3a95a5e327c9579a
-  amplify_flutter_ios: 9da0b5e66278d761b28a6df6af4e6df4829536d9
+  Amplify: 4e41668c8801667e174ab50c12bc3099c71a257f
+  amplify_auth_cognito: 76b5a54f05f66f69966b468b8121a0dd33a32c70
+  amplify_datastore: 635cdd33aa500e2b8366343de90f70377c0fa1e8
   amplify_secure_storage: 501cbdac671a050090d48dfcc002d5637d3f4a55
-  AmplifyPlugins: 9ce2e86f2051f0ec38fcf4376efb936b6c617cce
+  AmplifyPlugins: 1335f0919aa07329df58685a020f2311c75a5176
   AppSyncRealTimeClient: 49901c6f21e541bec09281854c5695a6c1309bf7
-  AWSCore: 19b8233fe2d0ed3ccf5cff833a615814282cdc90
-  AWSPluginsCore: 787b6199af91f6662171cbd66ad9a876530aed50
+  AWSCore: 49a03831c1c50d52a31168083598c7bcfc389b62
+  AWSPluginsCore: f2188458c27e6cb09597c67876f80611d14275d7
   camera_avfoundation: 3125e8cd1a4387f6f31c6c63abb8a55892a9eeeb
-  connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
-  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
+  connectivity_plus: 07c49e96d7fc92bc9920617b83238c4d178b446a
+  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
   ffmpeg-kit-ios-min-gpl: ac5eb47f98b27e26d14c009de3ce9181007ce688
   ffmpeg_kit_flutter_min_gpl: f657651b493b7608fad9dda3ad606eb0946c9faa
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
-  libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
-  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
+  libwebp: 33dc822fbbf4503668d09f7885bbfedc76c45e96
+  package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
-  printing: eafa00acb682c0ca029d4d98d0798f55a1e27102
+  printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  TensorFlowLiteC: 20785a69299185a379ba9852b6625f00afd7984a
-  TensorFlowLiteSwift: 3a4928286e9e35bdd3e17970f48e53c80d25e793
+  TensorFlowLiteC: ac3334fa9dbc90e4744b4497312a393fd02b5408
+  TensorFlowLiteSwift: 1d8320fbf292054eb50ef0b347a4b17a92b49731
   tflite_flutter: bf9c7d5c7ef011034c607d943d432623673c1c11
+  tflite_flutter_helper: 543b46b6bd064b21c92ea6e54bc0b29f1ce74cb5
   video_player_avfoundation: 81e49bb3d9fb63dccf9fa0f6d877dc3ddbeac126
   video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
 
