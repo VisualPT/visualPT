@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/bloc/validation/validation_bloc.dart';
 
 export 'analysis_provider.dart';
 export 'assessment_provider.dart';
@@ -22,6 +23,7 @@ class BlocProviders {
   TimerBloc? timerBloc;
   UserBloc? userBloc;
   InferenceBloc? inferenceBloc;
+  ValidationBloc? validationBloc;
 
   BlocProviders(
       {required this.context,
@@ -34,7 +36,8 @@ class BlocProviders {
       bool pdf = false,
       bool timer = false,
       bool user = false,
-      bool inference = false}) {
+      bool inference = false,
+      bool validation = false}) {
     try {
       assessmentBloc =
           assessment ? BlocProvider.of<AssessmentBloc>(context) : null;
@@ -48,6 +51,8 @@ class BlocProviders {
       userBloc = user ? BlocProvider.of<UserBloc>(context) : null;
       inferenceBloc =
           inference ? BlocProvider.of<InferenceBloc>(context) : null;
+      validationBloc =
+          validation ? BlocProvider.of<ValidationBloc>(context) : null;
     } catch (e) {
       throw ("BlocProvider error: $e");
     }

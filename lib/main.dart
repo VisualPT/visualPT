@@ -4,6 +4,7 @@ import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/inference/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/validation_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +13,7 @@ void main() {
 }
 
 //TODO VisualPT
-// 4 times per second, check if the results have a value, if so, store the results and the classification in a list
+//validation interface
 ///Root of Application
 ///Global routes and themes defined here
 class VisualPT extends StatelessWidget {
@@ -32,6 +33,7 @@ class VisualPT extends StatelessWidget {
           "/": (context) => const LandingView(),
           "/home": (context) => const HomeView(),
           "/settings": (context) => const SettingsView(),
+          "/validate": (context) => const ValidationView(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == "/assessment") {

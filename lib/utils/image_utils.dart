@@ -1,9 +1,11 @@
+import 'dart:isolate';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as image_lib;
+import 'isolate_utils.dart';
 
 /// ImageUtils
 class ImageUtils {
-  /// Converts a [CameraImage] in YUV420 format to [Image] in RGB format
+  /// Converts a [CameraImage] in YUV420 or BGRA8888 format to [Image] in RGB format
   static image_lib.Image? convertCameraImage(CameraImage cameraImage) {
     if (cameraImage.format.group == ImageFormatGroup.yuv420) {
       return convertYUV420ToImage(cameraImage);
@@ -67,5 +69,25 @@ class ImageUtils {
         ((b << 16) & 0xff0000) |
         ((g << 8) & 0xff00) |
         (r & 0xff);
+  }
+
+  /// Convert a [Image] to PNG
+  static Future<List<int>> convert(
+      {required IsolateUtils isolateUtils,
+      required image_lib.Image image}) async {
+    final responsePort = ReceivePort();
+
+    toPng(Map<String, dynamic> params) => image_lib.encodePng(params['image']);
+
+    isolateUtils.sendMessage(
+      handler: toPng,
+      params: {
+        'image': image,
+      },
+      sendPort: isolateUtils.sendPort,
+      responsePort: responsePort,
+    );
+
+    return await responsePort.first;
   }
 }

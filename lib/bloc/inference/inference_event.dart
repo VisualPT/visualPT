@@ -18,9 +18,13 @@ class InferenceStart extends InferenceEvent {
 class InferenceInput extends InferenceEvent {
   final CameraImage input;
   final bool classification;
-  final bool store;
+  final int frame;
+  final double ratio;
   const InferenceInput(
-      {required this.input, required this.classification, required this.store});
+      {required this.input,
+      required this.classification,
+      required this.frame,
+      required this.ratio});
 
   @override
   List<Object> get props => [input];

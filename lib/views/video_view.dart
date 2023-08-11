@@ -145,8 +145,6 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
                               controller.videoBloc!
                                   .add(VideoPlay(videoState.controller!));
                               controller.timerBloc!.add(const TimerStarted());
-                              controller.inferenceBloc!
-                                  .add(const InferenceStart());
                             }
                           },
                           child: videoState is VideoRecording

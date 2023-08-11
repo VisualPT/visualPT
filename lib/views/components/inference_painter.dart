@@ -8,8 +8,6 @@ import 'package:visualpt/views/styles.dart';
 import '../../bloc/inference/inference_bloc.dart';
 import '../camera_painters/pose_painter.dart';
 
-const sampleRateFPS = 15;
-
 class InferencePainter extends StatefulWidget {
   const InferencePainter({
     required this.inferenceController,
@@ -25,7 +23,7 @@ class InferencePainter extends StatefulWidget {
 }
 
 class InferencePainterState extends State<InferencePainter> {
-  late double _ratio;
+  late double ratio;
   int frameCount = 0;
   bool classification = true;
   List<Offset>? results = [];
@@ -36,16 +34,14 @@ class InferencePainterState extends State<InferencePainter> {
     super.initState();
     widget.videoState.controller!.startVideoRecording(
         onAvailable: (CameraImage image) {
-      setState(() {
-        frameCount++;
-      });
       if (mounted &&
           widget.videoState is VideoRecording &&
           widget.inferenceController != null) {
         widget.inferenceController!.add(InferenceInput(
             input: image,
             classification: classification,
-            store: frameCount % sampleRateFPS == 0));
+            frame: frameCount++,
+            ratio: ratio));
       }
     });
   }
@@ -58,7 +54,7 @@ class InferencePainterState extends State<InferencePainter> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    _ratio = screenSize.width /
+    ratio = screenSize.width /
         widget.videoState.controller!.value.previewSize!.height;
     if (widget.videoState.controller == null ||
         !widget.videoState.controller!.value.isInitialized) {
@@ -89,11 +85,6 @@ class InferencePainterState extends State<InferencePainter> {
           _drawPose(results),
           widget.videoState is VideoRecording
               ? Stack(children: [
-                  Center(
-                    child: Text(results.toString(),
-                        style: const TextStyle(
-                            color: CupertinoColors.white, fontSize: 4)),
-                  ),
                   Positioned(
                     bottom: 100,
                     child: Container(
@@ -153,7 +144,7 @@ class InferencePainterState extends State<InferencePainter> {
     return _ModelPainter(
       customPainter: PosePainter(
         points: points ?? [],
-        ratio: _ratio,
+        ratio: ratio,
       ),
     );
   }

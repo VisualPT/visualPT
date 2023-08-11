@@ -41,6 +41,11 @@ class HomeView extends StatelessWidget {
                 ),
               ),
             ),
+            CupertinoButton(
+                onPressed: () => {Navigator.pushNamed(context, "/validate")},
+                child: const Text("Validate Data", style: Styles.actionText),
+                color: Styles.actionPrimary),
+            const Spacer()
           ],
         ),
       ),
