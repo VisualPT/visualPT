@@ -17,6 +17,7 @@ class ValidationLoad extends ValidationState {
 
 class ValidationDisplay extends ValidationState {
   final String key;
+  final List<int> originalDataBytes;
   final String imageUrl;
   final int imageHeight;
   final int imageWidth;
@@ -25,6 +26,7 @@ class ValidationDisplay extends ValidationState {
   final List<Offset> offsets;
   const ValidationDisplay(super.keys,
       {required this.key,
+      required this.originalDataBytes,
       required this.imageUrl,
       required this.imageHeight,
       required this.imageWidth,

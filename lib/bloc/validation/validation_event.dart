@@ -23,14 +23,18 @@ class ValidationNext extends ValidationEvent {
 }
 
 class ValidationInput extends ValidationEvent {
+  final List<int> originalDataBytes;
   final String key;
   final List<String> keys;
   final bool input;
   const ValidationInput(
-      {required this.key, required this.keys, required this.input});
+      {required this.originalDataBytes,
+      required this.key,
+      required this.keys,
+      required this.input});
 
   @override
-  List<Object> get props => [key, input];
+  List<Object> get props => [originalDataBytes, input];
 }
 
 class ValidationEnd extends ValidationEvent {

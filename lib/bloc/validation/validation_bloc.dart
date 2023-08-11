@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/service/storage_service.dart';
@@ -35,11 +37,13 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     try {
       if (event.keys.isNotEmpty) {
         final temp = event.keys.removeAt(0);
-        //If  temp  contains a . then it is an image
-        if (temp.contains('.')) {
+        //If  temp  contains a .csv then it is the data file
+        var searchKey;
+        if (temp.contains('.csv')) {
           dataID = temp;
-          final imageIndex = event.keys
-              .indexWhere((element) => element.contains(temp.split('.').first));
+          searchKey = temp.split('.').first;
+          final imageIndex =
+              event.keys.indexWhere((element) => element.contains(searchKey));
           if (imageIndex != -1) {
             imageID = event.keys.removeAt(imageIndex);
           } else {
@@ -47,8 +51,9 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           }
         } else {
           imageID = temp;
-          final dataIndex = event.keys
-              .indexWhere((element) => element.contains(temp.split('=').first));
+          searchKey = temp.split('.').first;
+          final dataIndex =
+              event.keys.indexWhere((element) => element.contains(searchKey));
           if (dataIndex != -1) {
             dataID = event.keys.removeAt(dataIndex);
           } else {
@@ -71,7 +76,8 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
         emit(ValidationDisplay(
           event.keys,
-          key: dataID,
+          key: searchKey,
+          originalDataBytes: dataResult.bytes,
           imageUrl: imageResult.url.toString(),
           imageHeight: imageHeight,
           imageWidth: imageWidth,
@@ -83,7 +89,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         add(const ValidationEnd());
       }
     } on Exception catch (e) {
-      print(e);
+      log(e.toString());
       add(ValidationNext(keys: event.keys));
     }
   }
@@ -91,14 +97,18 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
   FutureOr<void> _onInput(
       ValidationInput event, Emitter<ValidationState> emit) {
     //Store the validated data
-    storage.moveFile(
-        sourceKey: 'raw/${event.key}', destinationKey: 'valid/${event.key}');
+    if (event.input) {
+      storage.upload(
+          S3DataPayload.bytes(event.originalDataBytes), 'valid/${event.key}');
+    }
+    storage.remove('raw/${event.key}.csv');
+    storage.remove('raw/${event.key}.jpg');
     //Start the next validation
     add(ValidationNext(keys: event.keys));
   }
 
   FutureOr<void> _onEnd(ValidationEnd event, Emitter<ValidationState> emit) {
-    print("No more data to validate");
+    log("No more data to validate");
     emit(const ValidationDispose([]));
   }
 }

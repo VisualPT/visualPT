@@ -87,6 +87,8 @@ class ValidationView extends StatelessWidget {
                                 BlocProvider.of<ValidationBloc>(context).add(
                                     ValidationInput(
                                         key: state.key,
+                                        originalDataBytes:
+                                            state.originalDataBytes,
                                         keys: state.keys,
                                         input: true))),
                         CupertinoButton(
@@ -95,6 +97,8 @@ class ValidationView extends StatelessWidget {
                                 BlocProvider.of<ValidationBloc>(context).add(
                                     ValidationInput(
                                         key: state.key,
+                                        originalDataBytes:
+                                            state.originalDataBytes,
                                         keys: state.keys,
                                         input: false))),
                       ],
