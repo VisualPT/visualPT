@@ -38,10 +38,10 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
       if (event.keys.isNotEmpty) {
         final temp = event.keys.removeAt(0);
         //If  temp  contains a .csv then it is the data file
-        var searchKey;
+        String searchKey;
         if (temp.contains('.csv')) {
           dataID = temp;
-          searchKey = temp.split('.').first;
+          searchKey = temp.split('.').first.split('/').last;
           final imageIndex =
               event.keys.indexWhere((element) => element.contains(searchKey));
           if (imageIndex != -1) {
@@ -98,8 +98,8 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
       ValidationInput event, Emitter<ValidationState> emit) {
     //Store the validated data
     if (event.input) {
-      storage.upload(
-          S3DataPayload.bytes(event.originalDataBytes), 'valid/${event.key}');
+      storage.upload(S3DataPayload.bytes(event.originalDataBytes),
+          'valid/${event.key}.csv');
     }
     storage.remove('raw/${event.key}.csv');
     storage.remove('raw/${event.key}.jpg');

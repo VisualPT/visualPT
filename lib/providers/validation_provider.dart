@@ -10,6 +10,11 @@ class ValidationProvider extends StatelessWidget {
   final Widget Function(BuildContext context, ValidationLoad state) onLoad;
   final Widget Function(BuildContext context, ValidationError state) onError;
 
+//TODO: add error handling for...
+/* 
+* The following HttpException was thrown resolving an image codec:
+* Connection closed before full header was received
+**/
   const ValidationProvider({
     super.key,
     required this.getProviders,
