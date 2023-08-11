@@ -101,7 +101,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           'valid/${event.key}.csv');
     }
     storage.remove('raw/${event.key}.csv');
-    storage.remove('raw/${event.key}.jpg');
+    storage.remove('raw/${event.key}.png');
     //Start the next validation
     add(ValidationNext(keys: event.keys));
   }
