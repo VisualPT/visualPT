@@ -51,8 +51,6 @@ class ValidationView extends StatelessWidget {
   }
 
   Widget onDisplay(BuildContext context, ValidationDisplay state) {
-    final screenSize = MediaQuery.of(context).size;
-
     return ConstrainedBox(
         constraints: BoxConstraints.tightFor(
             height: state.imageHeight.toDouble(),

@@ -25,7 +25,6 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
       ValidationFetch event, Emitter<ValidationState> emit) async {
     final storedKeys = await storage.listRawData();
     add(ValidationNext(keys: storedKeys));
-    //TODO: Get the ValidationData from this response
   }
 
   FutureOr<void> _onNext(
@@ -33,7 +32,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     String imageID, dataID;
     //Get the image and data from the 'raw/' storage folder using the keys from the list
     //Get the id of the first item in the list
-    print("ONTO THE NEXT ONE");
+    log("ONTO THE NEXT ONE");
     try {
       if (event.keys.isNotEmpty) {
         final temp = event.keys.removeAt(0);

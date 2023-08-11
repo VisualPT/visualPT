@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -31,12 +33,12 @@ class Pose extends AiModel {
 
       final outputTensors = interpreter!.getOutputTensors();
 
-      outputTensors.forEach((tensor) {
+      for (var tensor in outputTensors) {
         outputShapes.add(tensor.shape);
         outputTypes.add(tensor.type);
-      });
+      }
     } catch (e) {
-      print('Error while creating interpreter: $e');
+      log('Error while creating interpreter: $e');
     }
   }
 
@@ -54,7 +56,7 @@ class Pose extends AiModel {
   @override
   PoseOutput? predict(image_lib.Image image) {
     if (interpreter == null) {
-      print('Interpreter not initialized');
+      log('Interpreter not initialized');
       return null;
     }
 
@@ -93,9 +95,7 @@ class Pose extends AiModel {
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
-    if (landmarkPoints != null) {
-      return PoseOutput(landmarkPoints, inputSize, image.width, image.height);
-    }
+    return PoseOutput(landmarkPoints, inputSize, image.width, image.height);
   }
 }
 

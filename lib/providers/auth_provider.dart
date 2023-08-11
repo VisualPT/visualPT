@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/app_nav.dart';
 
-import '../views/components/_components.dart';
 
 class AuthProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;

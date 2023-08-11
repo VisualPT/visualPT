@@ -7,17 +7,17 @@ class Gait {
 
   List<Widget> content(BuildContext context) {
     return [
-      Text("GAIT INTRO"),
-      Text("Active"),
-      Text("GAIT INTRO 2"),
-      Text("Active2")
+      const Text("GAIT INTRO"),
+      const Text("Active"),
+      const Text("GAIT INTRO 2"),
+      const Text("Active2")
       // TODO: implement content
     ];
   }
 
-  Widget IntroSeq1(BuildContext context) => Text("TODO");
+  Widget IntroSeq1(BuildContext context) => const Text("TODO");
 
-  Widget CaptureSeq1(BuildContext context) => Text("TODO");
+  Widget CaptureSeq1(BuildContext context) => const Text("TODO");
 }
 
 class GaitNorms {
