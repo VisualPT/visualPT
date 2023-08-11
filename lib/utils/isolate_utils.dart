@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:isolate';
 
-//TODO wait until isolate is live to accept any user input
 class IsolateUtils {
   Isolate? _isolate;
   late SendPort _sendPort;
@@ -9,12 +8,10 @@ class IsolateUtils {
 
   SendPort get sendPort => _sendPort;
 
-  Future<void> initIsolate() async {
+  Future<void> initIsolate(String name) async {
     _receivePort = ReceivePort();
-    _isolate = await Isolate.spawn<SendPort>(
-      _entryPoint,
-      _receivePort.sendPort,
-    );
+    _isolate = await Isolate.spawn<SendPort>(_entryPoint, _receivePort.sendPort,
+        debugName: name);
     try {
       _sendPort = await _receivePort.first;
     } on Exception catch (e) {

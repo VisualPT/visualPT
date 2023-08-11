@@ -1,5 +1,7 @@
+import 'dart:isolate';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as image_lib;
+import 'isolate_utils.dart';
 
 /// ImageUtils
 class ImageUtils {
@@ -67,5 +69,25 @@ class ImageUtils {
         ((b << 16) & 0xff0000) |
         ((g << 8) & 0xff00) |
         (r & 0xff);
+  }
+
+  /// Convert a [Image] to PNG
+  static Future<List<int>> convert(
+      {required IsolateUtils isolateUtils,
+      required image_lib.Image image}) async {
+    final responsePort = ReceivePort();
+
+    toPng(Map<String, dynamic> params) => image_lib.encodePng(params['image']);
+
+    isolateUtils.sendMessage(
+      handler: toPng,
+      params: {
+        'image': image,
+      },
+      sendPort: isolateUtils.sendPort,
+      responsePort: responsePort,
+    );
+
+    return await responsePort.first;
   }
 }

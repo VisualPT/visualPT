@@ -44,26 +44,7 @@ class StorageService {
     }
   }
 
-  Future<void> moveFile({
-    required String sourceKey,
-    required String destinationKey,
-  }) async {
-    try {
-      final result = await Amplify.Storage.move(
-        source: StorageItemWithAccessLevel(
-          storageItem: StorageItem(key: sourceKey),
-          accessLevel: StorageAccessLevel.guest,
-        ),
-        destination: StorageItemWithAccessLevel(
-          storageItem: StorageItem(key: destinationKey),
-          accessLevel: StorageAccessLevel.guest,
-        ),
-      ).result;
-
-      safePrint('Moved file to: ${result.movedItem.key}');
-    } on StorageException catch (e) {
-      safePrint('Something went wrong moving the file: ${e.message}');
-      rethrow;
-    }
+  void remove(String key) {
+    Amplify.Storage.remove(key: key);
   }
 }
