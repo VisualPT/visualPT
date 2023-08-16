@@ -3,18 +3,25 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
 class StorageService {
   StorageService();
-  void upload(HttpPayload data, String key) {
-    Amplify.Storage.uploadData(data: data, key: key);
+  void upload(HttpPayload data, String key, StorageAccessLevel accessLevel) {
+    Amplify.Storage.uploadData(
+        data: data,
+        key: key,
+        options: StorageUploadDataOptions(accessLevel: accessLevel));
   }
 
   StorageDownloadDataOperation<StorageDownloadDataRequest,
-      StorageDownloadDataResult<StorageItem>> download(String key) {
-    return Amplify.Storage.downloadData(key: key);
+          StorageDownloadDataResult<StorageItem>>
+      download(String key, StorageAccessLevel accessLevel) {
+    return Amplify.Storage.downloadData(
+        key: key,
+        options: StorageDownloadDataOptions(accessLevel: accessLevel));
   }
 
   StorageGetUrlOperation<StorageGetUrlRequest, StorageGetUrlResult> getUrl(
-      String key) {
-    return Amplify.Storage.getUrl(key: key);
+      String key, StorageAccessLevel accessLevel) {
+    return Amplify.Storage.getUrl(
+        key: key, options: StorageGetUrlOptions(accessLevel: accessLevel));
   }
 
   Future<List<String>> listRawData() async {
@@ -26,6 +33,7 @@ class StorageService {
         final result = await Amplify.Storage.list(
           path: 'raw/',
           options: StorageListOptions(
+            accessLevel: StorageAccessLevel.private,
             pageSize: 1000,
             nextToken: nextToken,
             pluginOptions: const S3ListPluginOptions(
@@ -44,7 +52,8 @@ class StorageService {
     }
   }
 
-  void remove(String key) {
-    Amplify.Storage.remove(key: key);
+  void remove(String key, StorageAccessLevel accessLevel) {
+    Amplify.Storage.remove(
+        key: key, options: StorageRemoveOptions(accessLevel: accessLevel));
   }
 }

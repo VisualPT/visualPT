@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -59,8 +60,12 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
             throw Exception('No data file found');
           }
         }
-        final imageResult = await storage.getUrl(imageID).result;
-        final dataResult = await storage.download(dataID).result;
+        final imageResult = await storage
+            .getUrl(imageID, amplify.StorageAccessLevel.private)
+            .result;
+        final dataResult = await storage
+            .download(dataID, amplify.StorageAccessLevel.private)
+            .result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
         final imageMetadata = dataOutput.split('\n').first.split(',');
 
@@ -98,10 +103,10 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     //Store the validated data
     if (event.input) {
       storage.upload(S3DataPayload.bytes(event.originalDataBytes),
-          'valid/${event.key}.csv');
+          'valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
     }
-    storage.remove('raw/${event.key}.csv');
-    storage.remove('raw/${event.key}.png');
+    storage.remove('raw/${event.key}.csv', amplify.StorageAccessLevel.private);
+    storage.remove('raw/${event.key}.png', amplify.StorageAccessLevel.private);
     //Start the next validation
     add(ValidationNext(keys: event.keys));
   }
