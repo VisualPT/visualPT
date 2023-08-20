@@ -23,23 +23,23 @@ class _AuthViewState extends State<AuthView> {
   //TODO BLOC FORM WHEN MVP IS DONE
   final _formKey = GlobalKey<FormState>();
 
-  void onSuccess() {
-    BlocProvider.of<UserBloc>(context).add(UserFetch());
-    log("Setting home");
-    AppNav().setHome(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "Faster Workflows.",
+        pageTitle: "Welcome to VisualPT",
         child: AuthProvider(
           getProviders: (context) =>
               BlocProviders(context: context, auth: true, user: true),
           onSignUp: (context, state) => signupForm(context, state),
           onLogIn: (context, state) => loginForm(context, state),
+          onEmail: (context, state) => emailForm(context, state),
           onValidate: (context, state) => validationForm(context, state),
+          onReset: (context, state) => resetForm(context, state),
           onLoad: (context, state) => AppLoading(message: state.message),
+          onSuccess: (context, state) {
+            AppNav().setHome(context);
+            return const AppLoading(message: "Successful Auth");
+          },
           onError: (context, state) => authError(context, state.error),
         ));
   }
@@ -104,6 +104,43 @@ class _AuthViewState extends State<AuthView> {
     );
   }
 
+  Widget emailForm(BuildContext context, AuthEmail state) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("What is your email?"),
+            ),
+            const FormInput("email",
+                authType: AuthDataType.email,
+                inputType: TextInputType.emailAddress,
+                validator: AuthUtils.validateEmail),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CupertinoButton(
+                  color: Styles.actionPrimary,
+                  child: const Text(
+                    "Next",
+                    style: Styles.subactionText,
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      _formKey.currentState!.reset();
+                      BlocProvider.of<AuthBloc>(context)
+                          .add(AuthConfirmedForgot());
+                    }
+                  }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget validationForm(BuildContext context, AuthValidate state) {
     return SingleChildScrollView(
       child: Form(
@@ -121,34 +158,75 @@ class _AuthViewState extends State<AuthView> {
               state.message != null ? state.message! : "",
               style: Styles.error,
             ),
-            confirmButton(context),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Styles.actionPrimary),
+                  child: const Text("Confirm", style: Styles.actionText),
+                ),
+                onTap: () {
+                  BlocProvider.of<AuthBloc>(context).add(AuthConfirm());
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget confirmButton(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: const Text("Confirm", style: Styles.actionText),
+  Widget resetForm(BuildContext context, AuthReset state) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Reset password"),
             ),
-            onTap: () {
-              BlocProvider.of<AuthBloc>(context)
-                  .add(AuthConfirm(onSuccess: onSuccess));
-            },
-          ),
+            const FormInput("New Password",
+                authType: AuthDataType.password,
+                validator: AuthUtils.validatePassword),
+            const FormInput("Confirm Password",
+                authType: AuthDataType.confirmPassword,
+                validator: AuthUtils.validatePassword),
+            const FormInput("Code (sent to email)",
+                authType: AuthDataType.confirmCode,
+                validator: AuthUtils.validateCode),
+            Text(
+              state.message != null ? state.message! : "",
+              style: Styles.error,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Styles.actionPrimary),
+                  child: const Text("Reset", style: Styles.actionText),
+                ),
+                onTap: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    _formKey.currentState!.reset();
+                    log("Auth Data Validated");
+                    BlocProvider.of<AuthBloc>(context).add(AuthRestore());
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -172,11 +250,7 @@ class _AuthViewState extends State<AuthView> {
                 _formKey.currentState!.save();
                 _formKey.currentState!.reset();
                 log("Auth Data Validated");
-                //TODO: simplify view add form key to Bloc
-                //TODO store data to backend
-                BlocProvider.of<AuthBloc>(context).add(AuthAttempt(
-                  onSuccess: onSuccess,
-                ));
+                BlocProvider.of<AuthBloc>(context).add(AuthAttempt());
               }
             },
           ),
@@ -185,7 +259,7 @@ class _AuthViewState extends State<AuthView> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: CupertinoButton(
-              color: Styles.actionSecondary,
+              color: Styles.actionPrimary,
               child: Text(
                 isLogin ? signup : login,
                 style: Styles.subactionText,
@@ -193,6 +267,18 @@ class _AuthViewState extends State<AuthView> {
               onPressed: () {
                 _formKey.currentState!.reset();
                 BlocProvider.of<AuthBloc>(context).add(AuthToggle());
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoButton(
+              color: Styles.actionSecondary,
+              child: const Text(
+                "Forgot Password",
+                style: Styles.subactionText,
+              ),
+              onPressed: () {
+                BlocProvider.of<AuthBloc>(context).add(AuthForgot());
               }),
         ),
       ],
@@ -204,8 +290,16 @@ class _AuthViewState extends State<AuthView> {
       width: MediaQuery.of(context).size.width * 0.9,
       child: SingleChildScrollView(
           child: Center(
-        child: Text(error.toString(), style: Styles.error),
-      )),
+              child: Column(
+        children: [
+          Text(error.toString(), style: Styles.error),
+          CupertinoButton(
+            child: Text("Retry"),
+            onPressed: () =>
+                {BlocProvider.of<AuthBloc>(context).add(AuthToggle())},
+          )
+        ],
+      ))),
     );
   }
 }

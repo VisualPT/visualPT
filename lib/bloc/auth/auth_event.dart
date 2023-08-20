@@ -4,8 +4,7 @@ part of 'auth_bloc.dart';
 abstract class AuthEvent {}
 
 class AuthAuto extends AuthEvent {
-  final void Function() onSuccess;
-  AuthAuto({required this.onSuccess});
+  AuthAuto();
 }
 
 class AuthToggle extends AuthEvent {
@@ -13,12 +12,26 @@ class AuthToggle extends AuthEvent {
 }
 
 class AuthAttempt extends AuthEvent {
-  final void Function() onSuccess;
-  AuthAttempt({required this.onSuccess});
+  AuthAttempt();
 }
 
 class AuthConfirm extends AuthEvent {
   final AuthCodeDeliveryDetails? details;
-  final void Function() onSuccess;
-  AuthConfirm({this.details, required this.onSuccess});
+  AuthConfirm({this.details});
+}
+
+class AuthForgot extends AuthEvent {
+  AuthForgot();
+}
+
+class AuthConfirmedForgot extends AuthEvent {
+  AuthConfirmedForgot();
+}
+
+class AuthRestore extends AuthEvent {
+  AuthRestore();
+}
+
+class AuthDisconnect extends AuthEvent {
+  AuthDisconnect();
 }

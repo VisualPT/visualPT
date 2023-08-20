@@ -17,14 +17,6 @@ class AuthService {
   void setConfirmPass(String value) => confirmPassword = value;
   void setConfirmCode(String value) => confirmCode = value;
 
-  //TODO: set new validation regex
-  //The string must contain at least one lowercase alphabetical character ((?=.*[a-z])).
-  //The string must contain at least one uppercase alphabetical character ((?=.*[A-Z])).
-  //The string must contain at least one numerical character ((?=.*\d)).
-  //The string must contain at least one of these special characters: @, $, !, %, *, ?, & ((?=.*[@$!%*?&])).
-  //The string must be at least 8 characters long and can contain any of the characters specified in the previous conditions ([A-Za-z\d@$!%*?&]{8,}$).
-  //If you want to allow any symbol (not just the select ones), you can change [@$!%*?&] to [\p{P}\p{S}]. This would match all punctuation and symbol characters according to the Unicode categories. This would look like:
-
   bool validateLogin({required void Function(String) onInvalid}) {
     return AuthUtils.validateEmail(email) == null &&
         AuthUtils.validatePassword(password) == null;
@@ -39,26 +31,47 @@ class AuthService {
     return true;
   }
 
-  Future<void> fetchSession(void Function() onSignedIn) async {
-    log("Observing auth session");
-    try {
-      await Amplify.Auth.fetchAuthSession()
-          .then((value) => value.isSignedIn ? onSignedIn() : null);
-    } on Exception catch (e) {
-      log("Error fetching session: ${e.toString()}");
+  bool validateReset() {
+    if (password != confirmPassword) {
+      return false;
     }
+    return true;
+  }
+
+  Future<AuthSession?> fetch() async {
+    AuthSession? session;
+    try {
+      session = await Amplify.Auth.fetchAuthSession();
+    } catch (e) {
+      log("fetch function failed to return a AuthSession with error $e");
+    }
+    return session;
   }
 
   Future<List<AuthUserAttribute>> fetchAttributes() async {
     return await Amplify.Auth.fetchUserAttributes();
   }
 
-  Future<SignInResult> completeLogin() async {
+  //Returns true if the user is successfully signed in, false if the user needs to validate with a code, and throws if there is any other error (to be caught by AuthError)
+  Future<String> completeLogin() async {
     log("Logging in...");
     try {
       final result =
           await Amplify.Auth.signIn(username: email, password: password);
-      return result;
+      switch (result.nextStep.signInStep) {
+        case AuthSignInStep.confirmSignInWithSmsMfaCode:
+          return "SMS code validation required";
+        case AuthSignInStep.confirmSignInWithNewPassword:
+          return "New password required";
+        case AuthSignInStep.confirmSignInWithCustomChallenge:
+          return "Custom challenge required";
+        case AuthSignInStep.confirmSignUp:
+          return "Sign up confirmation required";
+        case AuthSignInStep.resetPassword:
+          return "Password reset required";
+        case AuthSignInStep.done:
+          return "done";
+      }
     } on UserNotFoundException {
       throw ("User was not found");
     } on UserNotConfirmedException {
@@ -70,37 +83,7 @@ class AuthService {
     }
   }
 
-  Future<void> handleSignInResult(
-      {required SignInResult result,
-      required void Function() onValidate,
-      required void Function() onSuccess}) async {
-    switch (result.nextStep.signInStep) {
-      case AuthSignInStep.confirmSignInWithSmsMfaCode:
-        log("SMS code sent");
-        break;
-      case AuthSignInStep.confirmSignInWithNewPassword:
-        log("New password required");
-        break;
-      case AuthSignInStep.confirmSignInWithCustomChallenge:
-        log("Custom challenge required");
-        break;
-        //TODO: add case for password reset required
-        log("Password reset required");
-        break;
-      case AuthSignInStep.confirmSignUp:
-        //TODO: Error prone code. User signed up but not confirmed
-        onValidate();
-        break;
-      case AuthSignInStep.resetPassword:
-        // TODO: Handle this case.
-        break;
-      case AuthSignInStep.done:
-        onSuccess();
-        break;
-    }
-  }
-
-  Future<SignUpResult> completeSignUp() async {
+  Future<bool> completeSignUp() async {
     log("Signing In...");
     try {
       //TODO make this dynamically added soon
@@ -110,10 +93,16 @@ class AuthService {
 
         // additional attributes as needed
       };
-      return await Amplify.Auth.signUp(
+      final result = await Amplify.Auth.signUp(
           username: email,
           password: password,
           options: SignUpOptions(userAttributes: userAttributes));
+      switch (result.nextStep.signUpStep) {
+        case AuthSignUpStep.confirmSignUp:
+          return false;
+        case AuthSignUpStep.done:
+          return true;
+      }
     } on UsernameExistsException {
       throw ("User already exists");
     } on InvalidParameterException {
@@ -122,21 +111,6 @@ class AuthService {
       throw ("Password reset required");
     } on Exception {
       throw ("User was not signed up");
-    }
-  }
-
-  Future<void> handleSignUpResult(
-      {required SignUpResult result,
-      required void Function() onValidate,
-      required void Function() onSuccess}) async {
-    switch (result.nextStep.signUpStep) {
-      case AuthSignUpStep.confirmSignUp:
-        final codeDeliveryDetails = result.nextStep.codeDeliveryDetails;
-        onValidate();
-        break;
-      case AuthSignUpStep.done:
-        onSuccess();
-        break;
     }
   }
 
@@ -157,6 +131,20 @@ class AuthService {
     log("Confirming Log in with code: $confirmCode");
     return await Amplify.Auth.confirmSignIn(confirmationValue: confirmCode)
         .then((value) => value.isSignedIn);
+  }
+
+  Future<ResetPasswordResult> resetPassword() async {
+    return await Amplify.Auth.resetPassword(
+      username: email,
+    );
+  }
+
+  Future<ResetPasswordResult> confirmResetPassword() async {
+    return await Amplify.Auth.confirmResetPassword(
+      username: email,
+      newPassword: password,
+      confirmationCode: confirmCode,
+    );
   }
 
   Future<void> signOut() async {
