@@ -20,7 +20,7 @@ class VisualPT extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserBloc(),
+      create: (context) => AuthBloc(),
       child: CupertinoApp(
         theme: const CupertinoThemeData(
             brightness: Brightness.light,

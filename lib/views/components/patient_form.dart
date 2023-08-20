@@ -68,9 +68,7 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                Text(BlocProvider.of<UserBloc>(context).state is UserCurrent
-                    ? BlocProvider.of<UserBloc>(context).state.user!.email
-                    : "This should never display"),
+                Text(widget.user.email),
                 if (kDebugMode)
                   CupertinoButton(
                       onPressed: () {

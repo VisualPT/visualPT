@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
+import 'package:visualpt/models/User.dart';
 
 class PatientProvider extends StatefulWidget {
   final void Function(BuildContext) getProviders;
-  final Widget Function(BuildContext context, PatientInitial state) onInitial;
+  final Widget Function(BuildContext context, PatientInitial state, User user)
+      onInitial;
   final Widget Function(BuildContext context, PatientSet state) onSet;
   final Widget Function(BuildContext context, PatientError state) onError;
 
@@ -33,8 +35,12 @@ class PatientProviderState extends State<PatientProvider> {
           widget.getProviders(context);
           try {
             if (state is PatientInitial) {
-              if (BlocProvider.of<UserBloc>(context).state is UserCurrent) {
-                return widget.onInitial(context, state);
+              if (BlocProvider.of<AuthBloc>(context).state is AuthSuccess) {
+                return widget.onInitial(
+                    context,
+                    state,
+                    (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+                        .user);
               } else {
                 throw Exception(
                     "User not logged in when trying to render initial patient data");

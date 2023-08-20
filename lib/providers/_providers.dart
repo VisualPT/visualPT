@@ -21,7 +21,6 @@ class BlocProviders {
   PatientBloc? patientBloc;
   PdfBloc? pdfBloc;
   TimerBloc? timerBloc;
-  UserBloc? userBloc;
   InferenceBloc? inferenceBloc;
   ValidationBloc? validationBloc;
 
@@ -48,7 +47,6 @@ class BlocProviders {
       patientBloc = patient ? BlocProvider.of<PatientBloc>(context) : null;
       pdfBloc = pdf ? BlocProvider.of<PdfBloc>(context) : null;
       timerBloc = timer ? BlocProvider.of<TimerBloc>(context) : null;
-      userBloc = user ? BlocProvider.of<UserBloc>(context) : null;
       inferenceBloc =
           inference ? BlocProvider.of<InferenceBloc>(context) : null;
       validationBloc =

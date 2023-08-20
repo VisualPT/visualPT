@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/bloc/user/user_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/providers/_providers.dart';
 import 'package:visualpt/views/_views.dart';
@@ -18,9 +16,9 @@ class PatientView extends StatelessWidget {
       return PatientProvider(
           getProviders: (context) =>
               BlocProviders(context: context, patient: true, user: true),
-          onInitial: (context, state) => PatientForm(
+          onInitial: (context, state, user) => PatientForm(
                 //We have checked that the user is logged in, in the provider onInitial
-                user: BlocProvider.of<UserBloc>(context).state.user!,
+                user: user,
                 assessmentType: assessmentType,
               ),
           onSet: (context, state) => AssessmentView(
