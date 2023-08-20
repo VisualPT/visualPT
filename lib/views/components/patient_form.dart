@@ -7,9 +7,12 @@ import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class PatientForm extends StatefulWidget {
+  final User user;
   final AssessmentType assessmentType;
 
-  const PatientForm({Key? key, required this.assessmentType}) : super(key: key);
+  const PatientForm(
+      {Key? key, required this.user, required this.assessmentType})
+      : super(key: key);
 
   @override
   State<PatientForm> createState() => _PatientFormState();
@@ -65,7 +68,9 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                Text(BlocProvider.of<UserBloc>(context).currentUser.email),
+                Text(BlocProvider.of<UserBloc>(context).state is UserCurrent
+                    ? BlocProvider.of<UserBloc>(context).state.user!.email
+                    : "This should never display"),
                 if (kDebugMode)
                   CupertinoButton(
                       onPressed: () {
@@ -98,9 +103,7 @@ class _PatientFormState extends State<PatientForm> {
                               dateOfBirth: dobController.text,
                               gender: genderController.text,
                               height: heightController.text,
-                              email: BlocProvider.of<UserBloc>(context)
-                                  .currentUser
-                                  .email));
+                              email: widget.user.email));
                         }
                       } catch (e) {
                         BlocProvider.of<PatientBloc>(context)

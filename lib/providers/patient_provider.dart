@@ -33,7 +33,12 @@ class PatientProviderState extends State<PatientProvider> {
           widget.getProviders(context);
           try {
             if (state is PatientInitial) {
-              return widget.onInitial(context, state);
+              if (BlocProvider.of<UserBloc>(context).state is UserCurrent) {
+                return widget.onInitial(context, state);
+              } else {
+                throw Exception(
+                    "User not logged in when trying to render initial patient data");
+              }
             } else if (state is PatientSet) {
               return widget.onSet(context, state);
             } else {

@@ -35,7 +35,7 @@ class _AuthViewState extends State<AuthView> {
         pageTitle: "Faster Workflows.",
         child: AuthProvider(
           getProviders: (context) =>
-              BlocProviders(context: context, auth: true),
+              BlocProviders(context: context, auth: true, user: true),
           onSignUp: (context, state) => signupForm(context, state),
           onLogIn: (context, state) => loginForm(context, state),
           onValidate: (context, state) => validationForm(context, state),
@@ -200,6 +200,12 @@ class _AuthViewState extends State<AuthView> {
   }
 
   Widget authError(BuildContext context, Exception? error) {
-    return Text(error.toString(), style: Styles.error);
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: SingleChildScrollView(
+          child: Center(
+        child: Text(error.toString(), style: Styles.error),
+      )),
+    );
   }
 }

@@ -4,17 +4,11 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 
-UserService userService = UserService();
-
 class UserService extends AppService {
   Future<User> setUser() async {
     final userData = await Amplify.Auth.fetchUserAttributes();
     log("userData has returned with the values $userData");
-    late String email,
-        firstName = "",
-        lastName = "",
-        status = "MALE",
-        verified = "false";
+    late String email, firstName, lastName, status, verified;
 
     for (var element in userData) {
       switch (element.userAttributeKey.key) {
@@ -37,9 +31,10 @@ class UserService extends AppService {
           log("Could not store ${element.userAttributeKey.key}========${element.value}");
       }
     }
-    return fetchUserByEmail(email).then((user) async =>
-        user ??
-        await createUser(email, firstName, lastName, userStatusParse(status)));
+    //TODO: Add verify to user
+    final user = await fetchUserByEmail(email);
+    return user ??
+        await createUser(email, firstName, lastName, userStatusParse(status));
   }
 
   Future<User?> fetchUserByEmail(String email) async {
