@@ -14,9 +14,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 class BackendService {
   ///Sets up the plugins for Amplify
   ///SHOULD ONLY BE CALLED ONCE in entire codebase
-  void initialConfig(
-      {required void Function() onSuccess,
-      required void Function(String) onFail}) async {
+  Future<void> initialConfig({required void Function(String) onFail}) async {
     try {
       await Amplify.addPlugins([
         AmplifyAuthCognito(),
@@ -27,7 +25,6 @@ class BackendService {
       await Amplify.configure(amplifyconfig).then((_) {
         kDebugMode ? verboseBackend() : null;
         //kDebugMode ? configDev() : configProd();
-        onSuccess();
       });
     } on AmplifyAlreadyConfiguredException {
       onFail("Amplify is already configured, restart the application");
@@ -44,7 +41,8 @@ class BackendService {
   Future<void> configDev() async {
     log("Development (local storage cleared and resynced upon app restarted)",
         name: "Amplify Config Mode");
-    await Amplify.DataStore.clear().then((_) => Amplify.DataStore.start());
+    await Amplify.DataStore.clear();
+    await Amplify.DataStore.start();
   }
 
   void verboseBackend() {
@@ -65,7 +63,7 @@ class BackendService {
   StreamSubscription<ConnectivityResult> observeConnectivity(
           {required void Function() onConnectionNone}) =>
       Connectivity().onConnectivityChanged.listen((event) {
-        log(event.toString());
+        log(event.toString(), name: "Connectivity");
         event == ConnectivityResult.none ? onConnectionNone() : null;
       });
 }

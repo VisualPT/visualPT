@@ -8,7 +8,7 @@ class UserService extends AppService {
   Future<User> setUser() async {
     final userData = await Amplify.Auth.fetchUserAttributes();
     log("userData has returned with the values $userData");
-    late String email, firstName, lastName, status, verified;
+    late String email, firstName, lastName, status = "MALE", verified;
 
     for (var element in userData) {
       switch (element.userAttributeKey.key) {

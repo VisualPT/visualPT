@@ -14,7 +14,6 @@ class BackendBloc extends Bloc<BackendEvent, BackendState> {
 
   BackendBloc() : super(const BackendOffline("No connection established")) {
     on<BackendAttemptSync>(_onAttempt);
-    on<BackendSuccessSync>(_onSuccess);
     on<BackendFailSync>(_onFail);
 
     backendService.observeConnectivity(
@@ -24,24 +23,22 @@ class BackendBloc extends Bloc<BackendEvent, BackendState> {
 
   FutureOr<void> _onAttempt(
       BackendAttemptSync event, Emitter<BackendState> emit) async {
-    log("Connecting to Backend");
-    backendService.initialConfig(
-        onSuccess: () => add(const BackendSuccessSync()),
-        onFail: (message) => add(BackendFailSync(message)));
-    emit(const BackendLoading());
-  }
-
-  FutureOr<void> _onSuccess(
-      BackendSuccessSync event, Emitter<BackendState> emit) async {
-    emit(const BackendOnline());
-    log("Successful Connection");
+    try {
+      emit(const BackendLoading());
+      log("Connecting to Backend", name: "Backend Bloc");
+      await backendService.initialConfig(
+          onFail: (message) => emit(BackendOffline(message)));
+      emit(const BackendOnline());
+    } catch (e) {
+      emit(BackendOffline(e.toString()));
+    }
   }
 
   FutureOr<void> _onFail(BackendFailSync event, Emitter<BackendState> emit) {
-    log("Failed Connection");
     emit(BackendOffline(event.message));
   }
 
+  //TOOD: put this somewhere better
   void backendLoading() {
     StreamSubscription<Duration> timer = const Ticker().tick().listen((_) {});
     timer.onData((data) {
