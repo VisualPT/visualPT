@@ -135,6 +135,18 @@ class _AuthViewState extends State<AuthView> {
                     }
                   }),
             ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CupertinoButton(
+                  color: Styles.actionSecondary,
+                  child: const Text(
+                    "Go back",
+                    style: Styles.subactionText,
+                  ),
+                  onPressed: () {
+                    BlocProvider.of<AuthBloc>(context).add(AuthToggle());
+                  }),
+            ),
           ],
         ),
       ),
