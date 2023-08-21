@@ -134,15 +134,19 @@ class CtsibPDF extends PDF {
                     text: TextSpan(children: [
                   TextSpan(text: "Date: ", style: detail),
                   TextSpan(
-                      text: assessment.datetime.toString().substring(0, 10),
+                      text: DateTime.parse(assessment.datetime.toString())
+                          .toLocal()
+                          .toIso8601String()
+                          .substring(0, 10),
                       style: detailBold),
                 ])),
                 RichText(
                     text: TextSpan(children: [
                   TextSpan(text: "Time: ", style: detail),
                   TextSpan(
-                      text: assessment.datetime
-                          .toString()
+                      text: DateTime.parse(assessment.datetime.toString())
+                          .toLocal()
+                          .toIso8601String()
                           .substring(11)
                           .split('.')[0]
                           .substring(0, 5),
