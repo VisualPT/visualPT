@@ -22,7 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthToggle>(_onToggle);
     on<AuthAttempt>(_onAttempt);
     on<AuthConfirm>(_onConfirm);
-    on<AuthForgot>(_onForgot);
+    on<AuthForgotClicked>(_onForgot);
     on<AuthConfirmedForgot>(_onConfirmedForgot);
     on<AuthRestore>(_onRestore);
     on<AuthDisconnect>(_onDisconnect);
@@ -66,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthSuccess(user: user));
           return;
         } else {
-          emit(AuthValidate(message: result));
+          emit(AuthCode(message: result));
           return;
         }
       } catch (e) {
@@ -83,7 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthSuccess(user: user));
           return;
         } else {
-          emit(const AuthValidate());
+          emit(const AuthCode());
           return;
         }
       } catch (e) {
@@ -103,17 +103,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final user = await userService.setUser();
         emit(AuthSuccess(user: user));
       } else {
-        emit(AuthValidate(message: response));
+        emit(AuthCode(message: response));
       }
     } on CodeMismatchException {
-      emit(const AuthValidate(message: "Invalid code"));
+      emit(const AuthCode(message: "Invalid code"));
     } catch (e) {
       emit(AuthError(error: Exception("Failed to confirm code")));
     }
   }
 
-  FutureOr<void> _onForgot(AuthForgot event, Emitter<AuthState> emit) {
-    emit(const AuthEmail());
+  FutureOr<void> _onForgot(AuthForgotClicked event, Emitter<AuthState> emit) {
+    emit(const AuthForgot());
   }
 
   FutureOr<void> _onConfirmedForgot(

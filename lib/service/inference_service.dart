@@ -15,36 +15,34 @@ class InferenceService {
 
   late ModelInferenceService _poseInferenceService;
 
-  bool ready = false;
+  bool isInitialized = false;
 
   InferenceService() {
     log("Configuring Models and Isolates");
     _poseInferenceService = ModelInferenceService();
     _poseInferenceService.setModelConfig(3);
-
-    asyncConstructor();
   }
 
-  void asyncConstructor() async {
+  Future<void> initialize() async {
     _poseIsolateUtils = IsolateUtils();
     _convertIsolateUtils = IsolateUtils();
 
-    final futures = [
-      _poseIsolateUtils.initIsolate("Pose Detection Isolate"),
-      _convertIsolateUtils.initIsolate("Image Conversion Isolate"),
-    ];
-
-    Future.wait(futures).then((value) => ready = true);
+    await _poseIsolateUtils.initIsolate("Pose Detection Isolate");
+    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
+    isInitialized = true;
   }
 
-  Future<AiModelOutput?> inference({required CameraImage cameraImage}) async {
-    if (!ready || _poseInferenceService.model.interpreter == null) {
+  Future<AiModelOutput?> inference(
+      {required CameraImage cameraImage,
+      required Map<String, double> params}) async {
+    if (!isInitialized || _poseInferenceService.model.interpreter == null) {
       return null;
     }
 
     await _poseInferenceService.inference(
       isolateUtils: _poseIsolateUtils,
       cameraImage: cameraImage,
+      params: params,
     );
     return _poseInferenceService.inferenceResults;
   }

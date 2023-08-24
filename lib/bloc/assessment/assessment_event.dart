@@ -21,7 +21,8 @@ class AssessmentInitial extends AssessmentEvent {
 }
 
 class AssessmentBegin extends AssessmentEvent {
-  const AssessmentBegin({required super.context});
+  final int index;
+  const AssessmentBegin({required this.index, required super.context});
 
   @override
   List<Object?> get props => [];
@@ -30,8 +31,12 @@ class AssessmentBegin extends AssessmentEvent {
 class AssessmentIncrement extends AssessmentEvent {
   final Patient patient;
   final Segment segment;
+  final int index;
   const AssessmentIncrement(
-      {required this.patient, required this.segment, required super.context});
+      {required this.patient,
+      required this.segment,
+      required this.index,
+      required super.context});
 
   @override
   List<Object?> get props => [patient, segment];

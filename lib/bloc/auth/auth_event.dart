@@ -20,8 +20,8 @@ class AuthConfirm extends AuthEvent {
   AuthConfirm({this.details});
 }
 
-class AuthForgot extends AuthEvent {
-  AuthForgot();
+class AuthForgotClicked extends AuthEvent {
+  AuthForgotClicked();
 }
 
 class AuthConfirmedForgot extends AuthEvent {

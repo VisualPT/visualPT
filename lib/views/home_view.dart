@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
 class HomeView extends StatelessWidget {
@@ -8,11 +9,14 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = AppNav(context);
+
     return CupertinoPageScaffold(
       child: BaseView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            //TODO: Abstract the styling into a AssessmentCardList widget
             Flexible(
               flex: 2,
               fit: FlexFit.loose,
@@ -42,9 +46,20 @@ class HomeView extends StatelessWidget {
               ),
             ),
             CupertinoButton(
-                onPressed: () => {Navigator.pushNamed(context, "/validate")},
+                onPressed: () => {nav.toPath("/validate")},
                 color: Styles.actionPrimary,
                 child: const Text("Validate Data", style: Styles.actionText)),
+            const Spacer(),
+            // kDebugMode
+            //     ?
+            CupertinoButton(
+                onPressed: () => nav.toPath("/video"),
+                color: Styles.comingSoonColor,
+                child: const Text(
+                  "Test Video",
+                  style: Styles.error,
+                )),
+            // : Container(),
             const Spacer()
           ],
         ),

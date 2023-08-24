@@ -4,35 +4,33 @@ import 'package:flutter/cupertino.dart';
 
 class PosePainter extends CustomPainter {
   final List<Offset> points;
-  final double ratio;
 
   PosePainter({
     required this.points,
-    required this.ratio,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (points.isNotEmpty) {
       var pointPaint = Paint()
-        ..color = CupertinoColors.systemPink
+        ..color = CupertinoColors.systemBlue
         ..strokeWidth = 8;
       var headPaint = Paint()
-        ..color = CupertinoColors.systemPink
+        ..color = CupertinoColors.systemYellow
         ..strokeWidth = 2;
       var leftPaint = Paint()
-        ..color = CupertinoColors.systemPink
+        ..color = CupertinoColors.systemMint
         ..strokeWidth = 2;
       var rightPaint = Paint()
-        ..color = CupertinoColors.systemPink
+        ..color = CupertinoColors.systemMint
         ..strokeWidth = 2;
       var bodyPaint = Paint()
-        ..color = CupertinoColors.systemPink
+        ..color = CupertinoColors.systemBlue
         ..strokeWidth = 2;
 
       canvas.drawPoints(
         PointMode.points,
-        points.sublist(0, 34).map((point) => point * ratio).toList(),
+        points.sublist(0, 34).toList(),
         pointPaint,
       );
 
@@ -48,7 +46,7 @@ class PosePainter extends CustomPainter {
           points[2],
           points[3],
           points[7],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         headPaint,
       );
       canvas.drawPoints(
@@ -56,7 +54,7 @@ class PosePainter extends CustomPainter {
         [
           points[10],
           points[9],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         headPaint,
       );
 
@@ -69,7 +67,7 @@ class PosePainter extends CustomPainter {
           points[18],
           points[20],
           points[16],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         leftPaint,
       );
       canvas.drawPoints(
@@ -77,7 +75,7 @@ class PosePainter extends CustomPainter {
         [
           points[16],
           points[22],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         leftPaint,
       );
       canvas.drawPoints(
@@ -89,7 +87,7 @@ class PosePainter extends CustomPainter {
           points[32],
           points[30],
           points[28],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         leftPaint,
       );
 
@@ -102,7 +100,7 @@ class PosePainter extends CustomPainter {
           points[17],
           points[19],
           points[15],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         rightPaint,
       );
       canvas.drawPoints(
@@ -110,7 +108,7 @@ class PosePainter extends CustomPainter {
         [
           points[15],
           points[21],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         rightPaint,
       );
       canvas.drawPoints(
@@ -122,7 +120,7 @@ class PosePainter extends CustomPainter {
           points[29],
           points[31],
           points[27],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         rightPaint,
       );
 
@@ -134,7 +132,7 @@ class PosePainter extends CustomPainter {
           points[24],
           points[23],
           points[11],
-        ].map((point) => point * ratio).toList(),
+        ].toList(),
         bodyPaint,
       );
     }

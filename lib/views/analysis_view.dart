@@ -5,13 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/service/assessment_service.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
 import 'package:visualpt/views/components/_components.dart';
 
-class AnalysisView extends StatefulWidget {
+class AnalysisView extends StatelessWidget {
   final Assessment assessment;
   final Patient patient;
 
@@ -19,28 +19,11 @@ class AnalysisView extends StatefulWidget {
       {super.key, required this.assessment, required this.patient});
 
   @override
-  State<AnalysisView> createState() => _AnalysisViewState();
-}
-
-class _AnalysisViewState extends State<AnalysisView> {
-  late BlocProviders controller;
-
-  @override
-  void initState() {
-    // TODO safely Remove loading screen
-    if (!mounted) AppNav().back(context);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${widget.assessment.type.name} analysis",
-        child: AnalysisProvider(
-          getProviders: (context) => controller =
-              BlocProviders(context: context, pdf: true, email: true),
-          onCreate:
-              PdfInit(patient: widget.patient, assessment: widget.assessment),
+        pageTitle: "${assessment.type.name} analysis",
+        child: AnalysisPresenter(
+          onCreate: PdfInit(patient: patient, assessment: assessment),
           onReady: pdfReady,
           onLoading: pdfLoading,
           onError: pdfError,
@@ -48,7 +31,6 @@ class _AnalysisViewState extends State<AnalysisView> {
   }
 
   Widget pdfReady(BuildContext context, PdfReady state) {
-    print("PDF READY");
     return SafeArea(
       child: Column(children: [
         SizedBox(
@@ -70,9 +52,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                   //TODO Add an are you sure popup
                   BlocProvider.of<AssessmentBloc>(context).add(
                       AssessmentInitial(
-                          reset: true,
-                          context: context,
-                          patient: widget.patient));
+                          reset: true, context: context, patient: patient));
                 },
                 child: const Text(
                   "Redo Assessment",
@@ -84,8 +64,8 @@ class _AnalysisViewState extends State<AnalysisView> {
                 color: CupertinoColors.link,
                 onPressed: () => onSend(
                   context,
-                  widget.patient,
-                  widget.assessment,
+                  patient,
+                  assessment,
                   state.pdfView.pdfData!,
                 ),
                 child: const Text(
@@ -110,7 +90,7 @@ class _AnalysisViewState extends State<AnalysisView> {
       CupertinoButton(
           child: const Text("Retry"),
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-                PdfInit(patient: widget.patient, assessment: widget.assessment),
+                PdfInit(patient: patient, assessment: assessment),
               ))
     ]));
   }
@@ -133,7 +113,7 @@ class _AnalysisViewState extends State<AnalysisView> {
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               patient: patient,
               assessment: assessment,
-              onSuccess: () => AppNav().setHome(context),
+              onSuccess: () => AppNav(context).setHome(),
               onFail: () => log("Email failed")));
           //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
         });

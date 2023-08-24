@@ -1,60 +1,40 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:camera/camera.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/repository/video_repository.dart';
 
 part 'video_event.dart';
 part 'video_state.dart';
 
-class VideoOutput {
-  final XFile? file;
-  final Duration? duration;
-  const VideoOutput({this.file, this.duration});
-
-  @override
-  toString() => "VideoOutput(file: $file, duration: $duration)";
-}
-
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  Timer? timer;
-  late Duration duration = const Duration(seconds: 0);
-  late DateTime start;
-  late void Function(Segment) onComplete;
-
-  VideoBloc() : super(const VideoLoading()) {
+  VideoBloc(this.videoRepository) : super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
     on<VideoRestart>(onRestart);
     on<VideoStop>(onStop);
   }
-
-  void resetTimer() {
-    timer?.cancel();
-    duration = const Duration(seconds: 0);
-  }
+  final VideoRepository videoRepository;
+  late CameraController? controller;
+  late Duration duration = const Duration(seconds: 0);
+  late DateTime start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
-    onComplete = event.onComplete;
     try {
-      await availableCameras()
-          .then(
-        (cameras) => CameraController(
-          cameras.firstWhere(
-              (camera) => camera.lensDirection == CameraLensDirection.back),
-          ResolutionPreset.high,
-          enableAudio: false,
-          imageFormatGroup: ImageFormatGroup.bgra8888,
-        ),
-      )
-          .then((controller) async {
-        await controller.initialize();
-        emit(VideoStandby(controller));
-      });
-
-      //TODO create a popup for these error codes
+      final cameras = await availableCameras();
+      controller = CameraController(
+        cameras.firstWhere(
+            (camera) => camera.lensDirection == CameraLensDirection.back),
+        ResolutionPreset.high,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.bgra8888,
+      );
+      await controller!.initialize();
+      emit(VideoStandby(controller!));
     } on CameraException catch (e) {
+      //TODO create a popup for these error codes
       switch (e.code) {
         case 'CameraAccessDenied':
           log('You have denied camera access.');
@@ -85,28 +65,32 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
 
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
     start = DateTime.now();
-    emit(VideoRecording(event.controller));
+    if (controller == null) {
+      //TODO:Error handle instead
+      add(const VideoInit());
+    }
+    videoRepository.startRecording(controller!);
+    emit(VideoRecording(controller!));
   }
 
   FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
     log("Restarting video");
-    event.controller.stopVideoRecording();
-    resetTimer();
-    emit(VideoStandby(event.controller));
+    if (controller == null) {
+      add(const VideoInit());
+    } else {
+      controller!.stopImageStream();
+      emit(VideoStandby(controller!));
+    }
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    if (event.controller.value.isRecordingVideo) {
-      await event.controller.stopVideoRecording();
+    if (controller!.value.isRecordingVideo) {
+      await controller!.stopImageStream();
     } else {
       log("Video was already stopped");
     }
     duration = DateTime.now().difference(start);
-    //TODO store file to S3 bucket
-    onComplete(Segment(
-        file: "TODO store file to S3", duration_seconds: duration.inSeconds));
-
-    event.controller.dispose();
+    controller!.dispose();
     emit(const VideoLoading());
   }
 

@@ -19,8 +19,15 @@ class VisualPT extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => BackendBloc()..add(const BackendAttemptSync()),
+        ),
+        BlocProvider(
+          create: (context) => AuthBloc(),
+        ),
+      ],
       child: CupertinoApp(
         theme: const CupertinoThemeData(
             brightness: Brightness.light,
@@ -30,16 +37,22 @@ class VisualPT extends StatelessWidget {
         routes: {
           "/": (context) => const LandingView(),
           "/home": (context) => const HomeView(),
-          "/settings": (context) => const SettingsView(),
+          "/video": (context) => VideoView(onComplete: (_) {}),
           "/validate": (context) => const ValidationView(),
+          "/settings": (context) => const SettingsView(),
         },
-        onGenerateRoute: (settings) {
-          if (settings.name == "/assessment") {
-            final assessmentType = settings.arguments as AssessmentType;
+        onGenerateRoute: (route) {
+          if (route.name == "/assessment") {
+            final assessmentType = route.arguments as AssessmentType;
             return CupertinoPageRoute(
                 builder: (context) =>
                     PatientView(assessmentType: assessmentType));
           }
+          // if (route.name == "/video") {
+          //   final args = route.arguments;
+          //   return CupertinoPageRoute(
+          //       builder: (context) => VideoView(onComplete: args.onComplete));
+          // }
           return null;
         },
       ),

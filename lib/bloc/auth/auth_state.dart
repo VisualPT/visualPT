@@ -21,17 +21,17 @@ class AuthLogIn extends AuthState {
   List<Object?> get props => [];
 }
 
-class AuthEmail extends AuthState {
+class AuthForgot extends AuthState {
   final String? message;
-  const AuthEmail({this.message});
+  const AuthForgot({this.message});
 
   @override
   List<Object?> get props => [];
 }
 
-class AuthValidate extends AuthState {
+class AuthCode extends AuthState {
   final String? message;
-  const AuthValidate({this.message});
+  const AuthCode({this.message});
 
   @override
   List<Object?> get props => [];

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
 import 'package:visualpt/views/components/_components.dart';
@@ -12,10 +12,9 @@ class PatientView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = AppNav(context);
     try {
-      return PatientProvider(
-          getProviders: (context) =>
-              BlocProviders(context: context, patient: true, user: true),
+      return PatientPresenter(
           onInitial: (context, state, user) => PatientForm(
                 //We have checked that the user is logged in, in the provider onInitial
                 user: user,
@@ -29,7 +28,7 @@ class PatientView extends StatelessWidget {
                 children: [
                   Text(state.message.toString()),
                   CupertinoButton(
-                      onPressed: () => AppNav().back(context),
+                      onPressed: () => nav.back(),
                       child: const Text("Restart Assessment"))
                 ],
               )));
@@ -40,7 +39,7 @@ class PatientView extends StatelessWidget {
             children: [
               Text(e.toString()),
               CupertinoButton(
-                  onPressed: () => AppNav().back(context),
+                  onPressed: () => nav.back(),
                   child: const Text("Restart Assessment"))
             ],
           ));

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
 import 'package:visualpt/views/app_nav.dart';
 
-class ValidationProvider extends StatelessWidget {
-  final void Function(BuildContext) getProviders;
+/// Provided by ValidationBloc
+class ValidationPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, ValidationDisplay state)
       onDisplay;
   final Widget Function(BuildContext context, ValidationLoad state) onLoad;
@@ -15,9 +15,8 @@ class ValidationProvider extends StatelessWidget {
 * The following HttpException was thrown resolving an image codec:
 * Connection closed before full header was received
 **/
-  const ValidationProvider({
+  const ValidationPresenter({
     super.key,
-    required this.getProviders,
     required this.onDisplay,
     required this.onLoad,
     required this.onError,
@@ -25,10 +24,6 @@ class ValidationProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void onDispose(BuildContext context) {
-      AppNav().back(context);
-    }
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -37,18 +32,17 @@ class ValidationProvider extends StatelessWidget {
       ],
       child: BlocBuilder<ValidationBloc, ValidationState>(
         builder: (context, state) {
-          getProviders(context);
           try {
             if (state is ValidationLoad) {
               return onLoad(context, state);
             } else if (state is ValidationDisplay) {
               return onDisplay(context, state);
             } else if (state is ValidationDispose) {
-              onDispose(context);
+              AppNav(context).back();
               //TODO: Fix this
               return Container();
             } else {
-              throw Exception("Undefined State");
+              throw Exception("Undefined Validation State");
             }
           } catch (e) {
             return onError(

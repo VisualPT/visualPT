@@ -98,7 +98,7 @@ Widget Function(BuildContext) introView(
                       child: const Text("Begin", style: Styles.actionText),
                     ),
                     onTap: () => BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentBegin(context: context))),
+                        .add(AssessmentBegin(context: context, index: index))),
               ),
               const Spacer()
             ],
@@ -112,7 +112,10 @@ Widget Function(BuildContext) captureView(
         child: VideoView(
           onComplete: (segment) => BlocProvider.of<AssessmentBloc>(context).add(
               AssessmentIncrement(
-                  patient: patient, segment: segment, context: context)),
+                  patient: patient,
+                  segment: segment,
+                  index: index,
+                  context: context)),
         ));
 
 class CtsibNorms {

@@ -24,7 +24,7 @@ class SettingsView extends StatelessWidget {
                       onPressed: () {
                         BlocProvider.of<AuthBloc>(context)
                             .add(AuthDisconnect());
-                        AppNav().setAuth(context);
+                        AppNav(context).reset();
                       },
                       child: const Text("Sign Out"),
                     )),

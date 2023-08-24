@@ -118,6 +118,8 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 
+  //TODO: Put custom popups in utils/
+
   Future<String?> datePopup() {
     String? value;
     return showCupertinoModalPopup<String>(
@@ -281,18 +283,3 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 }
-
-// void storeDateTimeData(DateTime date) {
-//   patientData.bday = date.toString().split(" ")[0];
-//   final now = DateTime.now();
-//   final String age = (now.difference(date).inDays / 365).floor().toString();
-//   patientData.age = age;
-//   final nowString = now.toString();
-//   final String nowDate = nowString.split(" ")[0];
-//   final String nowTime = nowString
-//       .split(" ")[1]
-//       .split(".")[0]
-//       .substring(0, nowString.split(" ")[1].split(".")[0].lastIndexOf(':'));
-//   patientData.date = nowDate;
-//   patientData.time = nowTime;
-// }

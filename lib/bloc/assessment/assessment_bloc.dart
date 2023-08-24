@@ -16,25 +16,22 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   late Assessment assessment;
   late Patient patient;
-  late AssessmentRouter router;
   late int assessmentCount;
   late List<Widget Function(BuildContext) Function()> introViews;
   late List<Widget Function(BuildContext) Function(Patient)> captureViews;
   late List<Segment> segments = [];
   late DateTime startTime;
-  late int index;
 
   AssessmentBloc(this.type) : super(AssessmentLoading()) {
     on<AssessmentInitial>(_onInitial);
     on<AssessmentBegin>(_onBegin);
     on<AssessmentIncrement>(_onIncrement);
 
-    router = AssessmentRouter(type);
+    final router = AssessmentRouter(type);
     assessmentCount = router.assessmentCount;
     introViews = router.introWidgets;
     captureViews = router.captureWidgets;
     startTime = DateTime.now();
-    index = 0;
   }
 
   FutureOr<void> _onInitial(
@@ -42,20 +39,21 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     if (event.reset) resetAssessment();
     patient = event.patient;
     assessment = AssessmentService().create(type, startTime, patient.id);
-    emit(AssessmentIntro(index, introViews[index]()));
+    emit(AssessmentIntro(0, introViews[0]()));
   }
 
   FutureOr<void> _onBegin(
       AssessmentBegin event, Emitter<AssessmentState> emit) {
-    log("Beginning assessment segment $index");
-    emit(AssessmentActive(index, captureViews[index](patient)));
+    emit(AssessmentActive(event.index, captureViews[event.index - 1](patient)));
   }
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
+    log(event.segment.toString());
     segments.add(event.segment);
-    index++;
-    if (index == assessmentCount) {
+    int index = event.index + 1;
+
+    if (index - 1 == assessmentCount) {
       final int assessmentDurationSeconds =
           DateTime.now().difference(startTime).inSeconds;
 
@@ -65,7 +63,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
       emit(AssessmentAnalysis(
           (_) => AnalysisView(assessment: assessment, patient: event.patient)));
     } else {
-      emit(AssessmentIntro(index, introViews[index]()));
+      emit(AssessmentIntro(index, introViews[index - 1]()));
     }
   }
 
@@ -73,7 +71,6 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     //TODO we will want to use this data to retrain the model if it is of quality
     assessment = AssessmentService().create(type, startTime, patient.id);
     segments = [];
-    index = 0;
     startTime = DateTime.now();
   }
 }
