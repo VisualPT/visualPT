@@ -34,7 +34,6 @@ class AuthView extends StatelessWidget {
   }
 
 //TODO: Create a core form widget that takes in a list of FormInputs
-
   Widget signupForm(BuildContext context, AuthSignUp state) {
     return SingleChildScrollView(
       child: Form(
@@ -122,7 +121,7 @@ class AuthView extends StatelessWidget {
                       _formKey.currentState!.save();
                       _formKey.currentState!.reset();
                       BlocProvider.of<AuthBloc>(context)
-                          .add(AuthConfirmedForgot());
+                          .add(const AuthConfirmedForgot());
                     }
                   }),
             ),
@@ -135,7 +134,7 @@ class AuthView extends StatelessWidget {
                     style: Styles.subactionText,
                   ),
                   onPressed: () {
-                    BlocProvider.of<AuthBloc>(context).add(AuthToggle());
+                    BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
                   }),
             ),
           ],
@@ -173,7 +172,7 @@ class AuthView extends StatelessWidget {
                   child: const Text("Confirm", style: Styles.actionText),
                 ),
                 onTap: () {
-                  BlocProvider.of<AuthBloc>(context).add(AuthConfirm());
+                  BlocProvider.of<AuthBloc>(context).add(const AuthConfirm());
                 },
               ),
             ),
@@ -222,7 +221,7 @@ class AuthView extends StatelessWidget {
                     _formKey.currentState!.save();
                     _formKey.currentState!.reset();
                     log("Auth Data Validated");
-                    BlocProvider.of<AuthBloc>(context).add(AuthRestore());
+                    BlocProvider.of<AuthBloc>(context).add(const AuthRestore());
                   }
                 },
               ),
@@ -244,7 +243,7 @@ class AuthView extends StatelessWidget {
           CupertinoButton(
             child: const Text("Retry"),
             onPressed: () =>
-                {BlocProvider.of<AuthBloc>(context).add(AuthToggle())},
+                {BlocProvider.of<AuthBloc>(context).add(const AuthToggle())},
           )
         ],
       ))),
@@ -271,7 +270,9 @@ class AuthView extends StatelessWidget {
                 _formKey.currentState!.save();
                 _formKey.currentState!.reset();
                 log("Auth Data Validated");
-                BlocProvider.of<AuthBloc>(context).add(AuthAttempt());
+                BlocProvider.of<AuthBloc>(context).add(isLogin
+                    ? const AuthAttemptLogIn()
+                    : const AuthAttemptSignUp());
               }
             },
           ),
@@ -287,7 +288,7 @@ class AuthView extends StatelessWidget {
               ),
               onPressed: () {
                 _formKey.currentState!.reset();
-                BlocProvider.of<AuthBloc>(context).add(AuthToggle());
+                BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
               }),
         ),
         Padding(
@@ -299,7 +300,7 @@ class AuthView extends StatelessWidget {
                 style: Styles.subactionText,
               ),
               onPressed: () {
-                BlocProvider.of<AuthBloc>(context).add(AuthForgotClicked());
+                BlocProvider.of<AuthBloc>(context).add(const AuthForgotClicked());
               }),
         ),
       ],

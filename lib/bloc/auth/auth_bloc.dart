@@ -5,8 +5,8 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/User.dart';
+import 'package:visualpt/repository/_repository.dart';
 import 'package:visualpt/service/auth_service.dart';
-import 'package:visualpt/service/user_service.dart';
 import 'package:visualpt/views/components/_components.dart';
 import 'package:equatable/equatable.dart';
 
@@ -14,33 +14,56 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  UserService userService = UserService();
-  late GlobalKey<ShakerState> shake; //For invalid response purposes
-  late AuthService auth = AuthService();
-  AuthBloc() : super(const AuthSignUp()) {
+  AuthBloc(this._backendRepository, this._authRepository)
+      : super(const AuthSignUp()) {
     on<AuthAuto>(_onAuto);
     on<AuthToggle>(_onToggle);
-    on<AuthAttempt>(_onAttempt);
+    on<AuthAttemptLogIn>(_onAttemptLogin);
+    on<AuthAttemptSignUp>(_onAttemptSignUp);
     on<AuthConfirm>(_onConfirm);
     on<AuthForgotClicked>(_onForgot);
     on<AuthConfirmedForgot>(_onConfirmedForgot);
     on<AuthRestore>(_onRestore);
     on<AuthDisconnect>(_onDisconnect);
+
+    add(const AuthAuto());
   }
+  final BackendRepository _backendRepository;
+  final AuthRepository _authRepository;
+  late GlobalKey<ShakerState> shake; //For invalid response purposes
 
   FutureOr<void> _onAuto(AuthAuto event, Emitter<AuthState> emit) async {
-    log("Attempting auto auth");
+    //Check if the user has been logged in on app launch
     try {
-      final session = await auth.fetch();
-      log(session.toString(), name: "Session");
-      if (session != null && session.isSignedIn) {
-        log("User is signed in", name: "Auto Auth");
-        final user = await userService.setUser();
-        emit(AuthSuccess(user: user));
+      if (!_authRepository.launchStatusChecked) {
+        log("Checking launch status", name: "Auto Auth");
+        final status = await _authRepository.checkLaunchStatus();
+        log("Status $status", name: "Auto Auth");
+        if (status) {
+          final user = await _authRepository.setUser();
+          emit(AuthSuccess(user: user));
+        } else {
+          emit(const AuthSignUp());
+        }
       }
-      log("User is not signed in", name: "Auto Auth");
+      //If they arent logged in on app launch, then this will auto sign them in once they have a valid session
+      _backendRepository.authEvents.onData((data) async {
+        log("${data.type} ${data.payload}", name: "Auth Bloc");
+        switch (data.type) {
+          case AuthHubEventType.signedIn:
+            log("Signed In");
+            _authRepository.isSignedIn = true;
+            final user = await _authRepository.setUser();
+            emit(AuthSuccess(user: user));
+            break;
+          case AuthHubEventType.sessionExpired:
+          case AuthHubEventType.signedOut:
+          case AuthHubEventType.userDeleted:
+            emit(const AuthSignUp());
+        }
+      });
     } catch (e) {
-      emit(AuthError(error: Exception("Failed to auto auth")));
+      emit(AuthError(error: Exception("Failed to auto auth $e")));
     }
   }
 
@@ -52,56 +75,52 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onAttempt(AuthAttempt event, Emitter<AuthState> emit) async {
-    if (state is AuthLogIn) {
-      emit(const AuthLoad(message: "Logging in..."));
+  void _onAttemptLogin(AuthAttemptLogIn event, Emitter<AuthState> emit) async {
+    emit(const AuthLoad(message: "Logging in..."));
 
-      try {
-        auth.validateLogin(
-            onInvalid: (message) => emit(AuthLogIn(message: message)));
-        final result = await auth.completeLogin();
-        //TODO check if the user has verified their email
-        if (result == "done") {
-          final user = await userService.setUser();
-          emit(AuthSuccess(user: user));
-          return;
-        } else {
-          emit(AuthCode(message: result));
-          return;
-        }
-      } catch (e) {
-        emit(AuthLogIn(message: e.toString()));
+    try {
+      final result = await _authRepository.completeLogin();
+      if (result == "done") {
+        //Handled By AuthAuto
+        // final user = await userService.setUser();
+        // if (!isClosed) emit(AuthSuccess(user: user));
+      } else {
+        if (!isClosed) emit(AuthCode(message: result));
       }
-    } else if (state is AuthSignUp) {
-      emit(const AuthLoad(message: "Signing up..."));
-      try {
-        auth.validateSignup(
-            onInvalid: (message) => emit(AuthLogIn(message: message)));
-        final result = await auth.completeSignUp();
-        if (result) {
-          final user = await userService.setUser();
-          emit(AuthSuccess(user: user));
-          return;
-        } else {
-          emit(const AuthCode());
-          return;
-        }
-      } catch (e) {
-        emit(AuthSignUp(message: e.toString()));
+    } catch (e) {
+      if (!isClosed) emit(AuthSignUp(message: e.toString()));
+    }
+  }
+
+  void _onAttemptSignUp(
+      AuthAttemptSignUp event, Emitter<AuthState> emit) async {
+    emit(const AuthLoad(message: "Signing up..."));
+
+    try {
+      final result = await _authRepository.completeSignUp();
+      if (result) {
+        //Handled By AuthAuto
+        // final user = await userService.setUser();
+        // if (!isClosed) emit(AuthSuccess(user: user));
+        return;
+      } else {
+        if (!isClosed) emit(const AuthCode());
+        return;
       }
-    } else {
-      emit(AuthError(error: Exception("AuthAttempt: Invalid State $state")));
+    } catch (e) {
+      if (!isClosed) emit(AuthSignUp(message: e.toString()));
     }
   }
 
   FutureOr<void> _onConfirm(AuthConfirm event, Emitter<AuthState> emit) async {
     emit(const AuthLoad(message: "Confirming code..."));
     try {
-      final result = await auth.confirmSignUpCode();
-      final response = await auth.completeLogin();
+      final result = await _authRepository.confirmSignUpCode();
+      final response = await _authRepository.completeLogin();
       if (result.isSignUpComplete && response == "done") {
-        final user = await userService.setUser();
-        emit(AuthSuccess(user: user));
+        //Handled by AuthAuto
+        // final user = await userService.setUser();
+        // emit(AuthSuccess(user: user));
       } else {
         emit(AuthCode(message: response));
       }
@@ -119,7 +138,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _onConfirmedForgot(
       AuthConfirmedForgot event, Emitter<AuthState> emit) async {
     emit(const AuthLoad(message: "Checking email..."));
-    final result = await auth.resetPassword();
+    final result = await _authRepository.resetPassword();
     switch (result.nextStep.updateStep) {
       case AuthResetPasswordStep.confirmResetPasswordWithCode:
         final codeDeliveryDetails = result.nextStep.codeDeliveryDetails!;
@@ -134,15 +153,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _onRestore(AuthRestore event, Emitter<AuthState> emit) async {
     emit(const AuthLoad(message: "Resetting password..."));
     try {
-      if (!auth.validateReset()) {
+      if (!_authRepository.validateReset()) {
         emit(const AuthReset(message: "Passwords do not match"));
         return;
       }
-      final result = await auth.confirmResetPassword();
+      final result = await _authRepository.confirmResetPassword();
       if (result.isPasswordReset) {
-        await auth.completeLogin();
-        final user = await userService.setUser();
-        emit(AuthSuccess(user: user));
+        await _authRepository.completeLogin();
+        //Handled By AuthAuto
+        // final user = await userService.setUser();
+        // emit(AuthSuccess(user: user));
       } else {
         emit(const AuthReset(message: "Failed to reset password"));
       }
@@ -155,8 +175,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthDisconnect event, Emitter<AuthState> emit) async {
     emit(const AuthLoad(message: "Disconnecting..."));
     try {
-      await auth.signOut();
-      emit(const AuthSignUp());
+      await _authRepository.signOut();
     } catch (e) {
       emit(AuthError(error: Exception("Failed to disconnect")));
     }
@@ -164,13 +183,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void setData(AuthDataType type, String data) {
     if (type == AuthDataType.email) {
-      auth.setEmail(data);
+      _authRepository.setEmail(data);
     } else if (type == AuthDataType.password) {
-      auth.setPass(data);
+      _authRepository.setPass(data);
     } else if (type == AuthDataType.confirmPassword) {
-      auth.setConfirmPass(data);
+      _authRepository.setConfirmPass(data);
     } else if (type == AuthDataType.confirmCode) {
-      auth.setConfirmCode(data);
+      _authRepository.setConfirmCode(data);
     }
   }
 }

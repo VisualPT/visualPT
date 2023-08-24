@@ -29,7 +29,6 @@ class AuthPresenter extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<AuthBloc>(context).add(AuthAuto());
     //NOTE: AuthBloc is provided at the root of the application (main.dart) to ensure that the user is accessible from anywhere in the app
     return BlocBuilder<AuthBloc, AuthState>(
       buildWhen: (previous, current) =>
