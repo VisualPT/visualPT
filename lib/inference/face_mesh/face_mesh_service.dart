@@ -58,7 +58,7 @@ class FaceMesh extends AiModel {
   }
 
   @override
-  FaceOutput? predict(image_lib.Image image) {
+  FaceOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -104,7 +104,7 @@ FaceOutput? runFaceMesh(Map<String, dynamic> params) {
   final faceMesh =
       FaceMesh(interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['cameraImage']);
-  final result = faceMesh.predict(image!);
+  final result = faceMesh.predict(image!, {});
 
   return result;
 }

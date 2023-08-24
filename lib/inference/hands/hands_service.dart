@@ -60,7 +60,7 @@ class Hands extends AiModel {
   }
 
   @override
-  HandsOutput? predict(image_lib.Image image) {
+  HandsOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -110,7 +110,7 @@ HandsOutput? runHandDetector(Map<String, dynamic> params) {
   final hands =
       Hands(interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['cameraImage']);
-  final result = hands.predict(image!);
+  final result = hands.predict(image!, {});
 
   return result;
 }

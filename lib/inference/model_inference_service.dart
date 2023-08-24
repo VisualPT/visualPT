@@ -26,6 +26,7 @@ class ModelInferenceService {
   Future<void> inference({
     required IsolateUtils isolateUtils,
     required CameraImage cameraImage,
+    required Map<String, double> params,
   }) async {
     final responsePort = ReceivePort();
 
@@ -34,6 +35,7 @@ class ModelInferenceService {
       params: {
         'cameraImage': cameraImage,
         'detectorAddress': model.getAddress,
+        'params': params,
       },
       sendPort: isolateUtils.sendPort,
       responsePort: responsePort,

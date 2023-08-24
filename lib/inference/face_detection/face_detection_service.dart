@@ -86,7 +86,7 @@ class FaceDetection extends AiModel {
   }
 
   @override
-  FaceBboxOutput? predict(image_lib.Image image) {
+  FaceBboxOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -171,7 +171,7 @@ FaceBboxOutput? runFaceDetector(Map<String, dynamic> params) {
   final faceDetection = FaceDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['cameraImage'])!;
-  final result = faceDetection.predict(image);
+  final result = faceDetection.predict(image, {});
 
   return result;
 }
