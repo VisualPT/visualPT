@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -19,13 +20,15 @@ class PatientBloc extends Bloc<PatientEvent, PatientState> {
   FutureOr<void> _onPatientInit(
       PatientInit event, Emitter<PatientState> emit) async {
     try {
-      final patient = await _patientService.create(
-          firstName: event.firstName,
-          lastName: event.lastName,
-          dob: event.dateOfBirth,
-          gender: event.gender,
-          height: event.height,
-          email: event.email);
+      //TODO Create a patient repository layer
+      final patient = Patient(
+          first_name: event.firstName,
+          last_name: event.lastName,
+          dob: TemporalDate(DateTime.parse(event.dateOfBirth)),
+          gender: genderParse(event.gender),
+          height_in_inches: double.parse(event.height.split("\"")[0]),
+          provider_contact: event.email);
+      _patientService.create(patient);
 
       emit(PatientSet(patient: patient));
     } on Exception catch (e) {
@@ -41,5 +44,18 @@ class PatientBloc extends Bloc<PatientEvent, PatientState> {
   FutureOr<void> _onPatientSaveFailure(
       PatientSaveFailure event, Emitter<PatientState> emit) {
     emit(PatientError(message: event.message));
+  }
+}
+
+Gender genderParse(String text) {
+  switch (text) {
+    case "MALE":
+      return Gender.MALE;
+
+    case "FEMALE":
+      return Gender.FEMALE;
+
+    default:
+      return Gender.MALE;
   }
 }

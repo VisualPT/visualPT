@@ -1,16 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/service/assessment_service.dart';
 import 'package:visualpt/views/analysis_view.dart';
 import 'package:visualpt/views/assessments/_assessments.dart';
 
 part 'assessment_event.dart';
 part 'assessment_state.dart';
 
+//Clean this up with a repository layer
 class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   final AssessmentType type;
 
@@ -20,7 +21,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late List<Widget Function(BuildContext) Function()> introViews;
   late List<Widget Function(BuildContext) Function(Patient)> captureViews;
   late List<Segment> segments = [];
-  late DateTime startTime;
+  late DateTime startTime = DateTime.now();
 
   AssessmentBloc(this.type) : super(AssessmentLoading()) {
     on<AssessmentInitial>(_onInitial);
@@ -31,14 +32,17 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     assessmentCount = router.assessmentCount;
     introViews = router.introWidgets;
     captureViews = router.captureWidgets;
-    startTime = DateTime.now();
   }
 
   FutureOr<void> _onInitial(
       AssessmentInitial event, Emitter<AssessmentState> emit) async {
     if (event.reset) resetAssessment();
     patient = event.patient;
-    assessment = AssessmentService().create(type, startTime, patient.id);
+    assessment = Assessment(
+        patientID: patient.id,
+        type: type,
+        datetime: TemporalDateTime(DateTime.now()),
+        segments: segments);
     emit(AssessmentIntro(0, introViews[0]()));
   }
 
@@ -69,7 +73,11 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   resetAssessment() {
     //TODO we will want to use this data to retrain the model if it is of quality
-    assessment = AssessmentService().create(type, startTime, patient.id);
+    assessment = Assessment(
+        patientID: patient.id,
+        type: type,
+        datetime: TemporalDateTime(DateTime.now()),
+        segments: segments);
     segments = [];
     startTime = DateTime.now();
   }

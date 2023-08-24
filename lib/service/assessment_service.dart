@@ -6,16 +6,18 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/service/_service.dart';
 
-class AssessmentService extends AppService {
+class AssessmentService extends DataStoreService<Assessment> {
   AssessmentService();
 
-  Assessment create(AssessmentType type, DateTime now, String patientID) {
-    return Assessment(
-        patientID: patientID, type: type, datetime: TemporalDateTime(now));
+  @override
+  void create(Assessment entity) {
+    log("Saving assessment");
+    super.create(entity);
   }
 
-  void delete(Assessment assessment) {
-    Amplify.DataStore.delete(assessment);
+  @override
+  void delete(Assessment entity) {
+    Amplify.DataStore.delete(entity);
   }
 
   Assessment addPDF(Assessment assessment, Uint8List rawPdf) {
@@ -34,11 +36,5 @@ class AssessmentService extends AppService {
   Assessment addDuration(Assessment assessment, int durationSeconds) {
     log("Adding duration (in seconds) to assessment object");
     return assessment.copyWith(duration: durationSeconds);
-  }
-
-  @override
-  void saveData(Model model) {
-    log("Saving assessment");
-    super.saveData(model);
   }
 }
