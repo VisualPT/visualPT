@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
@@ -52,14 +53,15 @@ class HomeView extends StatelessWidget {
             const Spacer(),
             // kDebugMode
             //     ?
-            CupertinoButton(
-                onPressed: () => nav.toPath("/video"),
-                color: Styles.comingSoonColor,
-                child: const Text(
-                  "Test Video",
-                  style: Styles.error,
-                )),
-            // : Container(),
+            kDebugMode
+                ? CupertinoButton(
+                    onPressed: () => nav.toPath("/video"),
+                    color: Styles.comingSoonColor,
+                    child: const Text(
+                      "Test Video",
+                      style: Styles.error,
+                    ))
+                : Container(),
             const Spacer()
           ],
         ),
