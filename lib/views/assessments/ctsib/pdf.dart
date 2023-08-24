@@ -78,7 +78,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(
                 style: disclaimer,
                 text:
-                    "Utilizing the VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
+                    "VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
         Spacer(),
         RichText(text: TextSpan(text: "Patient Information", style: subHeader)),
         SizedBox(
@@ -170,8 +170,9 @@ class CtsibPDF extends PDF {
           Table(
             border: TableBorder.all(color: black),
             columnWidths: {
-              0: const FlexColumnWidth(2),
-              1: const FlexColumnWidth(1),
+              0: const FlexColumnWidth(3),
+              1: const FlexColumnWidth(6),
+              2: const FlexColumnWidth(4),
             },
             children: [
               // Create table header
@@ -179,7 +180,11 @@ class CtsibPDF extends PDF {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Segment',
+                    child: Text(''),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Condition',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                   Padding(
@@ -193,6 +198,10 @@ class CtsibPDF extends PDF {
               for (Segment segment in assessment.segments!)
                 TableRow(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text((index + 1).toString()),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(Ctsib.sequenceNames[index++]),
@@ -225,10 +234,42 @@ class CtsibPDF extends PDF {
         ]));
   }
 
+  Widget interpretationData(Assessment assessment) {
+    return Column(children: [
+      RichText(text: TextSpan(text: "Interpretation", style: subHeader)),
+      ListView(
+        spacing: 2.0,
+        children: [
+          RichText(
+              text: TextSpan(
+                  text:
+                      "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
+                  style: detailBold)),
+          RichText(
+              text: TextSpan(
+                  text:
+                      "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
+                  style: detailBold)),
+          RichText(
+              text: TextSpan(
+                  text:
+                      "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+                  style: detailBold)),
+          RichText(
+              text: TextSpan(
+                  text:
+                      "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
+                  style: detailBold)),
+        ],
+      )
+    ]);
+  }
+
+//TODO: Add normative data, and potientally another data field for collecting the patients fall history
   Widget normativeData(Patient patient) {
     return Column(children: [
       RichText(text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(text: TextSpan(text: "TODO", style: detailBold)),
+      RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
     ]);
   }
 
