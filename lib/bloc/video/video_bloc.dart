@@ -67,7 +67,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     start = DateTime.now();
     if (controller == null) {
       //TODO:Error handle instead
-      add(const VideoInit());
+      if (!isClosed) add(const VideoInit());
     }
     videoRepository.startRecording(controller!);
     emit(VideoRecording(controller!));
@@ -76,7 +76,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
     log("Restarting video");
     if (controller == null) {
-      add(const VideoInit());
+      if (!isClosed) add(const VideoInit());
     } else {
       controller!.stopImageStream();
       emit(VideoStandby(controller!));

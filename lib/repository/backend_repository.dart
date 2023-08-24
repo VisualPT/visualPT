@@ -37,12 +37,10 @@ class BackendRepository {
       ..onData(
           (event) => log("${event.eventName} ${event.payload}", name: "Api"))
       ..onError((e) => log(e.toString(), name: "Api Error"));
-    ;
     _backendService.authSubscription
       ..onData(
           (event) => log("${event.eventName} ${event.payload}", name: "Auth"))
       ..onError((e) => log(e.toString(), name: "Auth Error"));
-    ;
   }
 
   void dispose() {

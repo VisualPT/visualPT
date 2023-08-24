@@ -23,6 +23,7 @@ class AssessmentPresenter extends StatelessWidget {
     required this.onError,
   });
 
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [

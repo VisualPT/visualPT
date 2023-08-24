@@ -10,6 +10,7 @@ class LandingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       child: Stack(
         children: [
           BaseView(

@@ -239,7 +239,7 @@ class VideoView extends StatelessWidget {
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => vid.add(VideoRestart()),
+            onPressed: () => vid.add(const VideoRestart()),
             child: const Text("Restart"),
           ),
         ],

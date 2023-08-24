@@ -23,7 +23,7 @@ class SettingsView extends StatelessWidget {
                     child: CupertinoButton.filled(
                       onPressed: () {
                         BlocProvider.of<AuthBloc>(context)
-                            .add(AuthDisconnect());
+                            .add(const AuthDisconnect());
                         AppNav(context).reset();
                       },
                       child: const Text("Sign Out"),
