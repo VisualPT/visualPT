@@ -15,7 +15,7 @@ class Pose extends AiModel {
     loadModel();
   }
   static const int inputSize = 256;
-  final double threshold = 0.95;
+  final double threshold = 0.70;
 
   @override
   List<Object> get props => [];
@@ -54,7 +54,7 @@ class Pose extends AiModel {
   }
 
   @override
-  PoseOutput? predict(image_lib.Image image) {
+  PoseOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -95,7 +95,10 @@ class Pose extends AiModel {
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
-    return PoseOutput(landmarkPoints, inputSize, image.width, image.height);
+    final ratio = params['ratio'] as double;
+
+    return PoseOutput(
+        landmarkPoints, inputSize, image.width, image.height, ratio);
   }
 }
 
@@ -104,39 +107,55 @@ PoseOutput? runPoseEstimator(Map<String, dynamic> params) {
       Pose(interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
   final image = ImageUtils.convertCameraImage(params['cameraImage']);
-  final result = pose.predict(image!);
+  final result = pose.predict(image!, params['params']);
 
   return result;
 }
 
 class PoseOutput extends AiModelOutput {
-  PoseOutput(super.output, int inputSize, int width, int height) {
+  PoseOutput(super.output, int inputSize, int width, int height, double ratio) {
+    double min = height.roundToDouble(), max = 0;
+
     for (var point in output) {
-      landmarks.add(Offset(
-        point[0] / inputSize * width,
-        point[1] / inputSize * height,
-      ));
+      final double dx =
+          point[0] / inputSize.toDouble() * width.toDouble() * ratio;
+      final double dy =
+          point[1] / inputSize.toDouble() * height.toDouble() * ratio;
+      if (dx < min) {
+        min = dx;
+      }
+      if (dx > max) {
+        max = dx;
+      }
+      landmarks.add(Offset(dx, dy));
       depthPoints.add(point[2]);
       visibilityPoints.add(point[3]);
       presencePoints.add(point[4]);
+      heightThreshold = max - min > ratio * height * 0.30;
     }
   }
+
   static const length = 33;
   final List<Offset> landmarks = [];
   final List<double> depthPoints = [];
   final List<double> visibilityPoints = [];
   final List<double> presencePoints = [];
+  bool heightThreshold = false;
 
   toMap() {
     return {
       'landmarkPoints': landmarks,
       'depthPoints': depthPoints,
       'visibilityPoints': visibilityPoints,
-      'presencePoints': presencePoints
+      'presencePoints': presencePoints,
+      'heightThreshold': heightThreshold,
     };
   }
 
   toRaw() {
     return output;
   }
+
+  @override
+  List<Object> get props => [landmarks, depthPoints, visibilityPoints];
 }
