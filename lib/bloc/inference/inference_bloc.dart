@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/inference/ai_model.dart';
+import 'package:visualpt/inference/pose/pose_service.dart';
 import 'package:visualpt/repository/video_repository.dart';
 import 'package:visualpt/service/inference_service.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -77,7 +78,10 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     if (frame % sampleRateFPS == 0) {
       storageBacklog++;
     }
-    if (event.output != null && storageBacklog > 0) {
+    if (event.output != null &&
+        (event.output as PoseOutput).heightThreshold &&
+        storageBacklog > 0) {
+      //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
       storageBacklog--;
       _inferenceService.store(
           event.input, classification, event.ratio, event.output!);
