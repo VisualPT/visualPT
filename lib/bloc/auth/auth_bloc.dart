@@ -27,6 +27,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthDisconnect>(_onDisconnect);
 
     add(const AuthAuto());
+    _backendRepository.authEvents.onData((data) async {
+      log("${data.type} ${data.payload}", name: "Auth Bloc");
+    });
   }
   final BackendRepository _backendRepository;
   final AuthRepository _authRepository;
@@ -41,29 +44,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         log("Status $status", name: "Auto Auth");
         if (status) {
           final user = await _authRepository.setUser();
-          emit(AuthSuccess(user: user));
+          if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
         } else {
-          emit(const AuthSignUp());
+          if (!isClosed && !emit.isDone) emit(const AuthSignUp());
         }
       }
-      //If they arent logged in on app launch, then this will auto sign them in once they have a valid session
-      _backendRepository.authEvents.onData((data) async {
-        log("${data.type} ${data.payload}", name: "Auth Bloc");
-        switch (data.type) {
-          case AuthHubEventType.signedIn:
-            log("Signed In");
-            _authRepository.isSignedIn = true;
-            final user = await _authRepository.setUser();
-            emit(AuthSuccess(user: user));
-            break;
-          case AuthHubEventType.sessionExpired:
-          case AuthHubEventType.signedOut:
-          case AuthHubEventType.userDeleted:
-            emit(const AuthSignUp());
-        }
-      });
+      // //If they arent logged in on app launch, then this will auto sign them in once they have a valid session
+      // _backendRepository.authEvents.onData((data) async {
+      //   log("${data.type} ${data.payload}", name: "Auth Bloc");
+      //   switch (data.type) {
+      //     case AuthHubEventType.signedIn:
+      //       log("Signed In");
+      //       _authRepository.isSignedIn = true;
+      //       final user = await _authRepository.setUser();
+      //       if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+      //       break;
+      //     case AuthHubEventType.sessionExpired:
+      //     case AuthHubEventType.signedOut:
+      //     case AuthHubEventType.userDeleted:
+      //       if (!isClosed && !emit.isDone) emit(const AuthSignUp());
+      //   }
+      // });
     } catch (e) {
-      emit(AuthError(error: Exception("Failed to auto auth $e")));
+      if (!isClosed && !emit.isDone)
+        emit(AuthError(error: Exception("Failed to auto auth $e")));
     }
   }
 
@@ -81,9 +85,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final result = await _authRepository.completeLogin();
       if (result == "done") {
-        //Handled By AuthAuto
-        // final user = await userService.setUser();
-        // if (!isClosed) emit(AuthSuccess(user: user));
+        final user = await _authRepository.setUser();
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
       } else {
         if (!isClosed) emit(AuthCode(message: result));
       }
@@ -99,9 +102,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final result = await _authRepository.completeSignUp();
       if (result) {
-        //Handled By AuthAuto
-        // final user = await userService.setUser();
-        // if (!isClosed) emit(AuthSuccess(user: user));
+        final user = await _authRepository.setUser();
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
         return;
       } else {
         if (!isClosed) emit(const AuthCode());
@@ -118,9 +120,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final result = await _authRepository.confirmSignUpCode();
       final response = await _authRepository.completeLogin();
       if (result.isSignUpComplete && response == "done") {
-        //Handled by AuthAuto
-        // final user = await userService.setUser();
-        // emit(AuthSuccess(user: user));
+        final user = await _authRepository.setUser();
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
       } else {
         emit(AuthCode(message: response));
       }
@@ -160,9 +161,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final result = await _authRepository.confirmResetPassword();
       if (result.isPasswordReset) {
         await _authRepository.completeLogin();
-        //Handled By AuthAuto
-        // final user = await userService.setUser();
-        // emit(AuthSuccess(user: user));
+        final user = await _authRepository.setUser();
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
       } else {
         emit(const AuthReset(message: "Failed to reset password"));
       }
@@ -176,8 +176,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoad(message: "Disconnecting..."));
     try {
       await _authRepository.signOut();
+      if (!isClosed && !emit.isDone) {
+        emit(const AuthSignUp(message: "Signed Out successfully"));
+      }
     } catch (e) {
-      emit(AuthError(error: Exception("Failed to disconnect")));
+      if (!isClosed && !emit.isDone) {
+        emit(AuthError(error: Exception("Failed to disconnect")));
+      }
     }
   }
 

@@ -80,7 +80,7 @@ class AuthRepository {
     } catch (e, s) {
       log(e.toString(), name: "Login In Error");
       log(s.toString(), name: "Login Stack Trace");
-      return "Error";
+      rethrow;
     }
   }
 
