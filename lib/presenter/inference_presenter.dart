@@ -36,20 +36,21 @@ class InferencePresenter extends StatelessWidget {
 
   Widget onRunning(BuildContext context, InferenceRunning state) {
     final response = state.response as PoseOutput?;
-    return SafeArea(
-        left: false,
-        right: false,
-        child: CameraPreview(videoState.controller,
-            child: response != null
-                ? response.heightThreshold
-                    ? _drawPose(response.landmarks)
-                    : const Text("Get closer!")
-                : const Text("Keep subject in frame!")));
+    return AspectRatio(
+      aspectRatio: 1 / videoState.controller.value.aspectRatio,
+      child: CameraPreview(videoState.controller,
+          child: response != null
+              ? response.heightThreshold
+                  ? _drawPose(response.landmarks)
+                  : const Center(child: Text("Get closer!"))
+              : const Center(child: Text("Keep subject in frame!"))),
+    );
   }
 
   Widget onStopped(BuildContext context, InferenceStopped state) {
-    return SafeArea(
-        left: false, right: false, child: CameraPreview(videoState.controller));
+    return const Center(
+      child: AppLoading(message: "Inference Stopped"),
+    );
   }
 
   Widget onLoad(BuildContext context, InferenceLoading state) {
