@@ -9,14 +9,14 @@ const IOS_BYTES_OFFSET = 28;
 /// ImageUtils
 class ImageUtils {
   /// Converts a [CameraImage] in YUV420 or BGRA8888 format to [Image] in RGB format
-  static image_lib.Image? convertCameraImage(CameraImage cameraImage) {
-    if (cameraImage.format.group == ImageFormatGroup.yuv420) {
-      return convertYUV420ToImage(cameraImage);
-    } else if (cameraImage.format.group == ImageFormatGroup.bgra8888) {
-      return convertBGRA8888ToImage(cameraImage);
-    } else {
-      return null;
-    }
+  static image_lib.Image convertCameraImage(CameraImage cameraImage) {
+    return switch (cameraImage.format.group) {
+      ImageFormatGroup.yuv420 => convertYUV420ToImage(cameraImage),
+      ImageFormatGroup.bgra8888 => convertBGRA8888ToImage(cameraImage),
+      ImageFormatGroup.jpeg => throw Exception("JPEG not supported"),
+      ImageFormatGroup.nv21 => throw Exception("NV21 not supported"),
+      ImageFormatGroup.unknown => throw Exception("Unknown Image Format Group"),
+    };
   }
 
   /// Converts a [CameraImage] in BGRA888 format to [Image] in RGB format
@@ -107,11 +107,11 @@ class ImageUtils {
 
   /// Convert a [Image] to PNG
   static Future<List<int>> convert(
-      {required IsolateUtils isolateUtils,
-      required image_lib.Image image}) async {
+      {required IsolateUtils isolateUtils, required CameraImage image}) async {
     final responsePort = ReceivePort();
 
-    toPng(Map<String, dynamic> params) => image_lib.encodePng(params['image']);
+    toPng(Map<String, dynamic> params) =>
+        image_lib.encodePng(ImageUtils.convertCameraImage(params['image']));
 
     isolateUtils.sendMessage(
       handler: toPng,
