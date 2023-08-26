@@ -21,6 +21,10 @@ class AuthAttemptSignUp extends AuthEvent {
   const AuthAttemptSignUp();
 }
 
+class AuthGuest extends AuthEvent {
+  const AuthGuest();
+}
+
 class AuthConfirm extends AuthEvent {
   final AuthCodeDeliveryDetails? details;
   const AuthConfirm({this.details});

@@ -300,7 +300,20 @@ class AuthView extends StatelessWidget {
                 style: Styles.subactionText,
               ),
               onPressed: () {
-                BlocProvider.of<AuthBloc>(context).add(const AuthForgotClicked());
+                BlocProvider.of<AuthBloc>(context)
+                    .add(const AuthForgotClicked());
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoButton(
+              color: Styles.actionSecondary,
+              child: const Text(
+                "Proceed as Guest",
+                style: Styles.subactionText,
+              ),
+              onPressed: () {
+                BlocProvider.of<AuthBloc>(context).add(const AuthGuest());
               }),
         ),
       ],

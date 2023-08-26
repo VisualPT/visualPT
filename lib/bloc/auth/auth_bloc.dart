@@ -20,6 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthToggle>(_onToggle);
     on<AuthAttemptLogIn>(_onAttemptLogin);
     on<AuthAttemptSignUp>(_onAttemptSignUp);
+    on<AuthGuest>(_onGuest);
     on<AuthConfirm>(_onConfirm);
     on<AuthForgotClicked>(_onForgot);
     on<AuthConfirmedForgot>(_onConfirmedForgot);
@@ -111,6 +112,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } catch (e) {
       if (!isClosed) emit(AuthSignUp(message: e.toString()));
+    }
+  }
+
+  FutureOr<void> _onGuest(AuthGuest event, Emitter<AuthState> emit) async {
+    emit(const AuthLoad(message: "Logging in as guest..."));
+    try {
+      setData(AuthDataType.email, "gaitertech@gmail.com");
+      setData(AuthDataType.password, "GaiterTech1!");
+      add(const AuthAttemptLogIn());
+    } catch (e) {
+      if (!isClosed && !emit.isDone) emit(AuthSignUp(message: e.toString()));
     }
   }
 
