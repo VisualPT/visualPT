@@ -10,7 +10,7 @@ class VideoRepository {
   void startRecording(CameraController controller) {
     controller.startImageStream((image) {
       frames++;
-      _frameStreamController.add(image);
+      if (!_frameStreamController.isClosed) _frameStreamController.add(image);
     });
   }
 

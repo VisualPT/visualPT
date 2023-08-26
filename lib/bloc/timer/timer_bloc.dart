@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +19,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
         super(const TimerInitial(_minDuration)) {
     on<TimerStarted>(_onStarted);
     on<TimerReset>(_onReset);
-    on<_TimerTicked>(_onTicked);
+    on<_TimerTicked>(_onTicked, transformer: droppable());
   }
 
   final Ticker _ticker;

@@ -10,6 +10,7 @@ PODS:
     - AmplifyPlugins/AWSAPIPlugin (= 1.30.4)
     - AmplifyPlugins/AWSDataStorePlugin (= 1.30.4)
     - Flutter
+    - Starscream (= 4.0.4)
   - amplify_secure_storage (0.0.1):
     - Flutter
   - AmplifyPlugins/AWSAPIPlugin (1.30.4):
@@ -155,7 +156,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Amplify: 4e41668c8801667e174ab50c12bc3099c71a257f
   amplify_auth_cognito: 76b5a54f05f66f69966b468b8121a0dd33a32c70
-  amplify_datastore: 635cdd33aa500e2b8366343de90f70377c0fa1e8
+  amplify_datastore: 806c9f0489d77bf3648cefd61df63cb4e00477e2
   amplify_secure_storage: 501cbdac671a050090d48dfcc002d5637d3f4a55
   AmplifyPlugins: 1335f0919aa07329df58685a020f2311c75a5176
   AppSyncRealTimeClient: 49901c6f21e541bec09281854c5695a6c1309bf7
