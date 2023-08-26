@@ -15,7 +15,7 @@ class Pose extends AiModel {
     loadModel();
   }
   static const int inputSize = 256;
-  final double threshold = 0.70;
+  static const double threshold = 0.70;
 
   @override
   List<Object> get props => [];
@@ -114,6 +114,8 @@ PoseOutput? runPoseEstimator(Map<String, dynamic> params) {
 
 class PoseOutput extends AiModelOutput {
   PoseOutput(super.output, int inputSize, int width, int height, double ratio) {
+    const double percentOfImageHeightThreshold = 0.5;
+
     double min = height.roundToDouble(), max = 0;
 
     for (var point in output) {
@@ -121,18 +123,19 @@ class PoseOutput extends AiModelOutput {
           point[0] / inputSize.toDouble() * width.toDouble() * ratio;
       final double dy =
           point[1] / inputSize.toDouble() * height.toDouble() * ratio;
-      if (dx < min) {
-        min = dx;
+      if (dy < min) {
+        min = dy;
       }
-      if (dx > max) {
-        max = dx;
+      if (dy > max) {
+        max = dy;
       }
       landmarks.add(Offset(dx, dy));
       depthPoints.add(point[2]);
       visibilityPoints.add(point[3]);
       presencePoints.add(point[4]);
-      heightThreshold = max - min > ratio * height * 0.30;
     }
+    heightThreshold =
+        max - min > (height * ratio * percentOfImageHeightThreshold);
   }
 
   static const length = 33;

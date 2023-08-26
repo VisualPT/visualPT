@@ -97,8 +97,8 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     isReady = false;
     nullResponsePort.close();
     _inferenceService.dispose();
-    videoRepository.dispose();
     _cameraStreamSubscription.cancel();
+    videoRepository.dispose();
     emit(const InferenceStopped());
   }
 }
