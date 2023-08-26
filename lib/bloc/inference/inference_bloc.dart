@@ -13,7 +13,8 @@ part 'inference_event.dart';
 part 'inference_state.dart';
 
 class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
-  InferenceBloc(this.videoRepository) : super(const InferenceLoading()) {
+  InferenceBloc(this.videoRepository, this.storeData)
+      : super(const InferenceLoading()) {
     on<InferenceInit>(_onInit);
     on<InferenceStart>(_onStart);
     on<InferenceToggle>(_onToggle);
@@ -27,7 +28,8 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     _inferenceService = InferenceService();
   }
   final VideoRepository videoRepository;
-  static const sampleRateFPS = 15;
+  final bool storeData;
+  static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
   int frame = 0;
@@ -63,7 +65,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
 
   FutureOr<void> _onInput(
       InferenceInput event, Emitter<InferenceState> emit) async {
-    if (frame++ % sampleRateFPS == 0) {
+    if (frame++ % sampleRateFrames == 0) {
       storageBacklog++;
     }
     if (processing) return null;
@@ -80,7 +82,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
   FutureOr<void> _onOutput(
       InferenceOutput event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null && storageBacklog > 0) {
+      if (event.output != null && storageBacklog > 0 && storeData) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
         storageBacklog--;
         _inferenceService.store(

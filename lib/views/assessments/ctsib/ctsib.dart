@@ -110,7 +110,11 @@ Widget Function(BuildContext) captureView(
     (context) => BaseView(
         pageTitle: title,
         child: VideoView(
-          onComplete: (segment) => BlocProvider.of<AssessmentBloc>(context).add(
+          (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+                  .user
+                  .email !=
+              'gaitertech@gmail.com', //TODO; This needs to be improved, THE WHOLE FILE
+          (segment) => BlocProvider.of<AssessmentBloc>(context).add(
               AssessmentIncrement(
                   patient: patient,
                   segment: segment,

@@ -51,7 +51,12 @@ class VisualPT extends StatelessWidget {
           routes: {
             "/": (context) => const LandingView(),
             "/home": (context) => const HomeView(),
-            "/video": (context) => VideoView(onComplete: (_) {}),
+            "/video": (context) => VideoView(
+                (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+                        .user
+                        .email !=
+                    'gaitertech@gmail.com', //If the email is gaitertech@gmail.com, they are a guest, DO NOT let them store to database
+                (_) {}),
             "/validate": (context) => const ValidationView(),
             "/settings": (context) => const SettingsView(),
           },

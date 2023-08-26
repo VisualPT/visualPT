@@ -9,12 +9,13 @@ import 'package:visualpt/views/components/_components.dart';
 import 'package:visualpt/views/components/video_controls.dart';
 
 class VideoView extends StatelessWidget {
+  const VideoView(this.storageAccess, this.onComplete, {super.key});
+  final bool storageAccess;
   final Function(Segment) onComplete;
-  const VideoView({required this.onComplete, super.key});
-
   @override
   Widget build(BuildContext context) {
     return VideoPresenter(
+      storageAccess,
       onRecording: recordingVideo,
       onStandby: standbyVideo,
       onLoading: loadingVideo,
