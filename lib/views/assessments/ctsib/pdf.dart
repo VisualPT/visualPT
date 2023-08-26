@@ -22,16 +22,17 @@ class CtsibPDF extends PDF {
         ),
         build: (Context context) => SizedBox(
           height: 11 * inch,
-          width: 9.5 * inch,
+          width: 8.5 * inch,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
             patientData(patient, assessment),
             assessmentData(patient, assessment),
-            normativeData(patient),
+            interpretationData(assessment),
             Spacer(),
+            normativeData(patient),
             diagnosisData(),
-            Spacer(flex: 2),
+            Spacer(),
             footerData(),
           ]),
         ),
@@ -50,8 +51,8 @@ class CtsibPDF extends PDF {
         17, (i) => i % 2 == 0 ? values[i ~/ 2] : Spacer());
   }
 
-  double positioner(String velocity) =>
-      (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
+  // double positioner(String velocity) =>
+  //     (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
 
   Widget headerData() {
     return Header(
@@ -64,6 +65,12 @@ class CtsibPDF extends PDF {
                   text: "Clinical Test of Sensory Integration & Balance Report",
                   style: header),
               overflow: TextOverflow.span),
+          RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  style: disclaimer,
+                  text:
+                      "VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
         ],
       ),
     );
@@ -71,90 +78,82 @@ class CtsibPDF extends PDF {
 
   Widget patientData(Patient patient, Assessment assessment) {
     return SizedBox(
-      height: 3 * inch,
+      height: 1.5 * inch,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-                style: disclaimer,
-                text:
-                    "VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
-        Spacer(),
-        RichText(text: TextSpan(text: "Patient Information", style: subHeader)),
-        SizedBox(
-            height: 2.0 * inch,
-            child: Row(children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: "Name: ", style: detail),
-                    TextSpan(
-                        text: "${patient.first_name} ${patient.last_name}",
-                        style: detailBold),
-                  ]),
-                ),
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: "DOB: ", style: detail),
-                    TextSpan(text: patient.dob.toString(), style: detailBold),
-                  ]),
-                ),
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: "Age: ", style: detail),
-                    TextSpan(
-                        text: (DateTime.now()
-                                    .difference(patient.dob.getDateTime())
-                                    .inDays ~/
-                                365)
-                            .toString(),
-                        style: detailBold), //TODO DOB to age
-                  ]),
-                ),
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: "Gender: ", style: detail),
-                    TextSpan(text: patient.gender.name, style: detailBold),
-                  ]),
-                ),
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: "Duration: ", style: detail),
-                    TextSpan(
-                        text: assessment.duration.toString(),
-                        style: detailBold),
-                    TextSpan(text: " seconds", style: detail),
-                  ]),
-                ),
+            textAlign: TextAlign.left,
+            text: TextSpan(text: "Patient Information", style: subHeader)),
+        Row(children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "Name: ", style: detail),
+                TextSpan(
+                    text: "${patient.first_name} ${patient.last_name}",
+                    style: detailBold),
               ]),
-              Spacer(),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                //TODO internationalize this date format to local time
-                RichText(
-                    text: TextSpan(children: [
-                  TextSpan(text: "Date: ", style: detail),
-                  TextSpan(
-                      text: DateTime.parse(assessment.datetime.toString())
-                          .toLocal()
-                          .toIso8601String()
-                          .substring(0, 10),
-                      style: detailBold),
-                ])),
-                RichText(
-                    text: TextSpan(children: [
-                  TextSpan(text: "Time: ", style: detail),
-                  TextSpan(
-                      text: DateTime.parse(assessment.datetime.toString())
-                          .toLocal()
-                          .toIso8601String()
-                          .substring(11)
-                          .split('.')[0]
-                          .substring(0, 5),
-                      style: detailBold),
-                ])),
-                Spacer(),
+            ),
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "DOB: ", style: detail),
+                TextSpan(text: patient.dob.toString(), style: detailBold),
               ]),
+            ),
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "Age: ", style: detail),
+                TextSpan(
+                    text: (DateTime.now()
+                                .difference(patient.dob.getDateTime())
+                                .inDays ~/
+                            365)
+                        .toString(),
+                    style: detailBold), //TODO DOB to age
+              ]),
+            ),
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "Gender: ", style: detail),
+                TextSpan(text: patient.gender.name, style: detailBold),
+              ]),
+            ),
+          ]),
+          Spacer(),
+          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            //TODO internationalize this date format to local time
+            RichText(
+                text: TextSpan(children: [
+              TextSpan(text: "Date: ", style: detail),
+              TextSpan(
+                  text: DateTime.parse(assessment.datetime.toString())
+                      .toLocal()
+                      .toIso8601String()
+                      .substring(0, 10),
+                  style: detailBold),
             ])),
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "Time: ", style: detail),
+                TextSpan(
+                    text: DateTime.parse(assessment.datetime.toString())
+                        .toLocal()
+                        .toIso8601String()
+                        .substring(11)
+                        .split('.')[0]
+                        .substring(0, 5),
+                    style: detailBold),
+              ]),
+            ),
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(text: "Total Duration: ", style: detail),
+                TextSpan(
+                    text: assessment.duration.toString(), style: detailBold),
+                TextSpan(text: " seconds", style: detail),
+              ]),
+            ),
+          ]),
+        ]),
       ]),
     );
   }
@@ -162,15 +161,15 @@ class CtsibPDF extends PDF {
   Widget assessmentData(Patient patient, Assessment assessment) {
     int index = 0;
     return SizedBox(
-        height: 3.5 * inch,
-        child: Column(children: [
+        height: 2.9 * inch,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           RichText(
               textAlign: TextAlign.left,
               text: TextSpan(text: "Assessment Information", style: subHeader)),
           Table(
             border: TableBorder.all(color: black),
             columnWidths: {
-              0: const FlexColumnWidth(3),
+              0: const FlexColumnWidth(2),
               1: const FlexColumnWidth(6),
               2: const FlexColumnWidth(4),
             },
@@ -235,40 +234,39 @@ class CtsibPDF extends PDF {
   }
 
   Widget interpretationData(Assessment assessment) {
-    return Column(children: [
-      RichText(text: TextSpan(text: "Interpretation", style: subHeader)),
-      ListView(
-        spacing: 2.0,
-        children: [
-          RichText(
-              text: TextSpan(
-                  text:
-                      "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
-                  style: detailBold)),
-          RichText(
-              text: TextSpan(
-                  text:
-                      "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
-                  style: detailBold)),
-          RichText(
-              text: TextSpan(
-                  text:
-                      "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-                  style: detailBold)),
-          RichText(
-              text: TextSpan(
-                  text:
-                      "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
-                  style: detailBold)),
-        ],
-      )
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Interpretation", style: subHeader)),
+      RichText(
+          text: TextSpan(
+              text:
+                  "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
+              style: disclaimer)),
+      RichText(
+          text: TextSpan(
+              text:
+                  "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
+              style: disclaimer)),
+      RichText(
+          text: TextSpan(
+              text:
+                  "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+              style: disclaimer)),
+      RichText(
+          text: TextSpan(
+              text:
+                  "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
+              style: disclaimer)),
     ]);
   }
 
 //TODO: Add normative data, and potientally another data field for collecting the patients fall history
   Widget normativeData(Patient patient) {
     return Column(children: [
-      RichText(text: TextSpan(text: "Normative Comparison", style: subHeader)),
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Normative Comparison", style: subHeader)),
       RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
     ]);
   }
@@ -277,7 +275,7 @@ class CtsibPDF extends PDF {
     return Column(children: [
       RichText(
           text: TextSpan(text: "Diagnostic Information", style: subHeader)),
-      RichText(text: TextSpan(text: "THIS IS A DEMO", style: detailBold)),
+      RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
     ]);
   }
 
@@ -293,7 +291,7 @@ class CtsibPDF extends PDF {
             RichText(
                 text: TextSpan(
                     style: disclaimer,
-                    text: "© 2022 VisualPT, Inc. All Rights Reserved")),
+                    text: "© 2023 VisualPT, Inc. All Rights Reserved")),
             RichText(
                 text: TextSpan(
                     style: disclaimer,

@@ -33,12 +33,9 @@ class AnalysisView extends StatelessWidget {
   Widget pdfReady(BuildContext context, PdfReady state) {
     return SafeArea(
       child: Column(children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width - 10,
-          child: AspectRatio(
-            aspectRatio: 8.5 / 11,
-            child: state.pdfView,
-          ),
+        AspectRatio(
+          aspectRatio: 8.5 / 11,
+          child: state.pdfView,
         ),
         const Spacer(),
         Padding(
