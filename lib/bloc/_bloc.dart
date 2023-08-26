@@ -7,4 +7,3 @@ export 'inference/inference_bloc.dart';
 export 'patient/patient_bloc.dart';
 export 'pdf/pdf_bloc.dart';
 export 'timer/timer_bloc.dart';
-export 'user/user_bloc.dart';

@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
-import 'package:image/image.dart';
 import 'package:visualpt/inference/ai_model.dart';
 import 'package:visualpt/inference/model_inference_service.dart';
+import 'package:visualpt/service/storage_service.dart';
 import 'package:visualpt/utils/image_utils.dart';
 import 'package:visualpt/utils/isolate_utils.dart';
 
@@ -15,36 +15,34 @@ class InferenceService {
 
   late ModelInferenceService _poseInferenceService;
 
-  bool ready = false;
+  bool isInitialized = false;
 
   InferenceService() {
     log("Configuring Models and Isolates");
     _poseInferenceService = ModelInferenceService();
     _poseInferenceService.setModelConfig(3);
-
-    asyncConstructor();
   }
 
-  void asyncConstructor() async {
+  Future<void> initialize() async {
     _poseIsolateUtils = IsolateUtils();
     _convertIsolateUtils = IsolateUtils();
 
-    final futures = [
-      _poseIsolateUtils.initIsolate("Pose Detection Isolate"),
-      _convertIsolateUtils.initIsolate("Image Conversion Isolate"),
-    ];
-
-    Future.wait(futures).then((value) => ready = true);
+    await _poseIsolateUtils.initIsolate("Pose Detection Isolate");
+    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
+    isInitialized = true;
   }
 
-  Future<AiModelOutput?> inference({required CameraImage cameraImage}) async {
-    if (!ready || _poseInferenceService.model.interpreter == null) {
+  Future<AiModelOutput?> inference(
+      {required CameraImage cameraImage,
+      required Map<String, double> params}) async {
+    if (!isInitialized || _poseInferenceService.model.interpreter == null) {
       return null;
     }
 
     await _poseInferenceService.inference(
       isolateUtils: _poseIsolateUtils,
       cameraImage: cameraImage,
+      params: params,
     );
     return _poseInferenceService.inferenceResults;
   }
@@ -56,30 +54,25 @@ class InferenceService {
 
   void store(CameraImage input, bool classification, double ratio,
       AiModelOutput data) async {
-    final image = ImageUtils.convertCameraImage(input);
-    if (image == null) {
-      throw Exception("Image is null");
-    }
+    StorageService storageService = StorageService();
     final lines = data.output.map((line) => line.join(",")).join("\n");
 
     final png = await ImageUtils.convert(
       isolateUtils: _convertIsolateUtils,
-      image: image,
+      image: input,
     );
 
     final metadata =
-        [image.height, image.width, ratio, classification ? 1 : 0].join(",");
+        [input.height, input.width, ratio, classification ? 1 : 0].join(",");
     final detection = '$metadata\n$lines';
 
     final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
     final dataPayload = S3DataPayload.string(detection);
 
     final key = "${DateTime.now().millisecondsSinceEpoch}";
-    Amplify.Storage.uploadData(data: imagePayload, key: 'raw/$key.png');
-    Amplify.Storage.uploadData(data: dataPayload, key: 'raw/$key.csv');
-  }
-
-  List<int> toPng(Map<String, dynamic> params) {
-    return encodePng(params['image']);
+    storageService.upload(
+        imagePayload, 'raw/$key.png', StorageAccessLevel.private);
+    storageService.upload(
+        dataPayload, 'raw/$key.csv', StorageAccessLevel.private);
   }
 }

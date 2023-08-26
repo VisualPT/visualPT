@@ -19,7 +19,7 @@ abstract class AiModel extends Equatable {
 
   Future<void> loadModel();
   TensorImage getProcessedImage(TensorImage inputImage);
-  AiModelOutput? predict(image_lib.Image image);
+  AiModelOutput? predict(image_lib.Image image, Map<String, dynamic> params);
 }
 
 abstract class AiModelOutput extends Equatable {

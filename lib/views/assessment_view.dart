@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
 
@@ -12,11 +12,9 @@ class AssessmentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AssessmentProvider(
+    return AssessmentPresenter(
         assessmentType: assessmentType,
         patient: patient,
-        getProviders: (context) =>
-            BlocProviders(context: context, assessment: true, patient: true),
         onIntro: (context, state) => state.getView(context),
         onActive: (context, state) => state.getView(context),
         onAnalysis: (context, state) => state.getView(context),
@@ -27,7 +25,7 @@ class AssessmentView extends StatelessWidget {
               children: [
                 Text(state.message.toString()),
                 CupertinoButton(
-                    onPressed: () => AppNav().back(context),
+                    onPressed: () => AppNav(context).back(),
                     child: const Text("Restart Assessment"))
               ],
             )));

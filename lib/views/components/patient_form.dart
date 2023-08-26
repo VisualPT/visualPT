@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -7,9 +6,12 @@ import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
 class PatientForm extends StatefulWidget {
+  final User user;
   final AssessmentType assessmentType;
 
-  const PatientForm({Key? key, required this.assessmentType}) : super(key: key);
+  const PatientForm(
+      {Key? key, required this.user, required this.assessmentType})
+      : super(key: key);
 
   @override
   State<PatientForm> createState() => _PatientFormState();
@@ -65,17 +67,16 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                Text(BlocProvider.of<UserBloc>(context).currentUser.email),
-                if (kDebugMode)
-                  CupertinoButton(
-                      onPressed: () {
-                        firstNameController.text = "Sample";
-                        lastNameController.text = "Patient";
-                        dobController.text = "2000-01-01";
-                        genderController.text = "MALE";
-                        heightController.text = "60\"";
-                      },
-                      child: const Text("Autofill")),
+                Text(widget.user.email),
+                CupertinoButton(
+                    onPressed: () {
+                      firstNameController.text = "Sample";
+                      lastNameController.text = "Patient";
+                      dobController.text = "2000-01-01";
+                      genderController.text = "MALE";
+                      heightController.text = "60\"";
+                    },
+                    child: const Text("Autofill")),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: GestureDetector(
@@ -98,9 +99,7 @@ class _PatientFormState extends State<PatientForm> {
                               dateOfBirth: dobController.text,
                               gender: genderController.text,
                               height: heightController.text,
-                              email: BlocProvider.of<UserBloc>(context)
-                                  .currentUser
-                                  .email));
+                              email: widget.user.email));
                         }
                       } catch (e) {
                         BlocProvider.of<PatientBloc>(context)
@@ -116,6 +115,8 @@ class _PatientFormState extends State<PatientForm> {
       ),
     );
   }
+
+  //TODO: Put custom popups in utils/
 
   Future<String?> datePopup() {
     String? value;
@@ -280,18 +281,3 @@ class _PatientFormState extends State<PatientForm> {
     );
   }
 }
-
-// void storeDateTimeData(DateTime date) {
-//   patientData.bday = date.toString().split(" ")[0];
-//   final now = DateTime.now();
-//   final String age = (now.difference(date).inDays / 365).floor().toString();
-//   patientData.age = age;
-//   final nowString = now.toString();
-//   final String nowDate = nowString.split(" ")[0];
-//   final String nowTime = nowString
-//       .split(" ")[1]
-//       .split(".")[0]
-//       .substring(0, nowString.split(" ")[1].split(".")[0].lastIndexOf(':'));
-//   patientData.date = nowDate;
-//   patientData.time = nowTime;
-// }

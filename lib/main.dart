@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/inference/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/repository/_repository.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/validation_view.dart';
 
@@ -16,32 +17,64 @@ void main() {
 ///Global routes and themes defined here
 class VisualPT extends StatelessWidget {
   const VisualPT({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => UserBloc(),
-      child: CupertinoApp(
-        theme: const CupertinoThemeData(
-            brightness: Brightness.light,
-            textTheme: CupertinoTextThemeData(
-                textStyle: TextStyle(
-                    fontFamily: "Unbounded", color: CupertinoColors.black))),
-        routes: {
-          "/": (context) => const LandingView(),
-          "/home": (context) => const HomeView(),
-          "/settings": (context) => const SettingsView(),
-          "/validate": (context) => const ValidationView(),
-        },
-        onGenerateRoute: (settings) {
-          if (settings.name == "/assessment") {
-            final assessmentType = settings.arguments as AssessmentType;
-            return CupertinoPageRoute(
-                builder: (context) =>
-                    PatientView(assessmentType: assessmentType));
-          }
-          return null;
-        },
+    //TODO: Abstract this into a AppPresenter widget
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create: (context) => BackendRepository(),
+        ),
+        RepositoryProvider(
+          create: (context) => AuthRepository(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) =>
+                BackendBloc(RepositoryProvider.of<BackendRepository>(context))
+                  ..add(const BackendAttemptSync()),
+          ),
+          BlocProvider(
+            create: (context) => AuthBloc(
+                RepositoryProvider.of<BackendRepository>(context),
+                RepositoryProvider.of<AuthRepository>(context)),
+          ),
+        ],
+        child: CupertinoApp(
+          theme: const CupertinoThemeData(
+              brightness: Brightness.light,
+              textTheme: CupertinoTextThemeData(
+                  textStyle: TextStyle(
+                      fontFamily: "Unbounded", color: CupertinoColors.black))),
+          routes: {
+            "/": (context) => const LandingView(),
+            "/home": (context) => const HomeView(),
+            "/video": (context) => VideoView(
+                (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+                        .user
+                        .email !=
+                    'gaitertech@gmail.com', //If the email is gaitertech@gmail.com, they are a guest, DO NOT let them store to database
+                (_) {}),
+            "/validate": (context) => const ValidationView(),
+            "/settings": (context) => const SettingsView(),
+          },
+          onGenerateRoute: (route) {
+            if (route.name == "/assessment") {
+              final assessmentType = route.arguments as AssessmentType;
+              return CupertinoPageRoute(
+                  builder: (context) =>
+                      PatientView(assessmentType: assessmentType));
+            }
+            // if (route.name == "/video") {
+            //   final args = route.arguments;
+            //   return CupertinoPageRoute(
+            //       builder: (context) => VideoView(onComplete: args.onComplete));
+            // }
+            return null;
+          },
+        ),
       ),
     );
   }

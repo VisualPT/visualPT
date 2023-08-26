@@ -1,24 +1,47 @@
 part of 'auth_bloc.dart';
 
 @immutable
-abstract class AuthEvent {}
+abstract class AuthEvent {
+  const AuthEvent();
+}
 
 class AuthAuto extends AuthEvent {
-  final void Function() onSuccess;
-  AuthAuto({required this.onSuccess});
+  const AuthAuto();
 }
 
 class AuthToggle extends AuthEvent {
-  AuthToggle();
+  const AuthToggle();
 }
 
-class AuthAttempt extends AuthEvent {
-  final void Function() onSuccess;
-  AuthAttempt({required this.onSuccess});
+class AuthAttemptLogIn extends AuthEvent {
+  const AuthAttemptLogIn();
+}
+
+class AuthAttemptSignUp extends AuthEvent {
+  const AuthAttemptSignUp();
+}
+
+class AuthGuest extends AuthEvent {
+  const AuthGuest();
 }
 
 class AuthConfirm extends AuthEvent {
   final AuthCodeDeliveryDetails? details;
-  final void Function() onSuccess;
-  AuthConfirm({this.details, required this.onSuccess});
+  const AuthConfirm({this.details});
+}
+
+class AuthForgotClicked extends AuthEvent {
+  const AuthForgotClicked();
+}
+
+class AuthConfirmedForgot extends AuthEvent {
+  const AuthConfirmedForgot();
+}
+
+class AuthRestore extends AuthEvent {
+  const AuthRestore();
+}
+
+class AuthDisconnect extends AuthEvent {
+  const AuthDisconnect();
 }

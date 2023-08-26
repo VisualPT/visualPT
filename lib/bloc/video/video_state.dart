@@ -1,29 +1,42 @@
 part of 'video_bloc.dart';
 
 @immutable
-abstract class VideoState {
+abstract class VideoState extends Equatable {
   final IconData icon;
-  final CameraController? controller;
-  const VideoState(this.icon, this.controller);
+  const VideoState(this.icon);
 }
 
 class VideoLoading extends VideoState {
-  const VideoLoading() : super(CupertinoIcons.hourglass, null);
+  const VideoLoading() : super(CupertinoIcons.hourglass);
+
+  @override
+  List<Object?> get props => [];
 }
 
 class VideoRecording extends VideoState {
-  const VideoRecording(CameraController controller)
-      : super(CupertinoIcons.square, controller);
+  final CameraController controller;
+  VideoRecording(this.controller)
+      : assert(controller.value.isInitialized),
+        super(CupertinoIcons.square);
+
+  @override
+  List<Object?> get props => [];
 }
 
 class VideoStandby extends VideoState {
-  const VideoStandby(CameraController controller)
-      : super(CupertinoIcons.circle, controller);
+  final CameraController controller;
+  const VideoStandby(this.controller) : super(CupertinoIcons.circle);
+
+  @override
+  List<Object?> get props => [];
 }
 
 class VideoError extends VideoState {
   final Exception exception;
   const VideoError({
     required this.exception,
-  }) : super(CupertinoIcons.restart, null);
+  }) : super(CupertinoIcons.restart);
+
+  @override
+  List<Object?> get props => [exception];
 }

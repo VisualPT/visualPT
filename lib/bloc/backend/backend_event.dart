@@ -11,10 +11,6 @@ class BackendAttemptSync extends BackendEvent {
   const BackendAttemptSync();
 }
 
-class BackendSuccessSync extends BackendEvent {
-  const BackendSuccessSync();
-}
-
 class BackendFailSync extends BackendEvent {
   final String message;
   const BackendFailSync(this.message);

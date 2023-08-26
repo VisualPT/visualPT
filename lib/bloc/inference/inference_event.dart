@@ -12,28 +12,30 @@ class InferenceInit extends InferenceEvent {
 }
 
 class InferenceStart extends InferenceEvent {
-  const InferenceStart();
+  final double ratio;
+  const InferenceStart(this.ratio);
+}
+
+class InferenceToggle extends InferenceEvent {
+  final bool classification;
+  const InferenceToggle(this.classification);
 }
 
 class InferenceInput extends InferenceEvent {
   final CameraImage input;
-  final bool classification;
-  final int frame;
   final double ratio;
-  const InferenceInput(
-      {required this.input,
-      required this.classification,
-      required this.frame,
-      required this.ratio});
+  const InferenceInput({required this.input, required this.ratio});
 
   @override
   List<Object> get props => [input];
 }
 
 class InferenceOutput extends InferenceEvent {
-  final CameraImage? image;
+  final CameraImage input;
+  final double ratio;
   final AiModelOutput? output;
-  const InferenceOutput({required this.image, required this.output});
+  const InferenceOutput(
+      {required this.input, required this.ratio, required this.output});
 
   @override
   List<Object?> get props => [output];

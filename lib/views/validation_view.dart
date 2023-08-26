@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/components/_components.dart';
 
-import '../providers/validation_provider.dart';
 import 'camera_painters/pose_painter.dart';
 
 //Get all the images and data from the 'raw/' storage folder
@@ -38,11 +37,10 @@ class ValidationView extends StatelessWidget {
       child: Stack(
         children: [
           const ViewBackground(),
-          ValidationProvider(
-            getProviders: (context) =>
-                BlocProviders(context: context, validation: true),
+          ValidationPresenter(
             onDisplay: (context, state) => onDisplay(context, state),
-            onLoad: (context, state) => onLoad(context, state),
+            onLoad: (context, state) => const AppLoading(),
+            //TODO: Create AppError widget for all blocks
             onError: (context, state) => onError(context, state),
           )
         ],
@@ -66,7 +64,7 @@ class ValidationView extends StatelessWidget {
               fit: BoxFit
                   .fitWidth, // This ensures that the image covers the entire space defined by height and width
             ),
-            drawPose(state.ratio, state.offsets),
+            drawPose(state.offsets),
             Positioned(
                 bottom: 40,
                 child: ConstrainedBox(
@@ -107,19 +105,14 @@ class ValidationView extends StatelessWidget {
         ));
   }
 
-  onLoad(BuildContext _, ValidationLoad __) {
-    return const AppLoading();
-  }
-
   onError(BuildContext _, ValidationError state) {
     return Text(state.message, style: Styles.error);
   }
 
-  Widget drawPose(double ratio, List<Offset>? points) {
+  Widget drawPose(List<Offset>? points) {
     return _ModelPainter(
       customPainter: PosePainter(
         points: points ?? [],
-        ratio: ratio,
       ),
     );
   }

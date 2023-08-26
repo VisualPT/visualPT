@@ -1,45 +1,23 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/components/inference_painter.dart';
 import 'package:visualpt/views/components/_components.dart';
+import 'package:visualpt/views/components/video_controls.dart';
 
-class VideoView extends StatefulWidget {
-  final void Function(Segment) onComplete;
-  const VideoView({super.key, required this.onComplete});
-
-  @override
-  State<VideoView> createState() => VideoViewState();
-}
-
-class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
-  late BlocProviders controller;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
+class VideoView extends StatelessWidget {
+  const VideoView(this.storageAccess, this.onComplete, {super.key});
+  final bool storageAccess;
+  final Function(Segment) onComplete;
   @override
   Widget build(BuildContext context) {
-    return VideoProvider(
-      getProviders: (context) {
-        controller = BlocProviders(
-            context: context, video: true, timer: true, inference: true);
-      },
-      onComplete: widget.onComplete,
-      onRecording: mainVideo,
-      onStandby: mainVideo,
+    return VideoPresenter(
+      storageAccess,
+      onRecording: recordingVideo,
+      onStandby: standbyVideo,
       onLoading: loadingVideo,
       onError: errorVideo,
     );
@@ -49,136 +27,68 @@ class VideoViewState extends State<VideoView> with WidgetsBindingObserver {
   ///    WIDGETS BELOW    ///
   /// /// /// /// /// /// ///
 
-  Widget mainVideo(BuildContext context, VideoState videoState) {
-    assert(videoState is VideoRecording || videoState is VideoStandby);
-    return BlocBuilder<TimerBloc, TimerState>(
-      builder: (context, timerState) {
-        if (timerState is TimerRunComplete) {
-          BlocProvider.of<VideoBloc>(context)
-              .add(VideoStop(videoState.controller!));
-        }
-        return Center(
-          child: Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: InferencePainter(
-                      inferenceController: controller.inferenceBloc,
-                      timerController: controller.timerBloc,
-                      videoState: videoState),
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        color: Styles.backgroundAccent),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 3,
-                                width: MediaQuery.of(context).size.width,
-                                color: Styles.backgroundPrimary,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  videoState is VideoRecording
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: GestureDetector(
-                                              onTap: () {
-                                                controller.videoBloc!.add(
-                                                    VideoRestart(videoState
-                                                        .controller!));
-                                                controller.timerBloc!
-                                                    .add(const TimerReset());
-                                                controller.timerBloc!
-                                                    .add(const TimerStarted());
-                                              },
-                                              child: const Icon(
-                                                  CupertinoIcons.restart,
-                                                  color: CupertinoColors.black,
-                                                  size: 40)),
-                                        )
-                                      : const SizedBox(),
-                                  const Spacer(),
-                                  SafeArea(
-                                    child: VideoTimer(
-                                        cameraController:
-                                            videoState.controller!,
-                                        duration: timerState.duration),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                BlocBuilder<InferenceBloc, InferenceState>(
-                    builder: (context, state) {
-                  if (state.ready) {
-                    return Positioned(
-                      bottom: 20,
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (videoState is VideoRecording) {
-                              controller.inferenceBloc!
-                                  .add(const InferenceEnd());
-                              controller.timerBloc!.add(const TimerReset());
-                              controller.videoBloc!
-                                  .add(VideoStop(videoState.controller!));
-                            }
-                            if (videoState is VideoStandby) {
-                              controller.videoBloc!
-                                  .add(VideoPlay(videoState.controller!));
-                              controller.timerBloc!.add(const TimerStarted());
-                            }
-                          },
-                          child: videoState is VideoRecording
-                              ? const Icon(CupertinoIcons.stop,
-                                  color: Styles.backgroundComplementory,
-                                  size: 80)
-                              : const Icon(CupertinoIcons.circle_fill,
-                                  color: Styles.actionPrimary, size: 80),
-                        ),
-                      ),
-                    );
-                  }
-                  return Container();
-                })
-              ]),
-        );
-      },
+  Widget recordingVideo(BuildContext context, VideoRecording state) {
+    //TODO: Be more detailed about this component and try ot make it generic enough to be used by standbyVideo as well
+    return VideoControls(
+      onComplete: onComplete,
+      state: state,
     );
   }
 
+  Widget standbyVideo(BuildContext context, VideoStandby videoState) {
+    final vid = BlocProvider.of<VideoBloc>(context),
+        timer = BlocProvider.of<TimerBloc>(context),
+        inf = BlocProvider.of<InferenceBloc>(context),
+        screenWidth = MediaQuery.of(context).size.width;
+
+    return SafeArea(
+        child: Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+        ),
+        AspectRatio(
+          aspectRatio: 1 / videoState.controller.value.aspectRatio,
+          child: CameraPreview(videoState.controller),
+        ),
+        BlocBuilder<InferenceBloc, InferenceState>(
+            buildWhen: (previous, current) {
+          return previous is InferenceLoading && current is InferenceStopped;
+        }, builder: (context, state) {
+          if (state is InferenceLoading) {
+            return const AppLoading(message: "Loading Model");
+          }
+          return Positioned(
+              bottom: 0,
+              child: GestureDetector(
+                onTap: () {
+                  vid.add(const VideoPlay());
+                  timer.add(const TimerStarted());
+                  inf.add(InferenceStart(screenWidth /
+                      videoState.controller.value.previewSize!.height));
+                },
+                child: const Icon(CupertinoIcons.circle_fill,
+                    color: Styles.white, size: 80),
+              ));
+        }),
+      ],
+    ));
+  }
+
   Widget loadingVideo(BuildContext _, VideoState __) {
-    return const Center(child: AppLoading(message: "Loading Camera"));
+    return const Center(child: AppLoading(message: "Video Stream Loading"));
   }
 
   Widget errorVideo(BuildContext context, VideoState state, Exception e) {
+    final vid = BlocProvider.of<VideoBloc>(context);
     return Center(
       child: Column(
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => state.controller != null
-                ? controller.videoBloc!.add(VideoRestart(state.controller!))
-                : controller.videoBloc!
-                    .add(VideoInit(onComplete: widget.onComplete)),
+            onPressed: () => vid.add(const VideoRestart()),
             child: const Text("Restart"),
           ),
         ],

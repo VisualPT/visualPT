@@ -1,47 +1,45 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/bloc/_bloc.dart';
-import 'package:visualpt/service/backend_service.dart';
+import 'package:visualpt/repository/backend_repository.dart';
 
 part 'backend_event.dart';
 part 'backend_state.dart';
 
 class BackendBloc extends Bloc<BackendEvent, BackendState> {
-  final BackendService backendService = BackendService();
-
-  BackendBloc() : super(const BackendOffline("No connection established")) {
+  final BackendRepository backendRepository;
+  BackendBloc(this.backendRepository)
+      : super(const BackendOffline("No connection established")) {
     on<BackendAttemptSync>(_onAttempt);
-    on<BackendSuccessSync>(_onSuccess);
     on<BackendFailSync>(_onFail);
 
-    backendService.observeConnectivity(
-        onConnectionNone: () =>
-            add(const BackendFailSync("Lost Connectivity")));
+    backendRepository.connectivityEvents.listen((data) {
+      if (data == ConnectivityResult.none) {
+        add(const BackendFailSync("No Connection"));
+      }
+    });
   }
-
   FutureOr<void> _onAttempt(
       BackendAttemptSync event, Emitter<BackendState> emit) async {
-    log("Connecting to Backend");
-    backendService.initialConfig(
-        onSuccess: () => add(const BackendSuccessSync()),
-        onFail: (message) => add(BackendFailSync(message)));
-    emit(const BackendLoading());
-  }
-
-  FutureOr<void> _onSuccess(
-      BackendSuccessSync event, Emitter<BackendState> emit) async {
-    emit(const BackendOnline());
-    log("Successful Connection");
+    try {
+      if (!isClosed) emit(const BackendLoading());
+      log("Connecting to Backend", name: "Backend Bloc");
+      await backendRepository.init();
+      if (!isClosed) emit(const BackendOnline());
+    } catch (e) {
+      if (!isClosed) emit(BackendOffline(e.toString()));
+    }
   }
 
   FutureOr<void> _onFail(BackendFailSync event, Emitter<BackendState> emit) {
-    log("Failed Connection");
-    emit(BackendOffline(event.message));
+    if (!isClosed) emit(BackendOffline(event.message));
   }
 
+  //TOOD: put this somewhere better
   void backendLoading() {
     StreamSubscription<Duration> timer = const Ticker().tick().listen((_) {});
     timer.onData((data) {

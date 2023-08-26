@@ -3,74 +3,37 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
-import 'package:visualpt/providers/_providers.dart';
+import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/service/auth_service.dart';
 import 'package:visualpt/utils/auth_utils.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
-import '../providers/auth_provider.dart';
 import 'components/_components.dart';
 
 //TODO: Create some animations between auth states
-class AuthView extends StatefulWidget {
-  const AuthView({super.key});
+class AuthView extends StatelessWidget {
+  AuthView({super.key});
 
-  @override
-  State<AuthView> createState() => _AuthViewState();
-}
-
-class _AuthViewState extends State<AuthView> {
-  //TODO BLOC FORM WHEN MVP IS DONE
   final _formKey = GlobalKey<FormState>();
-
-  void onSuccess() {
-    BlocProvider.of<UserBloc>(context).add(UserFetch());
-    log("Setting home");
-    AppNav().setHome(context);
-  }
 
   @override
   Widget build(BuildContext context) {
-    return BaseView(
-        pageTitle: "Faster Workflows.",
-        child: AuthProvider(
-          getProviders: (context) =>
-              BlocProviders(context: context, auth: true),
-          onSignUp: (context, state) => signupForm(context, state),
-          onLogIn: (context, state) => loginForm(context, state),
-          onValidate: (context, state) => validationForm(context, state),
-          onLoad: (context, state) => AppLoading(message: state.message),
-          onError: (context, state) => authError(context, state.error),
-        ));
-  }
-
-  Widget loginForm(BuildContext context, AuthLogIn state) {
-    return SingleChildScrollView(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("Accelerate assessments"),
-            ),
-            const FormInput("email",
-                authType: AuthDataType.email,
-                inputType: TextInputType.emailAddress,
-                validator: AuthUtils.validateEmail),
-            const FormInput("password",
-                authType: AuthDataType.password,
-                obscure: true,
-                validator: AuthUtils.validatePassword),
-            Text(state.message != null ? state.message! : "",
-                style: Styles.error),
-            authButtons(context, true),
-          ],
-        ),
-      ),
+    return AuthPresenter(
+      onSignUp: (context, state) => signupForm(context, state),
+      onLogIn: (context, state) => loginForm(context, state),
+      onForgot: (context, state) => forgotForm(context, state),
+      onReset: (context, state) => resetForm(context, state),
+      onCode: (context, state) => codeForm(context, state),
+      onSuccess: (context, state) {
+        AppNav(context).setHome();
+        return const AppLoading(message: "Successful Auth");
+      },
+      onLoad: (context, state) => AppLoading(message: state.message),
+      onError: (context, state) => authError(context, state.error),
     );
   }
 
+//TODO: Create a core form widget that takes in a list of FormInputs
   Widget signupForm(BuildContext context, AuthSignUp state) {
     return SingleChildScrollView(
       child: Form(
@@ -104,7 +67,83 @@ class _AuthViewState extends State<AuthView> {
     );
   }
 
-  Widget validationForm(BuildContext context, AuthValidate state) {
+  Widget loginForm(BuildContext context, AuthLogIn state) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Accelerate assessments"),
+            ),
+            const FormInput("email",
+                authType: AuthDataType.email,
+                inputType: TextInputType.emailAddress,
+                validator: AuthUtils.validateEmail),
+            const FormInput("password",
+                authType: AuthDataType.password,
+                obscure: true,
+                validator: AuthUtils.validatePassword),
+            Text(state.message != null ? state.message! : "",
+                style: Styles.error),
+            authButtons(context, true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget forgotForm(BuildContext context, AuthForgot state) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("What is your email?"),
+            ),
+            const FormInput("email",
+                authType: AuthDataType.email,
+                inputType: TextInputType.emailAddress,
+                validator: AuthUtils.validateEmail),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CupertinoButton(
+                  color: Styles.actionPrimary,
+                  child: const Text(
+                    "Next",
+                    style: Styles.subactionText,
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      _formKey.currentState!.reset();
+                      BlocProvider.of<AuthBloc>(context)
+                          .add(const AuthConfirmedForgot());
+                    }
+                  }),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CupertinoButton(
+                  color: Styles.actionSecondary,
+                  child: const Text(
+                    "Go back",
+                    style: Styles.subactionText,
+                  ),
+                  onPressed: () {
+                    BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
+                  }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget codeForm(BuildContext context, AuthCode state) {
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -121,34 +160,93 @@ class _AuthViewState extends State<AuthView> {
               state.message != null ? state.message! : "",
               style: Styles.error,
             ),
-            confirmButton(context),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Styles.actionPrimary),
+                  child: const Text("Confirm", style: Styles.actionText),
+                ),
+                onTap: () {
+                  BlocProvider.of<AuthBloc>(context).add(const AuthConfirm());
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget confirmButton(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 2,
-              width: MediaQuery.of(context).size.width / 2,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: const Text("Confirm", style: Styles.actionText),
+  Widget resetForm(BuildContext context, AuthReset state) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Reset password"),
             ),
-            onTap: () {
-              BlocProvider.of<AuthBloc>(context)
-                  .add(AuthConfirm(onSuccess: onSuccess));
-            },
-          ),
+            const FormInput("New Password",
+                authType: AuthDataType.password,
+                validator: AuthUtils.validatePassword),
+            const FormInput("Confirm Password",
+                authType: AuthDataType.confirmPassword,
+                validator: AuthUtils.validatePassword),
+            const FormInput("Code (sent to email)",
+                authType: AuthDataType.confirmCode,
+                validator: AuthUtils.validateCode),
+            Text(
+              state.message != null ? state.message! : "",
+              style: Styles.error,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Styles.actionPrimary),
+                  child: const Text("Reset", style: Styles.actionText),
+                ),
+                onTap: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    _formKey.currentState!.reset();
+                    log("Auth Data Validated");
+                    BlocProvider.of<AuthBloc>(context).add(const AuthRestore());
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget authError(BuildContext context, Exception? error) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: SingleChildScrollView(
+          child: Center(
+              child: Column(
+        children: [
+          Text(error.toString(), style: Styles.error),
+          CupertinoButton(
+            child: const Text("Retry"),
+            onPressed: () =>
+                {BlocProvider.of<AuthBloc>(context).add(const AuthToggle())},
+          )
+        ],
+      ))),
     );
   }
 
@@ -172,11 +270,9 @@ class _AuthViewState extends State<AuthView> {
                 _formKey.currentState!.save();
                 _formKey.currentState!.reset();
                 log("Auth Data Validated");
-                //TODO: simplify view add form key to Bloc
-                //TODO store data to backend
-                BlocProvider.of<AuthBloc>(context).add(AuthAttempt(
-                  onSuccess: onSuccess,
-                ));
+                BlocProvider.of<AuthBloc>(context).add(isLogin
+                    ? const AuthAttemptLogIn()
+                    : const AuthAttemptSignUp());
               }
             },
           ),
@@ -185,21 +281,42 @@ class _AuthViewState extends State<AuthView> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: CupertinoButton(
-              color: Styles.actionSecondary,
+              color: Styles.actionPrimary,
               child: Text(
                 isLogin ? signup : login,
                 style: Styles.subactionText,
               ),
               onPressed: () {
                 _formKey.currentState!.reset();
-                BlocProvider.of<AuthBloc>(context).add(AuthToggle());
+                BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoButton(
+              color: Styles.actionSecondary,
+              child: const Text(
+                "Forgot Password",
+                style: Styles.subactionText,
+              ),
+              onPressed: () {
+                BlocProvider.of<AuthBloc>(context)
+                    .add(const AuthForgotClicked());
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoButton(
+              color: Styles.actionSecondary,
+              child: const Text(
+                "Proceed as Guest",
+                style: Styles.subactionText,
+              ),
+              onPressed: () {
+                BlocProvider.of<AuthBloc>(context).add(const AuthGuest());
               }),
         ),
       ],
     );
-  }
-
-  Widget authError(BuildContext context, Exception? error) {
-    return Text(error.toString(), style: Styles.error);
   }
 }

@@ -1,24 +1,22 @@
 part of 'video_bloc.dart';
 
 @immutable
-abstract class VideoEvent {}
+abstract class VideoEvent {
+  const VideoEvent();
+}
 
 class VideoInit extends VideoEvent {
-  final void Function(Segment) onComplete;
-  VideoInit({required this.onComplete});
+  const VideoInit();
 }
 
 class VideoPlay extends VideoEvent {
-  final CameraController controller;
-  VideoPlay(this.controller);
+  const VideoPlay();
 }
 
 class VideoRestart extends VideoEvent {
-  final CameraController controller;
-  VideoRestart(this.controller);
+  const VideoRestart();
 }
 
 class VideoStop extends VideoEvent {
-  final CameraController controller;
-  VideoStop(this.controller);
+  const VideoStop();
 }

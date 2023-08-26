@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/app_nav.dart';
 import 'components/_components.dart';
 
 class LandingView extends StatelessWidget {
@@ -11,44 +10,40 @@ class LandingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       child: Stack(
         children: [
           BaseView(
             pageTitle: "Save 5 clicks & 5 minutes",
-            child: BlocProvider(
-              create: (context) =>
-                  BackendBloc()..add(const BackendAttemptSync()),
-              child: BlocBuilder<BackendBloc, BackendState>(
-                builder: (context, state) {
-                  try {
-                    if (state is BackendOnline) {
-                      AppNav().setAuth(context);
-                      return const AppLoading();
-                    } else if (state is BackendOffline) {
-                      //Return a reason with a retry button
-                      return Column(
-                        children: [
-                          const Text("Backend Offline"),
-                          Text(state.message),
-                          CupertinoButton(
-                              onPressed: () =>
-                                  BlocProvider.of<BackendBloc>(context)
-                                      .add(const BackendAttemptSync()),
-                              child: const Text("Retry"))
-                        ],
-                      );
-                    } else {
-                      //State is BackendLoading
-                      BlocProvider.of<BackendBloc>(context).backendLoading();
-                      return const AppLoading();
-                    }
-                  } on Exception catch (e) {
-                    BlocProvider.of<BackendBloc>(context)
-                        .add(BackendFailSync(e.toString()));
+            child: BlocBuilder<BackendBloc, BackendState>(
+              builder: (context, state) {
+                try {
+                  if (state is BackendOnline) {
+                    return AuthView();
+                  } else if (state is BackendOffline) {
+                    //Return a reason with a retry button
+                    return Column(
+                      children: [
+                        const Text("Backend Offline"),
+                        Text(state.message),
+                        CupertinoButton(
+                            onPressed: () =>
+                                BlocProvider.of<BackendBloc>(context)
+                                    .add(const BackendAttemptSync()),
+                            child: const Text("Retry"))
+                      ],
+                    );
+                  } else {
+                    //State is BackendLoading
+                    BlocProvider.of<BackendBloc>(context).backendLoading();
                     return const AppLoading();
                   }
-                },
-              ),
+                } catch (e) {
+                  BlocProvider.of<BackendBloc>(context)
+                      .add(BackendFailSync(e.toString()));
+                  return const AppLoading();
+                }
+              },
             ),
           ),
         ],
