@@ -21,7 +21,7 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
     on<InferenceInput>(_onInput, transformer: concurrent());
     on<InferenceOutput>(_onOutput, transformer: concurrent());
     on<InferenceEnd>(_onEnd);
-    classification = false;
+    classification = true;
     storageBacklog = 0;
 
     //TODO dynamically load models through constructor
@@ -88,8 +88,9 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
         _inferenceService.store(
             event.input, classification, event.ratio, event.output!);
       }
-      if (!isClosed && !emit.isDone)
+      if (!isClosed && !emit.isDone) {
         emit(InferenceRunning(event.output, event.ratio));
+      }
     } catch (e) {
       log("Error: $e");
     }
