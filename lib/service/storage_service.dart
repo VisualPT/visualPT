@@ -52,6 +52,20 @@ class StorageService {
     }
   }
 
+  void move(
+      {required String sourceKey,
+      required String destinationKey,
+      StorageAccessLevel sourceAccessLevel = StorageAccessLevel.private,
+      StorageAccessLevel destinationAccessLevel = StorageAccessLevel.private}) {
+    Amplify.Storage.move(
+        source: StorageItemWithAccessLevel(
+            storageItem: StorageItem(key: sourceKey),
+            accessLevel: sourceAccessLevel),
+        destination: StorageItemWithAccessLevel(
+            storageItem: StorageItem(key: destinationKey),
+            accessLevel: destinationAccessLevel));
+  }
+
   void remove(String key, StorageAccessLevel accessLevel) {
     Amplify.Storage.remove(
         key: key, options: StorageRemoveOptions(accessLevel: accessLevel));

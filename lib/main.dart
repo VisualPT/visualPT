@@ -50,13 +50,11 @@ class VisualPT extends StatelessWidget {
                       fontFamily: "Unbounded", color: CupertinoColors.black))),
           routes: {
             "/": (context) => const LandingView(),
-            "/home": (context) => const HomeView(),
-            "/video": (context) => VideoView(
+            "/home": (context) => HomeView(
                 (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
                         .user
-                        .email !=
-                    'gaitertech@gmail.com', //If the email is gaitertech@gmail.com, they are a guest, DO NOT let them store to database
-                (_) {}),
+                        .email ==
+                    'gaitertech@gmail.com'),
             "/validate": (context) => const ValidationView(),
             "/settings": (context) => const SettingsView(),
           },
@@ -67,11 +65,15 @@ class VisualPT extends StatelessWidget {
                   builder: (context) =>
                       PatientView(assessmentType: assessmentType));
             }
-            // if (route.name == "/video") {
-            //   final args = route.arguments;
-            //   return CupertinoPageRoute(
-            //       builder: (context) => VideoView(onComplete: args.onComplete));
-            // }
+            if (route.name == "/video") {
+              final args = route.arguments as Map<String, dynamic>;
+              final storeData = args["storageAccess"] as bool;
+              final onComplete =
+                  args["onComplete"] as dynamic Function(Segment);
+
+              return CupertinoPageRoute(
+                  builder: (context) => VideoView(storeData, onComplete));
+            }
             return null;
           },
         ),

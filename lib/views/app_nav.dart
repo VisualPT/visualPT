@@ -14,13 +14,13 @@ class AppNav {
     });
   }
 
-  toPath(String path) {
+  void toPath({required String path, Object? args}) {
     Future(() async {
-      Navigator.of(context).pushNamed(path);
+      Navigator.of(context).pushNamed(path, arguments: args);
     });
   }
 
-  toView(Widget view) {
+  void toView(Widget view) {
     Future(() async {
       Navigator.of(context).push(
         CupertinoPageRoute<void>(
@@ -30,7 +30,7 @@ class AppNav {
     });
   }
 
-  reset() {
+  void reset() {
     Future(() async {
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
