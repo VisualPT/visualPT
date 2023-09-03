@@ -1,24 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
-import 'package:visualpt/views/app_nav.dart';
 
 /// Provided by ValidationBloc
 class ValidationPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, ValidationDisplay state)
       onDisplay;
   final Widget Function(BuildContext context, ValidationLoad state) onLoad;
+  final Widget Function(BuildContext context, ValidationDispose state)
+      onDispose;
   final Widget Function(BuildContext context, ValidationError state) onError;
 
 //TODO: add error handling for...
 /* 
+* "
 * The following HttpException was thrown resolving an image codec:
 * Connection closed before full header was received
+* "
 **/
   const ValidationPresenter({
     super.key,
     required this.onDisplay,
     required this.onLoad,
+    required this.onDispose,
     required this.onError,
   });
 
@@ -38,9 +42,7 @@ class ValidationPresenter extends StatelessWidget {
             } else if (state is ValidationDisplay) {
               return onDisplay(context, state);
             } else if (state is ValidationDispose) {
-              AppNav(context).back();
-              //TODO: Fix this
-              return Container();
+              return onDispose(context, state);
             } else {
               throw Exception("Undefined Validation State");
             }

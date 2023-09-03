@@ -17,7 +17,7 @@ class VideoControls extends StatefulWidget {
 }
 
 class _VideoControlsState extends State<VideoControls> {
-  bool classification = false;
+  bool classification = true;
   @override
   Widget build(BuildContext context) {
     final inf = BlocProvider.of<InferenceBloc>(context),

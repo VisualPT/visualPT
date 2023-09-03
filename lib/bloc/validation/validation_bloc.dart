@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/service/storage_service.dart';
@@ -14,9 +13,14 @@ part 'validation_state.dart';
 
 class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
   final storage = StorageService();
+  // Internal list to keep track of processed IDs
+  final List<String> _processedKeys = [];
+  // Internal list to keep track of procesed labels
+  final List<int> _processedInputs = [];
 
   ValidationBloc() : super(const ValidationLoad([])) {
     on<ValidationFetch>(_onFetch);
+    on<ValidationPrev>(_onPrev);
     on<ValidationNext>(_onNext);
     on<ValidationInput>(_onInput);
     on<ValidationEnd>(_onEnd);
@@ -26,6 +30,39 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
       ValidationFetch event, Emitter<ValidationState> emit) async {
     final storedKeys = await storage.listRawData();
     add(ValidationNext(keys: storedKeys));
+  }
+
+  FutureOr<void> _onPrev(
+      ValidationPrev event, Emitter<ValidationState> emit) async {
+    //Put the ID back into the list of unprocessed IDs
+    String id = _processedKeys.removeLast();
+    int classification = _processedInputs.removeLast();
+    event.keys.insert(0, event.currentKey);
+    event.keys.insert(0, id);
+    if (classification == 1) {
+      storage.move(
+          sourceKey: 'valid/$id.csv',
+          destinationKey: 'raw/$id.csv',
+          sourceAccessLevel: amplify.StorageAccessLevel.guest,
+          destinationAccessLevel: amplify.StorageAccessLevel.private);
+      storage.move(
+          sourceKey: 'valid/$id.csv',
+          destinationKey: 'raw/$id.csv',
+          sourceAccessLevel: amplify.StorageAccessLevel.guest,
+          destinationAccessLevel: amplify.StorageAccessLevel.private);
+    } else {
+      storage.move(
+          sourceKey: 'invalid/$id.csv',
+          destinationKey: 'raw/$id.csv',
+          sourceAccessLevel: amplify.StorageAccessLevel.guest,
+          destinationAccessLevel: amplify.StorageAccessLevel.private);
+      storage.move(
+          sourceKey: 'invalid/$id.csv',
+          destinationKey: 'raw/$id.csv',
+          sourceAccessLevel: amplify.StorageAccessLevel.guest,
+          destinationAccessLevel: amplify.StorageAccessLevel.private);
+    }
+    add(ValidationNext(keys: event.keys));
   }
 
   FutureOr<void> _onNext(
@@ -51,7 +88,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           }
         } else {
           imageID = temp;
-          searchKey = temp.split('.').first;
+          searchKey = temp.split('.').first.split('/').last;
           final dataIndex =
               event.keys.indexWhere((element) => element.contains(searchKey));
           if (dataIndex != -1) {
@@ -60,6 +97,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
             throw Exception('No data file found');
           }
         }
+        //Get the image and data from the storage
         final imageResult = await storage
             .getUrl(imageID, amplify.StorageAccessLevel.private)
             .result;
@@ -81,7 +119,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         emit(ValidationDisplay(
           event.keys,
           key: searchKey,
-          originalDataBytes: dataResult.bytes,
+          dataBytes: dataResult.bytes,
           imageUrl: imageResult.url.toString(),
           imageHeight: imageHeight,
           imageWidth: imageWidth,
@@ -100,13 +138,25 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
   FutureOr<void> _onInput(
       ValidationInput event, Emitter<ValidationState> emit) {
+    _processedKeys.add(event.key);
+    _processedInputs.add(event.input ? 1 : 0);
     //Store the validated data
     if (event.input) {
-      storage.upload(S3DataPayload.bytes(event.originalDataBytes),
-          'valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
+      //Store the ID of the image and data file in a list in case we need to go back
+      storage.move(
+          sourceKey: 'raw/${event.key}.csv',
+          destinationKey: 'valid/${event.key}.csv');
+      storage.move(
+          sourceKey: 'raw/${event.key}.png',
+          destinationKey: 'valid/${event.key}.png');
+    } else {
+      storage.move(
+          sourceKey: 'raw/${event.key}.csv',
+          destinationKey: 'invalid/${event.key}.csv');
+      storage.move(
+          sourceKey: 'raw/${event.key}.png',
+          destinationKey: 'invalid/${event.key}.png');
     }
-    storage.remove('raw/${event.key}.csv', amplify.StorageAccessLevel.private);
-    storage.remove('raw/${event.key}.png', amplify.StorageAccessLevel.private);
     //Start the next validation
     add(ValidationNext(keys: event.keys));
   }
