@@ -14,12 +14,17 @@ class VideoView extends StatelessWidget {
   final Function(Segment) onComplete;
   @override
   Widget build(BuildContext context) {
-    return VideoPresenter(
-      storageAccess,
-      onRecording: recordingVideo,
-      onStandby: standbyVideo,
-      onLoading: loadingVideo,
-      onError: errorVideo,
+    return Stack(
+      children: [
+        const ViewBackground(),
+        VideoPresenter(
+          storageAccess,
+          onRecording: recordingVideo,
+          onStandby: standbyVideo,
+          onLoading: loadingVideo,
+          onError: errorVideo,
+        ),
+      ],
     );
   }
 
