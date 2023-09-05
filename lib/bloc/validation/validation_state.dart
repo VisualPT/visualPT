@@ -1,5 +1,7 @@
 part of 'validation_bloc.dart';
 
+const List<String> emptyArr = [];
+
 abstract class ValidationState extends Equatable {
   final List<String> keys;
   const ValidationState(this.keys);
@@ -9,7 +11,7 @@ abstract class ValidationState extends Equatable {
 }
 
 class ValidationLoad extends ValidationState {
-  const ValidationLoad(super.keys);
+  const ValidationLoad() : super(emptyArr);
 
   @override
   List<Object> get props => [];
@@ -18,7 +20,7 @@ class ValidationLoad extends ValidationState {
 class ValidationDisplay extends ValidationState {
   final String key;
   final List<int> dataBytes;
-  final String imageUrl;
+  final List<int> imageBytes;
   final int imageHeight;
   final int imageWidth;
   final double ratio;
@@ -27,7 +29,7 @@ class ValidationDisplay extends ValidationState {
   const ValidationDisplay(super.keys,
       {required this.key,
       required this.dataBytes,
-      required this.imageUrl,
+      required this.imageBytes,
       required this.imageHeight,
       required this.imageWidth,
       required this.ratio,
@@ -36,7 +38,7 @@ class ValidationDisplay extends ValidationState {
 
   @override
   List<Object> get props =>
-      [dataBytes, imageUrl, imageHeight, imageWidth, classification, offsets];
+      [dataBytes, imageBytes, imageHeight, imageWidth, classification, offsets];
 }
 
 class ValidationDispose extends ValidationState {

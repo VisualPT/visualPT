@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
@@ -62,8 +64,8 @@ class ValidationView extends StatelessWidget {
               alignment: Alignment.center,
               fit: StackFit.expand,
               children: [
-                Image.network(
-                  state.imageUrl,
+                Image.memory(
+                  Uint8List.fromList(state.imageBytes),
                   height: state.imageHeight.toDouble(),
                   width: state.imageWidth.toDouble(),
                   fit: BoxFit
@@ -90,7 +92,7 @@ class ValidationView extends StatelessWidget {
                       key: state.key,
                       keys: state.keys,
                       data: state.dataBytes,
-                      imageUrl: state.imageUrl,
+                      imageBytes: state.imageBytes,
                       imageHeight: state.imageHeight,
                       imageWidth: state.imageWidth,
                       ratio: state.ratio,
@@ -121,13 +123,25 @@ class ValidationView extends StatelessWidget {
                             input: false))),
               ],
             ),
-            CupertinoButton(
-              onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                  .add(ValidationPrev(currentKey: state.key, keys: state.keys)),
-              child: const Text(
-                "Previous Image",
-                style: Styles.error,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BlocProvider.of<ValidationBloc>(context)
+                        .processedKeys
+                        .isNotEmpty
+                    ? CupertinoButton(
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationPrev(
+                                    currentKey: state.key, keys: state.keys)),
+                        child: const Text(
+                          "Previous Image",
+                          style: Styles.error,
+                        ),
+                      )
+                    : Container(),
+                Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}")
+              ],
             ),
           ]),
         )

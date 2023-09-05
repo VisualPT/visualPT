@@ -12,14 +12,17 @@ class StorageService {
 
   StorageDownloadDataOperation<StorageDownloadDataRequest,
           StorageDownloadDataResult<StorageItem>>
-      download(String key, StorageAccessLevel accessLevel) {
+      download(
+          {required String key,
+          StorageAccessLevel accessLevel = StorageAccessLevel.private}) {
     return Amplify.Storage.downloadData(
         key: key,
         options: StorageDownloadDataOptions(accessLevel: accessLevel));
   }
 
   StorageGetUrlOperation<StorageGetUrlRequest, StorageGetUrlResult> getUrl(
-      String key, StorageAccessLevel accessLevel) {
+      {required String key,
+      StorageAccessLevel accessLevel = StorageAccessLevel.private}) {
     return Amplify.Storage.getUrl(
         key: key, options: StorageGetUrlOptions(accessLevel: accessLevel));
   }
@@ -52,18 +55,20 @@ class StorageService {
     }
   }
 
-  void move(
+  Future<void> move(
       {required String sourceKey,
       required String destinationKey,
       StorageAccessLevel sourceAccessLevel = StorageAccessLevel.private,
-      StorageAccessLevel destinationAccessLevel = StorageAccessLevel.private}) {
-    Amplify.Storage.move(
-        source: StorageItemWithAccessLevel(
-            storageItem: StorageItem(key: sourceKey),
-            accessLevel: sourceAccessLevel),
-        destination: StorageItemWithAccessLevel(
-            storageItem: StorageItem(key: destinationKey),
-            accessLevel: destinationAccessLevel));
+      StorageAccessLevel destinationAccessLevel =
+          StorageAccessLevel.private}) async {
+    await Amplify.Storage.move(
+            source: StorageItemWithAccessLevel(
+                storageItem: StorageItem(key: sourceKey),
+                accessLevel: sourceAccessLevel),
+            destination: StorageItemWithAccessLevel(
+                storageItem: StorageItem(key: destinationKey),
+                accessLevel: destinationAccessLevel))
+        .result;
   }
 
   void remove(String key, StorageAccessLevel accessLevel) {

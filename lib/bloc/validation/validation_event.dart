@@ -37,7 +37,7 @@ class ValidationToggle extends ValidationEvent {
       required this.classification,
       required this.keys,
       required this.data,
-      required this.imageUrl,
+      required this.imageBytes,
       required this.ratio,
       required this.imageHeight,
       required this.imageWidth,
@@ -46,7 +46,7 @@ class ValidationToggle extends ValidationEvent {
   final bool classification;
   final List<String> keys;
   final List<int> data;
-  final String imageUrl;
+  final List<int> imageBytes;
   final double ratio;
   final int imageHeight;
   final int imageWidth;
