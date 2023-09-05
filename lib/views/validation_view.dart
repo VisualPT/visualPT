@@ -80,8 +80,8 @@ class ValidationView extends StatelessWidget {
               ],
             )),
         ConstrainedBox(
-          constraints: BoxConstraints(
-              maxHeight: 100, maxWidth: MediaQuery.of(context).size.width),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
           child: Column(children: [
             CupertinoButton(
               onPressed: () => BlocProvider.of<ValidationBloc>(context).add(
@@ -121,7 +121,6 @@ class ValidationView extends StatelessWidget {
                             input: false))),
               ],
             ),
-            const Spacer(),
             CupertinoButton(
               onPressed: () => BlocProvider.of<ValidationBloc>(context)
                   .add(ValidationPrev(currentKey: state.key, keys: state.keys)),
