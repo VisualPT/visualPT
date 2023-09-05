@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/bloc/validation/validation_bloc.dart';
@@ -62,8 +64,8 @@ class ValidationView extends StatelessWidget {
               alignment: Alignment.center,
               fit: StackFit.expand,
               children: [
-                Image.network(
-                  state.imageUrl,
+                Image.memory(
+                  Uint8List.fromList(state.imageBytes),
                   height: state.imageHeight.toDouble(),
                   width: state.imageWidth.toDouble(),
                   fit: BoxFit
@@ -71,19 +73,32 @@ class ValidationView extends StatelessWidget {
                 ),
                 drawPose(state.offsets.map((o) => o * state.ratio).toList()),
                 Positioned(
-                  right: 0,
-                  top: 0,
+                  bottom: 0,
                   child: Container(
-                      color: CupertinoColors.black.withOpacity(0.5),
-                      child: Text(state.classification == 1 ? "Static" : "Sway",
+                      color: CupertinoColors.systemRed.withOpacity(0.5),
+                      child: Text(state.classification ? "Static" : "Sway",
                           style: Styles.actionText)),
                 ),
               ],
             )),
         ConstrainedBox(
-          constraints: BoxConstraints(
-              maxHeight: 100, maxWidth: MediaQuery.of(context).size.width),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
           child: Column(children: [
+            CupertinoButton(
+              onPressed: () => BlocProvider.of<ValidationBloc>(context).add(
+                  ValidationToggle(
+                      classification: state.classification,
+                      key: state.key,
+                      keys: state.keys,
+                      data: state.dataBytes,
+                      imageBytes: state.imageBytes,
+                      imageHeight: state.imageHeight,
+                      imageWidth: state.imageWidth,
+                      ratio: state.ratio,
+                      offsets: state.offsets)),
+              child: const Text("Toggle Label"),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -108,14 +123,25 @@ class ValidationView extends StatelessWidget {
                             input: false))),
               ],
             ),
-            const Spacer(),
-            CupertinoButton(
-              onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                  .add(ValidationPrev(currentKey: state.key, keys: state.keys)),
-              child: const Text(
-                "Previous Image",
-                style: Styles.error,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BlocProvider.of<ValidationBloc>(context)
+                        .processedKeys
+                        .isNotEmpty
+                    ? CupertinoButton(
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationPrev(
+                                    currentKey: state.key, keys: state.keys)),
+                        child: const Text(
+                          "Previous Image",
+                          style: Styles.error,
+                        ),
+                      )
+                    : Container(),
+                Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}")
+              ],
             ),
           ]),
         )
