@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
+import 'dart:convert';
 
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     on<ValidationFetch>(_onFetch);
     on<ValidationPrev>(_onPrev);
     on<ValidationNext>(_onNext);
+    on<ValidationToggle>(_onToggle);
     on<ValidationInput>(_onInput);
     on<ValidationEnd>(_onEnd);
   }
@@ -40,27 +42,11 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     event.keys.insert(0, event.currentKey);
     event.keys.insert(0, id);
     if (classification == 1) {
-      storage.move(
-          sourceKey: 'valid/$id.csv',
-          destinationKey: 'raw/$id.csv',
-          sourceAccessLevel: amplify.StorageAccessLevel.guest,
-          destinationAccessLevel: amplify.StorageAccessLevel.private);
-      storage.move(
-          sourceKey: 'valid/$id.csv',
-          destinationKey: 'raw/$id.csv',
-          sourceAccessLevel: amplify.StorageAccessLevel.guest,
-          destinationAccessLevel: amplify.StorageAccessLevel.private);
+      storage.move(sourceKey: 'valid/$id.csv', destinationKey: 'raw/$id.csv');
+      storage.move(sourceKey: 'valid/$id.png', destinationKey: 'raw/$id.png');
     } else {
-      storage.move(
-          sourceKey: 'invalid/$id.csv',
-          destinationKey: 'raw/$id.csv',
-          sourceAccessLevel: amplify.StorageAccessLevel.guest,
-          destinationAccessLevel: amplify.StorageAccessLevel.private);
-      storage.move(
-          sourceKey: 'invalid/$id.csv',
-          destinationKey: 'raw/$id.csv',
-          sourceAccessLevel: amplify.StorageAccessLevel.guest,
-          destinationAccessLevel: amplify.StorageAccessLevel.private);
+      storage.move(sourceKey: 'invalid/$id.csv', destinationKey: 'raw/$id.csv');
+      storage.move(sourceKey: 'invalid/$id.png', destinationKey: 'raw/$id.png');
     }
     add(ValidationNext(keys: event.keys));
   }
@@ -110,7 +96,8 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         final imageHeight = int.parse(imageMetadata.elementAt(0));
         final imageWidth = int.parse(imageMetadata.elementAt(1));
         final ratio = double.parse(imageMetadata.elementAt(2));
-        final classification = int.parse(imageMetadata.elementAt(3));
+        final classification =
+            int.parse(imageMetadata.elementAt(3)) == 1 ? true : false;
         final detection = dataOutput.substring(dataOutput.indexOf('\n'));
 
         final offsets = parsePoseOffsets(
@@ -136,16 +123,36 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     }
   }
 
+  FutureOr<void> _onToggle(
+      ValidationToggle event, Emitter<ValidationState> emit) {
+    final oldData = String.fromCharCodes(event.data);
+
+    final newLabel = event.classification ? 0 : 1;
+    final newData =
+        oldData.replaceFirst(",${event.classification},", ",$newLabel,");
+
+    emit(ValidationDisplay(event.keys,
+        key: event.key,
+        dataBytes: utf8.encode(newData),
+        imageUrl: event.imageUrl,
+        imageHeight: event.imageHeight,
+        imageWidth: event.imageWidth,
+        ratio: event.ratio,
+        classification: !event.classification,
+        offsets: event.offsets));
+  }
+
   FutureOr<void> _onInput(
       ValidationInput event, Emitter<ValidationState> emit) {
+    //Store the ID of the image and data file in a list in case we need to go back
     _processedKeys.add(event.key);
     _processedInputs.add(event.input ? 1 : 0);
     //Store the validated data
     if (event.input) {
-      //Store the ID of the image and data file in a list in case we need to go back
-      storage.move(
-          sourceKey: 'raw/${event.key}.csv',
-          destinationKey: 'valid/${event.key}.csv');
+      storage.remove(
+          'raw/${event.key}.csv', amplify.StorageAccessLevel.private);
+      storage.upload(amplify.HttpPayload.bytes(event.dataBytes),
+          'valid/${event.key}.csv', amplify.StorageAccessLevel.private);
       storage.move(
           sourceKey: 'raw/${event.key}.png',
           destinationKey: 'valid/${event.key}.png');

@@ -22,7 +22,7 @@ class ValidationDisplay extends ValidationState {
   final int imageHeight;
   final int imageWidth;
   final double ratio;
-  final int classification;
+  final bool classification;
   final List<Offset> offsets;
   const ValidationDisplay(super.keys,
       {required this.key,

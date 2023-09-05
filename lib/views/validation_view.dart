@@ -71,11 +71,10 @@ class ValidationView extends StatelessWidget {
                 ),
                 drawPose(state.offsets.map((o) => o * state.ratio).toList()),
                 Positioned(
-                  right: 0,
-                  top: 0,
+                  bottom: 0,
                   child: Container(
-                      color: CupertinoColors.black.withOpacity(0.5),
-                      child: Text(state.classification == 1 ? "Static" : "Sway",
+                      color: CupertinoColors.systemRed.withOpacity(0.5),
+                      child: Text(state.classification ? "Static" : "Sway",
                           style: Styles.actionText)),
                 ),
               ],
@@ -84,6 +83,20 @@ class ValidationView extends StatelessWidget {
           constraints: BoxConstraints(
               maxHeight: 100, maxWidth: MediaQuery.of(context).size.width),
           child: Column(children: [
+            CupertinoButton(
+              onPressed: () => BlocProvider.of<ValidationBloc>(context).add(
+                  ValidationToggle(
+                      classification: state.classification,
+                      key: state.key,
+                      keys: state.keys,
+                      data: state.dataBytes,
+                      imageUrl: state.imageUrl,
+                      imageHeight: state.imageHeight,
+                      imageWidth: state.imageWidth,
+                      ratio: state.ratio,
+                      offsets: state.offsets)),
+              child: const Text("Toggle Label"),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

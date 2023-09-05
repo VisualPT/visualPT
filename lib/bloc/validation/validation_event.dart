@@ -31,6 +31,31 @@ class ValidationNext extends ValidationEvent {
   List<Object> get props => [keys];
 }
 
+class ValidationToggle extends ValidationEvent {
+  const ValidationToggle(
+      {required this.key,
+      required this.classification,
+      required this.keys,
+      required this.data,
+      required this.imageUrl,
+      required this.ratio,
+      required this.imageHeight,
+      required this.imageWidth,
+      required this.offsets});
+  final String key;
+  final bool classification;
+  final List<String> keys;
+  final List<int> data;
+  final String imageUrl;
+  final double ratio;
+  final int imageHeight;
+  final int imageWidth;
+  final List<Offset> offsets;
+
+  @override
+  List<Object> get props => [key];
+}
+
 class ValidationInput extends ValidationEvent {
   final List<int> dataBytes;
   final String key;
