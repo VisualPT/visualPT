@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -30,7 +31,7 @@ class CtsibPDF extends PDF {
             assessmentData(patient, assessment),
             interpretationData(assessment),
             Spacer(),
-            normativeData(patient),
+            normativeData(patient, assessment),
             diagnosisData(),
             Spacer(),
             footerData(),
@@ -262,12 +263,19 @@ class CtsibPDF extends PDF {
   }
 
 //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Patient patient) {
+  Widget normativeData(Patient patient, Assessment assessment) {
     return Column(children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
+      RichText(
+          text: TextSpan(
+              text: getNormativeMessage(
+                  assessment.segments!
+                      .map((s) => s.duration_seconds)
+                      .reduce((a, b) => a + b),
+                  patient.dob),
+              style: detailBold)),
     ]);
   }
 
@@ -319,14 +327,18 @@ class CtsibPDF extends PDF {
   }
 }
 
-// String getComparisonMessage(double velocity, Gender gender, TemporalDate dob) {
-//   double percent =
-//       CtsibNorms.getPercentDifferenceFromNorm(velocity, gender, dob);
-//   int age = getAge(dob);
-//   int index = (age / 10).round();
-//   String speedComparison = percent > 0 ? "faster" : "slower";
-//   String ageRange = index > 8 ? "80+" : "${index}0 - ${index}9";
-//   return percent.abs() > 5.0
-//       ? "Among $ageRange year olds, you are ${percent.abs()}% $speedComparison than average."
-//       : "Your gait velocity matches your peer group aged $ageRange.";
-// }
+String getNormativeMessage(int totalDuration, TemporalDate dob) {
+  int age = getAge(dob);
+  double norm = CtsibNorms.getAgeNorm(age);
+  double percent =
+      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
+          .roundToDouble();
+
+  if (percent < -10) {
+    return "Patient is ${percent.abs()}% better than normative data";
+  } else if (percent > 10) {
+    return "Patient is ${percent.abs()}% worse than normative data";
+  } else {
+    return "Patient is within 10% of normative data";
+  }
+}
