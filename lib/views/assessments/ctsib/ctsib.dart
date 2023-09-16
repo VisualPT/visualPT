@@ -88,19 +88,12 @@ Widget Function(BuildContext) introView(
               ),
               const Spacer(),
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: MediaQuery.of(context).size.width / 2,
-                      width: MediaQuery.of(context).size.width / 2,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle, color: Styles.actionPrimary),
-                      child: const Text("Begin", style: Styles.actionText),
-                    ),
-                    onTap: () => BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentBegin(context: context, index: index))),
-              ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: Styles.actionPrimary,
+                      onPressed: () => BlocProvider.of<AssessmentBloc>(context)
+                          .add(AssessmentBegin(context: context, index: index)),
+                      child: const Text("Begin", style: Styles.actionText))),
               const Spacer()
             ],
           ),

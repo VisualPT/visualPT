@@ -78,36 +78,30 @@ class _PatientFormState extends State<PatientForm> {
                     },
                     child: const Text("Autofill")),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: GestureDetector(
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: MediaQuery.of(context).size.width / 2,
-                      width: MediaQuery.of(context).size.width / 2,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle, color: Styles.actionPrimary),
-                      child: const Text("Next", style: Styles.actionText),
-                    ),
-                    onTap: () {
-                      //TODO <are you sure this data is correct?> modal
-                      try {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          BlocProvider.of<PatientBloc>(context).add(PatientInit(
-                              firstName: firstNameController.text,
-                              lastName: lastNameController.text,
-                              dateOfBirth: dobController.text,
-                              gender: genderController.text,
-                              height: heightController.text,
-                              email: widget.user.email));
+                    padding: const EdgeInsets.all(16.0),
+                    child: CupertinoButton(
+                      color: Styles.actionPrimary,
+                      onPressed: () {
+                        //TODO <are you sure this data is correct?> modal
+                        try {
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                            BlocProvider.of<PatientBloc>(context).add(
+                                PatientInit(
+                                    firstName: firstNameController.text,
+                                    lastName: lastNameController.text,
+                                    dateOfBirth: dobController.text,
+                                    gender: genderController.text,
+                                    height: heightController.text,
+                                    email: widget.user.email));
+                          }
+                        } catch (e) {
+                          BlocProvider.of<PatientBloc>(context)
+                              .add(PatientSaveFailure(message: e.toString()));
                         }
-                      } catch (e) {
-                        BlocProvider.of<PatientBloc>(context)
-                            .add(PatientSaveFailure(message: e.toString()));
-                      }
-                    },
-                  ),
-                ),
+                      },
+                      child: const Text("Next", style: Styles.actionText),
+                    )),
               ],
             ),
           ),

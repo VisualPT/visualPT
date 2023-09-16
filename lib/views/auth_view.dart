@@ -207,16 +207,8 @@ class AuthView extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: GestureDetector(
-                child: Container(
-                  alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.width / 2,
-                  width: MediaQuery.of(context).size.width / 2,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Styles.actionPrimary),
-                  child: const Text("Reset", style: Styles.actionText),
-                ),
-                onTap: () {
+              child: CupertinoButton(
+                onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     _formKey.currentState!.reset();
@@ -224,6 +216,7 @@ class AuthView extends StatelessWidget {
                     BlocProvider.of<AuthBloc>(context).add(const AuthRestore());
                   }
                 },
+                child: const Text("Reset", style: Styles.actionText),
               ),
             ),
           ],
@@ -256,28 +249,24 @@ class AuthView extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.width / 3,
-              width: MediaQuery.of(context).size.width / 3,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Styles.actionPrimary),
-              child: Text(isLogin ? login : signup, style: Styles.actionText),
-            ),
-            onTap: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                _formKey.currentState!.reset();
-                log("Auth Data Validated");
-                BlocProvider.of<AuthBloc>(context).add(isLogin
-                    ? const AuthAttemptLogIn()
-                    : const AuthAttemptSignUp());
-              }
-            },
-          ),
+          child: CupertinoButton(
+              color: Styles.actionPrimary,
+              child: Text(
+                isLogin ? login : signup,
+                style: Styles.actionText,
+              ),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  _formKey.currentState!.reset();
+                  log("Auth Data Validated");
+                  BlocProvider.of<AuthBloc>(context).add(isLogin
+                      ? const AuthAttemptLogIn()
+                      : const AuthAttemptSignUp());
+                }
+              }),
         ),
-        const Text("or"),
+        Text(isLogin ? "Don't have an account?" : "Already have an account?"),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: CupertinoButton(
