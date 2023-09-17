@@ -171,7 +171,7 @@ SPEC CHECKSUMS:
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
   libwebp: 33dc822fbbf4503668d09f7885bbfedc76c45e96
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
-  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
