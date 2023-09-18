@@ -104,7 +104,7 @@ class ValidationView extends StatelessWidget {
               children: [
                 CupertinoButton(
                     color: CupertinoColors.systemBlue,
-                    child: const Text("True"),
+                    child: const Text("Valid"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
                             key: state.key,
@@ -114,7 +114,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(),
                 CupertinoButton(
                     color: CupertinoColors.systemBlue,
-                    child: const Text("False"),
+                    child: const Text("Invalid"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
                             key: state.key,
