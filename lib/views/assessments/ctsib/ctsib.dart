@@ -7,13 +7,13 @@ import 'package:visualpt/views/_views.dart';
 
 class Ctsib {
   static const sequences = 6;
-  static const sequenceNames = [
+  static const List<String> sequenceNames = [
     "Eyes Open Firm Surface",
     "Eyes Closed Firm Surface",
-    "Visual Conflict Dome Firm Surface"
-        "Eyes Open Foam Surface",
-    "Eyes Closed Foam Surface"
-        "Visual Conflict Dome Foam Surface"
+    "Visual Conflict Dome Firm Surface",
+    "Eyes Open Foam Surface",
+    "Eyes Closed Foam Surface",
+    "Visual Conflict Dome Foam Surface",
   ];
 
 //TODO REMOVE NAME FROM BEING PASSED ALL AROUND THE PLACE
@@ -21,7 +21,7 @@ class Ctsib {
     return [
       () => introView("Eyes Open\nFirm Surface", 1),
       () => introView("Eyes Closed\nFirm Surface", 2),
-      () => introView("Visual Conflict Dome\nfirm Surface", 3),
+      () => introView("Visual Conflict Dome\nFirm Surface", 3),
       () => introView("Eyes Open\nFoam Surface", 4),
       () => introView("Eyes Closed\nFoam Surface", 5),
       () => introView("Visual Conflict Dome\nFoam Surface", 6)
@@ -34,10 +34,10 @@ class Ctsib {
       (patient) => captureView(patient, "Eyes Closed\nFirm Surface", 2),
       (patient) =>
           captureView(patient, "Visual Conflict Dome\nFirm Surface", 3),
-      (patient) => captureView(patient, "Eyes Open\nFoam Surface", 3),
-      (patient) => captureView(patient, "Eyes Closed\nFoam Surface", 4),
+      (patient) => captureView(patient, "Eyes Open\nFoam Surface", 4),
+      (patient) => captureView(patient, "Eyes Closed\nFoam Surface", 5),
       (patient) =>
-          captureView(patient, "Visual Conflict Dome\nFoam Surface", 3),
+          captureView(patient, "Visual Conflict Dome\nFoam Surface", 6),
     ];
   }
 }

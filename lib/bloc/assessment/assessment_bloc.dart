@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +20,7 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   late List<Widget Function(BuildContext) Function()> introViews;
   late List<Widget Function(BuildContext) Function(Patient)> captureViews;
   late List<Segment> segments = [];
-  late DateTime startTime = DateTime.now();
+  late DateTime startTime;
 
   AssessmentBloc(this.type) : super(AssessmentLoading()) {
     on<AssessmentInitial>(_onInitial);
@@ -32,6 +31,8 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
     assessmentCount = router.assessmentCount;
     introViews = router.introWidgets;
     captureViews = router.captureWidgets;
+
+    startTime = DateTime.now();
   }
 
   FutureOr<void> _onInitial(
@@ -53,15 +54,13 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
-    log(event.segment.toString());
     segments.add(event.segment);
     int index = event.index + 1;
 
     if (index - 1 == assessmentCount) {
+      final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
-          DateTime.now().difference(startTime).inSeconds;
-
-      log("Time elapsed: $assessmentDurationSeconds seconds \nassests $segments");
+          finishTime.difference(startTime).inSeconds;
       assessment = assessment.copyWith(
           segments: segments, duration: assessmentDurationSeconds);
       emit(AssessmentAnalysis(
