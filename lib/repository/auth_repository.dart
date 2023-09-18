@@ -57,6 +57,12 @@ class AuthRepository {
       final result =
           await _authService.signIn(username: email, password: password);
       switch (result.nextStep.signInStep) {
+        case AuthSignInStep.continueSignInWithMfaSelection:
+          return "MFA selection required";
+        case AuthSignInStep.continueSignInWithTotpSetup:
+          return "TOTP setup required";
+        case AuthSignInStep.confirmSignInWithTotpMfaCode:
+          return "TOTP code validation required";
         case AuthSignInStep.confirmSignInWithSmsMfaCode:
           return "SMS code validation required";
         case AuthSignInStep.confirmSignInWithNewPassword:

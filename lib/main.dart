@@ -50,11 +50,7 @@ class VisualPT extends StatelessWidget {
                       fontFamily: "Unbounded", color: CupertinoColors.black))),
           routes: {
             "/": (context) => const LandingView(),
-            "/home": (context) => HomeView(
-                (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-                        .user
-                        .email ==
-                    'gaitertech@gmail.com'),
+            "/home": (context) => const HomeView(),
             "/validate": (context) => const ValidationView(),
             "/settings": (context) => const SettingsView(),
           },
