@@ -51,7 +51,7 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
     } on Exception catch (error) {
       emit(PdfError(exception: error));
     } catch (e) {
-      log(e.toString());
+      log(e.toString(), name: 'PDF Error');
     }
   }
 

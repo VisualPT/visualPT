@@ -6,28 +6,25 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/views/_views.dart';
 
 class Ctsib {
-  static const sequences = 4;
-  static const sequenceNames = [
+  static const sequences = 6;
+  static const List<String> sequenceNames = [
     "Eyes Open Firm Surface",
     "Eyes Closed Firm Surface",
+    "Visual Conflict Dome Firm Surface",
     "Eyes Open Foam Surface",
-    "Eyes Closed Foam Surface"
+    "Eyes Closed Foam Surface",
+    "Visual Conflict Dome Foam Surface",
   ];
-
-  Map<int, double> norms = {
-    for (int i = 20; i <= 49; i++) i: 179.7,
-    for (int i = 50; i <= 59; i++) i: 180.0,
-    for (int i = 60; i <= 69; i++) i: 179.9,
-    for (int i = 70; i <= 79; i++) i: 177.7,
-  };
 
 //TODO REMOVE NAME FROM BEING PASSED ALL AROUND THE PLACE
   List<Widget Function(BuildContext) Function()> introContent() {
     return [
       () => introView("Eyes Open\nFirm Surface", 1),
       () => introView("Eyes Closed\nFirm Surface", 2),
-      () => introView("Eyes Open\nFoam Surface", 3),
-      () => introView("Eyes Closed\nFoam Surface", 4),
+      () => introView("Visual Conflict Dome\nFirm Surface", 3),
+      () => introView("Eyes Open\nFoam Surface", 4),
+      () => introView("Eyes Closed\nFoam Surface", 5),
+      () => introView("Visual Conflict Dome\nFoam Surface", 6)
     ];
   }
 
@@ -35,8 +32,12 @@ class Ctsib {
     return [
       (patient) => captureView(patient, "Eyes Open\nFirm Surface", 1),
       (patient) => captureView(patient, "Eyes Closed\nFirm Surface", 2),
-      (patient) => captureView(patient, "Eyes Open\nFoam Surface", 3),
-      (patient) => captureView(patient, "Eyes Closed\nFoam Surface", 4),
+      (patient) =>
+          captureView(patient, "Visual Conflict Dome\nFirm Surface", 3),
+      (patient) => captureView(patient, "Eyes Open\nFoam Surface", 4),
+      (patient) => captureView(patient, "Eyes Closed\nFoam Surface", 5),
+      (patient) =>
+          captureView(patient, "Visual Conflict Dome\nFoam Surface", 6),
     ];
   }
 }
@@ -87,19 +88,12 @@ Widget Function(BuildContext) introView(
               ),
               const Spacer(),
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: MediaQuery.of(context).size.width / 2,
-                      width: MediaQuery.of(context).size.width / 2,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle, color: Styles.actionPrimary),
-                      child: const Text("Begin", style: Styles.actionText),
-                    ),
-                    onTap: () => BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentBegin(context: context, index: index))),
-              ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: Styles.actionPrimary,
+                      onPressed: () => BlocProvider.of<AssessmentBloc>(context)
+                          .add(AssessmentBegin(context: context, index: index)),
+                      child: const Text("Begin", style: Styles.actionText))),
               const Spacer()
             ],
           ),
@@ -125,25 +119,17 @@ Widget Function(BuildContext) captureView(
 class CtsibNorms {
   CtsibNorms._();
   //Numbers are in m/s and start in the 6-12, then 13-19, then 20-29, 30-39... to 80+
-  static const maleNorm = [1.19, 1.2, 1.4, 1.48, 1.48, 1.4, 1.39, 1.34, 1.1];
-  static const femaleNorm = [1.14, 1.2, 1.4, 1.4, 1.4, 1.39, 1.22, 1.19, 1.0];
+  static const norms = [179.7, 180.0, 179.9, 177.7];
+  static const ageGroups = [20, 49, 59, 69, 79];
 
-  static double getVelocityFromAge(Gender gender, TemporalDate dob) {
-    int age = getAge(dob);
-    final int index = (age / 10).round().clamp(0, 8);
-    return gender == Gender.MALE ? maleNorm[index] : femaleNorm[index];
-  }
-
-  static double getPercentDifferenceFromNorm(
-      double patientVelocity, Gender gender, TemporalDate dob) {
-    final double normVelocity = getVelocityFromAge(gender, dob);
-    return (((patientVelocity - normVelocity) /
-                ((patientVelocity + normVelocity) / 2)) *
-            100)
-        .roundToDouble();
+  static double getAgeNorm(int age) {
+    final int index = ageGroups.indexWhere((element) => element > age);
+    return norms[index];
   }
 }
 
 int getAge(TemporalDate dob) {
-  return 10; //TODO implement
+  //Converts an Amplify TemporalDate to a difference in time by years and returns that as an int
+  final now = TemporalDate.now();
+  return now.getDateTime().year - dob.getDateTime().year;
 }

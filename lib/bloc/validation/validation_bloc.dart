@@ -47,8 +47,8 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
       ...event.keys
     ];
 
-    int classification = _processedInputs.removeLast();
-    if (classification == 1) {
+    int label = _processedInputs.removeLast();
+    if (label == 1) {
       await _storage.move(
           sourceKey: 'valid/$id.csv', destinationKey: 'raw/$id.csv');
       await _storage.move(

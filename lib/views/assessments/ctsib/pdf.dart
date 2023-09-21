@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -29,8 +30,7 @@ class CtsibPDF extends PDF {
             patientData(patient, assessment),
             assessmentData(patient, assessment),
             interpretationData(assessment),
-            Spacer(),
-            normativeData(patient),
+            normativeData(patient, assessment),
             diagnosisData(),
             Spacer(),
             footerData(),
@@ -41,15 +41,15 @@ class CtsibPDF extends PDF {
     return pdf.save();
   }
 
-  List<Widget> axisLabel() {
-    final values = List<double>.generate(9, (i) => i * 0.2)
-        .map<Text>((value) => value >= 1.0
-            ? Text(value.toStringAsPrecision(2))
-            : Text(value.toStringAsPrecision(1)))
-        .toList();
-    return List<Widget>.generate(
-        17, (i) => i % 2 == 0 ? values[i ~/ 2] : Spacer());
-  }
+  // List<Widget> axisLabel() {
+  //   final values = List<double>.generate(9, (i) => i * 0.2)
+  //       .map<Text>((value) => value >= 1.0
+  //           ? Text(value.toStringAsPrecision(2))
+  //           : Text(value.toStringAsPrecision(1)))
+  //       .toList();
+  //   return List<Widget>.generate(
+  //       17, (i) => i % 2 == 0 ? values[i ~/ 2] : Spacer());
+  // }
 
   // double positioner(String velocity) =>
   //     (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
@@ -159,78 +159,79 @@ class CtsibPDF extends PDF {
   }
 
   Widget assessmentData(Patient patient, Assessment assessment) {
-    int index = 0;
-    return SizedBox(
-        height: 2.9 * inch,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          RichText(
-              textAlign: TextAlign.left,
-              text: TextSpan(text: "Assessment Information", style: subHeader)),
-          Table(
-            border: TableBorder.all(color: black),
-            columnWidths: {
-              0: const FlexColumnWidth(2),
-              1: const FlexColumnWidth(6),
-              2: const FlexColumnWidth(4),
-            },
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Assessment Information", style: subHeader)),
+      Table(
+        border: TableBorder.all(color: black),
+        columnWidths: {
+          0: const FlexColumnWidth(2),
+          1: const FlexColumnWidth(6),
+          2: const FlexColumnWidth(4),
+        },
+        children: [
+          // Create table header
+          TableRow(
             children: [
-              // Create table header
-              TableRow(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(''),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Condition',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Result',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(''),
               ),
-              // Create a table row for each segment
-              for (Segment segment in assessment.segments!)
-                TableRow(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text((index + 1).toString()),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(Ctsib.sequenceNames[index++]),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                          "${segment.duration_seconds.toString()} / 30 seconds"),
-                    ),
-                  ],
-                ),
-              // Create a table row for the total duration score
-              TableRow(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Total Score',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * Ctsib.sequences} seconds",
-                    ),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Condition',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Result',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
-        ]));
+          // Create a table row for each segment
+          for (int i = 0; i < assessment.segments!.length; i++)
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text((i).toString()),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(Ctsib.sequenceNames[i]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                      "${assessment.segments![i].duration_seconds.toString()} / 30 seconds"),
+                ),
+              ],
+            ),
+          // Create a table row for the total duration score
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Total Score',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(''),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * Ctsib.sequences} seconds",
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ]);
   }
 
   Widget interpretationData(Assessment assessment) {
@@ -262,12 +263,19 @@ class CtsibPDF extends PDF {
   }
 
 //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Patient patient) {
-    return Column(children: [
+  Widget normativeData(Patient patient, Assessment assessment) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
+      RichText(
+          text: TextSpan(
+              text: getNormativeMessage(
+                  assessment.segments!
+                      .map((s) => s.duration_seconds)
+                      .reduce((a, b) => a + b),
+                  patient.dob),
+              style: detailBold)),
     ]);
   }
 
@@ -319,14 +327,18 @@ class CtsibPDF extends PDF {
   }
 }
 
-// String getComparisonMessage(double velocity, Gender gender, TemporalDate dob) {
-//   double percent =
-//       CtsibNorms.getPercentDifferenceFromNorm(velocity, gender, dob);
-//   int age = getAge(dob);
-//   int index = (age / 10).round();
-//   String speedComparison = percent > 0 ? "faster" : "slower";
-//   String ageRange = index > 8 ? "80+" : "${index}0 - ${index}9";
-//   return percent.abs() > 5.0
-//       ? "Among $ageRange year olds, you are ${percent.abs()}% $speedComparison than average."
-//       : "Your gait velocity matches your peer group aged $ageRange.";
-// }
+String getNormativeMessage(int totalDuration, TemporalDate dob) {
+  int age = getAge(dob);
+  double norm = CtsibNorms.getAgeNorm(age);
+  double percent =
+      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
+          .roundToDouble();
+
+  if (percent < -10) {
+    return "Patient is ${percent.abs()}% better than normative data, which has a mean of $norm seconds";
+  } else if (percent > 10) {
+    return "Patient is ${percent.abs()}% worse than normative data, which has a mean of $norm seconds";
+  } else {
+    return "Patient is within 10% of normative data, which has a mean of $norm seconds";
+  }
+}

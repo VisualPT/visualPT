@@ -7,12 +7,17 @@ import '../bloc/_bloc.dart';
 import 'components/_components.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView(this.isDemo, {super.key});
-  final bool isDemo;
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final nav = AppNav(context);
+
+    final isDemo = (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+        .user
+        .email
+        .toLowerCase()
+        .contains("gaitertech@gmail.com");
 
     return CupertinoPageScaffold(
       child: BaseView(
@@ -54,12 +59,7 @@ class HomeView extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                         onPressed: () => nav.toPath(path: "/video", args: {
-                              "storageAccess":
-                                  (BlocProvider.of<AuthBloc>(context).state
-                                              as AuthSuccess)
-                                          .user
-                                          .email !=
-                                      'gaitertech@gmail.com',
+                              "storageAccess": !isDemo,
                               "onComplete": (Segment s) => {nav.back()}
                             }),
                         color: Styles.actionPrimary,

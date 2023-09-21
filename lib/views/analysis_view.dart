@@ -31,15 +31,14 @@ class AnalysisView extends StatelessWidget {
   }
 
   Widget pdfReady(BuildContext context, PdfReady state) {
-    return SafeArea(
+    return SingleChildScrollView(
       child: Column(children: [
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: state.pdfView,
         ),
-        const Spacer(),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
           child: Row(
             children: [
               CupertinoButton(
