@@ -2,6 +2,20 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 
+class PoseOverlay extends StatelessWidget {
+  final List<Offset>? points;
+  const PoseOverlay({super.key, required this.points});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: PosePainter(
+        points: points ?? [],
+      ),
+    );
+  }
+}
+
 class PosePainter extends CustomPainter {
   final List<Offset> points;
 

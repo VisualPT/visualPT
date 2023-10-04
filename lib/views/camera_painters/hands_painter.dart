@@ -2,6 +2,13 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 
+// Widget get _drawHands => _ModelPainter(
+//       customPainter: HandsPainter(
+//         points: results?['hand'] ?? [],
+//         ratio: _ratio,
+//       ),
+//     );
+
 class HandsPainter extends CustomPainter {
   final List<Offset> points;
   final double ratio;
