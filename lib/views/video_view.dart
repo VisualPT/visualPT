@@ -5,6 +5,7 @@ import 'package:visualpt/bloc/_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
+import 'package:visualpt/views/camera_painters/pose_bbox.dart';
 import 'package:visualpt/views/components/_components.dart';
 import 'package:visualpt/views/components/video_controls.dart';
 
@@ -56,7 +57,7 @@ class VideoView extends StatelessWidget {
         ),
         AspectRatio(
           aspectRatio: 1 / videoState.controller.value.aspectRatio,
-          child: CameraPreview(videoState.controller),
+          child: CameraPreview(videoState.controller, child: const PoseBbox()),
         ),
         BlocBuilder<InferenceBloc, InferenceState>(
             buildWhen: (previous, current) {
