@@ -55,103 +55,113 @@ class ValidationView extends StatelessWidget {
   }
 
   Widget onDisplay(BuildContext context, ValidationDisplay state) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        ConstrainedBox(
-            constraints: BoxConstraints.tightFor(
-                height: state.imageHeight.toDouble() * state.ratio,
-                width: state.imageWidth.toDouble() * state.ratio),
-            child: Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: [
-                Image.memory(
-                  Uint8List.fromList(state.imageBytes),
-                  height: state.imageHeight.toDouble(),
-                  width: state.imageWidth.toDouble(),
-                  fit: BoxFit
-                      .fitWidth, // This ensures that the image covers the entire space defined by height and width
-                ),
-                const PoseBbox(),
-                PoseOverlay(
-                    points: state.offsets.map((o) => o * state.ratio).toList()),
-              ],
-            )),
-        Positioned(
-          top: 0,
-          child: Column(
-            children: [
-              Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}",
-                  style: Styles.subactionText),
-              BlocProvider.of<ValidationBloc>(context).processedKeys.isNotEmpty
-                  ? CupertinoButton(
-                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                          .add(ValidationPrev(
-                              currentKey: state.key, keys: state.keys)),
-                      child: const Text(
-                        "Previous",
-                        style: Styles.error,
-                      ),
-                    )
-                  : Container(),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: MediaQuery.of(context).size.width * 0.25,
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width),
+          ConstrainedBox(
+              constraints: BoxConstraints.tightFor(
+                  height: state.imageHeight.toDouble() * state.ratio,
+                  width: state.imageWidth.toDouble() * state.ratio),
+              child: Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
                 children: [
-                  CupertinoButton(
-                      color: CupertinoColors.systemBlue,
-                      child: const Text("Valid"),
-                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                          .add(ValidationInput(
-                              key: state.key,
-                              dataBytes: state.dataBytes,
-                              keys: state.keys,
-                              input: true))),
-                  const Spacer(),
-                  CupertinoButton(
-                      color: CupertinoColors.systemBlue,
-                      child: const Text("Invalid"),
-                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                          .add(ValidationInput(
-                              key: state.key,
-                              dataBytes: state.dataBytes,
-                              keys: state.keys,
-                              input: false))),
+                  Image.memory(
+                    Uint8List.fromList(state.imageBytes),
+                    height: state.imageHeight.toDouble(),
+                    width: state.imageWidth.toDouble(),
+                    fit: BoxFit
+                        .fitWidth, // This ensures that the image covers the entire space defined by height and width
+                  ),
+                  const PoseBbox(),
+                  PoseOverlay(
+                      points:
+                          state.offsets.map((o) => o * state.ratio).toList()),
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CupertinoButton(
-                  padding: const EdgeInsets.all(8.0),
-                  color: CupertinoColors.systemRed.withOpacity(0.5),
-                  onPressed: () => BlocProvider.of<ValidationBloc>(context).add(
-                      ValidationToggle(
-                          classification: state.classification,
-                          key: state.key,
-                          keys: state.keys,
-                          data: state.dataBytes,
-                          imageBytes: state.imageBytes,
-                          imageHeight: state.imageHeight,
-                          imageWidth: state.imageWidth,
-                          ratio: state.ratio,
-                          offsets: state.offsets)),
-                  child: Text(state.classification ? "Static" : "Sway",
-                      style: Styles.actionText),
-                ),
-              ),
-            ],
+              )),
+          Positioned(
+            top: 0,
+            child: Column(
+              children: [
+                Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}",
+                    style: Styles.subactionText),
+                BlocProvider.of<ValidationBloc>(context)
+                        .processedKeys
+                        .isNotEmpty
+                    ? CupertinoButton(
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationPrev(
+                                    currentKey: state.key, keys: state.keys)),
+                        child: const Text(
+                          "Previous",
+                          style: Styles.error,
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
           ),
-        ),
-      ],
+          Positioned(
+            bottom: 20,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Valid"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    input: true))),
+                    const Spacer(),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(8.0),
+                      color: CupertinoColors.systemRed.withOpacity(0.5),
+                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
+                          .add(ValidationToggle(
+                              classification: state.classification,
+                              key: state.key,
+                              keys: state.keys,
+                              data: state.dataBytes,
+                              imageBytes: state.imageBytes,
+                              imageHeight: state.imageHeight,
+                              imageWidth: state.imageWidth,
+                              ratio: state.ratio,
+                              offsets: state.offsets)),
+                      child: Text(state.classification ? "Static" : "Sway",
+                          style: Styles.actionText),
+                    ),
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Invalid"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    input: false))),
+                    const Spacer(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
