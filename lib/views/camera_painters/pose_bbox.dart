@@ -33,11 +33,11 @@ class BoxPainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     // Define bottom width of the box
-    final double boxWidth = 0.70 * size.width;
+    final double boxWidth = 0.69 * size.width;
     final double boxOffset = (size.width - boxWidth) / 2;
 
     // Calculate the horizontal offset for the angled sides
-    final double xOffset = boxWidth * tan(radians(15));
+    final double xOffset = boxWidth * tan(radians(12));
 
     // Bottom left and right points
     final Offset bl = Offset(boxOffset + 0, size.height);
