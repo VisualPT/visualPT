@@ -134,12 +134,13 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     emit(const ValidationLoad());
     //Store the ID of the image and data file in a list in case we need to go back
     processedKeys.add(event.key);
-    _processedInputs.add(event.classification ? 1 : 0);
+    _processedInputs.add(event.input > -1 ? 1 : 0);
     //Store the validated data
-    if (event.input > 0) {
+    if (event.input > -1) {
       final oldData = String.fromCharCodes(event.dataBytes);
-      final newData = oldData.replaceFirst(
-          ",${event.classification}\n", ",${event.input}\n");
+      final index = oldData.lastIndexOf(',', oldData.indexOf('\n') - 1);
+      final newData =
+          oldData.replaceRange(index + 1, index + 2, "${event.input}");
       final encodedData = utf8.encode(newData);
 
       _storage.remove(
