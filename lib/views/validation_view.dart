@@ -111,51 +111,73 @@ class ValidationView extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: CupertinoColors.systemGreen,
+                      child: const Text("Static"),
+                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
+                          .add(ValidationInput(
+                              key: state.key,
+                              dataBytes: state.dataBytes,
+                              keys: state.keys,
+                              classification: state.classification,
+                              input: 0))),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Spacer(),
                     CupertinoButton(
                         color: CupertinoColors.systemBlue,
-                        child: const Text("Valid"),
+                        child: const Text("Arm Sway"),
                         onPressed: () =>
                             BlocProvider.of<ValidationBloc>(context).add(
                                 ValidationInput(
                                     key: state.key,
                                     dataBytes: state.dataBytes,
                                     keys: state.keys,
-                                    input: true))),
-                    const Spacer(),
-                    CupertinoButton(
-                      padding: const EdgeInsets.all(8.0),
-                      color: CupertinoColors.systemRed.withOpacity(0.5),
-                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                          .add(ValidationToggle(
-                              classification: state.classification,
-                              key: state.key,
-                              keys: state.keys,
-                              data: state.dataBytes,
-                              imageBytes: state.imageBytes,
-                              imageHeight: state.imageHeight,
-                              imageWidth: state.imageWidth,
-                              ratio: state.ratio,
-                              offsets: state.offsets)),
-                      child: Text(state.classification ? "Static" : "Sway",
-                          style: Styles.actionText),
-                    ),
+                                    classification: state.classification,
+                                    input: 1))),
                     const Spacer(),
                     CupertinoButton(
                         color: CupertinoColors.systemBlue,
-                        child: const Text("Invalid"),
+                        child: const Text("Trunk Sway"),
                         onPressed: () =>
                             BlocProvider.of<ValidationBloc>(context).add(
                                 ValidationInput(
                                     key: state.key,
                                     dataBytes: state.dataBytes,
                                     keys: state.keys,
-                                    input: false))),
+                                    classification: state.classification,
+                                    input: 2))),
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Foot Sway"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    classification: state.classification,
+                                    input: 3))),
                     const Spacer(),
                   ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: CupertinoColors.systemRed,
+                      child: const Text("Invalid"),
+                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
+                          .add(ValidationInput(
+                              key: state.key,
+                              dataBytes: state.dataBytes,
+                              keys: state.keys,
+                              classification: state.classification,
+                              input: -1))),
                 ),
               ],
             ),

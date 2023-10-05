@@ -33,32 +33,6 @@ class _VideoControlsState extends State<VideoControls> {
           width: MediaQuery.of(context).size.width,
         ),
         InferencePresenter(videoState: widget.state),
-        BlocBuilder<InferenceBloc, InferenceState>(
-            builder: (context, state) => state is InferenceRunning
-                ? Positioned(
-                    bottom: 80,
-                    right: 0,
-                    left: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                            "Classification: ${classification ? "Static" : "Sway"}",
-                            style: Styles.subactionText),
-                        const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: CupertinoSwitch(
-                              value: classification,
-                              onChanged: (value) {
-                                setState(() => classification = value);
-                                inf.add(InferenceToggle(value));
-                              }),
-                        )
-                      ],
-                    ))
-                : Container()),
         Positioned(
           bottom: 0,
           left: 0,
