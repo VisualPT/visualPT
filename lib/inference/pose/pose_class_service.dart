@@ -3,5 +3,5 @@ const Map<int, String> classifications = {
   0: "static",
   1: "arms uncrossed",
   2: "trunk flex",
-  3: "feet seperated",
+  3: "feet separated",
 };
