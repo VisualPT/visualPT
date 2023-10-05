@@ -1,5 +1,15 @@
 import 'package:flutter/cupertino.dart';
 
+// Widget get _drawBoundingBox {
+//   final bbox = results?['bbox'];
+//   return _ModelPainter(
+//     customPainter: FaceDetectionPainter(
+//       bbox: bbox ?? Rect.zero,
+//       ratio: _ratio,
+//     ),
+//   );
+// }
+
 class FaceDetectionPainter extends CustomPainter {
   final Rect bbox;
   final double ratio;

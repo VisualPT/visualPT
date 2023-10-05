@@ -23,7 +23,6 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     on<ValidationFetch>(_onFetch);
     on<ValidationPrev>(_onPrev);
     on<ValidationNext>(_onNext);
-    on<ValidationToggle>(_onToggle);
     on<ValidationInput>(_onInput);
     on<ValidationEnd>(_onEnd);
   }
@@ -130,36 +129,23 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     }
   }
 
-  FutureOr<void> _onToggle(
-      ValidationToggle event, Emitter<ValidationState> emit) {
-    final oldData = String.fromCharCodes(event.data);
-
-    final newLabel = event.classification ? 0 : 1;
-    final newData =
-        oldData.replaceFirst(",${event.classification},", ",$newLabel,");
-
-    emit(ValidationDisplay(event.keys,
-        key: event.key,
-        dataBytes: utf8.encode(newData),
-        imageBytes: event.imageBytes,
-        imageHeight: event.imageHeight,
-        imageWidth: event.imageWidth,
-        ratio: event.ratio,
-        classification: !event.classification,
-        offsets: event.offsets));
-  }
-
   FutureOr<void> _onInput(
       ValidationInput event, Emitter<ValidationState> emit) {
     emit(const ValidationLoad());
     //Store the ID of the image and data file in a list in case we need to go back
     processedKeys.add(event.key);
-    _processedInputs.add(event.input ? 1 : 0);
+    _processedInputs.add(event.input > -1 ? 1 : 0);
     //Store the validated data
-    if (event.input) {
+    if (event.input > -1) {
+      final oldData = String.fromCharCodes(event.dataBytes);
+      final index = oldData.lastIndexOf(',', oldData.indexOf('\n') - 1);
+      final newData =
+          oldData.replaceRange(index + 1, index + 2, "${event.input}");
+      final encodedData = utf8.encode(newData);
+
       _storage.remove(
           'raw/${event.key}.csv', amplify.StorageAccessLevel.private);
-      _storage.upload(amplify.HttpPayload.bytes(event.dataBytes),
+      _storage.upload(amplify.HttpPayload.bytes(encodedData),
           'valid/${event.key}.csv', amplify.StorageAccessLevel.private);
       _storage.move(
           sourceKey: 'raw/${event.key}.png',

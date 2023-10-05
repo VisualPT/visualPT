@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ///Singleton class for consistency of styles across the app. Access styles through Styles.<styleName>
 class Styles {
   ///SINGLETON CONFIG DO NOT MODIFY
   static final Styles _instance = Styles._internal();
+
   factory Styles() => _instance;
   Styles._internal();
 
@@ -22,6 +24,7 @@ class Styles {
 
   static const Color white = CupertinoColors.white;
   static const Color black = CupertinoColors.black;
+  static const Color transparent = Colors.transparent;
 
   //Asset Paths
   static const String mainLogoPath = "assets/images/vpt_mainlogo.png";

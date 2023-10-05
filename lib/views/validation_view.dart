@@ -6,9 +6,10 @@ import 'package:visualpt/bloc/validation/validation_bloc.dart';
 import 'package:visualpt/presenter/_presenter.dart';
 import 'package:visualpt/views/_views.dart';
 import 'package:visualpt/views/app_nav.dart';
+import 'package:visualpt/views/camera_painters/pose_overlay.dart';
 import 'package:visualpt/views/components/_components.dart';
 
-import 'camera_painters/pose_painter.dart';
+import 'camera_painters/pose_bbox.dart';
 
 //Get all the images and data from the 'raw/' storage folder
 // * fetch
@@ -54,78 +55,40 @@ class ValidationView extends StatelessWidget {
   }
 
   Widget onDisplay(BuildContext context, ValidationDisplay state) {
-    return Column(
-      children: [
-        ConstrainedBox(
-            constraints: BoxConstraints.tightFor(
-                height: state.imageHeight.toDouble() * state.ratio,
-                width: state.imageWidth.toDouble() * state.ratio),
-            child: Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width),
+          ConstrainedBox(
+              constraints: BoxConstraints.tightFor(
+                  height: state.imageHeight.toDouble() * state.ratio,
+                  width: state.imageWidth.toDouble() * state.ratio),
+              child: Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: [
+                  Image.memory(
+                    Uint8List.fromList(state.imageBytes),
+                    height: state.imageHeight.toDouble(),
+                    width: state.imageWidth.toDouble(),
+                    fit: BoxFit
+                        .fitWidth, // This ensures that the image covers the entire space defined by height and width
+                  ),
+                  const PoseBbox(),
+                  PoseOverlay(
+                      points:
+                          state.offsets.map((o) => o * state.ratio).toList()),
+                ],
+              )),
+          Positioned(
+            top: 0,
+            child: Column(
               children: [
-                Image.memory(
-                  Uint8List.fromList(state.imageBytes),
-                  height: state.imageHeight.toDouble(),
-                  width: state.imageWidth.toDouble(),
-                  fit: BoxFit
-                      .fitWidth, // This ensures that the image covers the entire space defined by height and width
-                ),
-                drawPose(state.offsets.map((o) => o * state.ratio).toList()),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                      color: CupertinoColors.systemRed.withOpacity(0.5),
-                      child: Text(state.classification ? "Static" : "Sway",
-                          style: Styles.actionText)),
-                ),
-              ],
-            )),
-        ConstrainedBox(
-          constraints:
-              BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-          child: Column(children: [
-            CupertinoButton(
-              onPressed: () => BlocProvider.of<ValidationBloc>(context).add(
-                  ValidationToggle(
-                      classification: state.classification,
-                      key: state.key,
-                      keys: state.keys,
-                      data: state.dataBytes,
-                      imageBytes: state.imageBytes,
-                      imageHeight: state.imageHeight,
-                      imageWidth: state.imageWidth,
-                      ratio: state.ratio,
-                      offsets: state.offsets)),
-              child: const Text("Toggle Label"),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CupertinoButton(
-                    color: CupertinoColors.systemBlue,
-                    child: const Text("Valid"),
-                    onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                        .add(ValidationInput(
-                            key: state.key,
-                            dataBytes: state.dataBytes,
-                            keys: state.keys,
-                            input: true))),
-                const Spacer(),
-                CupertinoButton(
-                    color: CupertinoColors.systemBlue,
-                    child: const Text("Invalid"),
-                    onPressed: () => BlocProvider.of<ValidationBloc>(context)
-                        .add(ValidationInput(
-                            key: state.key,
-                            dataBytes: state.dataBytes,
-                            keys: state.keys,
-                            input: false))),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+                Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}",
+                    style: Styles.subactionText),
                 BlocProvider.of<ValidationBloc>(context)
                         .processedKeys
                         .isNotEmpty
@@ -135,17 +98,92 @@ class ValidationView extends StatelessWidget {
                                 ValidationPrev(
                                     currentKey: state.key, keys: state.keys)),
                         child: const Text(
-                          "Previous Image",
+                          "Previous",
                           style: Styles.error,
                         ),
                       )
                     : Container(),
-                Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}")
               ],
             ),
-          ]),
-        )
-      ],
+          ),
+          Positioned(
+            bottom: 20,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: CupertinoColors.systemGreen,
+                      child: const Text("Static"),
+                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
+                          .add(ValidationInput(
+                              key: state.key,
+                              dataBytes: state.dataBytes,
+                              keys: state.keys,
+                              classification: state.classification,
+                              input: 0))),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Arm Sway"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    classification: state.classification,
+                                    input: 1))),
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Trunk Sway"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    classification: state.classification,
+                                    input: 2))),
+                    const Spacer(),
+                    CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text("Foot Sway"),
+                        onPressed: () =>
+                            BlocProvider.of<ValidationBloc>(context).add(
+                                ValidationInput(
+                                    key: state.key,
+                                    dataBytes: state.dataBytes,
+                                    keys: state.keys,
+                                    classification: state.classification,
+                                    input: 3))),
+                    const Spacer(),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CupertinoButton(
+                      color: CupertinoColors.systemRed,
+                      child: const Text("Invalid"),
+                      onPressed: () => BlocProvider.of<ValidationBloc>(context)
+                          .add(ValidationInput(
+                              key: state.key,
+                              dataBytes: state.dataBytes,
+                              keys: state.keys,
+                              classification: state.classification,
+                              input: -1))),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -167,29 +205,5 @@ class ValidationView extends StatelessWidget {
 
   onError(BuildContext _, ValidationError state) {
     return Text(state.message, style: Styles.error);
-  }
-
-  Widget drawPose(List<Offset>? points) {
-    return _ModelPainter(
-      customPainter: PosePainter(
-        points: points ?? [],
-      ),
-    );
-  }
-}
-
-class _ModelPainter extends StatelessWidget {
-  const _ModelPainter({
-    required this.customPainter,
-    Key? key,
-  }) : super(key: key);
-
-  final CustomPainter customPainter;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: customPainter,
-    );
   }
 }
