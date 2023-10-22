@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/bloc/_bloc.dart';
-import 'package:visualpt/inference/service_locator.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt/features/auth/service/auth_repository.dart';
+import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
+import 'package:visualpt/features/backend/service/backend_repository.dart';
+import 'package:visualpt/features/inference/service/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/repository/_repository.dart';
-import 'package:visualpt/views/_views.dart';
-import 'package:visualpt/views/validation_view.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/features/validation/view/validation_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,7 +70,7 @@ class VisualPT extends StatelessWidget {
                   args["onComplete"] as dynamic Function(Segment);
 
               return CupertinoPageRoute(
-                  builder: (context) => VideoView(storeData, onComplete));
+                  builder: (context) => CaptureView(storeData, onComplete));
             }
             return null;
           },
