@@ -1,0 +1,55 @@
+import 'dart:ui';
+
+import 'package:visualpt/features/inference/service/ai_model.dart';
+
+class PoseClassificationOutput extends AiModelOutput {
+  PoseClassificationOutput(
+      super.output, int inputSize, int width, int height, double ratio) {
+    const double percentOfImageHeightThreshold = 0.5;
+
+    double min = height.roundToDouble(), max = 0;
+
+    for (var point in output) {
+      final double dx =
+          point[0] / inputSize.toDouble() * width.toDouble() * ratio;
+      final double dy =
+          point[1] / inputSize.toDouble() * height.toDouble() * ratio;
+      if (dy < min) {
+        min = dy;
+      }
+      if (dy > max) {
+        max = dy;
+      }
+      landmarks.add(Offset(dx, dy));
+      depthPoints.add(point[2]);
+      visibilityPoints.add(point[3]);
+      presencePoints.add(point[4]);
+    }
+    heightThreshold =
+        max - min > (height * ratio * percentOfImageHeightThreshold);
+  }
+
+  static const length = 33;
+  final List<Offset> landmarks = [];
+  final List<double> depthPoints = [];
+  final List<double> visibilityPoints = [];
+  final List<double> presencePoints = [];
+  bool heightThreshold = false;
+
+  toMap() {
+    return {
+      'landmarkPoints': landmarks,
+      'depthPoints': depthPoints,
+      'visibilityPoints': visibilityPoints,
+      'presencePoints': presencePoints,
+      'heightThreshold': heightThreshold,
+    };
+  }
+
+  toRaw() {
+    return output;
+  }
+
+  @override
+  List<Object> get props => [landmarks, depthPoints, visibilityPoints];
+}
