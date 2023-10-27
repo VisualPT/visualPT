@@ -1,39 +1,39 @@
 part of 'inference_bloc.dart';
 
-abstract class InferenceEvent extends Equatable {
+abstract class InferenceEvent<I, O> extends Equatable {
   const InferenceEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-class InferenceInit extends InferenceEvent {
+class InferenceInit<I, O> extends InferenceEvent<I, O> {
   const InferenceInit();
 }
 
-class InferenceStart extends InferenceEvent {
+class InferenceStart<I, O> extends InferenceEvent<I, O> {
   final double ratio;
   const InferenceStart(this.ratio);
 }
 
-class InferenceToggle extends InferenceEvent {
+class InferenceToggle<I, O> extends InferenceEvent<I, O> {
   final bool classification;
   const InferenceToggle(this.classification);
 }
 
-class InferenceInput extends InferenceEvent {
-  final CameraImage input;
+class InferenceInput<I, O> extends InferenceEvent<I, O> {
+  final I input;
   final double ratio;
   const InferenceInput({required this.input, required this.ratio});
 
   @override
-  List<Object> get props => [input];
+  List<Object> get props => [input.toString()];
 }
 
-class InferenceOutput extends InferenceEvent {
-  final CameraImage input;
+class InferenceOutput<I, O> extends InferenceEvent<I, O> {
+  final I input;
   final double ratio;
-  final AiModelOutput? output;
+  final O? output;
   const InferenceOutput(
       {required this.input, required this.ratio, required this.output});
 
@@ -41,6 +41,6 @@ class InferenceOutput extends InferenceEvent {
   List<Object?> get props => [output];
 }
 
-class InferenceEnd extends InferenceEvent {
+class InferenceEnd<I, O> extends InferenceEvent<I, O> {
   const InferenceEnd();
 }

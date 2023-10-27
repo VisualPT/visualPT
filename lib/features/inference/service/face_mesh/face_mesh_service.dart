@@ -103,7 +103,7 @@ class FaceMesh extends AiModel {
 FaceOutput? runFaceMesh(Map<String, dynamic> params) {
   final faceMesh =
       FaceMesh(interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['cameraImage']);
+  final image = ImageUtils.convertCameraImage(params['input']);
   final result = faceMesh.predict(image!, {});
 
   return result;

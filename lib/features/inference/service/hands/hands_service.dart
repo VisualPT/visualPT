@@ -109,7 +109,7 @@ class Hands extends AiModel {
 HandsOutput? runHandDetector(Map<String, dynamic> params) {
   final hands =
       Hands(interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['cameraImage']);
+  final image = ImageUtils.convertCameraImage(params['input']);
   final result = hands.predict(image!, {});
 
   return result;

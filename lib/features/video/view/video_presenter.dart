@@ -1,6 +1,8 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/service/video_repository.dart';
@@ -36,7 +38,8 @@ class VideoPresenter extends StatelessWidget {
           create: (context) => TimerBloc(),
         ),
         BlocProvider(
-          create: (context) => InferenceBloc(videoRepository, storageAccess)
+          create: (context) => InferenceBloc<CameraImage, PoseDetectionOutput>(
+              videoRepository, storageAccess)
             ..add(const InferenceInit()),
         )
       ],
@@ -53,7 +56,9 @@ class VideoPresenter extends StatelessWidget {
               throw Exception("Invalid Video State");
             }
           } catch (e) {
-            return onError(context, state, e as Exception);
+            print(e);
+            return Container();
+            //return onError(context, state, e as Exception);
           }
         },
       ),

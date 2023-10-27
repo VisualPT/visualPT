@@ -1,6 +1,8 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/models/Segment.dart';
@@ -22,7 +24,9 @@ class _VideoControlsState extends State<VideoControls> {
   bool classification = true;
   @override
   Widget build(BuildContext context) {
-    final inf = BlocProvider.of<InferenceBloc>(context),
+    final inf =
+            BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
+                context),
         vid = BlocProvider.of<VideoBloc>(context);
 
 //TODO make the commands more organized

@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/video_presenter.dart';
@@ -46,7 +47,8 @@ class CaptureView extends StatelessWidget {
   Widget standbyVideo(BuildContext context, VideoStandby videoState) {
     final vid = BlocProvider.of<VideoBloc>(context),
         timer = BlocProvider.of<TimerBloc>(context),
-        inf = BlocProvider.of<InferenceBloc>(context),
+        inf = BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
+            context),
         screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
@@ -61,8 +63,8 @@ class CaptureView extends StatelessWidget {
           aspectRatio: 1 / videoState.controller.value.aspectRatio,
           child: CameraPreview(videoState.controller, child: const PoseBbox()),
         ),
-        BlocBuilder<InferenceBloc, InferenceState>(
-            buildWhen: (previous, current) {
+        BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
+            InferenceState>(buildWhen: (previous, current) {
           return previous is InferenceLoading && current is InferenceStopped;
         }, builder: (context, state) {
           if (state is InferenceLoading) {

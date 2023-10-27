@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
-import 'package:visualpt/features/inference/service/pose/pose_service.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
@@ -18,15 +18,20 @@ class InferencePresenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InferenceBloc, InferenceState>(
+    return BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
+        InferenceState<CameraImage, PoseDetectionOutput>>(
       builder: (context, state) {
         try {
           return switch (state) {
-            InferenceRunning() => onRunning(context, state),
-            InferenceStopped() => onStopped(context, state),
-            InferenceLoading() => onLoad(context, state),
-            InferenceError() => onError(context, state),
-            InferenceState() =>
+            InferenceRunning<CameraImage, PoseDetectionOutput>() =>
+              onRunning(context, state),
+            InferenceStopped<CameraImage, PoseDetectionOutput>() =>
+              onStopped(context, state),
+            InferenceLoading<CameraImage, PoseDetectionOutput>() =>
+              onLoad(context, state),
+            InferenceError<CameraImage, PoseDetectionOutput>() =>
+              onError(context, state),
+            InferenceState<CameraImage, PoseDetectionOutput>() =>
               throw Exception("Inference State: ${state.toString()}"),
           };
         } catch (e) {
@@ -36,8 +41,9 @@ class InferencePresenter extends StatelessWidget {
     );
   }
 
-  Widget onRunning(BuildContext context, InferenceRunning state) {
-    final response = state.response as PoseOutput?;
+  Widget onRunning(BuildContext context,
+      InferenceRunning<CameraImage, PoseDetectionOutput> state) {
+    final response = state.response;
     return AspectRatio(
       aspectRatio: 1 / videoState.controller.value.aspectRatio,
       child: CameraPreview(videoState.controller,
@@ -45,9 +51,9 @@ class InferencePresenter extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               const PoseBbox(),
-              response != null
-                  ? response.heightThreshold
-                      ? PoseOverlay(points: response.landmarks)
+              state.response != null
+                  ? state.response!.heightThreshold
+                      ? PoseOverlay(points: response!.landmarks)
                       : const Center(child: Text("Get closer!"))
                   : const Center(child: Text("Keep subject in frame!"))
             ],

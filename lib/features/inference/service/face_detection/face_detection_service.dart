@@ -170,7 +170,7 @@ class FaceDetection extends AiModel {
 FaceBboxOutput? runFaceDetector(Map<String, dynamic> params) {
   final faceDetection = FaceDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['cameraImage'])!;
+  final image = ImageUtils.convertCameraImage(params['input'])!;
   final result = faceDetection.predict(image, {});
 
   return result;

@@ -1,17 +1,17 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 import '../../constants/model_file.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
-class Pose extends AiModel {
-  Pose({super.interpreter}) {
+class PoseDetection extends AiModel {
+  PoseDetection({super.interpreter}) {
     loadModel();
   }
   static const int inputSize = 256;
@@ -28,7 +28,7 @@ class Pose extends AiModel {
     try {
       final interpreterOptions = InterpreterOptions();
 
-      interpreter ??= await Interpreter.fromAsset(ModelFile.pose,
+      interpreter ??= await Interpreter.fromAsset(ModelFile.poseDetection,
           options: interpreterOptions);
 
       final outputTensors = interpreter!.getOutputTensors();
@@ -54,7 +54,8 @@ class Pose extends AiModel {
   }
 
   @override
-  PoseOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
+  PoseDetectionOutput? predict(
+      image_lib.Image image, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -97,68 +98,17 @@ class Pose extends AiModel {
 
     final ratio = params['ratio'] as double;
 
-    return PoseOutput(
+    return PoseDetectionOutput(
         landmarkPoints, inputSize, image.width, image.height, ratio);
   }
 }
 
-PoseOutput? runPoseEstimator(Map<String, dynamic> params) {
-  final pose =
-      Pose(interpreter: Interpreter.fromAddress(params['detectorAddress']));
+PoseDetectionOutput? runPoseDetector(Map<String, dynamic> params) {
+  final pose = PoseDetection(
+      interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
-  final image = ImageUtils.convertCameraImage(params['cameraImage']);
-  final result = pose.predict(image!, params['params']);
+  final image = ImageUtils.convertCameraImage(params['input']);
+  final result = pose.predict(image, params['params']);
 
   return result;
-}
-
-class PoseOutput extends AiModelOutput {
-  PoseOutput(super.output, int inputSize, int width, int height, double ratio) {
-    const double percentOfImageHeightThreshold = 0.5;
-
-    double min = height.roundToDouble(), max = 0;
-
-    for (var point in output) {
-      final double dx =
-          point[0] / inputSize.toDouble() * width.toDouble() * ratio;
-      final double dy =
-          point[1] / inputSize.toDouble() * height.toDouble() * ratio;
-      if (dy < min) {
-        min = dy;
-      }
-      if (dy > max) {
-        max = dy;
-      }
-      landmarks.add(Offset(dx, dy));
-      depthPoints.add(point[2]);
-      visibilityPoints.add(point[3]);
-      presencePoints.add(point[4]);
-    }
-    heightThreshold =
-        max - min > (height * ratio * percentOfImageHeightThreshold);
-  }
-
-  static const length = 33;
-  final List<Offset> landmarks = [];
-  final List<double> depthPoints = [];
-  final List<double> visibilityPoints = [];
-  final List<double> presencePoints = [];
-  bool heightThreshold = false;
-
-  toMap() {
-    return {
-      'landmarkPoints': landmarks,
-      'depthPoints': depthPoints,
-      'visibilityPoints': visibilityPoints,
-      'presencePoints': presencePoints,
-      'heightThreshold': heightThreshold,
-    };
-  }
-
-  toRaw() {
-    return output;
-  }
-
-  @override
-  List<Object> get props => [landmarks, depthPoints, visibilityPoints];
 }

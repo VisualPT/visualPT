@@ -1,14 +1,14 @@
 part of 'inference_bloc.dart';
 
-abstract class InferenceState extends Equatable {
-  final AiModelOutput? response;
+abstract class InferenceState<I, O> extends Equatable {
+  final O? response;
   const InferenceState(this.response);
 
   @override
   List<Object> get props => [];
 }
 
-class InferenceRunning extends InferenceState {
+class InferenceRunning<I, O> extends InferenceState<I, O> {
   final double ratio;
   const InferenceRunning(super.response, this.ratio);
 
@@ -16,21 +16,21 @@ class InferenceRunning extends InferenceState {
   List<Object> get props => [response ?? "", ratio];
 }
 
-class InferenceStopped extends InferenceState {
+class InferenceStopped<I, O> extends InferenceState<I, O> {
   const InferenceStopped() : super(null);
 
   @override
   List<Object> get props => [];
 }
 
-class InferenceLoading extends InferenceState {
+class InferenceLoading<I, O> extends InferenceState<I, O> {
   const InferenceLoading() : super(null);
 
   @override
   List<Object> get props => [];
 }
 
-class InferenceError extends InferenceState {
+class InferenceError<I, O> extends InferenceState<I, O> {
   final Exception error;
   const InferenceError({required this.error}) : super(null);
 
