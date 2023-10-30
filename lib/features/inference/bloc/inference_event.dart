@@ -16,11 +16,6 @@ class InferenceStart<I, O> extends InferenceEvent<I, O> {
   const InferenceStart(this.ratio);
 }
 
-class InferenceToggle<I, O> extends InferenceEvent<I, O> {
-  final bool classification;
-  const InferenceToggle(this.classification);
-}
-
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
   final I input;
   final double ratio;

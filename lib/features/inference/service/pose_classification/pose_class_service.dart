@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
-import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 
 import '../../constants/model_file.dart';

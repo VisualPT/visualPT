@@ -21,7 +21,6 @@ class VideoControls extends StatefulWidget {
 }
 
 class _VideoControlsState extends State<VideoControls> {
-  bool classification = true;
   @override
   Widget build(BuildContext context) {
     final inf =
