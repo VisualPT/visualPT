@@ -5,11 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:visualpt/features/inference/service/ai_model.dart';
 
 part 'inference_event.dart';
 part 'inference_state.dart';
 
-class InferenceBloc<I, O>
+class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
   InferenceBloc(this._inferenceRepository, this.storeData)
       : super(const InferenceLoading()) {
@@ -45,42 +46,40 @@ class InferenceBloc<I, O>
   }
 
   FutureOr<void> _onStart(
-      InferenceStart event, Emitter<InferenceState> emit) async {
+      InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
     _subscription = _inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(input: data, ratio: event.ratio));
+        add(InferenceInput(input: data, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, 1));
+    emit(InferenceRunning<I, O>(null, const {"ratio": 1}));
   }
 
   FutureOr<void> _onInput(
-      InferenceInput event, Emitter<InferenceState> emit) async {
+      InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
     if (_inferenceRepository.count++ % sampleRateFrames == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data =
-        await _inferenceRepository.predict(event.input, {"ratio": event.ratio});
+    final data = await _inferenceRepository.predict(event.input, event.params);
     processing = false;
     if (!isClosed && !emit.isDone) {
       add(InferenceOutput(
-          input: event.input, ratio: event.ratio, output: data));
+          input: event.input, params: event.params, output: data));
     }
   }
 
   FutureOr<void> _onOutput(
-      InferenceOutput event, Emitter<InferenceState> emit) {
+      InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
       if (event.output != null && storageBacklog > 0 && storeData) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
         storageBacklog--;
-        _inferenceRepository
-            .store(event.input, event.output!, {"ratio": event.ratio});
+        _inferenceRepository.store(event.input, event.output!, event.params);
       }
       if (!isClosed && !emit.isDone) {
-        emit(InferenceRunning<I, O>(event.output, event.ratio));
+        emit(InferenceRunning<I, O>(event.output, event.params));
       }
     } catch (e) {
       log("Error: $e");

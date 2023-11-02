@@ -1,81 +1,43 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
-import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
-import 'package:visualpt/features/video/bloc/video_bloc.dart';
-import 'package:visualpt/core/views/components/_components.dart';
+import 'package:visualpt/features/inference/service/ai_model.dart';
 
-class InferencePresenter extends StatelessWidget {
+class InferencePresenter<I, O extends AiModelOutput> extends StatelessWidget {
   const InferencePresenter({
-    required this.videoState,
+    required this.onRunning,
+    required this.onStopped,
+    required this.onLoad,
+    required this.onError,
     Key? key,
   }) : super(key: key);
-  final VideoRecording videoState;
+  final Widget Function(BuildContext context, InferenceRunning<I, O> state)
+      onRunning;
+  final Widget Function(BuildContext context, InferenceStopped<I, O> state)
+      onStopped;
+  final Widget Function(BuildContext context, InferenceLoading<I, O> state)
+      onLoad;
+  final Widget Function(BuildContext context, InferenceError<I, O> state)
+      onError;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
-        InferenceState<CameraImage, PoseDetectionOutput>>(
+    return BlocBuilder<InferenceBloc<I, O>, InferenceState<I, O>>(
       builder: (context, state) {
         try {
           return switch (state) {
-            InferenceRunning<CameraImage, PoseDetectionOutput>() =>
-              onRunning(context, state),
-            InferenceStopped<CameraImage, PoseDetectionOutput>() =>
-              onStopped(context, state),
-            InferenceLoading<CameraImage, PoseDetectionOutput>() =>
-              onLoad(context, state),
-            InferenceError<CameraImage, PoseDetectionOutput>() =>
-              onError(context, state),
-            InferenceState<CameraImage, PoseDetectionOutput>() =>
+            InferenceRunning<I, O>() => onRunning(context, state),
+            InferenceStopped<I, O>() => onStopped(context, state),
+            InferenceLoading<I, O>() => onLoad(context, state),
+            InferenceError<I, O>() => onError(context, state),
+            InferenceState<I, O>() =>
               throw Exception("Inference State: ${state.toString()}"),
           };
         } catch (e) {
           return onError(context, InferenceError(error: Exception(e)));
         }
       },
-    );
-  }
-
-  Widget onRunning(BuildContext context,
-      InferenceRunning<CameraImage, PoseDetectionOutput> state) {
-    final response = state.response;
-    return AspectRatio(
-      aspectRatio: 1 / videoState.controller.value.aspectRatio,
-      child: CameraPreview(videoState.controller,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              const PoseBbox(),
-              state.response != null
-                  ? state.response!.heightThreshold
-                      ? PoseOverlay(points: response!.landmarks)
-                      : const Center(child: Text("Get closer!"))
-                  : const Center(child: Text("Keep subject in frame!"))
-            ],
-          )),
-    );
-  }
-
-  Widget onStopped(BuildContext context, InferenceStopped state) {
-    return const Center(
-      child: AppLoading(message: "Inference Stopped"),
-    );
-  }
-
-  Widget onLoad(BuildContext context, InferenceLoading state) {
-    return const Center(
-      child: AppLoading(message: "Loading Model"),
-    );
-  }
-
-  Widget onError(BuildContext context, InferenceError state) {
-    return const Center(
-      child: Text("Inference Error"),
     );
   }
 }

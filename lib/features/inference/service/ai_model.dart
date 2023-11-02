@@ -1,10 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
-import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 // ignore: must_be_immutable
-abstract class AiModel extends Equatable {
+abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
   AiModel({this.interpreter});
 
   final outputShapes = <List<int>>[];
@@ -18,8 +16,7 @@ abstract class AiModel extends Equatable {
   int get getAddress;
 
   Future<void> loadModel();
-  TensorImage getProcessedImage(TensorImage inputImage);
-  AiModelOutput? predict(image_lib.Image image, Map<String, dynamic> params);
+  O? predict(I input, Map<String, dynamic> params);
 }
 
 abstract class AiModelOutput extends Equatable {

@@ -9,11 +9,11 @@ abstract class InferenceState<I, O> extends Equatable {
 }
 
 class InferenceRunning<I, O> extends InferenceState<I, O> {
-  final double ratio;
-  const InferenceRunning(super.response, this.ratio);
+  final Map<String, dynamic> params;
+  const InferenceRunning(super.response, this.params);
 
   @override
-  List<Object> get props => [response ?? "", ratio];
+  List<Object> get props => [response ?? "", params];
 }
 
 class InferenceStopped<I, O> extends InferenceState<I, O> {

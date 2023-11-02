@@ -1,16 +1,14 @@
 import 'dart:developer';
 
-import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 import '../../constants/model_file.dart';
-import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
-class PoseDetection extends AiModel {
+class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
   PoseDetection({super.interpreter}) {
     loadModel();
   }
@@ -43,19 +41,7 @@ class PoseDetection extends AiModel {
   }
 
   @override
-  TensorImage getProcessedImage(TensorImage inputImage) {
-    final imageProcessor = ImageProcessorBuilder()
-        .add(ResizeOp(inputSize, inputSize, ResizeMethod.BILINEAR))
-        .add(NormalizeOp(0, 255))
-        .build();
-
-    inputImage = imageProcessor.process(inputImage);
-    return inputImage;
-  }
-
-  @override
-  PoseDetectionOutput? predict(
-      image_lib.Image image, Map<String, dynamic> params) {
+  PoseDetectionOutput? predict(TensorImage input, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -65,9 +51,6 @@ class PoseDetection extends AiModel {
     //   image = image_lib.copyRotate(image, -90);
     //   image = image_lib.flipHorizontal(image);
     // }
-    final tensorImage = TensorImage(TfLiteType.float32);
-    tensorImage.loadImage(image);
-    final inputImage = getProcessedImage(tensorImage);
 
     TensorBuffer outputLandmarks = TensorBufferFloat(outputShapes[0]);
     TensorBuffer outputIdentity1 = TensorBufferFloat(outputShapes[1]);
@@ -75,7 +58,7 @@ class PoseDetection extends AiModel {
     TensorBuffer outputIdentity3 = TensorBufferFloat(outputShapes[3]);
     TensorBuffer outputIdentity4 = TensorBufferFloat(outputShapes[4]);
 
-    final inputs = <Object>[inputImage.buffer];
+    final inputs = <Object>[input.buffer];
 
     final outputs = <int, Object>{
       0: outputLandmarks.buffer,
@@ -96,10 +79,11 @@ class PoseDetection extends AiModel {
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
+    final width = params['width'] as int;
+    final height = params['height'] as int;
     final ratio = params['ratio'] as double;
 
-    return PoseDetectionOutput(
-        landmarkPoints, inputSize, image.width, image.height, ratio);
+    return PoseDetectionOutput(landmarkPoints, inputSize, width, height, ratio);
   }
 }
 
@@ -107,8 +91,9 @@ PoseDetectionOutput? runPoseDetector(Map<String, dynamic> params) {
   final pose = PoseDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
-  final image = ImageUtils.convertCameraImage(params['input']);
-  final result = pose.predict(image, params['params']);
+  final input = params['input'] as TensorImage;
+
+  final result = pose.predict(input, params['params']);
 
   return result;
 }

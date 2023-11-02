@@ -12,14 +12,14 @@ class InferenceInit<I, O> extends InferenceEvent<I, O> {
 }
 
 class InferenceStart<I, O> extends InferenceEvent<I, O> {
-  final double ratio;
-  const InferenceStart(this.ratio);
+  final Map<String, dynamic> params;
+  const InferenceStart(this.params);
 }
 
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
   final I input;
-  final double ratio;
-  const InferenceInput({required this.input, required this.ratio});
+  final Map<String, dynamic> params;
+  const InferenceInput({required this.input, required this.params});
 
   @override
   List<Object> get props => [input.toString()];
@@ -27,10 +27,10 @@ class InferenceInput<I, O> extends InferenceEvent<I, O> {
 
 class InferenceOutput<I, O> extends InferenceEvent<I, O> {
   final I input;
-  final double ratio;
+  final Map<String, dynamic> params;
   final O? output;
   const InferenceOutput(
-      {required this.input, required this.ratio, required this.output});
+      {required this.input, required this.params, required this.output});
 
   @override
   List<Object?> get props => [output];

@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
@@ -10,7 +12,8 @@ import 'package:visualpt/features/inference/service/model_inference_service.dart
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
-  final ModelInferenceService _poseClassService = ModelInferenceService();
+  final ModelInferenceService<TensorImage, PoseDetectionOutput>
+      _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
   VideoRepository();
@@ -19,18 +22,19 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   Future<void> initialize() async {
     await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
     await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
-    _poseClassService.setModelConfig(3);
+    _poseDetectionService.setModelConfig(3);
   }
 
   @override
-  Future<PoseDetectionOutput> predict(
+  Future<PoseDetectionOutput?> predict(
       CameraImage input, Map<String, dynamic>? params) async {
-    await _poseClassService.inference(
+    final data = preProcessData(input);
+    await _poseDetectionService.inference(
       isolateUtils: _detectionIsolateUtils,
-      input: input,
+      input: data,
       params: params!,
     );
-    return _poseClassService.inferenceResults as PoseDetectionOutput;
+    return _poseDetectionService.inferenceResults as PoseDetectionOutput?;
   }
 
   @override
@@ -63,4 +67,17 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   void dispose() {
     _convertIsolateUtils.dispose();
   }
+}
+
+TensorImage preProcessData(CameraImage input) {
+  final image = ImageUtils.convertCameraImage(input);
+
+  var tensorImage = TensorImage(TfLiteType.float32);
+  tensorImage.loadImage(image);
+  final imageProcessor = ImageProcessorBuilder()
+      .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))
+      .add(NormalizeOp(0, 255))
+      .build();
+
+  return imageProcessor.process(tensorImage);
 }

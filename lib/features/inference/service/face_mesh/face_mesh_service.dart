@@ -11,7 +11,7 @@ import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
-class FaceMesh extends AiModel {
+class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
   FaceMesh({this.interpreter}) {
     loadModel();
   }
@@ -46,7 +46,6 @@ class FaceMesh extends AiModel {
     }
   }
 
-  @override
   TensorImage getProcessedImage(TensorImage inputImage) {
     final imageProcessor = ImageProcessorBuilder()
         .add(ResizeOp(inputSize, inputSize, ResizeMethod.BILINEAR))
@@ -58,18 +57,18 @@ class FaceMesh extends AiModel {
   }
 
   @override
-  FaceOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
+  FaceOutput? predict(image_lib.Image input, Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
 
     if (Platform.isAndroid) {
-      image = image_lib.copyRotate(image, angle: -90);
-      image = image_lib.flipHorizontal(image);
+      input = image_lib.copyRotate(input, angle: -90);
+      input = image_lib.flipHorizontal(input);
     }
     final tensorImage = TensorImage(TfLiteType.float32);
-    tensorImage.loadImage(image);
+    tensorImage.loadImage(input);
     final inputImage = getProcessedImage(tensorImage);
 
     TensorBuffer outputLandmarks = TensorBufferFloat(outputShapes[0]);
@@ -92,8 +91,8 @@ class FaceMesh extends AiModel {
     final landmarkResults = <Offset>[];
     for (var point in landmarkPoints) {
       landmarkResults.add(Offset(
-        point[0] / inputSize * image.width,
-        point[1] / inputSize * image.height,
+        point[0] / inputSize * input.width,
+        point[1] / inputSize * input.height,
       ));
     }
     return FaceOutput(landmarkResults);
@@ -104,7 +103,7 @@ FaceOutput? runFaceMesh(Map<String, dynamic> params) {
   final faceMesh =
       FaceMesh(interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['input']);
-  final result = faceMesh.predict(image!, {});
+  final result = faceMesh.predict(image, {});
 
   return result;
 }
