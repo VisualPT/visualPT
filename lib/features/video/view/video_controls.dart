@@ -3,10 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/pose_detection_view.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
+import 'package:visualpt/features/video/view/camera.dart';
 import 'package:visualpt/models/Segment.dart';
-import 'package:visualpt/features/inference/view/inference_presenter.dart';
 import 'package:visualpt/features/timer/view/timer_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
 
@@ -37,7 +38,12 @@ class _VideoControlsState extends State<VideoControls> {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
         ),
-        InferencePresenter(videoState: widget.state),
+        Camera(controller: vid.controller!, children: [
+          if (vid.controller != null)
+            PoseDetectionView(controller: vid.controller!),
+          // if (vid.controller != null)
+          //   PoseClassificationView(controller: vid.controller!),
+        ]),
         Positioned(
           bottom: 0,
           left: 0,

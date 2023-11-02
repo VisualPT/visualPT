@@ -76,8 +76,10 @@ class CaptureView extends StatelessWidget {
                 onTap: () {
                   vid.add(const VideoPlay());
                   timer.add(const TimerStarted());
-                  inf.add(InferenceStart(screenWidth /
-                      videoState.controller.value.previewSize!.height));
+                  inf.add(InferenceStart({
+                    "ratio": screenWidth /
+                        videoState.controller.value.previewSize!.height
+                  }));
                 },
                 child: const Icon(CupertinoIcons.circle_fill,
                     color: Styles.white, size: 80),
