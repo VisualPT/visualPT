@@ -21,9 +21,6 @@ class InferenceBloc<I, O extends AiModelOutput>
     on<InferenceEnd<I, O>>(_onEnd);
 
     storageBacklog = 0;
-
-    //TODO dynamically load models through constructor
-    //_inferenceService = InferenceService();
   }
   final Repository<I, O> _inferenceRepository;
   final bool storeData;
@@ -31,9 +28,8 @@ class InferenceBloc<I, O extends AiModelOutput>
   static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
-  //late InferenceService _inferenceService;
   late int storageBacklog;
-  late StreamSubscription<I> _subscription;
+  late StreamSubscription<I>? _subscription;
   final nullResponsePort = ReceivePort();
 
 //TODO: Figure out what this is doing here
@@ -89,7 +85,7 @@ class InferenceBloc<I, O extends AiModelOutput>
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
     isReady = false;
     nullResponsePort.close();
-    _subscription.cancel();
+    _subscription?.cancel();
     _inferenceRepository.dispose();
     emit(InferenceStopped<I, O>());
   }

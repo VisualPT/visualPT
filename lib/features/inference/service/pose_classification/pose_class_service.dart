@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:image/image.dart' as image_lib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 import '../../constants/model_file.dart';
 import '../ai_model.dart';
@@ -17,7 +17,8 @@ const Map<int, String> classifications = {
 };
 
 // ignore: must_be_immutable
-class PoseClassification extends AiModel {
+class PoseClassification
+    extends AiModel<PoseDetectionOutput, PoseClassificationOutput> {
   PoseClassification({super.interpreter}) {
     loadModel();
   }
@@ -38,8 +39,13 @@ class PoseClassification extends AiModel {
       interpreter ??= await Interpreter.fromAsset(ModelFile.poseClassification,
           options: interpreterOptions);
 
-      final outputTensors = interpreter!.getOutputTensors();
+      final inputTensors = interpreter!.getInputTensors();
+      for (var tensor in inputTensors) {
+        inputShapes.add(tensor.shape);
+        inputTypes.add(tensor.type);
+      }
 
+      final outputTensors = interpreter!.getOutputTensors();
       for (var tensor in outputTensors) {
         outputShapes.add(tensor.shape);
         outputTypes.add(tensor.type);
@@ -50,63 +56,39 @@ class PoseClassification extends AiModel {
   }
 
   @override
-  TensorImage getProcessedImage(TensorImage inputImage) {
-    // final imageProcessor = ImageProcessorBuilder()
-    //     .add(ResizeOp(inputSize, inputSize, ResizeMethod.BILINEAR))
-    //     .add(NormalizeOp(0, 255))
-    //     .build();
-
-    // inputImage = imageProcessor.process(inputImage);
-    return inputImage;
-  }
-
-  @override
   PoseClassificationOutput? predict(
-      image_lib.Image image, Map<String, dynamic> params) {
-    //   if (interpreter == null) {
-    //     log('Interpreter not initialized');
-    //     return null;
-    //   }
+      PoseDetectionOutput input, Map<String, dynamic> params) {
+    if (interpreter == null) {
+      log('Interpreter not initialized');
+      return null;
+    }
+    final processedInput =
+        input.output.sublist(0, 33).map((e) => e.sublist(0, 2)).toList();
+    final inputs = <Object>[processedInput];
 
-    //   // if (Platform.isAndroid) {
-    //   //   image = image_lib.copyRotate(image, -90);
-    //   //   image = image_lib.flipHorizontal(image);
-    //   // }
-    //   final tensorImage = TensorImage(TfLiteType.float32);
-    //   tensorImage.loadImage(image);
-    //   final inputImage = getProcessedImage(tensorImage);
+    TensorBuffer output = TensorBufferFloat(outputShapes[0]);
 
-    //   TensorBuffer outputLandmarks = TensorBufferFloat(outputShapes[0]);
-    //   TensorBuffer outputIdentity1 = TensorBufferFloat(outputShapes[1]);
-    //   TensorBuffer outputIdentity2 = TensorBufferFloat(outputShapes[2]);
-    //   TensorBuffer outputIdentity3 = TensorBufferFloat(outputShapes[3]);
-    //   TensorBuffer outputIdentity4 = TensorBufferFloat(outputShapes[4]);
+    final outputs = <int, Object>{
+      0: output.buffer,
+    };
 
-    //   final inputs = <Object>[inputImage.buffer];
+    interpreter!.runForMultipleInputs(inputs, outputs);
 
-    //   final outputs = <int, Object>{
-    //     0: outputLandmarks.buffer,
-    //     1: outputIdentity1.buffer,
-    //     2: outputIdentity2.buffer,
-    //     3: outputIdentity3.buffer,
-    //     4: outputIdentity4.buffer,
-    //   };
+    final prediction = output.getDoubleValue(0);
 
-    //   interpreter!.runForMultipleInputs(inputs, outputs);
+    return PoseClassificationOutput(prediction);
 
-    //   if (outputIdentity1.getDoubleValue(0) < threshold) {
-    //     return null;
-    //   }
+    print(prediction);
 
-    //   //TODO: there are 33 landmarks, why is there 39 defined here?
-    //   final landmarkPoints = outputLandmarks
-    //       .getDoubleList()
-    //       .reshape<double>([39, 5]) as List<List<double>>;
+    // //TODO: there are 33 landmarks, why is there 39 defined here?
+    // final landmarkPoints = outputLandmarks
+    //     .getIntValue()
+    //     .reshape<double>([39, 5]) as List<List<double>>;
 
-    //   final ratio = params['ratio'] as double;
+    // final ratio = params['ratio'] as double;
 
-    //   return PoseClassificationOutput(
-    //       landmarkPoints, inputSize, image.width, image.height, ratio);
+    // return PoseClassificationOutput(
+    //     []);
   }
 }
 
