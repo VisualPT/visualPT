@@ -1,14 +1,13 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
-class PoseDetectionView extends StatelessWidget {
-  const PoseDetectionView({super.key, required this.controller});
+class PoseDetectionOverlay extends StatelessWidget {
+  const PoseDetectionOverlay({super.key, required this.controller});
   final CameraController controller;
 
   @override
@@ -37,21 +36,18 @@ class PoseDetectionView extends StatelessWidget {
     );
   }
 
-  Widget onStopped(BuildContext context, InferenceStopped state) {
-    return const Center(
-      child: AppLoading(message: "Inference Stopped"),
-    );
+  Widget onStopped(BuildContext context,
+      InferenceStopped<CameraImage, PoseDetectionOutput> state) {
+    return Container();
   }
 
-  Widget onLoad(BuildContext context, InferenceLoading state) {
-    return const Center(
-      child: AppLoading(message: "Loading Model"),
-    );
+  Widget onLoad(BuildContext context,
+      InferenceLoading<CameraImage, PoseDetectionOutput> state) {
+    return Container();
   }
 
-  Widget onError(BuildContext context, InferenceError state) {
-    return const Center(
-      child: Text("Inference Error"),
-    );
+  Widget onError(BuildContext context,
+      InferenceError<CameraImage, PoseDetectionOutput> state) {
+    return Container();
   }
 }

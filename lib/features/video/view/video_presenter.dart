@@ -2,7 +2,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_repository.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/service/video_repository.dart';
@@ -24,6 +26,7 @@ class VideoPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
   final VideoRepository videoRepository = VideoRepository();
+  final DetectionRepository detectionRepository = DetectionRepository();
   final bool storageAccess;
 
   @override
@@ -38,9 +41,17 @@ class VideoPresenter extends StatelessWidget {
           create: (context) => TimerBloc(),
         ),
         BlocProvider(
+          lazy: false,
           create: (context) => InferenceBloc<CameraImage, PoseDetectionOutput>(
               videoRepository, storageAccess)
             ..add(const InferenceInit()),
+        ),
+        BlocProvider(
+          lazy: false,
+          create: (context) =>
+              InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>(
+                  detectionRepository, storageAccess)
+                ..add(const InferenceInit()),
         )
       ],
       child: BlocBuilder<VideoBloc, VideoState>(
