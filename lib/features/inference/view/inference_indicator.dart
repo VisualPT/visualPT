@@ -29,12 +29,13 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
           Container(
               height: 24,
               width: 24,
+              margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: widget.color.withAlpha(128),
                   border: Border.all()),
               child: Icon(widget.icon, size: 16, color: CupertinoColors.black)),
-          if (showMessage) Text("${widget.type} ${widget.message}"),
+          Text("${widget.type} ${widget.message}"),
         ]),
       ),
     );

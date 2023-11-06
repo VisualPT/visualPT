@@ -75,10 +75,8 @@ class PoseClassification
     interpreter!.runForMultipleInputs(inputs, outputs);
 
     final prediction = output.getDoubleValue(0);
-
-    return PoseClassificationOutput(prediction);
-
     print(prediction);
+    return PoseClassificationOutput(prediction);
 
     // //TODO: there are 33 landmarks, why is there 39 defined here?
     // final landmarkPoints = outputLandmarks
@@ -95,9 +93,6 @@ class PoseClassification
 PoseClassificationOutput? runPoseClassifier(Map<String, dynamic> params) {
   final pose = PoseClassification(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-
-  // final image = ImageUtils.convertCameraImage(params['input']);
-  // final result = pose.predict(image, params['params']);
-
-  // return result;
+  final result = pose.predict(params['input'], params['params']);
+  return result;
 }

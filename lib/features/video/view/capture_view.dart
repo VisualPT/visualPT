@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_classification_overlay.dart';
-import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/camera.dart';
@@ -12,8 +10,7 @@ import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
 class CaptureView extends StatelessWidget {
-  const CaptureView(this.storageAccess, this.onComplete, {super.key});
-  final bool storageAccess;
+  const CaptureView(this.onComplete, {super.key});
   final Function(Segment) onComplete;
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,6 @@ class CaptureView extends StatelessWidget {
       children: [
         const ViewBackground(),
         VideoPresenter(
-          storageAccess,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onLoading: loadingVideo,
@@ -53,22 +49,6 @@ class CaptureView extends StatelessWidget {
           if (vid.controller != null)
             PoseClassificationOverlay(controller: vid.controller!),
         ]),
-        Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SizedBox(
-              height: 96,
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                  color: CupertinoColors.white,
-                  child: const Column(
-                    children: [
-                      PoseDetectionIndicator(),
-                      PoseClassificationIndicator(),
-                    ],
-                  )),
-            )),
         VideoControls(state: state, onComplete: onComplete),
       ],
     ));
