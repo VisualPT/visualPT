@@ -12,8 +12,7 @@ part 'inference_state.dart';
 
 class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this._inferenceRepository, this.storeData)
-      : super(const InferenceLoading()) {
+  InferenceBloc(this.inferenceRepository) : super(const InferenceLoading()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
     on<InferenceInput<I, O>>(_onInput, transformer: concurrent());
@@ -22,8 +21,7 @@ class InferenceBloc<I, O extends AiModelOutput>
 
     storageBacklog = 0;
   }
-  final Repository<I, O> _inferenceRepository;
-  final bool storeData;
+  final Repository<I, O> inferenceRepository;
 
   static const sampleRateFrames = 30;
   bool isReady = false;
@@ -36,46 +34,58 @@ class InferenceBloc<I, O extends AiModelOutput>
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
     log("Initializing inference bloc");
-    await _inferenceRepository.initialize();
+    await inferenceRepository.initialize();
     isReady = true;
     emit(InferenceStopped<I, O>());
   }
 
   FutureOr<void> _onStart(
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
-    _subscription = _inferenceRepository.stream.listen((data) {
+    print("$I & $O Data is being stored: ${event.store}");
+    _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(input: data, params: event.params));
+        add(InferenceInput(
+            input: data, store: event.store, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, const {"ratio": 1}));
+    emit(InferenceRunning<I, O>(null, event.store, const {"ratio": 1}));
   }
+
+  // FutureOr<void> _onAdd(
+  //     InferenceAdd<I, O> event, Emitter<InferenceState> emit) async {
+  //   if (isReady) {
+  //     _inferenceRepository.add(event.input);
+  //   }
+  // }
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
-    if (_inferenceRepository.count++ % sampleRateFrames == 0) {
+    if (inferenceRepository.count++ % sampleRateFrames == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data = await _inferenceRepository.predict(event.input, event.params);
+    final data = await inferenceRepository.predict(event.input, event.params);
     processing = false;
     if (!isClosed && !emit.isDone) {
       add(InferenceOutput(
-          input: event.input, params: event.params, output: data));
+          input: event.input,
+          store: event.store,
+          params: event.params,
+          output: data));
     }
   }
 
   FutureOr<void> _onOutput(
       InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null && storageBacklog > 0 && storeData) {
+      if (event.output != null && storageBacklog > 0 && event.store) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
         storageBacklog--;
-        _inferenceRepository.store(event.input, event.output!, event.params);
+        inferenceRepository.store(event.input, event.output!, event.params);
       }
       if (!isClosed && !emit.isDone) {
-        emit(InferenceRunning<I, O>(event.output, event.params));
+        emit(InferenceRunning<I, O>(event.output, event.store, event.params));
       }
     } catch (e) {
       log("Error: $e");
@@ -86,7 +96,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     isReady = false;
     nullResponsePort.close();
     _subscription?.cancel();
-    _inferenceRepository.dispose();
+    inferenceRepository.dispose();
     emit(InferenceStopped<I, O>());
   }
 }

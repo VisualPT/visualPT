@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
@@ -23,6 +25,14 @@ class PoseDetectionOverlay extends StatelessWidget {
   Widget onRunning(BuildContext context,
       InferenceRunning<CameraImage, PoseDetectionOutput> state) {
     final response = state.response;
+    //TODO: put this into a better place
+    if (state.response != null) {
+      BlocProvider.of<
+                  InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
+              context)
+          .inferenceRepository
+          .add(state.response!);
+    }
     return Stack(
       fit: StackFit.expand,
       children: [

@@ -11,8 +11,7 @@ import 'package:visualpt/features/video/service/video_repository.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  VideoPresenter(
-    this.storageAccess, {
+  VideoPresenter({
     super.key,
     required this.onLoading,
     required this.onRecording,
@@ -27,7 +26,6 @@ class VideoPresenter extends StatelessWidget {
       onError;
   final VideoRepository videoRepository = VideoRepository();
   final DetectionRepository detectionRepository = DetectionRepository();
-  final bool storageAccess;
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +40,15 @@ class VideoPresenter extends StatelessWidget {
         ),
         BlocProvider(
           lazy: false,
-          create: (context) => InferenceBloc<CameraImage, PoseDetectionOutput>(
-              videoRepository, storageAccess)
-            ..add(const InferenceInit()),
+          create: (context) =>
+              InferenceBloc<CameraImage, PoseDetectionOutput>(videoRepository)
+                ..add(const InferenceInit()),
         ),
         BlocProvider(
           lazy: false,
           create: (context) =>
               InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>(
-                  detectionRepository, storageAccess)
+                  detectionRepository)
                 ..add(const InferenceInit()),
         )
       ],

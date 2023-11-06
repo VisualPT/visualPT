@@ -8,23 +8,24 @@ abstract class InferenceState<I, O> extends Equatable {
   List<Object> get props => [];
 }
 
-class InferenceRunning<I, O> extends InferenceState<I, O> {
-  final Map<String, dynamic> params;
-  const InferenceRunning(super.response, this.params);
-
-  @override
-  List<Object> get props => [response ?? "", params];
-}
-
-class InferenceStopped<I, O> extends InferenceState<I, O> {
-  const InferenceStopped() : super(null);
+class InferenceLoading<I, O> extends InferenceState<I, O> {
+  const InferenceLoading() : super(null);
 
   @override
   List<Object> get props => [];
 }
 
-class InferenceLoading<I, O> extends InferenceState<I, O> {
-  const InferenceLoading() : super(null);
+class InferenceRunning<I, O> extends InferenceState<I, O> {
+  final bool? isStoring;
+  final Map<String, dynamic>? params;
+  const InferenceRunning(super.response, this.isStoring, this.params);
+
+  @override
+  List<Object> get props => [response ?? "", params ?? ""];
+}
+
+class InferenceStopped<I, O> extends InferenceState<I, O> {
+  const InferenceStopped() : super(null);
 
   @override
   List<Object> get props => [];

@@ -59,7 +59,6 @@ class HomeView extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                         onPressed: () => nav.toPath(path: "/video", args: {
-                              "storageAccess": !isDemo,
                               "onComplete": (Segment s) => {nav.back()}
                             }),
                         color: Styles.actionPrimary,
