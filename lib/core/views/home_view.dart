@@ -43,6 +43,12 @@ class HomeView extends StatelessWidget {
                         assessmentType: AssessmentType.CTSIB,
                         subtitle: "5 minutes"),
                     AssessmentCard(
+                      imagePath: Styles.bergLogoPath,
+                      assessmentType: AssessmentType.BERG,
+                      subtitle: "10 minutes",
+                      available: false,
+                    ),
+                    AssessmentCard(
                       imagePath: Styles.gvLogoPath,
                       assessmentType: AssessmentType.GAIT,
                       subtitle: "5 minutes",
