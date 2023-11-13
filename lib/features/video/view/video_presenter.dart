@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
@@ -9,7 +10,7 @@ import 'package:visualpt/features/video/service/video_repository.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  VideoPresenter({
+  const VideoPresenter({
     super.key,
     required this.onLoading,
     required this.onRecording,
@@ -22,11 +23,16 @@ class VideoPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, VideoLoading state) onLoading;
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
-  final VideoRepository videoRepository = VideoRepository();
+
   //TODOV1 final DetectionRepository detectionRepository = DetectionRepository();
 
   @override
   Widget build(BuildContext context) {
+    final VideoRepository videoRepository = VideoRepository(
+        userEmail: (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(

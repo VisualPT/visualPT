@@ -81,9 +81,7 @@ flutter:
   # uses-material-design: true #Uncomment this line if we decide to use Material instead of Cupertino
 
   assets:
-    - assets/images/vpt_mainlogo.png
-    - assets/images/ctsib_mainlogo.png
-    - assets/images/gv_mainlogo.png
+    - assets/images/
     - assets/models/
 
   # An image asset can refer to one or more resolution-specific "variants", see
