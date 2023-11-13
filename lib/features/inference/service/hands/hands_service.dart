@@ -11,7 +11,7 @@ import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
-class Hands extends AiModel {
+class Hands extends AiModel<image_lib.Image, HandsOutput> {
   Hands({this.interpreter}) {
     loadModel();
   }
@@ -48,7 +48,6 @@ class Hands extends AiModel {
     }
   }
 
-  @override
   TensorImage getProcessedImage(TensorImage inputImage) {
     final imageProcessor = ImageProcessorBuilder()
         .add(ResizeOp(inputSize, inputSize, ResizeMethod.BILINEAR))
@@ -60,18 +59,18 @@ class Hands extends AiModel {
   }
 
   @override
-  HandsOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
+  HandsOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
 
     if (Platform.isAndroid) {
-      image = image_lib.copyRotate(image, angle: -90);
-      image = image_lib.flipHorizontal(image);
+      input = image_lib.copyRotate(input, angle: -90);
+      input = image_lib.flipHorizontal(input);
     }
     final tensorImage = TensorImage(TfLiteType.float32);
-    tensorImage.loadImage(image);
+    tensorImage.loadImage(input);
     final inputImage = getProcessedImage(tensorImage);
 
     TensorBuffer outputLandmarks = TensorBufferFloat(outputShapes[0]);
@@ -97,8 +96,8 @@ class Hands extends AiModel {
     final landmarkResults = <Offset>[];
     for (var point in landmarkPoints) {
       landmarkResults.add(Offset(
-        point[0] / inputSize * image.width,
-        point[1] / inputSize * image.height,
+        point[0] / inputSize * input.width,
+        point[1] / inputSize * input.height,
       ));
     }
 
@@ -109,8 +108,8 @@ class Hands extends AiModel {
 HandsOutput? runHandDetector(Map<String, dynamic> params) {
   final hands =
       Hands(interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['cameraImage']);
-  final result = hands.predict(image!, {});
+  final image = ImageUtils.convertCameraImage(params['input']);
+  final result = hands.predict(image, {});
 
   return result;
 }

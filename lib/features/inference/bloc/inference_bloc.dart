@@ -1,95 +1,83 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:isolate';
-import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:visualpt/features/inference/service/ai_model.dart';
-import 'package:visualpt/features/video/service/video_repository.dart';
-import 'package:visualpt/features/inference/service/inference_service.dart';
+import 'package:visualpt/core/services/repository.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:visualpt/features/inference/service/ai_model.dart';
 
 part 'inference_event.dart';
 part 'inference_state.dart';
 
-class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
-  InferenceBloc(this.videoRepository, this.storeData)
-      : super(const InferenceLoading()) {
-    on<InferenceInit>(_onInit);
-    on<InferenceStart>(_onStart);
-    on<InferenceToggle>(_onToggle);
-    on<InferenceInput>(_onInput, transformer: concurrent());
-    on<InferenceOutput>(_onOutput, transformer: concurrent());
-    on<InferenceEnd>(_onEnd);
-    classification = true;
-    storageBacklog = 0;
+class InferenceBloc<I, O extends AiModelOutput>
+    extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
+  InferenceBloc(this.inferenceRepository) : super(const InferenceLoading()) {
+    on<InferenceInit<I, O>>(_onInit);
+    on<InferenceStart<I, O>>(_onStart);
+    on<InferenceInput<I, O>>(_onInput, transformer: concurrent());
+    on<InferenceOutput<I, O>>(_onOutput, transformer: concurrent());
+    on<InferenceEnd<I, O>>(_onEnd);
 
-    //TODO dynamically load models through constructor
-    _inferenceService = InferenceService();
+    storageBacklog = 0;
   }
-  final VideoRepository videoRepository;
-  final bool storeData;
+  final Repository<I, O> inferenceRepository;
+
   static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
-  int frame = 0;
-  late bool classification;
-  late InferenceService _inferenceService;
   late int storageBacklog;
-  late StreamSubscription<CameraImage> _cameraStreamSubscription;
+  late StreamSubscription<I>? _subscription;
   final nullResponsePort = ReceivePort();
 
 //TODO: Figure out what this is doing here
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
     log("Initializing inference bloc");
-    await _inferenceService.initialize();
+    await inferenceRepository.initialize();
     isReady = true;
-    emit(const InferenceStopped());
+    emit(InferenceStandby<I, O>());
   }
 
   FutureOr<void> _onStart(
-      InferenceStart event, Emitter<InferenceState> emit) async {
-    _cameraStreamSubscription = videoRepository.frameStream.listen((image) {
+      InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
+    _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(input: image, ratio: event.ratio));
+        add(InferenceInput(
+            input: data, store: event.store, params: event.params));
       }
     });
-    emit(const InferenceRunning(null, 1));
-  }
-
-  FutureOr<void> _onToggle(
-      InferenceToggle event, Emitter<InferenceState> emit) {
-    classification = event.classification;
+    emit(InferenceRunning<I, O>(null, event.store, const {"ratio": 1}));
   }
 
   FutureOr<void> _onInput(
-      InferenceInput event, Emitter<InferenceState> emit) async {
-    if (frame++ % sampleRateFrames == 0) {
+      InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
+    if (inferenceRepository.count++ % sampleRateFrames == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data = await _inferenceService
-        .inference(cameraImage: event.input, params: {"ratio": event.ratio});
+    final data = await inferenceRepository.predict(event.input, event.params);
     processing = false;
     if (!isClosed && !emit.isDone) {
       add(InferenceOutput(
-          input: event.input, ratio: event.ratio, output: data));
+          input: event.input,
+          store: event.store,
+          params: event.params,
+          output: data));
     }
   }
 
   FutureOr<void> _onOutput(
-      InferenceOutput event, Emitter<InferenceState> emit) {
+      InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null && storageBacklog > 0 && storeData) {
+      if (event.output != null && storageBacklog > 0 && event.store) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
         storageBacklog--;
-        _inferenceService.store(
-            event.input, classification, event.ratio, event.output!);
+        inferenceRepository.store(event.input, event.output!, event.params);
       }
       if (!isClosed && !emit.isDone) {
-        emit(InferenceRunning(event.output, event.ratio));
+        emit(InferenceRunning<I, O>(event.output, event.store, event.params));
       }
     } catch (e) {
       log("Error: $e");
@@ -99,9 +87,8 @@ class InferenceBloc extends Bloc<InferenceEvent, InferenceState> {
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
     isReady = false;
     nullResponsePort.close();
-    _inferenceService.dispose();
-    _cameraStreamSubscription.cancel();
-    videoRepository.dispose();
-    emit(const InferenceStopped());
+    _subscription?.cancel();
+    inferenceRepository.dispose();
+    emit(InferenceStandby<I, O>());
   }
 }

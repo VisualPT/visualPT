@@ -1,19 +1,15 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
+import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
+import 'package:visualpt/features/video/view/camera.dart';
 import 'package:visualpt/features/video/view/video_presenter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
 class CaptureView extends StatelessWidget {
-  const CaptureView(this.storageAccess, this.onComplete, {super.key});
-  final bool storageAccess;
+  const CaptureView(this.onComplete, {super.key});
   final Function(Segment) onComplete;
   @override
   Widget build(BuildContext context) {
@@ -21,9 +17,8 @@ class CaptureView extends StatelessWidget {
       children: [
         const ViewBackground(),
         VideoPresenter(
-          storageAccess,
-          onRecording: recordingVideo,
-          onStandby: standbyVideo,
+          onRecording: showingVideo,
+          onStandby: showingVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
         ),
@@ -35,20 +30,10 @@ class CaptureView extends StatelessWidget {
   ///    WIDGETS BELOW    ///
   /// /// /// /// /// /// ///
 
-  Widget recordingVideo(BuildContext context, VideoRecording state) {
+  Widget showingVideo(BuildContext context, VideoState state) {
+    final vid = BlocProvider.of<VideoBloc>(context);
+
     //TODO: Be more detailed about this component and try ot make it generic enough to be used by standbyVideo as well
-    return VideoControls(
-      onComplete: onComplete,
-      state: state,
-    );
-  }
-
-  Widget standbyVideo(BuildContext context, VideoStandby videoState) {
-    final vid = BlocProvider.of<VideoBloc>(context),
-        timer = BlocProvider.of<TimerBloc>(context),
-        inf = BlocProvider.of<InferenceBloc>(context),
-        screenWidth = MediaQuery.of(context).size.width;
-
     return SafeArea(
         child: Stack(
       alignment: Alignment.topCenter,
@@ -57,30 +42,13 @@ class CaptureView extends StatelessWidget {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
         ),
-        AspectRatio(
-          aspectRatio: 1 / videoState.controller.value.aspectRatio,
-          child: CameraPreview(videoState.controller, child: const PoseBbox()),
-        ),
-        BlocBuilder<InferenceBloc, InferenceState>(
-            buildWhen: (previous, current) {
-          return previous is InferenceLoading && current is InferenceStopped;
-        }, builder: (context, state) {
-          if (state is InferenceLoading) {
-            return const AppLoading(message: "Loading Model");
-          }
-          return Positioned(
-              bottom: 0,
-              child: GestureDetector(
-                onTap: () {
-                  vid.add(const VideoPlay());
-                  timer.add(const TimerStarted());
-                  inf.add(InferenceStart(screenWidth /
-                      videoState.controller.value.previewSize!.height));
-                },
-                child: const Icon(CupertinoIcons.circle_fill,
-                    color: Styles.white, size: 80),
-              ));
-        }),
+        Camera(controller: vid.controller!, children: [
+          if (vid.controller != null)
+            PoseDetectionOverlay(controller: vid.controller!),
+          // if (vid.controller != null)
+          //TODOV1   PoseClassificationOverlay(controller: vid.controller!),
+        ]),
+        VideoControls(state: state, onComplete: onComplete),
       ],
     ));
   }

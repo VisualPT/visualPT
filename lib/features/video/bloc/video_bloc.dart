@@ -69,7 +69,9 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       //TODO:Error handle instead
       if (!isClosed) add(const VideoInit());
     }
-    videoRepository.startRecording(controller!);
+    controller!.startImageStream((image) {
+      videoRepository.add(image);
+    });
     emit(VideoRecording(controller!));
   }
 

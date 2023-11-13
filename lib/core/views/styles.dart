@@ -30,6 +30,7 @@ class Styles {
   static const String mainLogoPath = "assets/images/vpt_mainlogo.png";
   static const String ctsibLogoPath = "assets/images/ctsib_mainlogo.png";
   static const String gvLogoPath = "assets/images/gv_mainlogo.png";
+  static const String bergLogoPath = "assets/images/berg_mainlogo.png";
 
   //Text Styles
   static const TextStyle title = TextStyle(

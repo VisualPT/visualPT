@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/features/inference/view/assessment_presenter.dart';
+import 'package:visualpt/features/assessment/view/assessment_presenter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';

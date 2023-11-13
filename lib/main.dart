@@ -65,12 +65,11 @@ class VisualPT extends StatelessWidget {
             }
             if (route.name == "/video") {
               final args = route.arguments as Map<String, dynamic>;
-              final storeData = args["storageAccess"] as bool;
               final onComplete =
                   args["onComplete"] as dynamic Function(Segment);
 
               return CupertinoPageRoute(
-                  builder: (context) => CaptureView(storeData, onComplete));
+                  builder: (context) => CaptureView(onComplete));
             }
             return null;
           },

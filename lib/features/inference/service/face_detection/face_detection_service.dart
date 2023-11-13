@@ -16,7 +16,7 @@ import 'options.dart';
 import 'process.dart';
 
 // ignore: must_be_immutable
-class FaceDetection extends AiModel {
+class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
   FaceDetection({this.interpreter}) {
     loadModel();
   }
@@ -74,7 +74,6 @@ class FaceDetection extends AiModel {
     }
   }
 
-  @override
   TensorImage getProcessedImage(TensorImage inputImage) {
     _imageProcessor = ImageProcessorBuilder()
         .add(ResizeOp(inputSize, inputSize, ResizeMethod.BILINEAR))
@@ -86,7 +85,7 @@ class FaceDetection extends AiModel {
   }
 
   @override
-  FaceBboxOutput? predict(image_lib.Image image, Map<String, dynamic> params) {
+  FaceBboxOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -110,11 +109,11 @@ class FaceDetection extends AiModel {
         wScale: 128);
 
     if (Platform.isAndroid) {
-      image = image_lib.copyRotate(image, angle: -90);
-      image = image_lib.flipHorizontal(image);
+      input = image_lib.copyRotate(input, angle: -90);
+      input = image_lib.flipHorizontal(input);
     }
     final tensorImage = TensorImage(TfLiteType.float32);
-    tensorImage.loadImage(image);
+    tensorImage.loadImage(input);
     final inputImage = getProcessedImage(tensorImage);
 
     TensorBuffer outputFaces = TensorBufferFloat(outputShapes[0]);
@@ -156,7 +155,7 @@ class FaceDetection extends AiModel {
         );
 
         bbox = _imageProcessor.inverseTransformRect(
-            bbox, image.height, image.width);
+            bbox, input.height, input.width);
       }
       rectFaces.add({'bbox': bbox, 'score': score});
     }
@@ -170,8 +169,8 @@ class FaceDetection extends AiModel {
 FaceBboxOutput? runFaceDetector(Map<String, dynamic> params) {
   final faceDetection = FaceDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['cameraImage'])!;
-  final result = faceDetection.predict(image, {});
+  final input = ImageUtils.convertCameraImage(params['input']);
+  final result = faceDetection.predict(input, {});
 
   return result;
 }

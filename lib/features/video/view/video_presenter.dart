@@ -1,14 +1,16 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/service/video_repository.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  VideoPresenter(
-    this.storageAccess, {
+  const VideoPresenter({
     super.key,
     required this.onLoading,
     required this.onRecording,
@@ -21,11 +23,16 @@ class VideoPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, VideoLoading state) onLoading;
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
-  final VideoRepository videoRepository = VideoRepository();
-  final bool storageAccess;
+
+  //TODOV1 final DetectionRepository detectionRepository = DetectionRepository();
 
   @override
   Widget build(BuildContext context) {
+    final VideoRepository videoRepository = VideoRepository(
+        userEmail: (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -36,9 +43,18 @@ class VideoPresenter extends StatelessWidget {
           create: (context) => TimerBloc(),
         ),
         BlocProvider(
-          create: (context) => InferenceBloc(videoRepository, storageAccess)
-            ..add(const InferenceInit()),
-        )
+          lazy: false,
+          create: (context) =>
+              InferenceBloc<CameraImage, PoseDetectionOutput>(videoRepository)
+                ..add(const InferenceInit()),
+        ),
+        //TODOV1 BlocProvider(
+        //   lazy: false,
+        //   create: (context) =>
+        //       InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>(
+        //           detectionRepository)
+        //         ..add(const InferenceInit()),
+        // )
       ],
       child: BlocBuilder<VideoBloc, VideoState>(
         builder: (context, state) {
@@ -53,7 +69,9 @@ class VideoPresenter extends StatelessWidget {
               throw Exception("Invalid Video State");
             }
           } catch (e) {
-            return onError(context, state, e as Exception);
+            print(e);
+            return Container();
+            //return onError(context, state, e as Exception);
           }
         },
       ),

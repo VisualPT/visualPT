@@ -1,39 +1,38 @@
 import 'dart:developer';
 import 'dart:isolate';
 
-import 'package:camera/camera.dart';
-
 import '../../../core/utils/isolate_utils.dart';
 import 'ai_model.dart';
 import 'face_detection/face_detection_service.dart';
 import 'face_mesh/face_mesh_service.dart';
 import 'hands/hands_service.dart';
-import 'pose/pose_service.dart';
+import 'pose_detection/pose_detection_service.dart';
 import 'service_locator.dart';
 
 enum Models {
   FaceDetection,
   FaceMesh,
   Hands,
-  Pose,
+  PoseDetect,
+  //TODOV1 PoseClass,
 }
 
-class ModelInferenceService {
+class ModelInferenceService<I, O> {
   late AiModel model;
   late Function handler;
   AiModelOutput? inferenceResults;
 
   Future<void> inference({
     required IsolateUtils isolateUtils,
-    required CameraImage cameraImage,
-    required Map<String, double> params,
+    required I input,
+    required Map<String, dynamic>? params,
   }) async {
     final responsePort = ReceivePort();
 
     isolateUtils.sendMessage(
       handler: handler,
       params: {
-        'cameraImage': cameraImage,
+        'input': input,
         'detectorAddress': model.getAddress,
         'params': params,
       },
@@ -62,11 +61,15 @@ class ModelInferenceService {
         model = locator<Hands>();
         handler = runHandDetector;
         break;
-      case Models.Pose:
-        log("Pose model configured");
-        model = locator<Pose>();
-        handler = runPoseEstimator;
-        break;
+      case Models.PoseDetect:
+        log("Pose detection model configured");
+        model = locator<PoseDetection>();
+        handler = runPoseDetector;
+      //TODOV1  break;
+      //TODOV1case Models.PoseClass:
+      //TODOV1  log("Pose classification model configured");
+      //TODOV1  model = locator<PoseClassification>();
+      //TODOV1  handler = runPoseClassifier;
     }
   }
 }

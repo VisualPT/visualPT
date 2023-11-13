@@ -14,7 +14,7 @@ class StorageService {
           StorageDownloadDataResult<StorageItem>>
       download(
           {required String key,
-          StorageAccessLevel accessLevel = StorageAccessLevel.private}) {
+          StorageAccessLevel accessLevel = StorageAccessLevel.guest}) {
     return Amplify.Storage.downloadData(
         key: key,
         options: StorageDownloadDataOptions(accessLevel: accessLevel));
@@ -22,7 +22,7 @@ class StorageService {
 
   StorageGetUrlOperation<StorageGetUrlRequest, StorageGetUrlResult> getUrl(
       {required String key,
-      StorageAccessLevel accessLevel = StorageAccessLevel.private}) {
+      StorageAccessLevel accessLevel = StorageAccessLevel.guest}) {
     return Amplify.Storage.getUrl(
         key: key, options: StorageGetUrlOptions(accessLevel: accessLevel));
   }
@@ -36,7 +36,7 @@ class StorageService {
         final result = await Amplify.Storage.list(
           path: 'raw/',
           options: StorageListOptions(
-            accessLevel: StorageAccessLevel.private,
+            accessLevel: StorageAccessLevel.guest,
             pageSize: 1000,
             nextToken: nextToken,
             pluginOptions: const S3ListPluginOptions(
@@ -58,9 +58,9 @@ class StorageService {
   Future<void> move(
       {required String sourceKey,
       required String destinationKey,
-      StorageAccessLevel sourceAccessLevel = StorageAccessLevel.private,
+      StorageAccessLevel sourceAccessLevel = StorageAccessLevel.guest,
       StorageAccessLevel destinationAccessLevel =
-          StorageAccessLevel.private}) async {
+          StorageAccessLevel.guest}) async {
     await Amplify.Storage.move(
             source: StorageItemWithAccessLevel(
                 storageItem: StorageItem(key: sourceKey),

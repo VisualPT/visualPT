@@ -2,7 +2,6 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/features/assessment/view/ctsib/instruction_view.dart';
@@ -52,10 +51,6 @@ Widget Function(BuildContext) captureView(
     (context) => BaseView(
         pageTitle: title,
         child: CaptureView(
-          (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-                  .user
-                  .email !=
-              'gaitertech@gmail.com', //TODO; This needs to be improved, THE WHOLE FILE
           (segment) => BlocProvider.of<AssessmentBloc>(context).add(
               AssessmentIncrement(
                   patient: patient,

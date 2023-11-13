@@ -9,8 +9,21 @@ class InstructionView extends StatelessWidget {
   final int index;
   const InstructionView(this.title, this.index, {super.key});
 
+  static const instructions = [
+    "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
+    "Camera position must be static and level",
+    "Lighting must be sufficient to clearly see the patient",
+  ];
+
   @override
   Widget build(BuildContext context) {
+    var formattedInstructionList = instructions.map((instruction) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(instruction, textAlign: TextAlign.center),
+      );
+    });
+
     return BaseView(
       pageTitle: "CTSIB Instructions",
       child: Column(
@@ -40,16 +53,7 @@ class InstructionView extends StatelessWidget {
           const Text("Before getting started: ",
               style: Styles.heading3, textAlign: TextAlign.center),
           const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text("Ensure device is kept still"),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-                "Record all tests from same relative position to patient",
-                textAlign: TextAlign.center),
-          ),
+          ...formattedInstructionList,
           const Spacer(),
           Padding(
               padding: const EdgeInsets.all(16.0),

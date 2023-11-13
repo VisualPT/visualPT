@@ -13,11 +13,16 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = AppNav(context);
 
-    final isDemo = (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-        .user
-        .email
-        .toLowerCase()
-        .contains("gaitertech@gmail.com");
+    final isAdmin = (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email
+            .toLowerCase()
+            .contains("tim.richardson@fyzicalhq.com") ||
+        (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email
+            .toLowerCase()
+            .contains("charlesrichardsonusa@gmail.com");
 
     return CupertinoPageScaffold(
       child: BaseView(
@@ -43,6 +48,12 @@ class HomeView extends StatelessWidget {
                         assessmentType: AssessmentType.CTSIB,
                         subtitle: "5 minutes"),
                     AssessmentCard(
+                      imagePath: Styles.bergLogoPath,
+                      assessmentType: AssessmentType.BERG,
+                      subtitle: "10 minutes",
+                      available: false,
+                    ),
+                    AssessmentCard(
                       imagePath: Styles.gvLogoPath,
                       assessmentType: AssessmentType.GAIT,
                       subtitle: "5 minutes",
@@ -53,13 +64,11 @@ class HomeView extends StatelessWidget {
               ),
             ),
 
-            isDemo
-                ? Container()
-                : Padding(
+            isAdmin
+                ? Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                         onPressed: () => nav.toPath(path: "/video", args: {
-                              "storageAccess": !isDemo,
                               "onComplete": (Segment s) => {nav.back()}
                             }),
                         color: Styles.actionPrimary,
@@ -67,18 +76,18 @@ class HomeView extends StatelessWidget {
                           "Collect Data ",
                           style: Styles.actionText,
                         )),
-                  ),
-
-            isDemo
-                ? Container()
-                : Padding(
+                  )
+                : Container(),
+            isAdmin
+                ? Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                         onPressed: () => {nav.toPath(path: "/validate")},
                         color: Styles.actionPrimary,
                         child: const Text("Validate Data",
                             style: Styles.actionText)),
-                  ),
+                  )
+                : Container(),
             const Spacer(),
           ],
         ),

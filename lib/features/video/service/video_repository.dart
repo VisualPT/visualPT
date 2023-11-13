@@ -1,22 +1,83 @@
-import 'dart:async';
+import 'dart:math';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
+import 'package:visualpt/core/services/repository.dart';
+import 'package:visualpt/core/utils/image_utils.dart';
+import 'package:visualpt/core/utils/isolate_utils.dart';
+import 'package:visualpt/features/backend/service/storage_service.dart';
+import 'package:visualpt/features/inference/service/model_inference_service.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
-class VideoRepository {
-  VideoRepository();
-  int frames = 0;
-  final StreamController<CameraImage> _frameStreamController =
-      StreamController.broadcast();
+class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
+  final ModelInferenceService<TensorImage, PoseDetectionOutput>
+      _poseDetectionService = ModelInferenceService();
+  final IsolateUtils _detectionIsolateUtils = IsolateUtils();
+  final IsolateUtils _convertIsolateUtils = IsolateUtils();
+  final String userEmail;
+  VideoRepository({required this.userEmail});
 
-  void startRecording(CameraController controller) {
-    controller.startImageStream((image) {
-      frames++;
-      if (!_frameStreamController.isClosed) _frameStreamController.add(image);
-    });
+  @override
+  Future<void> initialize() async {
+    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
+    await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
+    _poseDetectionService.setModelConfig(3);
   }
 
-  Stream<CameraImage> get frameStream => _frameStreamController.stream;
+  @override
+  Future<PoseDetectionOutput?> predict(
+      CameraImage input, Map<String, dynamic>? params) async {
+    final data = preProcessData(input);
+    await _poseDetectionService.inference(
+      isolateUtils: _detectionIsolateUtils,
+      input: data,
+      params: params,
+    );
+    return _poseDetectionService.inferenceResults as PoseDetectionOutput?;
+  }
 
+  @override
+  Future<void> store(CameraImage input, PoseDetectionOutput output,
+      Map<String, dynamic>? params) async {
+    StorageService storageService = StorageService();
+    final lines = output.output.map((line) => line.join(",")).join("\n");
+
+    final png = await ImageUtils.convert(
+      isolateUtils: _convertIsolateUtils,
+      image: input,
+    );
+
+    final metadata = [input.height, input.width, params!["ratio"], 1].join(",");
+    final detection = '$metadata\n$lines';
+
+    final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
+    final dataPayload = S3DataPayload.string(detection);
+
+//TODO: Put a user tag instead of a random number
+    final key = "${userEmail}_${DateTime.now().millisecondsSinceEpoch}";
+    storageService.upload(
+        imagePayload, 'raw/$key.png', StorageAccessLevel.guest);
+    storageService.upload(
+        dataPayload, 'raw/$key.csv', StorageAccessLevel.guest);
+  }
+
+  @override
   void dispose() {
-    _frameStreamController.close();
+    _convertIsolateUtils.dispose();
   }
+}
+
+TensorImage preProcessData(CameraImage input) {
+  final image = ImageUtils.convertCameraImage(input);
+
+  var tensorImage = TensorImage(TfLiteType.float32);
+  tensorImage.loadImage(image);
+  final imageProcessor = ImageProcessorBuilder()
+      .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))
+      .add(NormalizeOp(0, 255))
+      .build();
+
+  return imageProcessor.process(tensorImage);
 }
