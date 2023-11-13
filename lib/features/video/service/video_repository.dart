@@ -32,7 +32,7 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
     await _poseDetectionService.inference(
       isolateUtils: _detectionIsolateUtils,
       input: data,
-      params: params!,
+      params: params,
     );
     return _poseDetectionService.inferenceResults as PoseDetectionOutput?;
   }

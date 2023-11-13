@@ -36,12 +36,11 @@ class InferenceBloc<I, O extends AiModelOutput>
     log("Initializing inference bloc");
     await inferenceRepository.initialize();
     isReady = true;
-    emit(InferenceStopped<I, O>());
+    emit(InferenceStandby<I, O>());
   }
 
   FutureOr<void> _onStart(
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
-    print("$I & $O Data is being stored: ${event.store}");
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
         add(InferenceInput(
@@ -50,13 +49,6 @@ class InferenceBloc<I, O extends AiModelOutput>
     });
     emit(InferenceRunning<I, O>(null, event.store, const {"ratio": 1}));
   }
-
-  // FutureOr<void> _onAdd(
-  //     InferenceAdd<I, O> event, Emitter<InferenceState> emit) async {
-  //   if (isReady) {
-  //     _inferenceRepository.add(event.input);
-  //   }
-  // }
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
@@ -97,6 +89,6 @@ class InferenceBloc<I, O extends AiModelOutput>
     nullResponsePort.close();
     _subscription?.cancel();
     inferenceRepository.dispose();
-    emit(InferenceStopped<I, O>());
+    emit(InferenceStandby<I, O>());
   }
 }

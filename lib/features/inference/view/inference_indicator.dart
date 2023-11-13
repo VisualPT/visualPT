@@ -24,7 +24,7 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
       onTapDown: (e) => setState(() => showMessage = true),
       onTapUp: (e) => setState(() => showMessage = false),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: Row(children: [
           Container(
               height: 24,
@@ -35,7 +35,9 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
                   color: widget.color.withAlpha(128),
                   border: Border.all()),
               child: Icon(widget.icon, size: 16, color: CupertinoColors.black)),
-          Text("${widget.type} ${widget.message}"),
+          Text("${widget.type} "),
+          Text(widget.message,
+              style: const TextStyle(fontWeight: FontWeight.bold))
         ]),
       ),
     );

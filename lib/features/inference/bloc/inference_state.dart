@@ -24,8 +24,8 @@ class InferenceRunning<I, O> extends InferenceState<I, O> {
   List<Object> get props => [response ?? "", params ?? ""];
 }
 
-class InferenceStopped<I, O> extends InferenceState<I, O> {
-  const InferenceStopped() : super(null);
+class InferenceStandby<I, O> extends InferenceState<I, O> {
+  const InferenceStandby() : super(null);
 
   @override
   List<Object> get props => [];

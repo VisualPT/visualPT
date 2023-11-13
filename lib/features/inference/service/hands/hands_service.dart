@@ -59,7 +59,7 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
   }
 
   @override
-  HandsOutput? predict(image_lib.Image input, Map<String, dynamic> params) {
+  HandsOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;

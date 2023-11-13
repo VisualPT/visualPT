@@ -45,23 +45,21 @@ class _VideoControlsState extends State<VideoControls> {
       return Stack(
         fit: StackFit.expand,
         children: [
-          Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxHeight: 96,
-                    minHeight: 64,
-                    minWidth: MediaQuery.of(context).size.width),
-                child: Container(
-                    color: CupertinoColors.white,
+          SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Takes the least amount of space
+              children: [
+                Container(
+                  color: CupertinoColors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0), // Add padding as needed
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
                       children: [
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize:
+                              MainAxisSize.min, // Fit content in the column
                           children: [
                             PoseDetectionIndicator(),
                             PoseClassificationIndicator(),
@@ -69,18 +67,27 @@ class _VideoControlsState extends State<VideoControls> {
                         ),
                         const Spacer(),
                         Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Fit content in the row
                           children: [
                             const Text("Store Data"),
                             CupertinoSwitch(
-                                value: store,
-                                onChanged: (value) {
-                                  setState(() => store = value);
-                                }),
+                              value: store,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  store = value;
+                                });
+                              },
+                            ),
                           ],
                         ),
                       ],
-                    )),
-              )),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Positioned(
             bottom: 0,
             left: 0,
@@ -89,7 +96,12 @@ class _VideoControlsState extends State<VideoControls> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
-                if (infState is InferenceStopped && state is VideoStandby) ...[
+                if (infState is InferenceLoading) ...[
+                  const CupertinoActivityIndicator(
+                    radius: 20,
+                  )
+                ] else if (infState is InferenceStandby &&
+                    state is VideoStandby) ...[
                   GestureDetector(
                     onTap: () {
                       final params = {
@@ -120,9 +132,6 @@ class _VideoControlsState extends State<VideoControls> {
                   const Spacer(),
                   GestureDetector(
                       onTap: () {
-                        detection.add(const InferenceEnd());
-                        classification.add(const InferenceEnd());
-                        vid.add(const VideoStop());
                         widget.onComplete(Segment(
                             duration_seconds:
                                 BlocProvider.of<TimerBloc>(context)
@@ -130,6 +139,10 @@ class _VideoControlsState extends State<VideoControls> {
                                     .duration
                                     .inSeconds,
                             file: "TODO"));
+                        detection.add(const InferenceEnd());
+                        classification.add(const InferenceEnd());
+                        vid.add(const VideoStop());
+                        timer.add(const TimerReset());
                       },
                       child: const Icon(CupertinoIcons.stop,
                           color: Styles.backgroundComplementory, size: 80)),

@@ -13,7 +13,7 @@ class PoseClassificationOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return InferencePresenter<PoseDetectionOutput, PoseClassificationOutput>(
       onRunning: onRunning,
-      onStopped: onStopped,
+      onStandby: onStandby,
       onLoad: onLoad,
       onError: onError,
     );
@@ -23,13 +23,14 @@ class PoseClassificationOverlay extends StatelessWidget {
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
     print("PoseClassificationOverlay: onRunning: ${state.response.toString()}");
     return Stack(
+      alignment: Alignment.center,
       fit: StackFit.expand,
       children: [Text(state.response.toString())],
     );
   }
 
-  Widget onStopped(BuildContext context,
-      InferenceStopped<PoseDetectionOutput, PoseClassificationOutput> state) {
+  Widget onStandby(BuildContext context,
+      InferenceStandby<PoseDetectionOutput, PoseClassificationOutput> state) {
     return Container();
   }
 

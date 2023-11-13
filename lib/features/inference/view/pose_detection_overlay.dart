@@ -16,7 +16,7 @@ class PoseDetectionOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return InferencePresenter<CameraImage, PoseDetectionOutput>(
       onRunning: onRunning,
-      onStopped: onStopped,
+      onStandby: onStandby,
       onLoad: onLoad,
       onError: onError,
     );
@@ -46,9 +46,15 @@ class PoseDetectionOverlay extends StatelessWidget {
     );
   }
 
-  Widget onStopped(BuildContext context,
-      InferenceStopped<CameraImage, PoseDetectionOutput> state) {
-    return Container();
+  Widget onStandby(BuildContext context,
+      InferenceStandby<CameraImage, PoseDetectionOutput> state) {
+    return const Stack(
+      fit: StackFit.expand,
+      children: [
+        PoseBbox(),
+      ],
+    );
+    ;
   }
 
   Widget onLoad(BuildContext context,

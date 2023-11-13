@@ -14,7 +14,7 @@ class PoseClassificationIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return InferencePresenter<PoseDetectionOutput, PoseClassificationOutput>(
       onRunning: onRunning,
-      onStopped: onStopped,
+      onStandby: onStandby,
       onLoad: onLoad,
       onError: onError,
     );
@@ -24,18 +24,18 @@ class PoseClassificationIndicator extends StatelessWidget {
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
         icon: icon,
-        color: CupertinoColors.white,
+        color: CupertinoColors.activeGreen,
         type: type,
         message: "Running");
   }
 
-  Widget onStopped(BuildContext context,
-      InferenceStopped<PoseDetectionOutput, PoseClassificationOutput> state) {
+  Widget onStandby(BuildContext context,
+      InferenceStandby<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemYellow,
         type: type,
-        message: "Stopped");
+        message: "Standby");
   }
 
   Widget onLoad(BuildContext context,

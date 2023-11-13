@@ -27,7 +27,7 @@ class ModelInferenceService<I, O> {
   Future<void> inference({
     required IsolateUtils isolateUtils,
     required I input,
-    required Map<String, dynamic> params,
+    required Map<String, dynamic>? params,
   }) async {
     final responsePort = ReceivePort();
 

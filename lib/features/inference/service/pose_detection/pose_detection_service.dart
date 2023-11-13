@@ -41,7 +41,8 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
   }
 
   @override
-  PoseDetectionOutput? predict(TensorImage input, Map<String, dynamic> params) {
+  PoseDetectionOutput? predict(
+      TensorImage input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -79,9 +80,9 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
-    final width = (params['width'] as double).toInt();
-    final height = (params['height'] as double).toInt();
-    final ratio = params['ratio'] as double;
+    final width = (params?['width'] as double).toInt();
+    final height = (params?['height'] as double).toInt();
+    final ratio = params?['ratio'] as double;
 
     return PoseDetectionOutput(landmarkPoints, inputSize, width, height, ratio);
   }

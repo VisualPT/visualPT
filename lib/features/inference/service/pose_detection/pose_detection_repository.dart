@@ -1,5 +1,3 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
@@ -21,14 +19,14 @@ class DetectionRepository
   }
 
   @override
-  Future<PoseClassificationOutput> predict(
+  Future<PoseClassificationOutput?> predict(
       PoseDetectionOutput input, Map<String, dynamic>? params) async {
     await _poseClassService.inference(
       isolateUtils: _classificationIsolateUtils,
       input: input,
-      params: params!,
+      params: params,
     );
-    return _poseClassService.inferenceResults as PoseClassificationOutput;
+    return _poseClassService.inferenceResults as PoseClassificationOutput?;
   }
 
   @override
@@ -37,11 +35,11 @@ class DetectionRepository
     StorageService storageService = StorageService();
     final output = "TODO"; //TODO: parse the output here
 
-    final dataPayload = S3DataPayload.string(output);
+    // final dataPayload = S3DataPayload.string(output);
 
-    final key = "${DateTime.now().millisecondsSinceEpoch}";
-    storageService.upload(
-        dataPayload, 'raw/$key.csv', StorageAccessLevel.private);
+    // final key = "${DateTime.now().millisecondsSinceEpoch}";
+    // storageService.upload(
+    //     dataPayload, 'raw/$key.csv', StorageAccessLevel.private);
   }
 
   @override

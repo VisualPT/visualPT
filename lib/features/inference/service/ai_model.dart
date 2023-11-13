@@ -18,7 +18,7 @@ abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
   int get getAddress;
 
   Future<void> loadModel();
-  O? predict(I input, Map<String, dynamic> params);
+  O? predict(I input, Map<String, dynamic>? params);
 }
 
 abstract class AiModelOutput extends Equatable {

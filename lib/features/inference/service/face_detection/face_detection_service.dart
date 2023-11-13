@@ -85,7 +85,7 @@ class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
   }
 
   @override
-  FaceBboxOutput? predict(image_lib.Image input, Map<String, dynamic> params) {
+  FaceBboxOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;

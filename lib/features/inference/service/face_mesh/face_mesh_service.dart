@@ -57,7 +57,7 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
   }
 
   @override
-  FaceOutput? predict(image_lib.Image input, Map<String, dynamic> params) {
+  FaceOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
