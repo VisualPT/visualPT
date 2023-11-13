@@ -143,10 +143,9 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           oldData.replaceRange(index + 1, index + 2, "${event.input}");
       final encodedData = utf8.encode(newData);
 
-      _storage.remove(
-          'raw/${event.key}.csv', amplify.StorageAccessLevel.private);
+      _storage.remove('raw/${event.key}.csv', amplify.StorageAccessLevel.guest);
       _storage.upload(amplify.HttpPayload.bytes(encodedData),
-          'valid/${event.key}.csv', amplify.StorageAccessLevel.private);
+          'valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
       _storage.move(
           sourceKey: 'raw/${event.key}.png',
           destinationKey: 'valid/${event.key}.png');
