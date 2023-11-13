@@ -2,9 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
@@ -31,9 +29,7 @@ class _VideoControlsState extends State<VideoControls> {
     final detection =
             BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
                 context),
-        classification = BlocProvider.of<
-                InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
-            context),
+        //TODOV1 classification = BlocProvider.of<InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(context),
         timer = BlocProvider.of<TimerBloc>(context),
         screenW = MediaQuery.of(context).size.width,
         vid = BlocProvider.of<VideoBloc>(context);
@@ -62,7 +58,7 @@ class _VideoControlsState extends State<VideoControls> {
                               MainAxisSize.min, // Fit content in the column
                           children: [
                             PoseDetectionIndicator(),
-                            PoseClassificationIndicator(),
+                            //TODOV1 PoseClassificationIndicator(),
                           ],
                         ),
                         const Spacer(),
@@ -114,7 +110,7 @@ class _VideoControlsState extends State<VideoControls> {
                       timer.add(const TimerStarted());
                       detection
                           .add(InferenceStart(store: store, params: params));
-                      classification.add(InferenceStart(store: store));
+                      //TODOV1 classification.add(InferenceStart(store: store));
                     },
                     child: const Icon(CupertinoIcons.circle_fill,
                         color: Styles.white, size: 80),
@@ -140,7 +136,7 @@ class _VideoControlsState extends State<VideoControls> {
                                     .inSeconds,
                             file: "TODO"));
                         detection.add(const InferenceEnd());
-                        classification.add(const InferenceEnd());
+                        //TODOV1classification.add(const InferenceEnd());
                         vid.add(const VideoStop());
                         timer.add(const TimerReset());
                       },

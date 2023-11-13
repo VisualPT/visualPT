@@ -1,6 +1,5 @@
 //TODO determine if this is the best way to do this
 import 'package:get_it/get_it.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_service.dart';
 
 import 'pose_detection/pose_detection_service.dart';
 
@@ -11,5 +10,5 @@ void setupLocator() {
   // locator.registerSingleton<FaceMesh>(FaceMesh());
   // locator.registerSingleton<Hands>(Hands());
   locator.registerSingleton<PoseDetection>(PoseDetection());
-  locator.registerSingleton<PoseClassification>(PoseClassification());
+  //TODOV1locator.registerSingleton<PoseClassification>(PoseClassification());
 }
