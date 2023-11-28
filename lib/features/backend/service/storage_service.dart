@@ -61,14 +61,19 @@ class StorageService {
       StorageAccessLevel sourceAccessLevel = StorageAccessLevel.guest,
       StorageAccessLevel destinationAccessLevel =
           StorageAccessLevel.guest}) async {
-    await Amplify.Storage.move(
-            source: StorageItemWithAccessLevel(
-                storageItem: StorageItem(key: sourceKey),
-                accessLevel: sourceAccessLevel),
-            destination: StorageItemWithAccessLevel(
-                storageItem: StorageItem(key: destinationKey),
-                accessLevel: destinationAccessLevel))
-        .result;
+    try {
+      await Amplify.Storage.move(
+              source: StorageItemWithAccessLevel(
+                  storageItem: StorageItem(key: sourceKey),
+                  accessLevel: sourceAccessLevel),
+              destination: StorageItemWithAccessLevel(
+                  storageItem: StorageItem(key: destinationKey),
+                  accessLevel: destinationAccessLevel))
+          .result;
+    } catch (e) {
+      safePrint('Error moving file: $e with key $sourceKey');
+      rethrow;
+    }
   }
 
   void remove(String key, StorageAccessLevel accessLevel) {
