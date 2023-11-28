@@ -103,6 +103,9 @@ class ValidationView extends StatelessWidget {
                         ),
                       )
                     : Container(),
+                Text("Collector: ${state.key.split("_").first}"),
+                Text(
+                    "Collection Date: ${DateTime.fromMillisecondsSinceEpoch(int.parse((state.key.split("_").last)))}")
               ],
             ),
           ),

@@ -74,7 +74,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         String searchKey;
         if (temp.contains('.csv')) {
           dataID = temp;
-          searchKey = temp.split('.').first.split('/').last;
+          searchKey = temp.substring(0, temp.lastIndexOf('.')).split('/').last;
           final imageIndex =
               event.keys.indexWhere((element) => element.contains(searchKey));
           if (imageIndex != -1) {
@@ -84,7 +84,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           }
         } else {
           imageID = temp;
-          searchKey = temp.split('.').first.split('/').last;
+          searchKey = temp.substring(0, temp.lastIndexOf('.')).split('/').last;
           final dataIndex =
               event.keys.indexWhere((element) => element.contains(searchKey));
           if (dataIndex != -1) {
