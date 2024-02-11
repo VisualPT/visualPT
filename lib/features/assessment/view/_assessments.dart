@@ -3,13 +3,13 @@ import 'package:visualpt/models/ModelProvider.dart';
 
 import 'package:visualpt/features/assessment/view/ctsib/ctsib.dart';
 import 'package:visualpt/features/assessment/view/gait/gait.dart';
+import 'package:visualpt/features/assessment/view/berg/berg.dart';
 
 class AssessmentRouter {
   final AssessmentType assessmentType;
 
   late List<Widget Function(BuildContext) Function()> introWidgets;
   late List<Widget Function(BuildContext) Function(Patient)> captureWidgets;
-
   late int assessmentCount;
 
   AssessmentRouter(this.assessmentType) {
@@ -20,6 +20,11 @@ class AssessmentRouter {
           captureWidgets = Ctsib().captureContent();
 
           assessmentCount = Ctsib.sequences;
+          break;
+        case AssessmentType.BERG:
+          introWidgets = Berg().introContent();
+          captureWidgets = Berg().captureContent();
+          assessmentCount = Berg.sequences;
           break;
         case AssessmentType.GAIT:
           //TODO assessmentWidgets = Gait().content();
@@ -33,4 +38,21 @@ class AssessmentRouter {
       //TODO Dont progress to the assessment page
     }
   }
+}
+
+class Assessment {
+  final AssessmentType assessmentType;
+  final int sequences;
+  final List<String> sequenceNames;
+  final List<String> introContent;
+  final List<String> captureContent;
+  final List<String> inferenceProviders;
+
+  Assessment(
+      {required this.assessmentType,
+      required this.sequences,
+      required this.sequenceNames,
+      required this.introContent,
+      required this.captureContent,
+      required this.inferenceProviders});
 }
