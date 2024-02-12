@@ -1,23 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/assessment/view/ctsib/ctsib.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 
-class InstructionView extends StatelessWidget {
-  final String title;
-  final int index;
-  const InstructionView(this.title, this.index, {super.key});
-
-  static const instructions = [
-    "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-    "Camera position must be static and level",
-    "Lighting must be sufficient to clearly see the patient",
-  ];
+class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
+  final AssessmentActive state;
+  const AssessmentInstructions(this.state, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    var formattedInstructionList = instructions.map((instruction) {
+    var formattedInstructionList =
+        state.assessment.seqInstructions[state.index].map((instruction) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(instruction, textAlign: TextAlign.center),
@@ -25,13 +18,14 @@ class InstructionView extends StatelessWidget {
     });
 
     return BaseView(
-      pageTitle: "CTSIB Instructions",
+      pageTitle: '${state.assessment.type.name.toUpperCase()} Instructions',
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           const Spacer(),
-          Text("Criteria ${index.toString()} of ${Ctsib.sequences.toString()}",
+          Text(
+              "Criteria ${state.index.toString()} of ${state.assessment.sequences.toString()}",
               style: Styles.subactionText),
           const Spacer(),
           Container(
@@ -40,7 +34,7 @@ class InstructionView extends StatelessWidget {
             color: Styles.black,
           ),
           Text(
-            title,
+            state.assessment.seqNames[state.index],
             style: Styles.title,
             textAlign: TextAlign.center,
           ),
@@ -59,9 +53,10 @@ class InstructionView extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: CupertinoButton(
                   color: Styles.actionPrimary,
-                  onPressed: () => BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentBegin(context: context, index: index)),
-                  child: const Text("Begin", style: Styles.actionText))),
+                  onPressed: () => {
+                        //This should be close automatically, handled by the GestureDetector in the BaseView
+                      },
+                  child: const Text("Ok", style: Styles.actionText))),
           const Spacer()
         ],
       ),

@@ -159,6 +159,7 @@ class CtsibPDF extends PDF {
   }
 
   Widget assessmentData(Patient patient, Assessment assessment) {
+    final ctsib = CTSIB();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -200,7 +201,7 @@ class CtsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(Ctsib.sequenceNames[i]),
+                  child: Text(ctsib.seqNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -224,7 +225,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * Ctsib.sequences} seconds",
+                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * ctsib.sequences} seconds",
                 ),
               ),
             ],
@@ -329,7 +330,7 @@ class CtsibPDF extends PDF {
 
 String getNormativeMessage(int totalDuration, TemporalDate dob) {
   int age = getAge(dob);
-  double norm = CtsibNorms.getAgeNorm(age);
+  double norm = CTSIB.getAgeNorm(age);
   double percent =
       (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
           .roundToDouble();

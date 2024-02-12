@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/patient_form/view/patient_presenter.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
-class PatientView extends StatelessWidget {
-  final AssessmentType assessmentType;
-
-  const PatientView({Key? key, required this.assessmentType}) : super(key: key);
+class AssessmentForm<T extends BaseAssessment> extends StatelessWidget {
+  final T assessment;
+  const AssessmentForm({Key? key, required this.assessment}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +17,9 @@ class PatientView extends StatelessWidget {
           onInitial: (context, state, user) => PatientForm(
                 //We have checked that the user is logged in, in the provider onInitial
                 user: user,
-                assessmentType: assessmentType,
+                assessmentType: assessment.type,
               ),
-          onSet: (context, state) => AssessmentView(
-              assessmentType: assessmentType, patient: state.patient),
+          onSet: (context, state) => Container(),
           onError: (context, state) => BaseView(
               pageTitle: "Patient State Error",
               child: Column(

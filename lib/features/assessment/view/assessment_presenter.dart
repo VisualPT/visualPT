@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/patient_form/bloc/patient_bloc.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 
 ///Provided PatientBloc & AssessmentBloc
-class AssessmentPresenter extends StatelessWidget {
-  final AssessmentType assessmentType;
-  final Patient patient;
-  final Widget Function(BuildContext context, AssessmentIntro state) onIntro;
-  final Widget Function(BuildContext context, AssessmentActive state) onActive;
-  final Widget Function(BuildContext context, AssessmentAnalysis state)
+class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
+  final T assessment;
+  final Widget Function(BuildContext context, AssessmentForm<T> state) onForm;
+  final Widget Function(BuildContext context, AssessmentActive<T> state)
+      onActive;
+  final Widget Function(BuildContext context, AssessmentAnalysis<T> state)
       onAnalysis;
-  final Widget Function(BuildContext context, AssessmentError state) onError;
+  final Widget Function(BuildContext context, AssessmentError<T> state) onError;
 
   const AssessmentPresenter({
     super.key,
-    required this.assessmentType,
-    required this.patient,
-    required this.onIntro,
+    required this.assessment,
+    required this.onForm,
     required this.onActive,
     required this.onAnalysis,
     required this.onError,
@@ -28,28 +27,23 @@ class AssessmentPresenter extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-            create: (context) => AssessmentBloc(assessmentType)
-              ..add(AssessmentInitial(
-                context: context,
-                patient: patient,
-              ))),
+        BlocProvider(create: (context) => AssessmentBloc(assessment)),
         BlocProvider(create: (context) => PatientBloc()),
       ],
-      child: BlocBuilder<AssessmentBloc, AssessmentState>(
+      child: BlocBuilder<AssessmentBloc<T>, AssessmentState>(
         builder: (context, state) {
           try {
-            if (state is AssessmentIntro) {
-              return onIntro(context, state);
-            } else if (state is AssessmentActive) {
+            if (state is AssessmentForm<T>) {
+              return onForm(context, state);
+            } else if (state is AssessmentActive<T>) {
               return onActive(context, state);
-            } else if (state is AssessmentAnalysis) {
+            } else if (state is AssessmentAnalysis<T>) {
               return onAnalysis(context, state);
             } else {
               throw Exception("Undefined State");
             }
           } catch (e) {
-            return onError(context, AssessmentError(message: Exception(e)));
+            return onError(context, AssessmentError(Exception(e), assessment));
           }
         },
       ),
