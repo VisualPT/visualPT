@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/view/assessment_card.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
-import 'components/_components.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -51,7 +51,6 @@ class HomeView extends StatelessWidget {
                       imagePath: Styles.bergLogoPath,
                       assessmentType: AssessmentType.BERG,
                       subtitle: "10 minutes",
-                      available: false,
                     ),
                     AssessmentCard(
                       imagePath: Styles.gvLogoPath,
@@ -69,6 +68,7 @@ class HomeView extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                         onPressed: () => nav.toPath(path: "/video", args: {
+                              "storeData": true,
                               "onComplete": (Segment s) => {nav.back()}
                             }),
                         color: Styles.actionPrimary,

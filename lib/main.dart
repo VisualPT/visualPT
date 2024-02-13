@@ -60,17 +60,18 @@ class VisualPT extends StatelessWidget {
           onGenerateRoute: (route) {
             if (route.name == "/assessment") {
               final type = route.arguments as AssessmentType;
-              final assessment = AssessmentRouter.getAssessment(type);
               return CupertinoPageRoute(
-                  builder: (context) => AssessmentView(assessment));
+                  builder: (context) =>
+                      AssessmentRouter.getAssessmentView(type));
             }
             if (route.name == "/video") {
               final args = route.arguments as Map<String, dynamic>;
+              final storeData = args["storeData"] as bool;
               final onComplete =
                   args["onComplete"] as dynamic Function(Segment);
 
               return CupertinoPageRoute(
-                  builder: (context) => CaptureView(onComplete));
+                  builder: (context) => CaptureView(storeData, onComplete));
             }
             return null;
           },

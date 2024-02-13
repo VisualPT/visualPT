@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
 import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/service/assessment_service.dart';
@@ -13,19 +14,18 @@ import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
-class AnalysisView extends StatelessWidget {
-  final Assessment assessment;
-  final Patient patient;
+class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
+  final AssessmentAnalysis<T> asmtState;
 
-  const AnalysisView(
-      {super.key, required this.assessment, required this.patient});
+  const AnalysisView(this.asmtState, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${assessment.type.name} analysis",
+        pageTitle: "${asmtState.assessment.type.name} analysis",
         child: AnalysisPresenter(
-          onCreate: PdfInit(patient: patient, assessment: assessment),
+          onCreate: PdfInit(
+              patient: asmtState.patient, assessment: asmtState.dbAssessment),
           onReady: pdfReady,
           onLoading: pdfLoading,
           onError: pdfError,
@@ -48,8 +48,9 @@ class AnalysisView extends StatelessWidget {
                 color: CupertinoColors.link,
                 onPressed: () {
                   //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(reset: true, patient));
+                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+                      asmtState.patient, asmtState.storeData,
+                      reset: true));
                 },
                 child: const Text(
                   "Redo Assessment",
@@ -61,8 +62,8 @@ class AnalysisView extends StatelessWidget {
                 color: CupertinoColors.link,
                 onPressed: () => onSend(
                   context,
-                  patient,
-                  assessment,
+                  asmtState.patient,
+                  asmtState.dbAssessment,
                   state.pdfView.pdfData!,
                 ),
                 child: const Text(
@@ -87,7 +88,9 @@ class AnalysisView extends StatelessWidget {
       CupertinoButton(
           child: const Text("Retry"),
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-                PdfInit(patient: patient, assessment: assessment),
+                PdfInit(
+                    patient: asmtState.patient,
+                    assessment: asmtState.dbAssessment),
               ))
     ]));
   }

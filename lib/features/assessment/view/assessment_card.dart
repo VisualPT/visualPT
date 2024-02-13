@@ -34,7 +34,7 @@ class AssessmentCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color:
                     available ? CupertinoColors.white : Styles.comingSoonColor,
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: Styles.borderRadiusM,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),

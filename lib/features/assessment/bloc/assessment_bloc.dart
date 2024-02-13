@@ -11,7 +11,7 @@ part 'assessment_state.dart';
 
 //Clean this up with a repository layer
 class AssessmentBloc<T extends BaseAssessment>
-    extends Bloc<AssessmentEvent, AssessmentState> {
+    extends Bloc<AssessmentEvent, AssessmentState<T>> {
   final T assessmentParams;
   late Assessment dbAssessment;
   late Patient patient;
@@ -19,7 +19,7 @@ class AssessmentBloc<T extends BaseAssessment>
   List<Segment> segments = [];
 
   AssessmentBloc(this.assessmentParams)
-      : super(AssessmentForm(assessmentParams)) {
+      : super(AssessmentForm<T>(assessmentParams)) {
     on<AssessmentInit>(_onInit);
     on<AssessmentIncrement>(_onIncrement);
 
@@ -35,7 +35,8 @@ class AssessmentBloc<T extends BaseAssessment>
         type: assessmentParams.type,
         datetime: TemporalDateTime(DateTime.now()),
         segments: segments);
-    emit(AssessmentActive(patient, 0, this.assessmentParams));
+    emit(AssessmentActive<T>(
+        patient, event.storeData, 0, this.assessmentParams));
   }
 
   FutureOr<void> _onIncrement(
@@ -43,19 +44,21 @@ class AssessmentBloc<T extends BaseAssessment>
     segments.add(event.segment);
     int index = event.index + 1;
 
-    if (index - 1 == assessmentParams.sequences) {
+    if (index == assessmentParams.sequences) {
       final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
           finishTime.difference(startTime).inSeconds;
       dbAssessment = dbAssessment.copyWith(
           segments: segments, duration: assessmentDurationSeconds);
-      emit(AssessmentAnalysis(patient, dbAssessment, assessmentParams));
+      emit(AssessmentAnalysis<T>(
+          patient, event.storeData, dbAssessment, assessmentParams));
     } else {
-      emit(AssessmentActive(patient, index, assessmentParams));
+      emit(AssessmentActive<T>(
+          patient, event.storeData, index, assessmentParams));
     }
   }
 
-  resetAssessment() {
+  void resetAssessment() {
     //TODO we will want to use this data to retrain the model if it is of quality
     dbAssessment = Assessment(
         patientID: patient.id,

@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/patient_form/bloc/patient_bloc.dart';
 
 ///Provided PatientBloc & AssessmentBloc
 class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
@@ -27,10 +26,9 @@ class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AssessmentBloc(assessment)),
-        BlocProvider(create: (context) => PatientBloc()),
+        BlocProvider(create: (context) => AssessmentBloc<T>(assessment)),
       ],
-      child: BlocBuilder<AssessmentBloc<T>, AssessmentState>(
+      child: BlocBuilder<AssessmentBloc<T>, AssessmentState<T>>(
         builder: (context, state) {
           try {
             if (state is AssessmentForm<T>) {
@@ -40,7 +38,7 @@ class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
             } else if (state is AssessmentAnalysis<T>) {
               return onAnalysis(context, state);
             } else {
-              throw Exception("Undefined State");
+              throw Exception("Undefined State $state");
             }
           } catch (e) {
             return onError(context, AssessmentError(Exception(e), assessment));

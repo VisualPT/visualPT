@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/patient_form/view/patient_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
-import 'package:visualpt/core/views/components/_components.dart';
+import 'package:visualpt/features/assessment/view/patient_form.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 
 class AssessmentForm<T extends BaseAssessment> extends StatelessWidget {
   final T assessment;
@@ -13,23 +14,10 @@ class AssessmentForm<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = AppNav(context);
     try {
-      return PatientPresenter(
-          onInitial: (context, state, user) => PatientForm(
-                //We have checked that the user is logged in, in the provider onInitial
-                user: user,
-                assessmentType: assessment.type,
-              ),
-          onSet: (context, state) => Container(),
-          onError: (context, state) => BaseView(
-              pageTitle: "Patient State Error",
-              child: Column(
-                children: [
-                  Text(state.message.toString()),
-                  CupertinoButton(
-                      onPressed: () => nav.back(),
-                      child: const Text("Restart Assessment"))
-                ],
-              )));
+      return PatientForm(
+        user: (BlocProvider.of<AuthBloc>(context).state as AuthSuccess).user,
+        assessmentType: assessment.type,
+      );
     } catch (e) {
       return BaseView(
           pageTitle: "Patient View Error",

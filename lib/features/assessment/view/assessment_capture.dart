@@ -14,12 +14,14 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle:
-            "${state.assessment.type} - ${state.assessment.seqNames[state.index]}",
+            "${state.assessment.type.name} - ${state.assessment.seqNames[state.index]}",
         instructions: AssessmentInstructions(state),
         child: CaptureView(
+          state.storeData,
           (segment) =>
               BlocProvider.of<AssessmentBloc>(context).add(AssessmentIncrement(
             state.patient,
+            state.storeData,
             segment,
             state.index,
           )),

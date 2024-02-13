@@ -5,7 +5,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 class BERG extends BaseAssessment {
   BERG()
       : super(
-          type: AssessmentType.CTSIB,
+          type: AssessmentType.BERG,
           sequences: 6,
           seqNames: [
             "Standing Unsupported with Feet Together",

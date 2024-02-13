@@ -73,6 +73,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     try {
       if (event.output != null && storageBacklog > 0 && event.store) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
+        //TODO: Add a path to the repository to store the data
         storageBacklog--;
         inferenceRepository.store(event.input, event.output!, event.params);
       }

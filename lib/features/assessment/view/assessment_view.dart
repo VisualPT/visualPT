@@ -17,10 +17,9 @@ class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return AssessmentPresenter(
       assessment: assessment,
-      onForm: (context, state) => AssessmentForm(assessment: assessment),
+      onForm: (context, state) => AssessmentForm<T>(assessment: assessment),
       onActive: (context, state) => AssessmentCapture<T>(state),
-      onAnalysis: (context, state) =>
-          AnalysisView(assessment: state.dbAssessment, patient: state.patient),
+      onAnalysis: (context, state) => AnalysisView(state),
       onError: (context, state) => BaseView(
         pageTitle: "Assessment State Error",
         //Create a child view that has the error message and a button to go back

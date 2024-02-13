@@ -66,4 +66,12 @@ class Styles {
       fontWeight: FontWeight.bold, fontSize: 24, color: white.withOpacity(0.8));
   static const TextStyle error =
       TextStyle(color: CupertinoColors.destructiveRed);
+
+  //Borders
+  static const BorderRadius borderRadiusS =
+      BorderRadius.all(Radius.circular(4));
+  static const BorderRadius borderRadiusM =
+      BorderRadius.all(Radius.circular(8));
+  static const BorderRadius borderRadiusL =
+      BorderRadius.all(Radius.circular(16));
 }

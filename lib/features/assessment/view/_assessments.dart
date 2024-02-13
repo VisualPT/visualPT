@@ -1,3 +1,4 @@
+import 'package:visualpt/features/assessment/view/assessment_view.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/view/ctsib/ctsib.dart';
@@ -7,17 +8,17 @@ import 'package:visualpt/features/assessment/view/berg/berg.dart';
 class AssessmentRouter {
   AssessmentRouter();
 
-  static BaseAssessment getAssessment(AssessmentType type) {
+  static AssessmentView getAssessmentView(AssessmentType type) {
     switch (type) {
       case AssessmentType.CTSIB:
-        return CTSIB();
+        return AssessmentView(CTSIB());
       case AssessmentType.BERG:
-        return BERG();
-      // case AssessmentType.GAIT:
-      //   return GAIT();
-      default:
-        throw Exception("Invalid Assessment Type");
+        return AssessmentView(BERG());
+      case AssessmentType.GAIT:
+        // return AssessmentView(GAIT());
+        break;
     }
+    throw Exception("Invalid Assessment Type for requested type T");
   }
 }
 

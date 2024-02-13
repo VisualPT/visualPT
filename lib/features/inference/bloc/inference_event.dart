@@ -17,11 +17,6 @@ class InferenceStart<I, O> extends InferenceEvent<I, O> {
   const InferenceStart({required this.store, this.params});
 }
 
-// class InferenceAdd<I, O> extends InferenceEvent<I, O> {
-//   final I input;
-//   const InferenceAdd({required this.input});
-// }
-
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
   final I input;
   final bool store;

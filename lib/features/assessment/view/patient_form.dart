@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/patient_form/bloc/patient_bloc.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/service/form_helper.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/components/_components.dart';
@@ -24,6 +25,7 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController dobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController heightController = TextEditingController();
+  bool storeData = true;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +69,31 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                Text(widget.user.email),
+                Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 20.0),
+                    padding: const EdgeInsets.all(2.0),
+                    decoration: const BoxDecoration(
+                        color: CupertinoColors.white,
+                        borderRadius: Styles.borderRadiusM),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Store Data",
+                            style: Styles.inputStyle
+                                .apply(color: CupertinoColors.systemGrey),
+                          ),
+                          CupertinoSwitch(
+                              value: storeData,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  storeData = value;
+                                });
+                              }),
+                        ])),
                 CupertinoButton(
                     onPressed: () {
                       firstNameController.text = "Sample";
@@ -86,22 +112,26 @@ class _PatientFormState extends State<PatientForm> {
                         try {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            BlocProvider.of<PatientBloc>(context).add(
-                                PatientInit(
-                                    firstName: firstNameController.text,
-                                    lastName: lastNameController.text,
-                                    dateOfBirth: dobController.text,
-                                    gender: genderController.text,
-                                    height: heightController.text,
-                                    email: widget.user.email));
+                            ;
+
+                            BlocProvider.of<AssessmentBloc>(context).add(
+                                AssessmentInit(
+                                    FormHelper.createPatient(
+                                        firstNameController.text,
+                                        lastNameController.text,
+                                        dobController.text,
+                                        genderController.text,
+                                        heightController.text,
+                                        widget.user.email),
+                                    storeData));
                           }
                         } catch (e) {
-                          BlocProvider.of<PatientBloc>(context)
-                              .add(PatientSaveFailure(message: e.toString()));
+                          rethrow;
                         }
                       },
                       child: const Text("Next", style: Styles.actionText),
                     )),
+                Text(widget.user.email),
               ],
             ),
           ),
