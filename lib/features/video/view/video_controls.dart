@@ -125,6 +125,7 @@ class VideoControls extends StatelessWidget {
                           color: Styles.backgroundComplementory, size: 80)),
                   const Spacer(),
                   TimerPresenter(onComplete: (durationSeconds) {
+                    detection.add(const InferenceEnd());
                     vid.add(const VideoStop());
                     onComplete(Segment(
                         duration_seconds: durationSeconds, file: "TODO"));

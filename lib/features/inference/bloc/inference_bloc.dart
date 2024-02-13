@@ -77,7 +77,7 @@ class InferenceBloc<I, O extends AiModelOutput>
         storageBacklog--;
         inferenceRepository.store(event.input, event.output!, event.params);
       }
-      if (!isClosed && !emit.isDone) {
+      if (isReady && !isClosed && !emit.isDone) {
         emit(InferenceRunning<I, O>(event.output, event.store, event.params));
       }
     } catch (e) {
@@ -86,9 +86,9 @@ class InferenceBloc<I, O extends AiModelOutput>
   }
 
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
+    _subscription?.cancel();
     isReady = false;
     nullResponsePort.close();
-    _subscription?.cancel();
     inferenceRepository.dispose();
     emit(InferenceStandby<I, O>());
   }
