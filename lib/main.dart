@@ -54,7 +54,6 @@ class VisualPT extends StatelessWidget {
           routes: {
             "/": (context) => const LandingView(),
             "/home": (context) => const HomeView(),
-            "/validate": (context) => const ValidationView(),
             "/settings": (context) => const SettingsView(),
           },
           onGenerateRoute: (route) {
@@ -64,14 +63,10 @@ class VisualPT extends StatelessWidget {
                   builder: (context) =>
                       AssessmentRouter.getAssessmentView(type));
             }
-            if (route.name == "/video") {
-              final args = route.arguments as Map<String, dynamic>;
-              final storeData = args["storeData"] as bool;
-              final onComplete =
-                  args["onComplete"] as dynamic Function(Segment);
-
+            if (route.name == "/validate") {
+              final type = route.arguments as AssessmentType;
               return CupertinoPageRoute(
-                  builder: (context) => CaptureView(storeData, onComplete));
+                  builder: (context) => ValidationView(type));
             }
             return null;
           },

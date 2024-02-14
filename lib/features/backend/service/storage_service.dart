@@ -27,14 +27,14 @@ class StorageService {
         key: key, options: StorageGetUrlOptions(accessLevel: accessLevel));
   }
 
-  Future<List<String>> listRawData() async {
+  Future<List<String>> listRawData(String path) async {
     try {
       List<String> fileKeys = [];
       String? nextToken;
       bool hasNextPage;
       do {
         final result = await Amplify.Storage.list(
-          path: 'raw/',
+          path: '$path/raw/',
           options: StorageListOptions(
             accessLevel: StorageAccessLevel.guest,
             pageSize: 1000,
@@ -56,7 +56,8 @@ class StorageService {
   }
 
   Future<void> move(
-      {required String sourceKey,
+      {required String path,
+      required String sourceKey,
       required String destinationKey,
       StorageAccessLevel sourceAccessLevel = StorageAccessLevel.guest,
       StorageAccessLevel destinationAccessLevel =
@@ -64,10 +65,10 @@ class StorageService {
     try {
       await Amplify.Storage.move(
               source: StorageItemWithAccessLevel(
-                  storageItem: StorageItem(key: sourceKey),
+                  storageItem: StorageItem(key: '$path/$sourceKey'),
                   accessLevel: sourceAccessLevel),
               destination: StorageItemWithAccessLevel(
-                  storageItem: StorageItem(key: destinationKey),
+                  storageItem: StorageItem(key: '$path/$destinationKey'),
                   accessLevel: destinationAccessLevel))
           .result;
     } catch (e) {

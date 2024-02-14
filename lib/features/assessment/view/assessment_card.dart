@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/core/views/app_nav.dart';
+import 'package:visualpt/core/views/styles.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-
-import '../../../core/views/styles.dart';
 
 class AssessmentCard extends StatelessWidget {
   final String imagePath;
   final AssessmentType assessmentType;
   final String subtitle;
   final bool available;
-
   const AssessmentCard(
       {Key? key,
       required this.imagePath,
@@ -19,6 +20,18 @@ class AssessmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = AppNav(context);
+    final isAdmin = (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email
+            .toLowerCase()
+            .contains("tim.richardson@fyzicalhq.com") ||
+        (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+            .user
+            .email
+            .toLowerCase()
+            .contains("charlesrichardsonusa@gmail.com");
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: GestureDetector(
@@ -55,6 +68,14 @@ class AssessmentCard extends StatelessWidget {
                       available ? Styles.subtitle : Styles.comingSoonSubtitle)
             ],
           ),
+          Center(
+              child: isAdmin && available
+                  ? CupertinoButton(
+                      onPressed: () =>
+                          {nav.toPath(path: "/validate", args: assessmentType)},
+                      color: Styles.actionSecondary,
+                      child: const Text("Validate", style: Styles.subtitle))
+                  : Container())
         ]),
       ),
     );

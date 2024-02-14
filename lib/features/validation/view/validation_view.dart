@@ -8,6 +8,7 @@ import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
 import 'package:visualpt/core/views/components/_components.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 import '../../inference/view/camera_painters/pose_bbox.dart';
 
@@ -32,7 +33,8 @@ import '../../inference/view/camera_painters/pose_bbox.dart';
 //Input
 
 class ValidationView extends StatelessWidget {
-  const ValidationView({super.key});
+  final AssessmentType type;
+  const ValidationView(this.type, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,7 @@ class ValidationView extends StatelessWidget {
         children: [
           const ViewBackground(),
           ValidationPresenter(
-            //onCollect: (context, state) => VideoView(true, (_) => {}),
+            type,
             onDisplay: (context, state) => onDisplay(context, state),
             onLoad: (context, state) => const AppLoading(),
             onDispose: (context, state) => onDispose(context, state),

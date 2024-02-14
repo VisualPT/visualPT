@@ -1,15 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/validation/bloc/validation_bloc.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 /// Provided by ValidationBloc
 class ValidationPresenter extends StatelessWidget {
+  final AssessmentType type;
   final Widget Function(BuildContext context, ValidationDisplay state)
       onDisplay;
   final Widget Function(BuildContext context, ValidationLoad state) onLoad;
   final Widget Function(BuildContext context, ValidationDispose state)
       onDispose;
   final Widget Function(BuildContext context, ValidationError state) onError;
+  const ValidationPresenter(
+    this.type, {
+    required this.onDisplay,
+    required this.onLoad,
+    required this.onDispose,
+    required this.onError,
+    super.key,
+  });
 
 //TODO: add error handling for...
 /* 
@@ -18,13 +28,6 @@ class ValidationPresenter extends StatelessWidget {
 * Connection closed before full header was received
 * "
 **/
-  const ValidationPresenter({
-    super.key,
-    required this.onDisplay,
-    required this.onLoad,
-    required this.onDispose,
-    required this.onError,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class ValidationPresenter extends StatelessWidget {
       providers: [
         BlocProvider(
             create: (context) =>
-                ValidationBloc()..add(const ValidationFetch())),
+                ValidationBloc(type.name)..add(const ValidationFetch())),
       ],
       child: BlocBuilder<ValidationBloc, ValidationState>(
         builder: (context, state) {

@@ -13,13 +13,14 @@ part 'validation_event.dart';
 part 'validation_state.dart';
 
 class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
+  final String type;
   final _storage = StorageService();
   // Internal list to keep track of processed IDs
   final List<String> processedKeys = [];
   // Internal list to keep track of procesed labels
   final List<int> _processedInputs = [];
 
-  ValidationBloc() : super(const ValidationLoad()) {
+  ValidationBloc(this.type) : super(const ValidationLoad()) {
     on<ValidationFetch>(_onFetch);
     on<ValidationPrev>(_onPrev);
     on<ValidationNext>(_onNext);
@@ -29,7 +30,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
   FutureOr<void> _onFetch(
       ValidationFetch event, Emitter<ValidationState> emit) async {
-    final storedKeys = await _storage.listRawData();
+    final storedKeys = await _storage.listRawData(type);
     add(ValidationNext(keys: storedKeys));
   }
 
@@ -39,24 +40,32 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     //Put the ID back into the list of unprocessed IDs
     String id = processedKeys.removeLast();
     final newKeys = [
-      'raw/$id.csv',
-      'raw/$id.png',
-      'raw/${event.currentKey}.csv',
-      'raw/${event.currentKey}.png',
-      ...event.keys
-    ];
+      '$id.csv',
+      '$id.png',
+      '${event.currentKey}.csv',
+      '${event.currentKey}.png',
+    ].map((k) => '$type/raw/$k').toList()
+      ..addAll(event.keys);
 
     int label = _processedInputs.removeLast();
     if (label == 1) {
       await _storage.move(
-          sourceKey: 'valid/$id.csv', destinationKey: 'raw/$id.csv');
+          path: type,
+          sourceKey: 'valid/$id.csv',
+          destinationKey: 'raw/$id.csv');
       await _storage.move(
-          sourceKey: 'valid/$id.png', destinationKey: 'raw/$id.png');
+          path: type,
+          sourceKey: 'valid/$id.png',
+          destinationKey: 'raw/$id.png');
     } else {
       await _storage.move(
-          sourceKey: 'invalid/$id.csv', destinationKey: 'raw/$id.csv');
+          path: type,
+          sourceKey: 'invalid/$id.csv',
+          destinationKey: 'raw/$id.csv');
       await _storage.move(
-          sourceKey: 'invalid/$id.png', destinationKey: 'raw/$id.png');
+          path: type,
+          sourceKey: 'invalid/$id.png',
+          destinationKey: 'raw/$id.png');
     }
     add(ValidationNext(keys: newKeys));
   }
@@ -72,7 +81,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         final temp = event.keys.removeAt(0);
         //If  temp  contains a .csv then it is the data file
         String searchKey;
-        if (temp.contains('.csv')) {
+        if (temp.endsWith('.csv')) {
           dataID = temp;
           searchKey = temp.substring(0, temp.lastIndexOf('.')).split('/').last;
           final imageIndex =
@@ -143,17 +152,21 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           oldData.replaceRange(index + 1, index + 2, "${event.input}");
       final encodedData = utf8.encode(newData);
 
-      _storage.remove('raw/${event.key}.csv', amplify.StorageAccessLevel.guest);
+      _storage.remove(
+          '$type/raw/${event.key}.csv', amplify.StorageAccessLevel.guest);
       _storage.upload(amplify.HttpPayload.bytes(encodedData),
-          'valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
+          '$type/valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
       _storage.move(
+          path: type,
           sourceKey: 'raw/${event.key}.png',
           destinationKey: 'valid/${event.key}.png');
     } else {
       _storage.move(
+          path: type,
           sourceKey: 'raw/${event.key}.csv',
           destinationKey: 'invalid/${event.key}.csv');
       _storage.move(
+          path: type,
           sourceKey: 'raw/${event.key}.png',
           destinationKey: 'invalid/${event.key}.png');
     }
