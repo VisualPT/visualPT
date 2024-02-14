@@ -16,9 +16,8 @@ class InferenceLoading<I, O> extends InferenceState<I, O> {
 }
 
 class InferenceRunning<I, O> extends InferenceState<I, O> {
-  final bool? isStoring;
   final Map<String, dynamic>? params;
-  const InferenceRunning(super.response, this.isStoring, this.params);
+  const InferenceRunning(super.response, this.params);
 
   @override
   List<Object> get props => [response ?? "", params ?? ""];

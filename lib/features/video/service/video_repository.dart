@@ -15,8 +15,9 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final String userEmail;
-  VideoRepository({required this.userEmail});
+  final String? path;
+  final String userID;
+  VideoRepository(this.path, this.userID);
 
   @override
   Future<void> initialize() async {
@@ -40,6 +41,7 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   @override
   Future<void> store(CameraImage input, PoseDetectionOutput output,
       Map<String, dynamic>? params) async {
+    if (path == null) return;
     StorageService storageService = StorageService();
     final lines = output.output.map((line) => line.join(",")).join("\n");
 
@@ -55,11 +57,11 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
     final dataPayload = S3DataPayload.string(detection);
 
 //TODO: Put a user tag instead of a random number
-    final key = "${userEmail}_${DateTime.now().millisecondsSinceEpoch}";
+    final key = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
     storageService.upload(
-        imagePayload, 'raw/$key.png', StorageAccessLevel.guest);
+        imagePayload, '$path/raw/$key.png', StorageAccessLevel.guest);
     storageService.upload(
-        dataPayload, 'raw/$key.csv', StorageAccessLevel.guest);
+        dataPayload, '$path/raw/$key.csv', StorageAccessLevel.guest);
   }
 
   @override

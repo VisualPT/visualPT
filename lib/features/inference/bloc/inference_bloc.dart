@@ -43,11 +43,10 @@ class InferenceBloc<I, O extends AiModelOutput>
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(
-            input: data, store: event.store, params: event.params));
+        add(InferenceInput(input: data, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, event.store, const {"ratio": 1}));
+    emit(InferenceRunning<I, O>(null, const {"ratio": 1}));
   }
 
   FutureOr<void> _onInput(
@@ -61,24 +60,21 @@ class InferenceBloc<I, O extends AiModelOutput>
     processing = false;
     if (!isClosed && !emit.isDone) {
       add(InferenceOutput(
-          input: event.input,
-          store: event.store,
-          params: event.params,
-          output: data));
+          input: event.input, params: event.params, output: data));
     }
   }
 
   FutureOr<void> _onOutput(
       InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null && storageBacklog > 0 && event.store) {
+      if (event.output != null && storageBacklog > 0) {
         //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
         //TODO: Add a path to the repository to store the data
         storageBacklog--;
         inferenceRepository.store(event.input, event.output!, event.params);
       }
       if (isReady && !isClosed && !emit.isDone) {
-        emit(InferenceRunning<I, O>(event.output, event.store, event.params));
+        emit(InferenceRunning<I, O>(event.output, event.params));
       }
     } catch (e) {
       log("Error: $e");

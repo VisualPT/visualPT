@@ -17,7 +17,7 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
             "${state.assessment.type.name} - ${state.assessment.seqNames[state.index]}",
         instructions: AssessmentInstructions(state),
         child: CaptureView(
-          state.storeData,
+          state.storeData ? state.assessment.type : null,
           (segment) =>
               BlocProvider.of<AssessmentBloc>(context).add(AssessmentIncrement(
             state.patient,

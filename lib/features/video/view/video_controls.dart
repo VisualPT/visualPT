@@ -12,12 +12,8 @@ import 'package:visualpt/core/views/_views.dart';
 
 class VideoControls extends StatelessWidget {
   const VideoControls(
-      {super.key,
-      required this.state,
-      required this.onComplete,
-      required this.store});
+      {super.key, required this.state, required this.onComplete});
   final VideoState state;
-  final bool store;
   final Function(Segment) onComplete;
 
   @override
@@ -88,8 +84,7 @@ class VideoControls extends StatelessWidget {
                       };
                       vid.add(const VideoPlay());
                       timer.add(const TimerStarted());
-                      detection
-                          .add(InferenceStart(store: store, params: params));
+                      detection.add(InferenceStart(params));
                       //TODOV1 classification.add(InferenceStart(store: store));
                     },
                     child: const Icon(CupertinoIcons.circle_fill,

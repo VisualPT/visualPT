@@ -9,15 +9,16 @@ import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
 class CaptureView extends StatelessWidget {
-  final bool storeData;
+  final AssessmentType? storePath;
   final Function(Segment) onComplete;
-  const CaptureView(this.storeData, this.onComplete, {super.key});
+  const CaptureView(this.storePath, this.onComplete, {super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const ViewBackground(),
         VideoPresenter(
+          storePath?.name,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onLoading: loadingVideo,
@@ -49,7 +50,7 @@ class CaptureView extends StatelessWidget {
           // if (vid.controller != null)
           //TODOV1   PoseClassificationOverlay(controller: vid.controller!),
         ]),
-        VideoControls(state: state, store: storeData, onComplete: onComplete),
+        VideoControls(state: state, onComplete: onComplete),
       ],
     ));
   }

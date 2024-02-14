@@ -12,17 +12,14 @@ class InferenceInit<I, O> extends InferenceEvent<I, O> {
 }
 
 class InferenceStart<I, O> extends InferenceEvent<I, O> {
-  final bool store;
   final Map<String, dynamic>? params;
-  const InferenceStart({required this.store, this.params});
+  const InferenceStart(this.params);
 }
 
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
   final I input;
-  final bool store;
   final Map<String, dynamic>? params;
-  const InferenceInput(
-      {required this.input, required this.store, required this.params});
+  const InferenceInput({required this.input, this.params});
 
   @override
   List<Object> get props => [input.toString()];
@@ -30,11 +27,9 @@ class InferenceInput<I, O> extends InferenceEvent<I, O> {
 
 class InferenceOutput<I, O> extends InferenceEvent<I, O> {
   final I input;
-  final bool store;
   final Map<String, dynamic>? params;
   final O? output;
-  const InferenceOutput(
-      {required this.input, required this.store, this.params, this.output});
+  const InferenceOutput({required this.input, this.params, this.output});
 
   @override
   List<Object?> get props => [output];

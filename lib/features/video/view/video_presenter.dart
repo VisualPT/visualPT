@@ -10,7 +10,14 @@ import 'package:visualpt/features/video/service/video_repository.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  const VideoPresenter({
+  final String? storePath;
+  final Widget Function(BuildContext context, VideoRecording state) onRecording;
+  final Widget Function(BuildContext context, VideoStandby state) onStandby;
+  final Widget Function(BuildContext context, VideoLoading state) onLoading;
+  final Widget Function(BuildContext context, VideoState state, Exception e)
+      onError;
+  const VideoPresenter(
+    this.storePath, {
     super.key,
     required this.onLoading,
     required this.onRecording,
@@ -18,20 +25,12 @@ class VideoPresenter extends StatelessWidget {
     required this.onError,
   });
 
-  final Widget Function(BuildContext context, VideoRecording state) onRecording;
-  final Widget Function(BuildContext context, VideoStandby state) onStandby;
-  final Widget Function(BuildContext context, VideoLoading state) onLoading;
-  final Widget Function(BuildContext context, VideoState state, Exception e)
-      onError;
-
   //TODOV1 final DetectionRepository detectionRepository = DetectionRepository();
 
   @override
   Widget build(BuildContext context) {
-    final VideoRepository videoRepository = VideoRepository(
-        userEmail: (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-            .user
-            .email);
+    final VideoRepository videoRepository = VideoRepository(storePath,
+        (BlocProvider.of<AuthBloc>(context).state as AuthSuccess).user.email);
 
     return MultiBlocProvider(
       providers: [
