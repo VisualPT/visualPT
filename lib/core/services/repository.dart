@@ -15,7 +15,7 @@ abstract class Repository<I, O> {
   }
 
   Future<void> initialize();
-  Future<O?> predict(I input, Map<String, dynamic>? params);
+  Future<O?> runPredict(I input, Map<String, dynamic>? params);
   Future<void> store(I input, O output, Map<String, dynamic>? params);
 
   void dispose() {

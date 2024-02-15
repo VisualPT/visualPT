@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/view/_pdf.dart';
-import 'package:visualpt/features/assessment/view/ctsib/ctsib.dart';
+import 'package:visualpt/features/assessment/config/_pdf.dart';
+import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
 class CtsibPDF extends PDF {
+  final baseAssessment = CTSIB();
   @override
   Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
     await configPdfStyles();
@@ -28,9 +29,9 @@ class CtsibPDF extends PDF {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
             patientData(patient, assessment),
-            assessmentData(patient, assessment),
-            interpretationData(assessment),
-            normativeData(patient, assessment),
+            // assessmentData(patient, assessment),
+            // interpretationData(assessment),
+            // normativeData(patient, assessment),
             diagnosisData(),
             Spacer(),
             footerData(),
@@ -200,7 +201,7 @@ class CtsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(Ctsib.sequenceNames[i]),
+                  child: Text(baseAssessment.seqNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -224,7 +225,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * Ctsib.sequences} seconds",
+                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * baseAssessment.sequences} seconds",
                 ),
               ),
             ],
@@ -328,17 +329,5 @@ class CtsibPDF extends PDF {
 }
 
 String getNormativeMessage(int totalDuration, TemporalDate dob) {
-  int age = getAge(dob);
-  double norm = CtsibNorms.getAgeNorm(age);
-  double percent =
-      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
-          .roundToDouble();
-
-  if (percent < -10) {
-    return "Patient is ${percent.abs()}% better than normative data, which has a mean of $norm seconds";
-  } else if (percent > 10) {
-    return "Patient is ${percent.abs()}% worse than normative data, which has a mean of $norm seconds";
-  } else {
-    return "Patient is within 10% of normative data, which has a mean of $norm seconds";
-  }
+  return "TODO";
 }

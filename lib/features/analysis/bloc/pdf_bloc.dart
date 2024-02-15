@@ -6,9 +6,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/view/ctsib/pdf.dart';
-import 'package:visualpt/features/assessment/view/gait/_gait.dart';
-import 'package:visualpt/features/assessment/view/_pdf.dart';
+import 'package:visualpt/features/assessment/config/ctsib/pdf.dart';
+import 'package:visualpt/features/assessment/config/gait/pdf.dart';
+import 'package:visualpt/features/assessment/config/_pdf.dart';
 
 part 'pdf_event.dart';
 part 'pdf_state.dart';

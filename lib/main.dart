@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/auth/service/auth_repository.dart';
 import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
@@ -53,23 +54,18 @@ class VisualPT extends StatelessWidget {
           routes: {
             "/": (context) => const LandingView(),
             "/home": (context) => const HomeView(),
-            "/validate": (context) => const ValidationView(),
             "/settings": (context) => const SettingsView(),
           },
           onGenerateRoute: (route) {
             if (route.name == "/assessment") {
-              final assessmentType = route.arguments as AssessmentType;
+              final type = route.arguments as AssessmentType;
               return CupertinoPageRoute(
-                  builder: (context) =>
-                      PatientView(assessmentType: assessmentType));
+                  builder: (context) => AssessmentUtils.getView(type));
             }
-            if (route.name == "/video") {
-              final args = route.arguments as Map<String, dynamic>;
-              final onComplete =
-                  args["onComplete"] as dynamic Function(Segment);
-
+            if (route.name == "/validate") {
+              final type = route.arguments as AssessmentType;
               return CupertinoPageRoute(
-                  builder: (context) => CaptureView(onComplete));
+                  builder: (context) => ValidationView(type));
             }
             return null;
           },

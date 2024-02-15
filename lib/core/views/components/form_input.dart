@@ -72,10 +72,9 @@ class _FormInputState extends State<FormInput> {
             placeholder: widget.field,
             placeholderStyle: Styles.placeholderStyle,
             obscureText: obsController,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: CupertinoColors.white,
-              border: Border.all(),
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: Styles.borderRadiusM,
             ),
             validator: widget.validator ??
                 (value) => value == null || value.isEmpty

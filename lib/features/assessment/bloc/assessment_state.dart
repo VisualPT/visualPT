@@ -1,45 +1,51 @@
 part of 'assessment_bloc.dart';
 
 @immutable
-abstract class AssessmentState extends Equatable {}
-
-class AssessmentIntro extends AssessmentState {
-  final int index;
-  final Widget Function(BuildContext context) getView;
-  AssessmentIntro(this.index, this.getView);
-
-  @override
-  List<Object?> get props => [index, getView];
+abstract class AssessmentState<T> extends Equatable {
+  final T assessment;
+  const AssessmentState(this.assessment);
 }
 
-class AssessmentActive extends AssessmentState {
-  final int index;
-  final Widget Function(BuildContext context) getView;
-  AssessmentActive(this.index, this.getView);
-
-  @override
-  List<Object?> get props => [index, getView];
-}
-
-class AssessmentAnalysis extends AssessmentState {
-  final Widget Function(BuildContext context) getView;
-  AssessmentAnalysis(this.getView);
-
-  @override
-  List<Object?> get props => [getView];
-}
-
-class AssessmentLoading extends AssessmentState {
+class AssessmentForm<T> extends AssessmentState<T> {
+  const AssessmentForm(super.assessment);
   @override
   List<Object?> get props => [];
 }
 
-class AssessmentError extends AssessmentState {
+class AssessmentActive<T> extends AssessmentState<T> {
+  final Patient patient;
+  final bool storeData;
+  final int index;
+  const AssessmentActive(
+      this.patient, this.storeData, this.index, super.assessment);
+
+  @override
+  List<Object?> get props => [index, assessment];
+}
+
+class AssessmentAnalysis<T> extends AssessmentState<T> {
+  final Patient patient;
+  final bool storeData;
+  final Assessment dbAssessment;
+  const AssessmentAnalysis(
+      this.patient, this.storeData, this.dbAssessment, super.assessment);
+
+  @override
+  List<Object?> get props => [assessment];
+}
+
+class AssessmentLoading<T> extends AssessmentState<T> {
+  const AssessmentLoading(super.assessment);
+  @override
+  List<Object?> get props => [assessment];
+}
+
+class AssessmentError<T> extends AssessmentState<T> {
   //TODO Establish VisualPT Error Codes
   final Exception? message;
 
-  AssessmentError({this.message});
+  const AssessmentError(this.message, super.assessment);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, assessment];
 }

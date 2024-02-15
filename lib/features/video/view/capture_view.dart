@@ -9,14 +9,16 @@ import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
 class CaptureView extends StatelessWidget {
-  const CaptureView(this.onComplete, {super.key});
+  final AssessmentType? assessmentType;
   final Function(Segment) onComplete;
+  const CaptureView(this.assessmentType, this.onComplete, {super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const ViewBackground(),
         VideoPresenter(
+          assessmentType,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onLoading: loadingVideo,

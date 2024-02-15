@@ -10,22 +10,14 @@ import 'package:visualpt/models/Segment.dart';
 import 'package:visualpt/features/timer/view/timer_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
 
-class VideoControls extends StatefulWidget {
+class VideoControls extends StatelessWidget {
   const VideoControls(
       {super.key, required this.state, required this.onComplete});
   final VideoState state;
   final Function(Segment) onComplete;
 
   @override
-  State<VideoControls> createState() => _VideoControlsState();
-}
-
-class _VideoControlsState extends State<VideoControls> {
-  bool store = true; //TODO; This needs to be improved, THE WHOLE FILE;
-
-  @override
   Widget build(BuildContext context) {
-    final state = widget.state;
     final detection =
             BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
                 context),
@@ -47,34 +39,18 @@ class _VideoControlsState extends State<VideoControls> {
               children: [
                 Container(
                   color: CupertinoColors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0), // Add padding as needed
+                  child: const Padding(
+                    padding: EdgeInsets.all(2.0), // Add padding as needed
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize:
                               MainAxisSize.min, // Fit content in the column
                           children: [
                             PoseDetectionIndicator(),
                             //TODOV1 PoseClassificationIndicator(),
-                          ],
-                        ),
-                        const Spacer(),
-                        Row(
-                          mainAxisSize:
-                              MainAxisSize.min, // Fit content in the row
-                          children: [
-                            const Text("Store Data"),
-                            CupertinoSwitch(
-                              value: store,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  store = value;
-                                });
-                              },
-                            ),
                           ],
                         ),
                       ],
@@ -100,16 +76,15 @@ class _VideoControlsState extends State<VideoControls> {
                     state is VideoStandby) ...[
                   GestureDetector(
                     onTap: () {
+                      final controller = (state as VideoStandby).controller;
                       final params = {
-                        "ratio": screenW /
-                            state.controller.value.previewSize!.height,
-                        "width": state.controller.value.previewSize!.height,
-                        "height": state.controller.value.previewSize!.width,
+                        "ratio": screenW / controller.value.previewSize!.height,
+                        "width": controller.value.previewSize!.height,
+                        "height": controller.value.previewSize!.width,
                       };
                       vid.add(const VideoPlay());
                       timer.add(const TimerStarted());
-                      detection
-                          .add(InferenceStart(store: store, params: params));
+                      detection.add(InferenceStart(params));
                       //TODOV1 classification.add(InferenceStart(store: store));
                     },
                     child: const Icon(CupertinoIcons.circle_fill,
@@ -128,25 +103,28 @@ class _VideoControlsState extends State<VideoControls> {
                   const Spacer(),
                   GestureDetector(
                       onTap: () {
-                        widget.onComplete(Segment(
+                        detection.add(const InferenceEnd());
+                        //TODOV1classification.add(const InferenceEnd());
+                        vid.add(const VideoStop());
+                        onComplete(Segment(
                             duration_seconds:
                                 BlocProvider.of<TimerBloc>(context)
                                     .state
                                     .duration
                                     .inSeconds,
                             file: "TODO"));
-                        detection.add(const InferenceEnd());
-                        //TODOV1classification.add(const InferenceEnd());
-                        vid.add(const VideoStop());
                         timer.add(const TimerReset());
+                        vid.add(const VideoInit());
                       },
                       child: const Icon(CupertinoIcons.stop,
                           color: Styles.backgroundComplementory, size: 80)),
                   const Spacer(),
                   TimerPresenter(onComplete: (durationSeconds) {
+                    detection.add(const InferenceEnd());
                     vid.add(const VideoStop());
-                    widget.onComplete(Segment(
+                    onComplete(Segment(
                         duration_seconds: durationSeconds, file: "TODO"));
+                    vid.add(const VideoInit());
                   }),
                 ],
                 const Spacer(),

@@ -1,33 +1,37 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/assessment/view/components/assessment_capture.dart';
 import 'package:visualpt/features/assessment/view/assessment_presenter.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/app_nav.dart';
 
-class AssessmentView extends StatelessWidget {
-  final AssessmentType assessmentType;
-  final Patient patient;
+class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
+  final T assessment;
+
   const AssessmentView(
-      {super.key, required this.assessmentType, required this.patient});
+    this.assessment, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AssessmentPresenter(
-        assessmentType: assessmentType,
-        patient: patient,
-        onIntro: (context, state) => state.getView(context),
-        onActive: (context, state) => state.getView(context),
-        onAnalysis: (context, state) => state.getView(context),
-        onError: (context, state) => BaseView(
-            pageTitle: "Assessment State Error",
-            //Create a child view that has the error message and a button to go back
-            child: Column(
-              children: [
-                Text(state.message.toString()),
-                CupertinoButton(
-                    onPressed: () => AppNav(context).back(),
-                    child: const Text("Restart Assessment"))
-              ],
-            )));
+      assessment: assessment,
+      onForm: (context, state) => AssessmentForm<T>(assessment: assessment),
+      onActive: (context, state) => AssessmentCapture<T>(state),
+      onAnalysis: (context, state) => AnalysisView(state),
+      onError: (context, state) => BaseView(
+        pageTitle: "Assessment State Error",
+        //Create a child view that has the error message and a button to go back
+        child: Column(
+          children: [
+            Text(state.message.toString()),
+            CupertinoButton(
+                onPressed: () => AppNav(context).back(),
+                child: const Text("Restart Assessment"))
+          ],
+        ),
+      ),
+    );
   }
 }

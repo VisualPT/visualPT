@@ -6,3 +6,11 @@ mixin ModelFile {
   static const String poseClassification =
       'models/pose_classification.tflite'; //TODO:
 }
+
+enum InferenceType {
+  faceDetection,
+  faceMesh,
+  hands,
+  poseDetection,
+  poseClassification
+}
