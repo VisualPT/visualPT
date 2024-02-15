@@ -62,11 +62,10 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
     final dataPayload = S3DataPayload.string(data);
 
 //TODO: Put a user tag instead of a random number
-    final key = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
-    storageService.upload(
-        imagePayload, '$path/raw/$key.png', StorageAccessLevel.guest);
-    storageService.upload(dataPayload, '${path.toString()}/raw/$key.csv',
-        StorageAccessLevel.guest);
+    final id = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
+    final key = "${path?.name}/raw/$id";
+    storageService.upload(imagePayload, '$key.png', StorageAccessLevel.guest);
+    storageService.upload(dataPayload, '$key.csv', StorageAccessLevel.guest);
   }
 
   @override
