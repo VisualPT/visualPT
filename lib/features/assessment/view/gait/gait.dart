@@ -1,5 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/utils/amplify_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class Gait {
@@ -42,24 +43,49 @@ class GaitNorms {
   }
 }
 
-int getAge(TemporalDate dob) {
-  return 10; //TODO implement
-}
+// class GaitPatientData {
+//   late String managingtherapistEmail = 'sample@example.com';
+//   late String firstname = 'sample';
+//   late String lastname = 'patient';
+//   late String bday = '01/01/1901';
+//   late bool isMale = true;
+//   late String age = '0';
+//   late String date = '01/01/1901';
+//   late String time = '00:00';
+//   late String velocity = "1.0";
+//   late double measurementDuration = 0.0;
+//   late bool isVideo = true;
+//   late String rawReportData = 'sample';
+// }
 
-//TOOD PHASE OUT ASAP
-class GaitPatientData {
-  late String managingtherapistEmail = 'sample@example.com';
-  late String firstname = 'sample';
-  late String lastname = 'patient';
-  late String bday = '01/01/1901';
-  late bool isMale = true;
-  late String age = '0';
-  late String date = '01/01/1901';
-  late String time = '00:00';
-  late String velocity = "1.0";
-  late double measurementDuration = 0.0;
-  late bool isVideo = true;
-  late String rawReportData = 'sample';
+class GAITData {
+  final num imageHeight;
+  final num imageWidth;
+  final num ratio;
+  //final int classIndex;
+  //final int conditionNumber;
+  final int trialNumber;
+  //final Patient patient; TODO: #140 Implement Patient Row in the Metadata @DrBubbles42 this should probably become a third row
+  //final GaitDetectionOutput output;
+  const GAITData(
+    this.imageHeight,
+    this.imageWidth,
+    this.ratio,
+    //this.classIndex,
+    //this.conditionNumber,
+    this.trialNumber,
+    //this.output,
+  );
+  toCSV() {
+    //final lines = output.output.map((line) => line.join(",")).join("\n");
+    final metadata = [
+      imageHeight,
+      imageWidth,
+      ratio,
+      //classIndex,
+      //conditionNumber,
+      trialNumber
+    ].join(",");
+    return metadata;
+  }
 }
-
-GaitPatientData gaitData = GaitPatientData();

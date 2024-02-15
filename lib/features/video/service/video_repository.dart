@@ -6,16 +6,18 @@ import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final String? path;
+  final AssessmentType? path;
   final String userID;
   VideoRepository(this.path, this.userID);
 
@@ -27,7 +29,7 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   }
 
   @override
-  Future<PoseDetectionOutput?> predict(
+  Future<PoseDetectionOutput?> runPredict(
       CameraImage input, Map<String, dynamic>? params) async {
     final data = preProcessData(input);
     await _poseDetectionService.inference(
@@ -41,27 +43,30 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   @override
   Future<void> store(CameraImage input, PoseDetectionOutput output,
       Map<String, dynamic>? params) async {
-    if (path == null) return;
+    if (path == null) throw Exception("Path not set");
     StorageService storageService = StorageService();
-    final lines = output.output.map((line) => line.join(",")).join("\n");
 
     final png = await ImageUtils.convert(
       isolateUtils: _convertIsolateUtils,
       image: input,
     );
 
-    final metadata = [input.height, input.width, params!["ratio"], 1].join(",");
-    final detection = '$metadata\n$lines';
+    final data = AssessmentUtils.createPayload(
+      path,
+      input,
+      output,
+      params,
+    );
 
     final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
-    final dataPayload = S3DataPayload.string(detection);
+    final dataPayload = S3DataPayload.string(data);
 
 //TODO: Put a user tag instead of a random number
     final key = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
     storageService.upload(
         imagePayload, '$path/raw/$key.png', StorageAccessLevel.guest);
-    storageService.upload(
-        dataPayload, '$path/raw/$key.csv', StorageAccessLevel.guest);
+    storageService.upload(dataPayload, '${path.toString()}/raw/$key.csv',
+        StorageAccessLevel.guest);
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class BERG extends BaseAssessment {
@@ -24,4 +25,36 @@ class BERG extends BaseAssessment {
           formFields: {},
           isTrainingData: true,
         );
+}
+
+class BERGData {
+  final num imageHeight;
+  final num imageWidth;
+  final num ratio;
+  final int classIndex;
+  final int conditionNumber;
+  final int trialNumber;
+  final PoseDetectionOutput output;
+  const BERGData(
+    this.imageHeight,
+    this.imageWidth,
+    this.ratio,
+    this.classIndex,
+    this.conditionNumber,
+    this.trialNumber,
+    this.output,
+  );
+
+  toCSV() {
+    final lines = output.output.map((line) => line.join(",")).join("\n");
+    final metadata = [
+      imageHeight,
+      imageWidth,
+      ratio,
+      classIndex,
+      conditionNumber,
+      trialNumber
+    ].join(",");
+    return "$metadata\n$lines";
+  }
 }
