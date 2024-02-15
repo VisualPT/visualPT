@@ -56,7 +56,8 @@ class InferenceBloc<I, O extends AiModelOutput>
     }
     if (processing) return null;
     processing = true;
-    final data = await inferenceRepository.predict(event.input, event.params);
+    final data =
+        await inferenceRepository.runPredict(event.input, event.params);
     processing = false;
     if (!isClosed && !emit.isDone) {
       add(InferenceOutput(

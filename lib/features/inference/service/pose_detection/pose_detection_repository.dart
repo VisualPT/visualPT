@@ -19,7 +19,7 @@ class DetectionRepository
   }
 
   @override
-  Future<PoseClassificationOutput?> predict(
+  Future<PoseClassificationOutput?> runPredict(
       PoseDetectionOutput input, Map<String, dynamic>? params) async {
     await _poseClassService.inference(
       isolateUtils: _classificationIsolateUtils,
