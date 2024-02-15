@@ -5,7 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/utils/amplify_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/view/gait/_gait.dart';
+import 'package:visualpt/features/assessment/config/gait/gait.dart';
 
 import '../_pdf.dart';
 
