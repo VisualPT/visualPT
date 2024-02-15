@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/core/views/base_view.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/assessment/view/assessment_instructions.dart';
+import 'package:visualpt/features/assessment/view/components/assessment_instructions.dart';
 import 'package:visualpt/features/video/view/capture_view.dart';
 
 class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {

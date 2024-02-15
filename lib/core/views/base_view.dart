@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/core/views/styles.dart';
-import 'package:visualpt/features/assessment/view/assessment_instructions.dart';
+import 'package:visualpt/features/assessment/view/components/assessment_instructions.dart';
 
 class BaseView extends StatefulWidget {
   const BaseView(

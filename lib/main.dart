@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/auth/service/auth_repository.dart';
 import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
@@ -60,8 +60,7 @@ class VisualPT extends StatelessWidget {
             if (route.name == "/assessment") {
               final type = route.arguments as AssessmentType;
               return CupertinoPageRoute(
-                  builder: (context) =>
-                      AssessmentRouter.getAssessmentView(type));
+                  builder: (context) => AssessmentUtils.getView(type));
             }
             if (route.name == "/validate") {
               final type = route.arguments as AssessmentType;
