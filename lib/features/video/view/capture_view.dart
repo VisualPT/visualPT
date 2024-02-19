@@ -8,6 +8,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
+//TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView extends StatelessWidget {
   final AssessmentType? assessmentType;
   final Function(Segment) onComplete;
