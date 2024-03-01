@@ -14,12 +14,9 @@ class AssessmentInit extends AssessmentEvent {
 }
 
 class AssessmentIncrement extends AssessmentEvent {
-  final Patient patient;
-  final bool storeData;
   final Segment segment;
-  final int index;
-  AssessmentIncrement(this.patient, this.storeData, this.segment, this.index);
+  AssessmentIncrement(this.segment);
 
   @override
-  List<Object?> get props => [patient, segment, index];
+  List<Object?> get props => [segment];
 }

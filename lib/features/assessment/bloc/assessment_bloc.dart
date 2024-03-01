@@ -17,6 +17,8 @@ class AssessmentBloc<T extends BaseAssessment>
   late Patient patient;
   late DateTime startTime;
   List<Segment> segments = [];
+  int conditionIndex = 0;
+  bool storeData = false;
 
   AssessmentBloc(this.assessmentParams)
       : super(AssessmentForm<T>(assessmentParams)) {
@@ -28,44 +30,58 @@ class AssessmentBloc<T extends BaseAssessment>
 
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
-    if (event.reset) resetAssessment();
+    if (event.reset) {
+      dbAssessment = Assessment(
+          patientID: patient.id,
+          type: assessmentParams.type,
+          datetime: TemporalDateTime(DateTime.now()),
+          segments: segments);
+      segments = [];
+      startTime = DateTime.now();
+      conditionIndex = 0;
+    }
     patient = event.patient;
+    storeData = event.storeData;
     dbAssessment = Assessment(
         patientID: patient.id,
         type: assessmentParams.type,
         datetime: TemporalDateTime(DateTime.now()),
         segments: segments);
     emit(AssessmentActive<T>(
-        patient, event.storeData, 0, this.assessmentParams));
+        patient, storeData, conditionIndex, this.assessmentParams));
   }
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) {
     segments.add(event.segment);
-    int index = event.index + 1;
+    conditionIndex = conditionIndex + 1;
 
-    if (index == assessmentParams.sequences) {
+    if (conditionIndex == assessmentParams.sequences) {
       final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
           finishTime.difference(startTime).inSeconds;
       dbAssessment = dbAssessment.copyWith(
           segments: segments, duration: assessmentDurationSeconds);
       emit(AssessmentAnalysis<T>(
-          patient, event.storeData, dbAssessment, assessmentParams));
+          patient, storeData, dbAssessment, assessmentParams));
     } else {
       emit(AssessmentActive<T>(
-          patient, event.storeData, index, assessmentParams));
+          patient, storeData, conditionIndex, assessmentParams));
     }
   }
 
-  void resetAssessment() {
-    //TODO we will want to use this data to retrain the model if it is of quality
-    dbAssessment = Assessment(
-        patientID: patient.id,
-        type: assessmentParams.type,
-        datetime: TemporalDateTime(DateTime.now()),
-        segments: segments);
-    segments = [];
-    startTime = DateTime.now();
+  @override
+  void onTransition(
+      Transition<AssessmentEvent, AssessmentState<T>> transition) {
+    // Always call super.onTransition with the current transition
+    super.onTransition(transition);
+    debugPrint('AssessmentBloc: $transition');
+  }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    // Always call super.onError with the current error
+    super.onError(error, stackTrace);
+    debugPrint('AssessmentBloc: $error');
   }
 }

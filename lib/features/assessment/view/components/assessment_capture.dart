@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/core/views/base_view.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
@@ -16,15 +15,10 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
         pageTitle:
             "${state.assessment.type.name} - ${state.assessment.seqNames[state.index]}",
         instructions: AssessmentInstructions(state),
-        child: CaptureView(
-          state.storeData ? state.assessment.type : null,
-          (segment) =>
-              BlocProvider.of<AssessmentBloc>(context).add(AssessmentIncrement(
-            state.patient,
-            state.storeData,
-            segment,
-            state.index,
-          )),
+        child: CaptureView<T>(
+          state.assessment.type,
+          state.index,
+          state.storeData,
         ));
   }
 }

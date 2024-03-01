@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/camera.dart';
@@ -9,10 +10,12 @@ import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
 //TODO: Everything within this widget should be rebuilt on the native side
-class CaptureView extends StatelessWidget {
+class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentType? assessmentType;
-  final Function(Segment) onComplete;
-  const CaptureView(this.assessmentType, this.onComplete, {super.key});
+  final int conditionNumber;
+  final bool storeData;
+  const CaptureView(this.assessmentType, this.conditionNumber, this.storeData,
+      {super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -51,7 +54,7 @@ class CaptureView extends StatelessWidget {
           // if (vid.controller != null)
           //TODOV1   PoseClassificationOverlay(controller: vid.controller!),
         ]),
-        VideoControls(state: state, onComplete: onComplete),
+        VideoControls<T>(state: state),
       ],
     ));
   }
@@ -67,7 +70,7 @@ class CaptureView extends StatelessWidget {
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => vid.add(const VideoRestart()),
+            onPressed: () => vid.add(const VideoStop(reset: true)),
             child: const Text("Restart"),
           ),
         ],

@@ -20,7 +20,7 @@ class AssessmentActive<T> extends AssessmentState<T> {
       this.patient, this.storeData, this.index, super.assessment);
 
   @override
-  List<Object?> get props => [index, assessment];
+  List<Object?> get props => [assessment, index, storeData];
 }
 
 class AssessmentAnalysis<T> extends AssessmentState<T> {
