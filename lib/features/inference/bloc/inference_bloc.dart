@@ -12,7 +12,7 @@ part 'inference_state.dart';
 
 class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this.inferenceRepository) : super(const InferenceLoading()) {
+  InferenceBloc(this.inferenceRepository) : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
     on<InferenceInput<I, O>>(_onInput, transformer: concurrent());
@@ -33,7 +33,6 @@ class InferenceBloc<I, O extends AiModelOutput>
 //TODO: Figure out what this is doing here
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
-    log("Initializing inference bloc");
     await inferenceRepository.initialize();
     isReady = true;
     emit(InferenceStandby<I, O>());
@@ -88,5 +87,33 @@ class InferenceBloc<I, O extends AiModelOutput>
     nullResponsePort.close();
     inferenceRepository.dispose();
     emit(InferenceStandby<I, O>());
+  }
+
+  @override
+  void onTransition(
+      Transition<InferenceEvent<I, O>, InferenceState<I, O>> transition) {
+    // Always call super.onTransition with the current transition
+    super.onTransition(transition);
+    if (transition.currentState is InferenceOutput) {
+      log('InferenceBloc Change Current State: InferenceOutput, next state: ${transition.event}, next state: ${transition.nextState}');
+    }
+    log('InferenceBloc Transition: $transition');
+  }
+
+  // @override
+  // Future<void> close() {
+  //   if (_subscription != null) {
+  //     _subscription!.cancel();
+  //   }
+  //   nullResponsePort.close();
+  //   inferenceRepository.dispose();
+  //   return super.close();
+  // }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    // Always call super.onError with the current error
+    super.onError(error, stackTrace);
+    log('InferenceBloc Error: $error');
   }
 }

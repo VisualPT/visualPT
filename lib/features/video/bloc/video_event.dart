@@ -18,5 +18,6 @@ class VideoRestart extends VideoEvent {
 }
 
 class VideoStop extends VideoEvent {
-  const VideoStop();
+  final bool reset;
+  const VideoStop({required this.reset});
 }

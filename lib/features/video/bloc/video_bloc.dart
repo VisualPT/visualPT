@@ -13,7 +13,6 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   VideoBloc(this.videoRepository) : super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
-    on<VideoRestart>(onRestart);
     on<VideoStop>(onStop);
   }
   final VideoRepository videoRepository;
@@ -66,8 +65,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
     start = DateTime.now();
     if (controller == null) {
-      //TODO:Error handle instead
-      if (!isClosed) add(const VideoInit());
+      emit(VideoError(
+          exception: Exception("Camera controller was not initialized")));
     }
     controller!.startImageStream((image) {
       videoRepository.add(image);
@@ -75,27 +74,33 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     emit(VideoRecording(controller!));
   }
 
-  FutureOr<void> onRestart(VideoRestart event, Emitter<VideoState> emit) {
-    log("Restarting video");
-    if (controller == null) {
-      if (!isClosed) add(const VideoInit());
-    } else {
-      controller!.stopImageStream();
-      emit(VideoStandby(controller!));
-    }
-  }
-
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    if (controller!.value.isRecordingVideo) {
+    duration = DateTime.now().difference(start);
+    if (controller != null && controller!.value.isStreamingImages) {
+      if (event.reset) {
+        emit(VideoStandby(controller!));
+      }
       await controller!.stopImageStream();
     } else {
-      log("Video was already stopped");
+      log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
     }
-    duration = DateTime.now().difference(start);
     controller!.dispose();
     emit(const VideoLoading());
   }
 
+  @override
+  void onTransition(Transition<VideoEvent, VideoState> transition) {
+    // Always call super.onTransition with the current transition
+    super.onTransition(transition);
+    log('VideoBloc: $transition');
+  }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    // Always call super.onError with the current error
+    super.onError(error, stackTrace);
+    debugPrint('VideoBlock Error: $error, $stackTrace');
+  }
   // Future<File> getData() async {
   // }
 }
