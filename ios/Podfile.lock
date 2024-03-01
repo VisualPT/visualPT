@@ -168,7 +168,7 @@ SPEC CHECKSUMS:
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   ffmpeg-kit-ios-min-gpl: ac5eb47f98b27e26d14c009de3ce9181007ce688
   ffmpeg_kit_flutter_min_gpl: f657651b493b7608fad9dda3ad606eb0946c9faa
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
   libwebp: 33dc822fbbf4503668d09f7885bbfedc76c45e96
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
@@ -186,4 +186,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f30af386de31abc1afca4380a6bc828cd3c20467
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2
