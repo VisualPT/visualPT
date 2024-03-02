@@ -6,13 +6,13 @@ import 'package:equatable/equatable.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
-
 part 'inference_event.dart';
 part 'inference_state.dart';
 
 class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this.inferenceRepository) : super(InferenceLoading<I, O>()) {
+  InferenceBloc(this.inferenceRepository, this.outputRepository)
+      : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
     on<InferenceInput<I, O>>(_onInput, transformer: concurrent());
@@ -21,7 +21,9 @@ class InferenceBloc<I, O extends AiModelOutput>
 
     storageBacklog = 0;
   }
+
   final Repository<I, O> inferenceRepository;
+  final Repository<O, dynamic>? outputRepository;
 
   static const sampleRateFrames = 30;
   bool isReady = false;
@@ -33,7 +35,7 @@ class InferenceBloc<I, O extends AiModelOutput>
 //TODO: Figure out what this is doing here
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
-    await inferenceRepository.initialize();
+    await inferenceRepository.initialize(event.address);
     isReady = true;
     emit(InferenceStandby<I, O>());
   }
@@ -58,7 +60,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     final data =
         await inferenceRepository.runPredict(event.input, event.params);
     processing = false;
-    if (!isClosed && !emit.isDone) {
+    if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
           input: event.input, params: event.params, output: data));
     }
@@ -67,11 +69,14 @@ class InferenceBloc<I, O extends AiModelOutput>
   FutureOr<void> _onOutput(
       InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null && storageBacklog > 0) {
-        //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
-        //TODO: Add a path to the repository to store the data
-        storageBacklog--;
-        inferenceRepository.store(event.input, event.output!, event.params);
+      if (event.output != null) {
+        outputRepository?.add(event.output!);
+        if (storageBacklog > 0) {
+          //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
+          //TODO: Add a path to the repository to store the data
+          storageBacklog--;
+          inferenceRepository.store(event.input, event.output!, event.params);
+        }
       }
       if (isReady && !isClosed && !emit.isDone) {
         emit(InferenceRunning<I, O>(event.output, event.params));
@@ -82,23 +87,25 @@ class InferenceBloc<I, O extends AiModelOutput>
   }
 
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
-    _subscription?.cancel();
     isReady = false;
     nullResponsePort.close();
+    if (_subscription != null) {
+      _subscription!.cancel();
+    }
     inferenceRepository.dispose();
     emit(InferenceStandby<I, O>());
   }
 
-  @override
-  void onTransition(
-      Transition<InferenceEvent<I, O>, InferenceState<I, O>> transition) {
-    // Always call super.onTransition with the current transition
-    super.onTransition(transition);
-    if (transition.currentState is InferenceOutput) {
-      log('InferenceBloc Change Current State: InferenceOutput, next state: ${transition.event}, next state: ${transition.nextState}');
-    }
-    log('InferenceBloc Transition: $transition');
-  }
+  // @override
+  // void onTransition(
+  //     Transition<InferenceEvent<I, O>, InferenceState<I, O>> transition) {
+  //   // Always call super.onTransition with the current transition
+  //   super.onTransition(transition);
+  //   if (transition.currentState is InferenceOutput) {
+  //     log('InferenceBloc Change Current State: InferenceOutput, next state: ${transition.event}, next state: ${transition.nextState}');
+  //   }
+  //   log('InferenceBloc Transition: $transition');
+  // }
 
   // @override
   // Future<void> close() {

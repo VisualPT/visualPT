@@ -52,10 +52,13 @@ class AssessmentBloc<T extends BaseAssessment>
   }
 
   FutureOr<void> _onIncrement(
-      AssessmentIncrement event, Emitter<AssessmentState> emit) {
+      AssessmentIncrement event, Emitter<AssessmentState> emit) async {
+    emit(AssessmentLoading<T>(assessmentParams, conditionIndex));
     segments.add(event.segment);
     conditionIndex = conditionIndex + 1;
-
+    await Future.delayed(const Duration(
+        seconds:
+            1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
     if (conditionIndex == assessmentParams.sequences) {
       final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
@@ -70,13 +73,13 @@ class AssessmentBloc<T extends BaseAssessment>
     }
   }
 
-  @override
-  void onTransition(
-      Transition<AssessmentEvent, AssessmentState<T>> transition) {
-    // Always call super.onTransition with the current transition
-    super.onTransition(transition);
-    debugPrint('AssessmentBloc: $transition');
-  }
+  // @override
+  // void onTransition(
+  //     Transition<AssessmentEvent, AssessmentState<T>> transition) {
+  //   // Always call super.onTransition with the current transition
+  //   super.onTransition(transition);
+  //   debugPrint('AssessmentBloc: $transition');
+  // }
 
   @override
   void onError(Object error, StackTrace stackTrace) {

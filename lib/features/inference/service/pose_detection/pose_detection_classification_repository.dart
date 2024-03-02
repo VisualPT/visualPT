@@ -5,22 +5,26 @@ import 'package:visualpt/features/inference/service/model_inference_service.dart
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
-class DetectionRepository
+class DetectionClassificationRepository
     extends Repository<PoseDetectionOutput, PoseClassificationOutput> {
   final ModelInferenceService _poseClassService = ModelInferenceService();
   final IsolateUtils _classificationIsolateUtils = IsolateUtils();
-  DetectionRepository();
+  DetectionClassificationRepository();
 
   @override
-  Future<void> initialize() async {
+  Future<void> initialize(int address) async {
     await _classificationIsolateUtils
         .initIsolate("Pose Classification Isolate");
     _poseClassService.setModelConfig(4);
+    isInitialized = true;
   }
 
   @override
   Future<PoseClassificationOutput?> runPredict(
       PoseDetectionOutput input, Map<String, dynamic>? params) async {
+    if (!isInitialized) {
+      throw Exception("Classification Inference Service not initialized");
+    }
     await _poseClassService.inference(
       isolateUtils: _classificationIsolateUtils,
       input: input,
@@ -32,6 +36,9 @@ class DetectionRepository
   @override
   Future<void> store(PoseDetectionOutput input, PoseClassificationOutput output,
       Map<String, dynamic>? params) async {
+    if (!isInitialized) {
+      throw Exception("Classification Inference Service not initialized");
+    }
     //StorageService storageService = StorageService();
     //final output = "TODO"; //TODO: parse the output here
     // The image and output of pose detection are stored in the Video Repository

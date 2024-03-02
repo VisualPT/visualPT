@@ -20,7 +20,7 @@ class VideoRecording extends VideoState {
         super(CupertinoIcons.square);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [controller];
 }
 
 class VideoStandby extends VideoState {
@@ -28,7 +28,7 @@ class VideoStandby extends VideoState {
   const VideoStandby(this.controller) : super(CupertinoIcons.circle);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [controller];
 }
 
 class VideoError extends VideoState {

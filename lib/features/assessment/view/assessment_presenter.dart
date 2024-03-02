@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 
@@ -33,6 +34,9 @@ class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
           try {
             if (state is AssessmentForm<T>) {
               return onForm(context, state);
+            } else if (state is AssessmentLoading) {
+              return const AppLoading(
+                  message: "Loading the next part of your assessment");
             } else if (state is AssessmentActive<T>) {
               return onActive(context, state);
             } else if (state is AssessmentAnalysis<T>) {

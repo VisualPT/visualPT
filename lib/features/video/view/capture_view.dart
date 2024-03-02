@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/inference/view/pose_classification_overlay.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/camera.dart';
@@ -23,6 +24,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         const ViewBackground(),
         VideoPresenter(
           assessmentType,
+          conditionNumber,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onLoading: loadingVideo,
@@ -48,13 +50,14 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
         ),
-        Camera(controller: vid.controller!, children: [
-          if (vid.controller != null)
-            PoseDetectionOverlay(controller: vid.controller!),
-          // if (vid.controller != null)
-          //TODOV1   PoseClassificationOverlay(controller: vid.controller!),
-        ]),
-        VideoControls<T>(state: state),
+        VideoControls<T>(
+            state: state,
+            videoView: Camera(controller: vid.controller!, children: [
+              if (vid.controller != null)
+                PoseDetectionOverlay(controller: vid.controller!),
+              if (vid.controller != null)
+                PoseClassificationOverlay(controller: vid.controller!),
+            ])),
       ],
     ));
   }

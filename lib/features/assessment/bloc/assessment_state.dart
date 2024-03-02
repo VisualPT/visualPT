@@ -35,9 +35,10 @@ class AssessmentAnalysis<T> extends AssessmentState<T> {
 }
 
 class AssessmentLoading<T> extends AssessmentState<T> {
-  const AssessmentLoading(super.assessment);
+  final int index;
+  const AssessmentLoading(super.assessment, this.index);
   @override
-  List<Object?> get props => [assessment];
+  List<Object?> get props => [assessment, index];
 }
 
 class AssessmentError<T> extends AssessmentState<T> {

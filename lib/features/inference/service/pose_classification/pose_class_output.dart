@@ -11,13 +11,13 @@ final Map<int, String> classifications = {
 class PoseClassificationOutput extends AiModelOutput {
   const PoseClassificationOutput(super.output);
 
-  getText() {
-    return classifications[int.parse(output[0])];
+  getValue() {
+    return double.tryParse(output.toString()) ?? 0;
   }
 
   @override
   String toString() {
-    return "Pose Classification Output: ${getText()}";
+    return "Pose Classification Output: ${getValue()}";
   }
 
   @override

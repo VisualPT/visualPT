@@ -21,11 +21,22 @@ class PoseClassificationOverlay extends StatelessWidget {
 
   Widget onRunning(BuildContext context,
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
-    print("PoseClassificationOverlay: onRunning: ${state.response.toString()}");
     return Stack(
-      alignment: Alignment.center,
+      alignment: Alignment.bottomCenter,
       fit: StackFit.expand,
-      children: [Text(state.response.toString())],
+      children: [
+        state.response != null
+            ? ColoredBox(color: getColorFromValue(state.response?.getValue()))
+            : Positioned(
+                bottom: 0,
+                child: Container(
+                  height: 50,
+                  alignment: Alignment.center,
+                  child:
+                      const Text("Testing the Balance class with the gradient"),
+                ),
+              ),
+      ],
     );
   }
 
@@ -43,4 +54,16 @@ class PoseClassificationOverlay extends StatelessWidget {
       InferenceError<PoseDetectionOutput, PoseClassificationOutput> state) {
     return Container();
   }
+}
+
+Color getColorFromValue(double? value) {
+  if (value == null) return CupertinoColors.systemYellow.withOpacity(0.5);
+
+  // Calculate the red and green components based on the value
+  // Assuming a simple linear interpolation: red decreases and green increases with the value
+  int red = (255 * (1 - value)).round();
+  int green = (255 * value).round();
+
+  // Return the color
+  return Color.fromARGB(255, red, green, 0).withOpacity(0.2);
 }

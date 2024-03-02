@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_service.dart';
+
 import '../../../core/utils/isolate_utils.dart';
 import 'ai_model.dart';
 import 'face_detection/face_detection_service.dart';
@@ -14,7 +16,7 @@ enum Models {
   FaceMesh,
   Hands,
   PoseDetect,
-  //TODOV1 PoseClass,
+  PoseClass,
 }
 
 class ModelInferenceService<I, O> {
@@ -65,11 +67,11 @@ class ModelInferenceService<I, O> {
         log("Pose detection model configured");
         model = locator<PoseDetection>();
         handler = runPoseDetector;
-      //TODOV1  break;
-      //TODOV1case Models.PoseClass:
-      //TODOV1  log("Pose classification model configured");
-      //TODOV1  model = locator<PoseClassification>();
-      //TODOV1  handler = runPoseClassifier;
+        break;
+      case Models.PoseClass:
+        log("Pose classification model configured");
+        model = locator<PoseClassification>();
+        handler = runPoseClassifier;
     }
   }
 }

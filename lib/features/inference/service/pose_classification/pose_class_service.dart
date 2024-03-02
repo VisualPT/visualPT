@@ -109,9 +109,6 @@ class PoseClassification
     interpreter!.runForMultipleInputs(inputs, outputs);
 
     final prediction = output.getDoubleValue(0);
-    print("------------------");
-    print('ClassOutput: $output');
-    print('Output Float: ${output.getDoubleValue(0).toString()}');
     return PoseClassificationOutput(prediction);
   }
 }

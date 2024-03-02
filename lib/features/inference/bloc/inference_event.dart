@@ -8,12 +8,19 @@ abstract class InferenceEvent<I, O> extends Equatable {
 }
 
 class InferenceInit<I, O> extends InferenceEvent<I, O> {
-  const InferenceInit();
+  final int address;
+  const InferenceInit(this.address);
+
+  @override
+  List<Object> get props => [address];
 }
 
 class InferenceStart<I, O> extends InferenceEvent<I, O> {
   final Map<String, dynamic>? params;
   const InferenceStart(this.params);
+
+  @override
+  List<Object?> get props => [params];
 }
 
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
