@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
@@ -12,28 +14,33 @@ import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/models/Segment.dart';
 
 class VideoControls<T extends BaseAssessment> extends StatelessWidget {
-  const VideoControls({super.key, required this.state});
   final VideoState state;
+  final Widget videoView;
+  const VideoControls(
+      {super.key, required this.state, required this.videoView});
 
   @override
   Widget build(BuildContext context) {
     final detection =
             BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
                 context),
-        //TODOV1 classification = BlocProvider.of<InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(context),
+        classification = BlocProvider.of<
+                InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
+            context),
         timer = BlocProvider.of<TimerBloc>(context),
         screenW = MediaQuery.of(context).size.width,
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
     void onComplete() {
+      detection.add(const InferenceEnd());
+      classification.add(const InferenceEnd());
+      vid.add(const VideoStop(reset: false));
+      timer.add(const TimerReset());
       final segment = Segment(
           duration_seconds:
               BlocProvider.of<TimerBloc>(context).state.duration.inSeconds,
           file: "REMOVE");
-      timer.add(const TimerReset());
-      detection.add(const InferenceEnd());
-      vid.add(const VideoStop(reset: false));
       vid.add(const VideoInit());
       asmt.add(AssessmentIncrement(segment));
     }
@@ -42,9 +49,10 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
     return BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
             InferenceState<CameraImage, PoseDetectionOutput>>(
         builder: (context, infState) {
-      if (infState is InferenceRunning && infState.response != null) {}
-      return Stack(
-        fit: StackFit.expand,
+      if (infState is InferenceRunning<CameraImage, PoseDetectionOutput> &&
+          infState.response != null) {}
+      return Column(
+        mainAxisSize: MainAxisSize.max,
         children: [
           SafeArea(
             child: Column(
@@ -56,6 +64,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                     padding: EdgeInsets.all(2.0), // Add padding as needed
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +72,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                               MainAxisSize.min, // Fit content in the column
                           children: [
                             PoseDetectionIndicator(),
-                            //TODOV1 PoseClassificationIndicator(),
+                            PoseClassificationIndicator(),
                           ],
                         ),
                       ],
@@ -73,66 +82,65 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: BlocBuilder<TimerBloc, TimerState>(
-                builder: (context, timerState) {
-                  if (state is TimerRunComplete) onComplete();
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Spacer(),
-                      if (infState is InferenceLoading) ...[
-                        const CupertinoActivityIndicator(
-                          radius: 20,
-                        )
-                      ] else if (infState is InferenceStandby &&
-                          state is VideoStandby) ...[
-                        GestureDetector(
-                          onTap: () {
-                            final controller =
-                                (state as VideoStandby).controller;
-                            final params = {
-                              "ratio": screenW /
-                                  controller.value.previewSize!.height,
-                              "width": controller.value.previewSize!.height,
-                              "height": controller.value.previewSize!.width,
-                            };
-                            vid.add(const VideoPlay());
-                            detection.add(InferenceStart(params));
-                            timer.add(const TimerStarted());
-                            //TODOV1 classification.add(InferenceStart(store: store));
-                          },
-                          child: const Icon(CupertinoIcons.circle_fill,
-                              color: Styles.white, size: 80),
-                        )
-                      ] else ...[
-                        GestureDetector(
-                            onTap: () {
-                              BlocProvider.of<VideoBloc>(context)
-                                  .add(const VideoStop(reset: true));
-                              BlocProvider.of<TimerBloc>(context)
-                                  .add(const TimerReset());
-                            },
-                            child: const Icon(CupertinoIcons.restart,
-                                color: CupertinoColors.white, size: 40)),
-                        const Spacer(),
-                        GestureDetector(
-                            onTap: () => onComplete(),
-                            child: const Icon(CupertinoIcons.stop,
-                                color: Styles.backgroundComplementory,
-                                size: 80)),
-                        const Spacer(),
-                        Text(formatter(timerState.duration),
-                            style: Styles.timerTextStyle),
-                      ],
-                      const Spacer(),
-                    ],
-                  );
-                },
-              )),
+          videoView,
+          const Spacer(),
+          BlocBuilder<TimerBloc, TimerState>(
+            builder: (context, timerState) {
+              if (timerState is TimerRunComplete) onComplete();
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const Spacer(),
+                  if (infState is InferenceLoading<CameraImage,
+                      PoseDetectionOutput>) ...[
+                    const CupertinoActivityIndicator(
+                      radius: 20,
+                    )
+                  ] else if (infState is InferenceStandby<CameraImage,
+                          PoseDetectionOutput> &&
+                      state is VideoStandby) ...[
+                    GestureDetector(
+                      onTap: () {
+                        final controller = (state as VideoStandby).controller;
+                        final params = {
+                          "ratio":
+                              screenW / controller.value.previewSize!.height,
+                          "width": controller.value.previewSize!.height,
+                          "height": controller.value.previewSize!.width,
+                        };
+                        vid.add(const VideoPlay());
+                        detection.add(InferenceStart(params));
+                        classification.add(InferenceStart(params));
+                        timer.add(const TimerStarted());
+                      },
+                      child: const Icon(CupertinoIcons.circle_fill,
+                          color: Styles.white, size: 80),
+                    )
+                  ] else ...[
+                    GestureDetector(
+                        onTap: () {
+                          BlocProvider.of<VideoBloc>(context)
+                              .add(const VideoStop(reset: true));
+                          BlocProvider.of<TimerBloc>(context)
+                              .add(const TimerReset());
+                        },
+                        child: const Icon(CupertinoIcons.restart,
+                            color: CupertinoColors.white, size: 40)),
+                    const Spacer(),
+                    GestureDetector(
+                        onTap: () => onComplete(),
+                        child: const Icon(CupertinoIcons.stop,
+                            color: Styles.backgroundComplementory, size: 80)),
+                    const Spacer(),
+                    Text(formatter(timerState.duration),
+                        style: Styles.timerTextStyle),
+                  ],
+                  const Spacer(),
+                ],
+              );
+            },
+          ),
         ],
       );
     });

@@ -23,10 +23,6 @@ class PoseDetectionOverlay extends StatelessWidget {
   Widget onRunning(BuildContext context,
       InferenceRunning<CameraImage, PoseDetectionOutput> state) {
     final response = state.response;
-    //TODO: put this into a better place
-    if (state.response != null) {
-      //TODOV1  BlocProvider.of< InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>( context).inferenceRepository.add(state.response!);
-    }
     return Stack(
       fit: StackFit.expand,
       children: [

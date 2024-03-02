@@ -12,25 +12,31 @@ import 'package:visualpt/features/inference/service/model_inference_service.dart
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
+class VideoDetectionRepository
+    extends Repository<CameraImage, PoseDetectionOutput> {
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
   final AssessmentType? path;
   final String userID;
-  VideoRepository(this.path, this.userID);
+  VideoDetectionRepository(this.path, this.userID);
 
   @override
-  Future<void> initialize() async {
-    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
+  Future<void> initialize(int address) async {
     await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
+    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
     _poseDetectionService.setModelConfig(3);
+    isInitialized = true;
   }
 
   @override
   Future<PoseDetectionOutput?> runPredict(
       CameraImage input, Map<String, dynamic>? params) async {
+    if (!isInitialized) {
+      throw Exception(
+          "runPredict: Detection Inference Service not initialized");
+    }
     final data = preProcessData(input);
     await _poseDetectionService.inference(
       isolateUtils: _detectionIsolateUtils,
@@ -43,6 +49,9 @@ class VideoRepository extends Repository<CameraImage, PoseDetectionOutput> {
   @override
   Future<void> store(CameraImage input, PoseDetectionOutput output,
       Map<String, dynamic>? params) async {
+    if (!isInitialized) {
+      throw Exception("store: Detection Inference Service not initialized");
+    }
     if (path == null) throw Exception("Path not set");
     StorageService storageService = StorageService();
 

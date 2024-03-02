@@ -44,16 +44,16 @@ class _PatientFormState extends State<PatientForm> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                FormInput(
-                  "First Name",
-                  controller: firstNameController,
-                  inputType: TextInputType.name,
-                ),
-                FormInput(
-                  "Last Name",
-                  controller: lastNameController,
-                  inputType: TextInputType.name,
-                ),
+                // FormInput(
+                //   "First Name",
+                //   controller: firstNameController,
+                //   inputType: TextInputType.name,
+                // ),
+                // FormInput(
+                //   "Last Name",
+                //   controller: lastNameController,
+                //   inputType: TextInputType.name,
+                // ),
                 FormInput(
                   "Birth Date",
                   controller: dobController,
@@ -69,40 +69,40 @@ class _PatientFormState extends State<PatientForm> {
                   controller: heightController,
                   inputPopup: heightPopup,
                 ),
-                Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 20.0),
-                    padding: const EdgeInsets.all(2.0),
-                    decoration: const BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: Styles.borderRadiusM),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Store Data",
-                            style: Styles.inputStyle
-                                .apply(color: CupertinoColors.systemGrey),
-                          ),
-                          CupertinoSwitch(
-                              value: storeData,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  storeData = value;
-                                });
-                              }),
-                        ])),
-                CupertinoButton(
-                    onPressed: () {
-                      firstNameController.text = "Sample";
-                      lastNameController.text = "Patient";
-                      dobController.text = "2000-01-01";
-                      genderController.text = "MALE";
-                      heightController.text = "60\"";
-                    },
-                    child: const Text("Autofill")),
+                // Container(
+                //     alignment: Alignment.center,
+                //     margin: const EdgeInsets.symmetric(
+                //         vertical: 8.0, horizontal: 20.0),
+                //     padding: const EdgeInsets.all(2.0),
+                //     decoration: const BoxDecoration(
+                //         color: CupertinoColors.white,
+                //         borderRadius: Styles.borderRadiusM),
+                //     child: Row(
+                //         mainAxisAlignment: MainAxisAlignment.center,
+                //         mainAxisSize: MainAxisSize.min,
+                //         children: [
+                //           Text(
+                //             "Store Data",
+                //             style: Styles.inputStyle
+                //                 .apply(color: CupertinoColors.systemGrey),
+                //           ),
+                //           CupertinoSwitch(
+                //               value: storeData,
+                //               onChanged: (bool value) {
+                //                 setState(() {
+                //                   storeData = value;
+                //                 });
+                //               }),
+                //         ])),
+                // CupertinoButton(
+                //     onPressed: () {
+                //       firstNameController.text = "Sample";
+                //       lastNameController.text = "Patient";
+                //       dobController.text = "2000-01-01";
+                //       genderController.text = "MALE";
+                //       heightController.text = "60\"";
+                //     },
+                //     child: const Text("Autofill")),
                 Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: CupertinoButton(

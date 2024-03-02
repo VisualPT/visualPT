@@ -4,18 +4,18 @@ import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/video/service/video_repository.dart';
+import 'package:visualpt/features/video/service/video_detection_repository.dart';
 
 part 'video_event.dart';
 part 'video_state.dart';
 
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  VideoBloc(this.videoRepository) : super(const VideoLoading()) {
+  VideoBloc(this.videoDetectionRepo) : super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
     on<VideoStop>(onStop);
   }
-  final VideoRepository videoRepository;
+  final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
   late Duration duration = const Duration(seconds: 0);
   late DateTime start;
@@ -69,7 +69,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           exception: Exception("Camera controller was not initialized")));
     }
     controller!.startImageStream((image) {
-      videoRepository.add(image);
+      videoDetectionRepo.add(image);
     });
     emit(VideoRecording(controller!));
   }
@@ -88,12 +88,12 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     emit(const VideoLoading());
   }
 
-  @override
-  void onTransition(Transition<VideoEvent, VideoState> transition) {
-    // Always call super.onTransition with the current transition
-    super.onTransition(transition);
-    log('VideoBloc: $transition');
-  }
+  // @override
+  // void onTransition(Transition<VideoEvent, VideoState> transition) {
+  //   // Always call super.onTransition with the current transition
+  //   super.onTransition(transition);
+  //   log('VideoBloc: $transition');
+  // }
 
   @override
   void onError(Object error, StackTrace stackTrace) {
