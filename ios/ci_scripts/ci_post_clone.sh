@@ -4,7 +4,7 @@
 set -eu
 
 # Navigate to the root of your repository
-cd /home/runner/work/VisualPT/VisualPT
+cd $CI_PRIMARY_REPOSITORY_PATH
 
 # Install Flutter using git.
 git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
