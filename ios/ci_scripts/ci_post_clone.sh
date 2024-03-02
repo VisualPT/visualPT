@@ -1,7 +1,10 @@
 #!/bin/sh
 
-# The default execution directory of this script is the ci_scripts directory.
-cd $CI_WORKSPACE # change working directory to the root of your cloned repo.
+# Catch errors and undefined variables
+set -eu
+
+# Navigate to the root of your repository
+cd /home/runner/work/VisualPT/VisualPT
 
 # Install Flutter using git.
 git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
