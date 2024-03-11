@@ -5,7 +5,7 @@ import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/auth/service/auth_repository.dart';
 import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
 import 'package:visualpt/features/backend/service/backend_repository.dart';
-import 'package:visualpt/features/inference/service/service_locator.dart';
+import 'package:visualpt/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/features/validation/view/validation_view.dart';
