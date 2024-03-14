@@ -260,8 +260,6 @@ class AuthView extends StatelessWidget {
                   BlocProvider.of<AuthBloc>(context).add(isLogin
                       ? const AuthAttemptLogIn()
                       : const AuthAttemptSignUp());
-                  Future.delayed(const Duration(seconds: 10),
-                      () => _formKey.currentState!.reset());
                 }
               }),
         ),
