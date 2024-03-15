@@ -1,3 +1,5 @@
+[![wakatime](https://wakatime.com/badge/user/101a11b5-17a3-47c6-935c-58d4ffab60da/project/d93f104f-ff96-4d7d-bca8-5e54d6a0f910.svg)](https://wakatime.com/badge/user/101a11b5-17a3-47c6-935c-58d4ffab60da/project/d93f104f-ff96-4d7d-bca8-5e54d6a0f910)
+
 # VisualPT
 
 Augmenting Therapists with Computer Vision
