@@ -30,9 +30,10 @@ class CtsibPDF extends PDF {
             headerData(),
             patientData(patient, assessment),
             assessmentData(patient, assessment),
-            interpretationData(assessment),
+            conditionRatioTable(assessment),
             normativeData(patient, assessment),
-            diagnosisData(),
+            interpretationData(assessment),
+            //diagnosisData(),
             Spacer(),
             footerData(),
           ]),
@@ -79,7 +80,7 @@ class CtsibPDF extends PDF {
 
   Widget patientData(Patient patient, Assessment assessment) {
     return SizedBox(
-      height: 1.5 * inch,
+      height: 1.3 * inch,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         RichText(
             textAlign: TextAlign.left,
@@ -90,7 +91,8 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Name: ", style: detail),
                 TextSpan(
-                    text: "${patient.first_name} ${patient.last_name}",
+                    text: "Anonymous Data Collection",
+                    //TODO: text: "${patient.first_name} ${patient.last_name}",
                     style: detailBold),
               ]),
             ),
@@ -177,16 +179,16 @@ class CtsibPDF extends PDF {
           TableRow(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text(''),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text('Condition',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text('Result',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ),
@@ -197,17 +199,18 @@ class CtsibPDF extends PDF {
             TableRow(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text((i).toString()),
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text((i + 1).toString(), style: detail),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(ctsib.seqNames[i]),
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(ctsib.seqNames[i], style: detail),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${assessment.segments![i].duration_seconds.toString()} / 30 seconds"),
+                      "${assessment.segments![i].duration_seconds.toString()} / 30 seconds",
+                      style: detail),
                 ),
               ],
             ),
@@ -215,16 +218,16 @@ class CtsibPDF extends PDF {
           TableRow(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text('Total Score',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text(''),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(3.0),
                 child: Text(
                   "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * ctsib.sequences} seconds",
                 ),
@@ -233,6 +236,82 @@ class CtsibPDF extends PDF {
           ),
         ],
       ),
+    ]);
+  }
+
+  Widget conditionRatioTable(Assessment assessment) {
+    // Assuming assessment.segments contains data for conditions in order: C1, C2, C3, C4, C5, C6
+    final c1 = assessment.segments![0].duration_seconds;
+    final c2 = assessment.segments![1].duration_seconds;
+    final c3 = assessment.segments![2].duration_seconds;
+    final c4 = assessment.segments![3].duration_seconds;
+    final c5 = assessment.segments![4].duration_seconds;
+    final c6 = assessment.segments![5].duration_seconds;
+
+    // Calculating ratios safely
+    final somRatio = safeDivision(c2, c1);
+    final visRatio = safeDivision(c4, c1);
+    final vestRatio = safeDivision(c5, c1);
+    final prefRatio = safeDivision((c3 + c6), (c2 + c5));
+
+// Now you can directly pass the string representations of ratios to determineStatus
+    final somStatus = determineStatus(somRatio);
+    final visStatus = determineStatus(visRatio);
+    final vestStatus = determineStatus(vestRatio);
+    final prefStatus = determineStatus(prefRatio);
+
+    // Creating a table to display the results
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text:
+              TextSpan(text: "Condition Ratio Information", style: subHeader)),
+      Table(
+        border: TableBorder.all(color: black),
+        children: [
+          TableRow(children: [
+            Padding(
+              padding: const EdgeInsets.all(3.0),
+              child:
+                  Text('Test', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(3.0),
+              child:
+                  Text('Ratio', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(3.0),
+              child:
+                  Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ]),
+          _createConditionRow("Somatosensory (SOM) Test", somRatio, somStatus),
+          _createConditionRow(
+              "Visual Dependence (VIS) Test", visRatio, visStatus),
+          _createConditionRow(
+              "Vestibular Function (VEST) Test", vestRatio, vestStatus),
+          _createConditionRow(
+              "Preferred Sensory System (PREF) Test", prefRatio, prefStatus),
+        ],
+      )
+    ]);
+  }
+
+  //TODO: Add normative data, and potientally another data field for collecting the patients fall history
+  Widget normativeData(Patient patient, Assessment assessment) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Normative Comparison", style: subHeader)),
+      RichText(
+          text: TextSpan(
+              text: getNormativeMessage(
+                  assessment.segments!
+                      .map((s) => s.duration_seconds)
+                      .reduce((a, b) => a + b),
+                  patient.dob),
+              style: detail)),
     ]);
   }
 
@@ -264,68 +343,68 @@ class CtsibPDF extends PDF {
     ]);
   }
 
-//TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Patient patient, Assessment assessment) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(
-          text: TextSpan(
-              text: getNormativeMessage(
-                  assessment.segments!
-                      .map((s) => s.duration_seconds)
-                      .reduce((a, b) => a + b),
-                  patient.dob),
-              style: detailBold)),
-    ]);
-  }
-
-  Widget diagnosisData() {
-    return Column(children: [
-      RichText(
-          text: TextSpan(text: "Diagnostic Information", style: subHeader)),
-      RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
-    ]);
-  }
+  // Widget diagnosisData() {
+  //   return Column(children: [
+  //     RichText(
+  //         text: TextSpan(text: "Diagnostic Information", style: subHeader)),
+  //     RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
+  //   ]);
+  // }
 
   Widget footerData() {
     return Footer(
       padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,
-      leading: Column(
+      trailing: Column(
           mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             RichText(text: TextSpan(text: " ", style: invisible)),
             RichText(
                 text: TextSpan(
                     style: disclaimer,
-                    text: "© 2023 VisualPT, Inc. All Rights Reserved")),
+                    text: "© 2024 VisualPT.AI, LLC. All Rights Reserved")),
             RichText(
                 text: TextSpan(
                     style: disclaimer,
                     text: "No Distribution without Permission")),
           ]),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // RichText(
-          //     text: TextSpan(
-          //         style: disclaimer,
-          //         text: "Minimal Detectable Change: 0.1m/sec")),
-          // RichText(
-          //     text: TextSpan(
-          //         style: disclaimer,
-          //         text: "Minimum Clinically Important Difference: 0.1m/sec")),
-          // RichText(
-          //     text: TextSpan(
-          //         style: disclaimer,
-          //         text: "Test/Re-test Reliability: ICC > 0.7"))
-        ],
-      ),
+      // trailing: Column(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   crossAxisAlignment: CrossAxisAlignment.end,
+      //   children: [
+      //     // RichText(
+      //     //     text: TextSpan(
+      //     //         style: disclaimer,
+      //     //         text: "Minimal Detectable Change: 0.1m/sec")),
+      //     // RichText(
+      //     //     text: TextSpan(
+      //     //         style: disclaimer,
+      //     //         text: "Minimum Clinically Important Difference: 0.1m/sec")),
+      //     // RichText(
+      //     //     text: TextSpan(
+      //     //         style: disclaimer,
+      //     //         text: "Test/Re-test Reliability: ICC > 0.7"))
+      //   ],
+      // ),
     );
+  }
+
+  TableRow _createConditionRow(String testName, String ratio, String status) {
+    return TableRow(children: [
+      Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: Text(testName),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: Text(ratio),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: Text(status),
+      ),
+    ]);
   }
 }
 
@@ -342,5 +421,39 @@ String getNormativeMessage(int totalDuration, TemporalDate dob) {
     return "Patient is ${percent.abs()}% worse than normative data, which has a mean of $norm seconds";
   } else {
     return "Patient is within 10% of normative data, which has a mean of $norm seconds";
+  }
+}
+
+// Safe division function to handle NaN or Infinity
+String safeDivision(int numerator, int denominator) {
+  if (denominator == 0 || numerator.isNaN || denominator.isNaN) {
+    return "Invalid";
+  } else {
+    final ratio = numerator / denominator;
+    if (ratio.isNaN || ratio.isInfinite) {
+      return "Invalid";
+    } else {
+      return ratio.toStringAsPrecision(3);
+    }
+  }
+}
+
+String determineStatus(String ratioStr) {
+  // Attempt to parse the ratio string to double
+  double ratio;
+  try {
+    ratio = double.parse(ratioStr);
+  } catch (e) {
+    // If parsing fails, consider the ratio as invalid
+    return "Invalid";
+  }
+
+  // Determine the status based on the parsed ratio value
+  if (ratio == 0.0) {
+    return "Invalid"; // Ratio is 0.0, indicating an invalid or uncalculable result
+  } else if (ratio < 1) {
+    return "Dysfunctional"; // System is dysfunctional if the ratio is less than 1
+  } else {
+    return "Functional"; // System is considered functional otherwise
   }
 }

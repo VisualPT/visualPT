@@ -119,7 +119,6 @@ class AuthView extends StatelessWidget {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      _formKey.currentState!.reset();
                       BlocProvider.of<AuthBloc>(context)
                           .add(const AuthConfirmedForgot());
                     }
@@ -211,7 +210,6 @@ class AuthView extends StatelessWidget {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    _formKey.currentState!.reset();
                     log("Auth Data Validated");
                     BlocProvider.of<AuthBloc>(context).add(const AuthRestore());
                   }
@@ -258,7 +256,6 @@ class AuthView extends StatelessWidget {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  _formKey.currentState!.reset();
                   log("Auth Data Validated");
                   BlocProvider.of<AuthBloc>(context).add(isLogin
                       ? const AuthAttemptLogIn()
@@ -291,18 +288,6 @@ class AuthView extends StatelessWidget {
               onPressed: () {
                 BlocProvider.of<AuthBloc>(context)
                     .add(const AuthForgotClicked());
-              }),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CupertinoButton(
-              color: Styles.actionSecondary,
-              child: const Text(
-                "Proceed as Guest",
-                style: Styles.subactionText,
-              ),
-              onPressed: () {
-                BlocProvider.of<AuthBloc>(context).add(const AuthGuest());
               }),
         ),
       ],
