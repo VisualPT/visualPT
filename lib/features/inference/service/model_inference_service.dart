@@ -1,15 +1,15 @@
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:visualpt/core/utils/isolate_utils.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_service.dart';
+import 'package:visualpt/service_locator.dart';
 
-import '../../../core/utils/isolate_utils.dart';
 import 'ai_model.dart';
 import 'face_detection/face_detection_service.dart';
 import 'face_mesh/face_mesh_service.dart';
 import 'hands/hands_service.dart';
 import 'pose_detection/pose_detection_service.dart';
-import 'service_locator.dart';
 
 enum Models {
   FaceDetection,
