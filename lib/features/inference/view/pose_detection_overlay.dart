@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/camera_painters/pose_bbox.dart';
+import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
@@ -24,9 +24,11 @@ class PoseDetectionOverlay extends StatelessWidget {
       InferenceRunning<CameraImage, PoseDetectionOutput> state) {
     final response = state.response;
     return Stack(
+      alignment: Alignment.topLeft,
       fit: StackFit.expand,
       children: [
         const PoseBbox(),
+        response != null ? PoseSway(points: response.landmarks) : Container(),
         response != null
             ? response.heightThreshold
                 ? PoseOverlay(points: response.landmarks)
@@ -44,7 +46,6 @@ class PoseDetectionOverlay extends StatelessWidget {
         PoseBbox(),
       ],
     );
-    ;
   }
 
   Widget onLoad(BuildContext context,

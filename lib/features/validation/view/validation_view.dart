@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
 import 'package:visualpt/features/validation/bloc/validation_bloc.dart';
 import 'package:visualpt/features/validation/view/validation_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -9,8 +10,6 @@ import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-
-import '../../inference/view/camera_painters/pose_bbox.dart';
 
 //Get all the images and data from the 'raw/' storage folder
 // * fetch
@@ -79,7 +78,9 @@ class ValidationView extends StatelessWidget {
                     fit: BoxFit
                         .fitWidth, // This ensures that the image covers the entire space defined by height and width
                   ),
-                  const PoseBbox(),
+                  PoseSway(
+                      points:
+                          state.offsets.map((o) => o * state.ratio).toList()),
                   PoseOverlay(
                       points:
                           state.offsets.map((o) => o * state.ratio).toList()),
