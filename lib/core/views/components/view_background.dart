@@ -1,6 +1,6 @@
 //import 'dart:math';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/styles.dart';
+import 'package:visualpt_collector/core/views/styles.dart';
 
 class ViewBackground extends StatelessWidget {
   final int seed;

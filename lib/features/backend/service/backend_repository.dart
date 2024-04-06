@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:visualpt/features/backend/service/backend_service.dart';
+import 'package:visualpt_collector/features/backend/service/backend_service.dart';
 
 class BackendRepository {
   BackendRepository();

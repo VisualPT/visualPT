@@ -1,4 +1,4 @@
-import 'package:visualpt/features/inference/service/ai_model.dart';
+import 'package:visualpt_collector/features/inference/service/ai_model.dart';
 
 final Map<int, String> classifications = {
   -1: "invalid",

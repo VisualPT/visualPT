@@ -6,8 +6,8 @@ import 'dart:convert';
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:visualpt/features/backend/service/storage_service.dart';
-import 'package:visualpt/features/validation/validation_utils.dart';
+import 'package:visualpt_collector/features/backend/service/storage_service.dart';
+import 'package:visualpt_collector/features/validation/validation_utils.dart';
 
 part 'validation_event.dart';
 part 'validation_state.dart';

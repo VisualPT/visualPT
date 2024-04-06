@@ -1,7 +1,7 @@
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
+import 'package:visualpt_collector/features/inference/constants/model_file.dart';
+import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
 
 class BERG extends BaseAssessment {
   BERG()

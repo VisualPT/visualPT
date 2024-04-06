@@ -1,7 +1,7 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt_collector/core/utils/amplify_utils.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
 
 class Gait {
   final sequences = 1;

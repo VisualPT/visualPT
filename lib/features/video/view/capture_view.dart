@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/view/pose_classification_overlay.dart';
-import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
-import 'package:visualpt/features/video/bloc/video_bloc.dart';
-import 'package:visualpt/features/video/view/camera.dart';
-import 'package:visualpt/features/video/view/video_presenter.dart';
-import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/core/views/components/_components.dart';
-import 'package:visualpt/features/video/view/video_controls.dart';
+import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
+import 'package:visualpt_collector/features/inference/view/pose_classification_overlay.dart';
+import 'package:visualpt_collector/features/inference/view/pose_detection_overlay.dart';
+import 'package:visualpt_collector/features/video/bloc/video_bloc.dart';
+import 'package:visualpt_collector/features/video/view/camera.dart';
+import 'package:visualpt_collector/features/video/view/video_presenter.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt_collector/core/views/components/_components.dart';
+import 'package:visualpt_collector/features/video/view/video_controls.dart';
 
 //TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView<T extends BaseAssessment> extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt_collector/core/views/_views.dart';
 
 class AppLoading extends StatefulWidget {
   final String? message;

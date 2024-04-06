@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/ai_model.dart';
+import 'package:visualpt_collector/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt_collector/features/inference/service/ai_model.dart';
 
 class InferencePresenter<I, O extends AiModelOutput> extends StatelessWidget {
   const InferencePresenter({

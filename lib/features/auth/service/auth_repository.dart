@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/auth/service/auth_service.dart';
-import 'package:visualpt/features/auth/service/auth_utils.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt_collector/features/auth/service/auth_service.dart';
+import 'package:visualpt_collector/features/auth/service/auth_utils.dart';
 
 class AuthRepository {
   AuthRepository();

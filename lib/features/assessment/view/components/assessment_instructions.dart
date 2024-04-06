@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt_collector/core/views/_views.dart';
+import 'package:visualpt_collector/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
 
 class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentActive<T> state;

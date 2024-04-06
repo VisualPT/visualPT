@@ -5,10 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/ctsib/pdf.dart';
-import 'package:visualpt/features/assessment/config/gait/pdf.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt_collector/features/assessment/config/ctsib/pdf.dart';
+import 'package:visualpt_collector/features/assessment/config/gait/pdf.dart';
+import 'package:visualpt_collector/features/assessment/config/_pdf.dart';
 
 part 'pdf_event.dart';
 part 'pdf_state.dart';

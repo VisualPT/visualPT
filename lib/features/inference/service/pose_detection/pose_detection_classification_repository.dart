@@ -1,9 +1,9 @@
-import 'package:visualpt/core/services/repository.dart';
-import 'package:visualpt/core/utils/isolate_utils.dart';
-//import 'package:visualpt/features/backend/service/storage_service.dart';
-import 'package:visualpt/features/inference/service/model_inference_service.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt_collector/core/services/repository.dart';
+import 'package:visualpt_collector/core/utils/isolate_utils.dart';
+//import 'package:visualpt_collector/features/backend/service/storage_service.dart';
+import 'package:visualpt_collector/features/inference/service/model_inference_service.dart';
+import 'package:visualpt_collector/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
 
 class DetectionClassificationRepository
     extends Repository<PoseDetectionOutput, PoseClassificationOutput> {

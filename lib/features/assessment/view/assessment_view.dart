@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/assessment/view/components/assessment_capture.dart';
-import 'package:visualpt/features/assessment/view/assessment_presenter.dart';
-import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/app_nav.dart';
+import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
+import 'package:visualpt_collector/features/assessment/view/components/assessment_capture.dart';
+import 'package:visualpt_collector/features/assessment/view/assessment_presenter.dart';
+import 'package:visualpt_collector/core/views/_views.dart';
+import 'package:visualpt_collector/core/views/app_nav.dart';
 
 class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
   final T assessment;

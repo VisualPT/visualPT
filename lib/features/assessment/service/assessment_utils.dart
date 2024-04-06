@@ -1,10 +1,10 @@
 import 'package:camera/camera.dart';
-import 'package:visualpt/features/assessment/config/berg/berg.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
-import 'package:visualpt/features/assessment/config/gait/gait.dart';
-import 'package:visualpt/features/assessment/view/assessment_view.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/models/AssessmentType.dart';
+import 'package:visualpt_collector/features/assessment/config/berg/berg.dart';
+import 'package:visualpt_collector/features/assessment/config/ctsib/ctsib.dart';
+import 'package:visualpt_collector/features/assessment/config/gait/gait.dart';
+import 'package:visualpt_collector/features/assessment/view/assessment_view.dart';
+import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt_collector/models/AssessmentType.dart';
 
 class AssessmentUtils {
   static createPayload(AssessmentType? path, CameraImage input,

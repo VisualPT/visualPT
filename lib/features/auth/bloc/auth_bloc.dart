@@ -4,11 +4,11 @@ import 'dart:developer';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/features/auth/service/auth_repository.dart';
-import 'package:visualpt/features/backend/service/backend_repository.dart';
-import 'package:visualpt/models/User.dart';
-import 'package:visualpt/features/auth/service/auth_service.dart';
-import 'package:visualpt/core/views/components/_components.dart';
+import 'package:visualpt_collector/features/auth/service/auth_repository.dart';
+import 'package:visualpt_collector/features/backend/service/backend_repository.dart';
+import 'package:visualpt_collector/models/User.dart';
+import 'package:visualpt_collector/features/auth/service/auth_service.dart';
+import 'package:visualpt_collector/core/views/components/_components.dart';
 import 'package:equatable/equatable.dart';
 
 part 'auth_event.dart';

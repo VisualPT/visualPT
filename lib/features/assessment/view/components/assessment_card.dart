@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/core/views/app_nav.dart';
-import 'package:visualpt/core/views/styles.dart';
-import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt_collector/core/views/app_nav.dart';
+import 'package:visualpt_collector/core/views/styles.dart';
+import 'package:visualpt_collector/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
 
 class AssessmentCard extends StatelessWidget {
   final String imagePath;

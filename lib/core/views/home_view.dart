@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/features/assessment/view/components/assessment_card.dart';
-import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt_collector/features/assessment/view/components/assessment_card.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt_collector/core/views/_views.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});

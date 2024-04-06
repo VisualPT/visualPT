@@ -2,10 +2,10 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
-import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
+import 'package:visualpt_collector/core/utils/amplify_utils.dart';
+import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt_collector/features/assessment/config/_pdf.dart';
+import 'package:visualpt_collector/features/assessment/config/ctsib/ctsib.dart';
 
 class CtsibPDF extends PDF {
   @override

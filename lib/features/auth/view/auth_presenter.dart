@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt_collector/features/auth/bloc/auth_bloc.dart';
 
 //TODO: Add Bloc Listeners in this file
 
