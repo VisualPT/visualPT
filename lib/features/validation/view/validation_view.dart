@@ -78,6 +78,7 @@ class ValidationView extends StatelessWidget {
                     fit: BoxFit
                         .fitWidth, // This ensures that the image covers the entire space defined by height and width
                   ),
+                  const PoseBbox(),
                   PoseSway(
                       points:
                           state.offsets.map((o) => o * state.ratio).toList()),
