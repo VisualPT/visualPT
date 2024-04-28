@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/analysis/bloc/pdf_bloc.dart';
-import 'package:visualpt_collector/features/email/bloc/email_bloc.dart';
+import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
+import 'package:visualpt/features/email/bloc/email_bloc.dart';
 
 /// Provided PdfBloc & EmailBloc
 class AnalysisPresenter extends StatelessWidget {

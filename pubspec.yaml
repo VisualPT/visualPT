@@ -1,4 +1,4 @@
-name: visualpt_collector
+name: visualpt
 description: Collecting Data for VisualPT
 
 # The following line prevents the package from being accidentally published to

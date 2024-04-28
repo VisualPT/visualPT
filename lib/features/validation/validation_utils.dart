@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_service.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_service.dart';
 
 List<Offset> parsePoseOffsets(String input, double height, double width) {
   const inputSize = PoseDetection.inputSize;

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt_collector/features/auth/service/auth_service.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt/features/auth/service/auth_service.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 class FormInput extends StatefulWidget {
   final String field;

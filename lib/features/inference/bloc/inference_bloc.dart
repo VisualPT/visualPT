@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'dart:isolate';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:visualpt_collector/core/services/repository.dart';
+import 'package:visualpt/core/services/repository.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:visualpt_collector/features/inference/service/ai_model.dart';
+import 'package:visualpt/features/inference/service/ai_model.dart';
 part 'inference_event.dart';
 part 'inference_state.dart';
 

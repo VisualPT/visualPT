@@ -3,16 +3,16 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/analysis/bloc/pdf_bloc.dart';
-import 'package:visualpt_collector/features/analysis/view/analysis_presenter.dart';
-import 'package:visualpt_collector/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
-import 'package:visualpt_collector/features/email/bloc/email_bloc.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/features/assessment/service/assessment_service.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
-import 'package:visualpt_collector/core/views/app_nav.dart';
-import 'package:visualpt_collector/core/views/components/_components.dart';
+import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
+import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/email/bloc/email_bloc.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/assessment/service/assessment_service.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/core/views/app_nav.dart';
+import 'package:visualpt/core/views/components/_components.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentAnalysis<T> asmtState;

@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
-import 'package:visualpt_collector/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 import '../../constants/model_file.dart';
 import '../ai_model.dart';

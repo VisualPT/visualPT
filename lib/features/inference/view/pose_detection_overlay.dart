@@ -1,10 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt_collector/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt_collector/features/inference/view/camera_painters/ctsib_overlays.dart';
-import 'package:visualpt_collector/features/inference/view/camera_painters/pose_overlay.dart';
-import 'package:visualpt_collector/features/inference/view/inference_presenter.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
+import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
+import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
 class PoseDetectionOverlay extends StatelessWidget {
   const PoseDetectionOverlay({super.key, required this.controller});

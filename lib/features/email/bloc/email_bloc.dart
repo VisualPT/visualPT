@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:http/http.dart';
 
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/features/email/service/email_service.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/email/service/email_service.dart';
 
 part 'email_event.dart';
 part 'email_state.dart';

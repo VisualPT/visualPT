@@ -1,6 +1,6 @@
-import 'package:visualpt_collector/features/inference/constants/model_file.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-// import 'package:visualpt_collector/features/assessment/view/gait/gait.dart';
+import 'package:visualpt/features/inference/constants/model_file.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+// import 'package:visualpt/features/assessment/view/gait/gait.dart';
 
 /// The parameters that start with [seq] are used to define the individual sequences
 /// the length of the Lists should be equal to the [sequences] parameter

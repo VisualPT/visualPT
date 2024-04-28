@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/features/backend/service/datastore_service.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/backend/service/datastore_service.dart';
 
 class AssessmentService extends DataStoreService<Assessment> {
   AssessmentService();

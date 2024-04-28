@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/video/service/video_detection_repository.dart';
+import 'package:visualpt/features/video/service/video_detection_repository.dart';
 
 part 'video_event.dart';
 part 'video_state.dart';

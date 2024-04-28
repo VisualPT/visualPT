@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt_collector/features/backend/service/datastore_service.dart';
+import 'package:visualpt/features/backend/service/datastore_service.dart';
 
 import '../../../models/ModelProvider.dart';
 

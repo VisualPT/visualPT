@@ -1,15 +1,15 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt_collector/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt_collector/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
-import 'package:visualpt_collector/features/timer/bloc/timer_bloc.dart';
-import 'package:visualpt_collector/features/video/bloc/video_bloc.dart';
-import 'package:visualpt_collector/features/video/service/video_detection_repository.dart';
-import 'package:visualpt_collector/models/AssessmentType.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
+import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
+import 'package:visualpt/features/video/bloc/video_bloc.dart';
+import 'package:visualpt/features/video/service/video_detection_repository.dart';
+import 'package:visualpt/models/AssessmentType.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {

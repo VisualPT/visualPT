@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt_collector/features/assessment/service/form_helper.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
-import 'package:visualpt_collector/core/views/components/_components.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/service/form_helper.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/core/views/components/_components.dart';
 
 class PatientForm extends StatefulWidget {
   final User user;

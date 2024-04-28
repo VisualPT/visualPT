@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:visualpt_collector/features/backend/service/backend_repository.dart';
-import 'package:visualpt_collector/features/timer/bloc/timer_bloc.dart';
+import 'package:visualpt/features/backend/service/backend_repository.dart';
+import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 
 part 'backend_event.dart';
 part 'backend_state.dart';

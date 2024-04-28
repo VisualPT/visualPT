@@ -3,9 +3,9 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt_collector/core/utils/amplify_utils.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/features/assessment/config/gait/gait.dart';
+import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/assessment/config/gait/gait.dart';
 
 import '../_pdf.dart';
 

@@ -6,8 +6,8 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
-import 'package:visualpt_collector/amplifyconfiguration.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt/amplifyconfiguration.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class BackendService {
   ///Sets up the plugins for Amplify

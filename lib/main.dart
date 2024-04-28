@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/assessment/service/assessment_utils.dart';
-import 'package:visualpt_collector/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt_collector/features/auth/service/auth_repository.dart';
-import 'package:visualpt_collector/features/backend/bloc/backend_bloc.dart';
-import 'package:visualpt_collector/features/backend/service/backend_repository.dart';
-import 'package:visualpt_collector/features/inference/service/service_locator.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
-import 'package:visualpt_collector/features/validation/view/validation_view.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
+import 'package:visualpt/features/auth/service/auth_repository.dart';
+import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
+import 'package:visualpt/features/backend/service/backend_repository.dart';
+import 'package:visualpt/features/inference/service/service_locator.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/features/validation/view/validation_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

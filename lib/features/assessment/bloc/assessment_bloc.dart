@@ -3,8 +3,8 @@ import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
-import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 
 part 'assessment_event.dart';
 part 'assessment_state.dart';

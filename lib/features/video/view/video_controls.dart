@@ -1,17 +1,17 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt_collector/features/assessment/view/_assessments.dart';
-import 'package:visualpt_collector/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt_collector/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt_collector/features/inference/view/pose_classification_indicator.dart';
-import 'package:visualpt_collector/features/inference/view/pose_detection_indicator.dart';
-import 'package:visualpt_collector/features/timer/bloc/timer_bloc.dart';
-import 'package:visualpt_collector/features/video/bloc/video_bloc.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
-import 'package:visualpt_collector/models/Segment.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
+import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
+import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
+import 'package:visualpt/features/video/bloc/video_bloc.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/models/Segment.dart';
 
 class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   final VideoState state;

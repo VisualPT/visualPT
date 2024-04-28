@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt_collector/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt_collector/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt_collector/features/inference/view/inference_indicator.dart';
-import 'package:visualpt_collector/features/inference/view/inference_presenter.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/inference_indicator.dart';
+import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
 class PoseClassificationIndicator extends StatelessWidget {
   const PoseClassificationIndicator({super.key});

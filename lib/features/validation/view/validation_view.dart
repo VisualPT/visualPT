@@ -2,14 +2,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/inference/view/camera_painters/ctsib_overlays.dart';
-import 'package:visualpt_collector/features/validation/bloc/validation_bloc.dart';
-import 'package:visualpt_collector/features/validation/view/validation_presenter.dart';
-import 'package:visualpt_collector/core/views/_views.dart';
-import 'package:visualpt_collector/core/views/app_nav.dart';
-import 'package:visualpt_collector/features/inference/view/camera_painters/pose_overlay.dart';
-import 'package:visualpt_collector/core/views/components/_components.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
+import 'package:visualpt/features/validation/bloc/validation_bloc.dart';
+import 'package:visualpt/features/validation/view/validation_presenter.dart';
+import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/core/views/app_nav.dart';
+import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
+import 'package:visualpt/core/views/components/_components.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 //Get all the images and data from the 'raw/' storage folder
 // * fetch

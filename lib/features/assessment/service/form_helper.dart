@@ -1,6 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt_collector/models/Gender.dart';
-import 'package:visualpt_collector/models/Patient.dart';
+import 'package:visualpt/models/Gender.dart';
+import 'package:visualpt/models/Patient.dart';
 
 class FormHelper {
   static Patient createPatient(String firstName, String lastName,

@@ -3,14 +3,14 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
-import 'package:visualpt_collector/core/services/repository.dart';
-import 'package:visualpt_collector/core/utils/image_utils.dart';
-import 'package:visualpt_collector/core/utils/isolate_utils.dart';
-import 'package:visualpt_collector/features/assessment/service/assessment_utils.dart';
-import 'package:visualpt_collector/features/backend/service/storage_service.dart';
-import 'package:visualpt_collector/features/inference/service/model_inference_service.dart';
-import 'package:visualpt_collector/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt/core/services/repository.dart';
+import 'package:visualpt/core/utils/image_utils.dart';
+import 'package:visualpt/core/utils/isolate_utils.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/features/backend/service/storage_service.dart';
+import 'package:visualpt/features/inference/service/model_inference_service.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class VideoDetectionRepository
     extends Repository<CameraImage, PoseDetectionOutput> {

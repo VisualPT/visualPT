@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt_collector/features/validation/bloc/validation_bloc.dart';
-import 'package:visualpt_collector/models/ModelProvider.dart';
+import 'package:visualpt/features/validation/bloc/validation_bloc.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 /// Provided by ValidationBloc
 class ValidationPresenter extends StatelessWidget {
