@@ -3,6 +3,7 @@ import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 
@@ -47,8 +48,17 @@ class AssessmentBloc<T extends BaseAssessment>
         type: assessmentParams.type,
         datetime: TemporalDateTime(DateTime.now()),
         segments: segments);
+    final meta = ClinicalMeta(
+        patient.dob.toString(),
+        patient.gender,
+        patient.fall_history,
+        assessmentParams.type,
+        assessmentParams.seqObtrusion[conditionIndex],
+        assessmentParams.seqInstability[conditionIndex],
+        conditionIndex,
+        1);
     emit(AssessmentActive<T>(
-        patient, storeData, conditionIndex, this.assessmentParams));
+        meta, patient, storeData, conditionIndex, this.assessmentParams));
   }
 
   FutureOr<void> _onIncrement(
@@ -68,8 +78,17 @@ class AssessmentBloc<T extends BaseAssessment>
       emit(AssessmentAnalysis<T>(
           patient, storeData, dbAssessment, assessmentParams));
     } else {
+      final meta = ClinicalMeta(
+          patient.dob.toString(),
+          patient.gender,
+          patient.fall_history,
+          assessmentParams.type,
+          assessmentParams.seqObtrusion[conditionIndex],
+          assessmentParams.seqInstability[conditionIndex],
+          conditionIndex,
+          1);
       emit(AssessmentActive<T>(
-          patient, storeData, conditionIndex, assessmentParams));
+          meta, patient, storeData, conditionIndex, assessmentParams));
     }
   }
 
@@ -85,6 +104,6 @@ class AssessmentBloc<T extends BaseAssessment>
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    debugPrint('AssessmentBloc: $error');
+    debugPrint('AssessmentBloc: $stackTrace, $error');
   }
 }

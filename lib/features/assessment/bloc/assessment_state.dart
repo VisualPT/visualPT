@@ -13,11 +13,12 @@ class AssessmentForm<T> extends AssessmentState<T> {
 }
 
 class AssessmentActive<T> extends AssessmentState<T> {
+  final ClinicalMeta meta;
   final Patient patient;
   final bool storeData;
   final int index;
   const AssessmentActive(
-      this.patient, this.storeData, this.index, super.assessment);
+      this.meta, this.patient, this.storeData, this.index, super.assessment);
 
   @override
   List<Object?> get props => [assessment, index, storeData];

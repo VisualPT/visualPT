@@ -61,7 +61,6 @@ class GaitNorms {
 class GAITData {
   final num imageHeight;
   final num imageWidth;
-  final num ratio;
   //final int classIndex;
   //final int conditionNumber;
   final int trialNumber;
@@ -70,7 +69,6 @@ class GAITData {
   const GAITData(
     this.imageHeight,
     this.imageWidth,
-    this.ratio,
     //this.classIndex,
     //this.conditionNumber,
     this.trialNumber,
@@ -81,7 +79,6 @@ class GAITData {
     final metadata = [
       imageHeight,
       imageWidth,
-      ratio,
       //classIndex,
       //conditionNumber,
       trialNumber

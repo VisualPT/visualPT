@@ -1,3 +1,9 @@
+enum FallHistory {
+  NONE
+  FEW
+  RECURRENT
+}
+
 type Segment {
   duration_seconds: Int!
   file: String!
@@ -46,6 +52,7 @@ type Patient @model @auth(rules: [{allow: owner}]) {
   height_in_inches: Float!
   Assessments: [Assessment] @hasMany(indexName: "byPatient", fields: ["id"])
   provider_contact: AWSEmail!
+  fall_history: FallHistory!
 }
 
 type Assessment @model @auth(rules: [{allow: owner}]) {
@@ -66,5 +73,6 @@ enum Gender {
 enum AssessmentType {
   CTSIB
   GAIT
+  BERG
 }
  

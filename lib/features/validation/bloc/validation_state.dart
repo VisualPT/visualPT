@@ -23,7 +23,6 @@ class ValidationDisplay extends ValidationState {
   final List<int> imageBytes;
   final int imageHeight;
   final int imageWidth;
-  final double ratio;
   final bool classification;
   final List<Offset> offsets;
   const ValidationDisplay(super.keys,
@@ -32,7 +31,6 @@ class ValidationDisplay extends ValidationState {
       required this.imageBytes,
       required this.imageHeight,
       required this.imageWidth,
-      required this.ratio,
       required this.classification,
       required this.offsets});
 

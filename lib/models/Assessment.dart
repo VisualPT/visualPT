@@ -20,24 +20,22 @@
 // ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
 import 'ModelProvider.dart';
-import 'package:amplify_core/amplify_core.dart';
+import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 
 
 /** This is an auto generated class representing the Assessment type in your schema. */
-@immutable
-class Assessment extends Model {
+class Assessment extends amplify_core.Model {
   static const classType = const _AssessmentModelType();
   final String id;
   final String? _patientID;
   final AssessmentType? _type;
-  final TemporalDateTime? _datetime;
+  final amplify_core.TemporalDateTime? _datetime;
   final int? _duration;
   final String? _pdf;
   final List<Segment>? _segments;
-  final TemporalDateTime? _createdAt;
-  final TemporalDateTime? _updatedAt;
+  final amplify_core.TemporalDateTime? _createdAt;
+  final amplify_core.TemporalDateTime? _updatedAt;
 
   @override
   getInstanceType() => classType;
@@ -56,10 +54,10 @@ class Assessment extends Model {
     try {
       return _patientID!;
     } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
           recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
           underlyingException: e.toString()
           );
     }
@@ -69,23 +67,23 @@ class Assessment extends Model {
     try {
       return _type!;
     } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
           recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
           underlyingException: e.toString()
           );
     }
   }
   
-  TemporalDateTime get datetime {
+  amplify_core.TemporalDateTime get datetime {
     try {
       return _datetime!;
     } catch(e) {
-      throw new AmplifyCodeGenModelException(
-          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
           recoverySuggestion:
-            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
           underlyingException: e.toString()
           );
     }
@@ -103,19 +101,19 @@ class Assessment extends Model {
     return _segments;
   }
   
-  TemporalDateTime? get createdAt {
+  amplify_core.TemporalDateTime? get createdAt {
     return _createdAt;
   }
   
-  TemporalDateTime? get updatedAt {
+  amplify_core.TemporalDateTime? get updatedAt {
     return _updatedAt;
   }
   
   const Assessment._internal({required this.id, required patientID, required type, required datetime, duration, pdf, segments, createdAt, updatedAt}): _patientID = patientID, _type = type, _datetime = datetime, _duration = duration, _pdf = pdf, _segments = segments, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String patientID, required AssessmentType type, required TemporalDateTime datetime, int? duration, String? pdf, List<Segment>? segments}) {
+  factory Assessment({String? id, required String patientID, required AssessmentType type, required amplify_core.TemporalDateTime datetime, int? duration, String? pdf, List<Segment>? segments}) {
     return Assessment._internal(
-      id: id == null ? UUID.getUUID() : id,
+      id: id == null ? amplify_core.UUID.getUUID() : id,
       patientID: patientID,
       type: type,
       datetime: datetime,
@@ -151,7 +149,7 @@ class Assessment extends Model {
     buffer.write("Assessment {");
     buffer.write("id=" + "$id" + ", ");
     buffer.write("patientID=" + "$_patientID" + ", ");
-    buffer.write("type=" + (_type != null ? enumToString(_type)! : "null") + ", ");
+    buffer.write("type=" + (_type != null ? amplify_core.enumToString(_type)! : "null") + ", ");
     buffer.write("datetime=" + (_datetime != null ? _datetime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("pdf=" + "$_pdf" + ", ");
@@ -163,7 +161,7 @@ class Assessment extends Model {
     return buffer.toString();
   }
   
-  Assessment copyWith({String? patientID, AssessmentType? type, TemporalDateTime? datetime, int? duration, String? pdf, List<Segment>? segments}) {
+  Assessment copyWith({String? patientID, AssessmentType? type, amplify_core.TemporalDateTime? datetime, int? duration, String? pdf, List<Segment>? segments}) {
     return Assessment._internal(
       id: id,
       patientID: patientID ?? this.patientID,
@@ -174,11 +172,30 @@ class Assessment extends Model {
       segments: segments ?? this.segments);
   }
   
+  Assessment copyWithModelFieldValues({
+    ModelFieldValue<String>? patientID,
+    ModelFieldValue<AssessmentType>? type,
+    ModelFieldValue<amplify_core.TemporalDateTime>? datetime,
+    ModelFieldValue<int?>? duration,
+    ModelFieldValue<String?>? pdf,
+    ModelFieldValue<List<Segment>?>? segments
+  }) {
+    return Assessment._internal(
+      id: id,
+      patientID: patientID == null ? this.patientID : patientID.value,
+      type: type == null ? this.type : type.value,
+      datetime: datetime == null ? this.datetime : datetime.value,
+      duration: duration == null ? this.duration : duration.value,
+      pdf: pdf == null ? this.pdf : pdf.value,
+      segments: segments == null ? this.segments : segments.value
+    );
+  }
+  
   Assessment.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
       _patientID = json['patientID'],
-      _type = enumFromString<AssessmentType>(json['type'], AssessmentType.values),
-      _datetime = json['datetime'] != null ? TemporalDateTime.fromString(json['datetime']) : null,
+      _type = amplify_core.enumFromString<AssessmentType>(json['type'], AssessmentType.values),
+      _datetime = json['datetime'] != null ? amplify_core.TemporalDateTime.fromString(json['datetime']) : null,
       _duration = (json['duration'] as num?)?.toInt(),
       _pdf = json['pdf'],
       _segments = json['segments'] is List
@@ -187,103 +204,111 @@ class Assessment extends Model {
           .map((e) => Segment.fromJson(new Map<String, dynamic>.from(e['serializedData'])))
           .toList()
         : null,
-      _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
-      _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
+      _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
+      _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'patientID': _patientID, 'type': enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'segments': _segments?.map((Segment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'patientID': _patientID, 'type': amplify_core.enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'segments': _segments?.map((Segment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
-    'id': id, 'patientID': _patientID, 'type': _type, 'datetime': _datetime, 'duration': _duration, 'pdf': _pdf, 'segments': _segments, 'createdAt': _createdAt, 'updatedAt': _updatedAt
+    'id': id,
+    'patientID': _patientID,
+    'type': _type,
+    'datetime': _datetime,
+    'duration': _duration,
+    'pdf': _pdf,
+    'segments': _segments,
+    'createdAt': _createdAt,
+    'updatedAt': _updatedAt
   };
 
-  static final QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = QueryModelIdentifier<AssessmentModelIdentifier>();
-  static final QueryField ID = QueryField(fieldName: "id");
-  static final QueryField PATIENTID = QueryField(fieldName: "patientID");
-  static final QueryField TYPE = QueryField(fieldName: "type");
-  static final QueryField DATETIME = QueryField(fieldName: "datetime");
-  static final QueryField DURATION = QueryField(fieldName: "duration");
-  static final QueryField PDF = QueryField(fieldName: "pdf");
-  static final QueryField SEGMENTS = QueryField(fieldName: "segments");
-  static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
+  static final amplify_core.QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<AssessmentModelIdentifier>();
+  static final ID = amplify_core.QueryField(fieldName: "id");
+  static final PATIENTID = amplify_core.QueryField(fieldName: "patientID");
+  static final TYPE = amplify_core.QueryField(fieldName: "type");
+  static final DATETIME = amplify_core.QueryField(fieldName: "datetime");
+  static final DURATION = amplify_core.QueryField(fieldName: "duration");
+  static final PDF = amplify_core.QueryField(fieldName: "pdf");
+  static final SEGMENTS = amplify_core.QueryField(fieldName: "segments");
+  static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Assessment";
     modelSchemaDefinition.pluralName = "Assessments";
     
     modelSchemaDefinition.authRules = [
-      AuthRule(
-        authStrategy: AuthStrategy.OWNER,
+      amplify_core.AuthRule(
+        authStrategy: amplify_core.AuthStrategy.OWNER,
         ownerField: "owner",
         identityClaim: "cognito:username",
-        provider: AuthRuleProvider.USERPOOLS,
-        operations: [
-          ModelOperation.CREATE,
-          ModelOperation.UPDATE,
-          ModelOperation.DELETE,
-          ModelOperation.READ
+        provider: amplify_core.AuthRuleProvider.USERPOOLS,
+        operations: const [
+          amplify_core.ModelOperation.CREATE,
+          amplify_core.ModelOperation.UPDATE,
+          amplify_core.ModelOperation.DELETE,
+          amplify_core.ModelOperation.READ
         ])
     ];
     
     modelSchemaDefinition.indexes = [
-      ModelIndex(fields: const ["patientID"], name: "byPatient")
+      amplify_core.ModelIndex(fields: const ["patientID"], name: "byPatient")
     ];
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.id());
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.id());
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.PATIENTID,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.TYPE,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.enumeration)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.DATETIME,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.dateTime)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.DURATION,
       isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.int)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.int)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.PDF,
       isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.embedded(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.embedded(
       fieldName: 'segments',
       isRequired: false,
       isArray: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.embeddedCollection, ofCustomTypeName: 'Segment')
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.embeddedCollection, ofCustomTypeName: 'Segment')
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
       fieldName: 'createdAt',
       isRequired: false,
       isReadOnly: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.dateTime)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
       fieldName: 'updatedAt',
       isRequired: false,
       isReadOnly: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.dateTime)
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });
 }
 
-class _AssessmentModelType extends ModelType<Assessment> {
+class _AssessmentModelType extends amplify_core.ModelType<Assessment> {
   const _AssessmentModelType();
   
   @override
@@ -301,8 +326,7 @@ class _AssessmentModelType extends ModelType<Assessment> {
  * This is an auto generated class representing the model identifier
  * of [Assessment] in your schema.
  */
-@immutable
-class AssessmentModelIdentifier implements ModelIdentifier<Assessment> {
+class AssessmentModelIdentifier implements amplify_core.ModelIdentifier<Assessment> {
   final String id;
 
   /** Create an instance of AssessmentModelIdentifier using [id] the primary key. */

@@ -26,8 +26,8 @@ bool validateInequalities(
 }
 
 class PoseBbox extends StatelessWidget {
-  final List<Offset>? points;
-  const PoseBbox({this.points, super.key});
+  final List<Offset>? rawPoints;
+  const PoseBbox(this.rawPoints, {super.key});
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -51,6 +51,8 @@ class PoseBbox extends StatelessWidget {
         bMaxX = bMinX + bboxWidth;
       }
       // Calculate the bounding box
+      final points = rawPoints?.map(
+          (p) => Offset(p.dx * (size.width / 255), p.dy * (size.height / 255)));
       double? minX = points?.map((e) => e.dx).reduce(min);
       double? maxX = points?.map((e) => e.dx).reduce(max);
       double? minY = points?.map((e) => e.dy).reduce(min);
@@ -164,7 +166,8 @@ LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
       largestY = double.negativeInfinity;
   int n = points.length;
 
-  for (var point in points) {
+  for (var p in points) {
+    final point = p.scale(size.width / 255, size.height / 255);
     sumX += point.dx;
     sumY += point.dy;
     sumY2 += point.dy * point.dy;
@@ -181,25 +184,22 @@ LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
   // m = (N Σ(xy) - Σx Σy) / (N Σ(x^2) - (Σx)^2)
   // b = Σy - m * Σx / N
   double slope = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
-  double yIntercept = (sumX - slope * sumY) / n;
+  double xIntercept = (sumX - slope * sumY) / n;
 
-  Offset top = Offset(smallestY * slope + yIntercept, smallestY);
-  Offset bottom = Offset(largestY * slope + yIntercept, largestY);
+  Offset top = Offset(smallestY * slope + xIntercept, smallestY);
+  Offset bottom = Offset(largestY * slope + xIntercept, largestY);
   double degrees = atan(slope) * 180 / pi;
   return LineOfBestFit(top, bottom, degrees);
 }
 
 class PoseSway extends StatelessWidget {
-  final List<Offset> points;
-  const PoseSway({required this.points, super.key});
+  final List<Offset>? points;
+  const PoseSway({this.points, super.key});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        color: Colors.red.withAlpha(50),
-        child: CustomPaint(painter: PoseSwayPainter(points)),
-      );
+      return CustomPaint(painter: PoseSwayPainter(points));
     });
   }
 }
@@ -210,21 +210,27 @@ class PoseSwayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final offsets = points != null ? computeLineOfBestFit(points!, size) : null;
+    final offsets = points != null
+        ? computeLineOfBestFit(points!.sublist(0, 34), size)
+        : null;
     final color = offsets != null
         ? offsets.degrees.abs() < MAX_SWAY_ANGLE
             ? Colors.green
             : Colors.yellow
         : Colors.red; // Change this to the desired color
-    final Paint paint = Paint()
-      ..color = color.withAlpha(230) // Change this to the desired color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
 
     if (offsets != null) {
-      canvas.drawLine(offsets.low, offsets.high, paint);
-      //TODO: STORE THE DEGREES OF THE IMAGE WITH THE IMAGE
-      print(offsets.degrees);
+      //Put the degree text on the canvas
+      final text = TextSpan(
+          text: "${offsets.degrees.toStringAsFixed(2)}°",
+          style: TextStyle(color: color, fontSize: 30));
+      final textPainter = TextPainter(
+          text: text,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.center)
+        ..layout(minWidth: 0, maxWidth: size.width);
+      // Position the text at the top right of the canvas
+      textPainter.paint(canvas, Offset(size.width - textPainter.width, 0));
     }
   }
 

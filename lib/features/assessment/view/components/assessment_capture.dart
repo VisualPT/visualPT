@@ -16,7 +16,7 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
             "${state.assessment.type.name} - ${state.assessment.seqNames[state.index]}",
         instructions: AssessmentInstructions(state),
         child: CaptureView<T>(
-          state.assessment.type,
+          state.meta,
           state.index,
           state.storeData,
         ));

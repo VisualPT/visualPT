@@ -10,21 +10,25 @@ class PoseOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: PosePainter(
-        points: points ?? [],
+        rawPoints: points ?? [],
       ),
     );
   }
 }
 
 class PosePainter extends CustomPainter {
-  final List<Offset> points;
+  final List<Offset> rawPoints;
 
   PosePainter({
-    required this.points,
+    required this.rawPoints,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final points = rawPoints
+        .map((p) =>
+            Offset(p.dx * (size.width / 255), p.dy * (size.height / 255)))
+        .toList();
     if (points.isNotEmpty) {
       var pointPaint = Paint()
         ..color = CupertinoColors.systemBlue

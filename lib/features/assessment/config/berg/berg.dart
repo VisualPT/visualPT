@@ -22,6 +22,8 @@ class BERG extends BaseAssessment {
             "Lighting must be sufficient to clearly see the patient",
           ]),
           seqInference: List.filled(6, [InferenceType.poseDetection]),
+          seqInstability: [false, false, false, false, false, false],
+          seqObtrusion: [false, false, false, false, false, false],
           formFields: {},
           isTrainingData: true,
         );
@@ -30,7 +32,6 @@ class BERG extends BaseAssessment {
 class BERGData {
   final num imageHeight;
   final num imageWidth;
-  final num ratio;
   final int classIndex;
   final int conditionNumber;
   final int trialNumber;
@@ -38,7 +39,6 @@ class BERGData {
   const BERGData(
     this.imageHeight,
     this.imageWidth,
-    this.ratio,
     this.classIndex,
     this.conditionNumber,
     this.trialNumber,
@@ -50,7 +50,6 @@ class BERGData {
     final metadata = [
       imageHeight,
       imageWidth,
-      ratio,
       classIndex,
       conditionNumber,
       trialNumber

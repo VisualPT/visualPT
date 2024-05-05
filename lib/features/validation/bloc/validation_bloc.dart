@@ -7,7 +7,7 @@ import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
-import 'package:visualpt/features/validation/validation_utils.dart';
+import 'package:visualpt/features/video/types.dart';
 
 part 'validation_event.dart';
 part 'validation_state.dart';
@@ -75,7 +75,6 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     String imageID, dataID;
     //Get the image and data from the 'raw/' storage folder using the keys from the list
     //Get the id of the first item in the list
-    log("ONTO THE NEXT ONE");
     try {
       if (event.keys.isNotEmpty) {
         final temp = event.keys.removeAt(0);
@@ -106,28 +105,18 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         final imageResult = await _storage.download(key: imageID).result;
         final dataResult = await _storage.download(key: dataID).result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
-        final imageMetadata = dataOutput.split('\n').first.split(',');
+        final detection = VPTDetection.fromCSV(dataOutput);
 
-        final imageHeight = int.parse(imageMetadata.elementAt(0));
-        final imageWidth = int.parse(imageMetadata.elementAt(1));
-        final ratio = double.parse(imageMetadata.elementAt(2));
-        final classification =
-            int.parse(imageMetadata.elementAt(3)) == 1 ? true : false;
-        final detection = dataOutput.substring(dataOutput.indexOf('\n'));
-
-        final offsets = parsePoseOffsets(
-            detection, imageHeight.toDouble(), imageWidth.toDouble());
-
+        final classification = detection.inferredClassification == "1";
         emit(ValidationDisplay(
           event.keys,
           key: searchKey,
           dataBytes: dataResult.bytes,
           imageBytes: imageResult.bytes,
-          imageHeight: imageHeight,
-          imageWidth: imageWidth,
-          ratio: ratio,
+          imageHeight: detection.imageHeight,
+          imageWidth: detection.imageWidth,
           classification: classification,
-          offsets: offsets,
+          offsets: detection.output.landmarks,
         ));
       } else {
         add(const ValidationEnd());
@@ -146,11 +135,15 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     _processedInputs.add(event.input > -1 ? 1 : 0);
     //Store the validated data
     if (event.input > -1) {
-      final oldData = String.fromCharCodes(event.dataBytes);
-      final index = oldData.lastIndexOf(',', oldData.indexOf('\n') - 1);
-      final newData =
-          oldData.replaceRange(index + 1, index + 2, "${event.input}");
-      final encodedData = utf8.encode(newData);
+      final dataOutput = String.fromCharCodes(event.dataBytes);
+      final detection = VPTDetection.fromCSV(dataOutput);
+      final newDetection = detection
+          .copyWith(
+            inferredClassification: event.input.toString(),
+          )
+          .toCSV();
+
+      final encodedData = utf8.encode(newDetection);
 
       _storage.remove(
           '$type/raw/${event.key}.csv', amplify.StorageAccessLevel.guest);

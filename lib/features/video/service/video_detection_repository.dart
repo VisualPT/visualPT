@@ -1,16 +1,19 @@
+import 'dart:async';
+
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/video/types.dart';
 
 class VideoDetectionRepository
     extends Repository<CameraImage, PoseDetectionOutput> {
@@ -18,12 +21,27 @@ class VideoDetectionRepository
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final AssessmentType? path;
+  final accelStream = userAccelerometerEventStream();
+  final gyroStream = gyroscopeEventStream();
+  StreamSubscription<GyroscopeEvent>? _gyroSubscription;
+  StreamSubscription<UserAccelerometerEvent>? _accelSubscription;
+  GyroscopeEvent _currentGyro = GyroscopeEvent(0, 0, 0);
+  UserAccelerometerEvent _currentAccel = UserAccelerometerEvent(0, 0, 0);
   final String userID;
-  VideoDetectionRepository(this.path, this.userID);
+  final ClinicalMeta clinicalMeta;
+  VideoDetectionRepository(this.clinicalMeta, this.userID)
+      : super(clinicalMeta) {
+    _gyroSubscription = gyroStream.listen((gyroData) {
+      _currentGyro = gyroData;
+    });
+
+    _accelSubscription = accelStream.listen((accelData) {
+      _currentAccel = accelData;
+    });
+  }
 
   @override
-  Future<void> initialize(int address) async {
+  Future<void> initialize() async {
     await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
     await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
     _poseDetectionService.setModelConfig(3);
@@ -52,34 +70,39 @@ class VideoDetectionRepository
     if (!isInitialized) {
       throw Exception("store: Detection Inference Service not initialized");
     }
-    if (path == null) throw Exception("Path not set");
     StorageService storageService = StorageService();
 
     final png = await ImageUtils.convert(
       isolateUtils: _convertIsolateUtils,
       image: input,
     );
-
-    final data = AssessmentUtils.createPayload(
-      path,
-      input,
-      output,
-      params,
-    );
+    final data = VPTDetection(
+            1,
+            input.height,
+            input.width,
+            clinicalMeta,
+            DeviceMeta(_currentAccel.x, _currentAccel.y, _currentAccel.z,
+                _currentGyro.x, _currentGyro.y, _currentGyro.z),
+            "-1", //detectionMeta.estimate,
+            output)
+        .toCSV();
 
     final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
     final dataPayload = S3DataPayload.string(data);
 
 //TODO: Put a user tag instead of a random number
     final id = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
-    final key = "${path?.name}/raw/$id";
+    final key = "${meta.assessment.name}/raw/$id";
     storageService.upload(imagePayload, '$key.png', StorageAccessLevel.guest);
     storageService.upload(dataPayload, '$key.csv', StorageAccessLevel.guest);
   }
 
   @override
   void dispose() {
+    _detectionIsolateUtils.dispose();
     _convertIsolateUtils.dispose();
+    _gyroSubscription?.cancel();
+    _accelSubscription?.cancel();
   }
 }
 

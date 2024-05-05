@@ -27,8 +27,8 @@ class PoseDetectionOverlay extends StatelessWidget {
       alignment: Alignment.topLeft,
       fit: StackFit.expand,
       children: [
-        PoseBbox(points: response?.landmarks.sublist(0, 34)),
-        response != null ? PoseSway(points: response.landmarks) : Container(),
+        PoseBbox(response?.landmarks),
+        PoseSway(points: response?.landmarks),
         response != null
             ? response.heightThreshold
                 ? PoseOverlay(points: response.landmarks)
@@ -43,7 +43,7 @@ class PoseDetectionOverlay extends StatelessWidget {
     return const Stack(
       fit: StackFit.expand,
       children: [
-        PoseBbox(),
+        PoseBbox(null),
       ],
     );
   }
