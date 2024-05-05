@@ -75,7 +75,8 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
       return null;
     }
 
-    //TODO: there are 33 landmarks, why is there 39 defined here?
+    // Data Shape Defined by: https://storage.googleapis.com/mediapipe-assets/Model%20Card%20BlazePose%20GHUM%203D.pdf
+    // Further detail here: https://github.com/google/mediapipe/issues/4752
     final landmarkPoints = outputLandmarks
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
