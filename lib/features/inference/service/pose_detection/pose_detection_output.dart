@@ -8,7 +8,7 @@ class PoseDetectionOutput extends AiModelOutput {
 
     double min = height.roundToDouble(), max = 0;
 
-    for (var point in output.sublist(0, 34)) {
+    for (var point in output) {
       final double dx = point[0];
       final double dy = point[1];
       if (dy < min) {
