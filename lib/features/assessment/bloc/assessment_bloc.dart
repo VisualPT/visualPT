@@ -69,15 +69,6 @@ class AssessmentBloc<T extends BaseAssessment>
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
-    final meta = ClinicalMeta(
-        patient.dob.toString(),
-        patient.gender,
-        patient.fall_history,
-        assessmentParams.type,
-        assessmentParams.seqObtrusion[conditionIndex],
-        assessmentParams.seqInstability[conditionIndex],
-        conditionIndex,
-        1);
     if (conditionIndex == assessmentParams.sequences) {
       final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
@@ -87,6 +78,15 @@ class AssessmentBloc<T extends BaseAssessment>
       emit(AssessmentAnalysis<T>(
           patient, storeData, dbAssessment, assessmentParams));
     } else {
+      final meta = ClinicalMeta(
+          patient.dob.toString(),
+          patient.gender,
+          patient.fall_history,
+          assessmentParams.type,
+          assessmentParams.seqObtrusion[conditionIndex],
+          assessmentParams.seqInstability[conditionIndex],
+          conditionIndex,
+          1);
       emit(AssessmentActive<T>(
           meta, patient, storeData, conditionIndex, assessmentParams));
     }
@@ -104,6 +104,6 @@ class AssessmentBloc<T extends BaseAssessment>
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    debugPrint('AssessmentBloc: $error');
+    debugPrint('AssessmentBloc: $stackTrace, $error');
   }
 }
