@@ -25,7 +25,7 @@ class InferenceBloc<I, O extends AiModelOutput>
   final Repository<I, O> inferenceRepository;
   final Repository<O, dynamic>? outputRepository;
 
-  static const sampleRateFrames = 15;
+  static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
   late int storageBacklog;
@@ -47,7 +47,7 @@ class InferenceBloc<I, O extends AiModelOutput>
         add(InferenceInput(input: data, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, const {"ratio": 1}));
+    emit(InferenceRunning<I, O>(null, const {"height": 0, "width": 0}));
   }
 
   FutureOr<void> _onInput(

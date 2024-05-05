@@ -82,9 +82,8 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
 
     final width = (params?['width'] as double).toInt();
     final height = (params?['height'] as double).toInt();
-    final ratio = params?['ratio'] as double;
 
-    return PoseDetectionOutput(landmarkPoints, inputSize, width, height, ratio);
+    return PoseDetectionOutput(landmarkPoints, inputSize, width, height);
   }
 }
 

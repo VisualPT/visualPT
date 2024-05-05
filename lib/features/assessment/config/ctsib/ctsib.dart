@@ -43,7 +43,6 @@ class CTSIBData {
   //Image Data
   final num imageHeight;
   final num imageWidth;
-  final num ratio;
   //Inference Data
   final int classIndex;
   final int conditionNumber;
@@ -52,7 +51,6 @@ class CTSIBData {
   const CTSIBData(
     this.imageHeight,
     this.imageWidth,
-    this.ratio,
     this.classIndex,
     this.conditionNumber,
     this.trialNumber,
@@ -64,7 +62,6 @@ class CTSIBData {
     final metadata = [
       imageHeight,
       imageWidth,
-      ratio,
       classIndex,
       conditionNumber,
       trialNumber

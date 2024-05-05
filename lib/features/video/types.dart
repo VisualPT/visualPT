@@ -28,7 +28,6 @@ class VPTDetection {
   //Image Meta
   final int imageHeight;
   final int imageWidth;
-  final double ratioOfImageToScreen;
   //Clinical Meta
   final ClinicalMeta clinicalMeta;
   //Detection Meta
@@ -41,7 +40,6 @@ class VPTDetection {
     this.version,
     this.imageHeight,
     this.imageWidth,
-    this.ratioOfImageToScreen,
     this.clinicalMeta,
     this.deviceMeta,
     this.inferredClassification,
@@ -59,7 +57,7 @@ class VPTDetection {
   // ==================
   String toCSV() {
     return "$version\n"
-        "$imageHeight,$imageWidth,$ratioOfImageToScreen\n"
+        "$imageHeight,$imageWidth\n"
         "${clinicalMeta.csv()}\n"
         "${deviceMeta.csv()},$inferredClassification\n"
         "${output.output.map((keypoint) => keypoint.join(",")).join("\n")}";
@@ -73,18 +71,17 @@ class VPTDetection {
     final deviceMeta = lines.removeAt(0).split(",");
     final inferredClassification = deviceMeta.removeLast();
     final output = PoseDetectionOutput(
-        lines
-            .map((line) => line.split(",").map((e) => double.parse(e)).toList())
-            .toList(),
-        256,
-        int.parse(imageMeta[0]),
-        int.parse(imageMeta[1]),
-        double.parse(imageMeta[2]));
+      lines
+          .map((line) => line.split(",").map((e) => double.parse(e)).toList())
+          .toList(),
+      256,
+      int.parse(imageMeta[0]),
+      int.parse(imageMeta[1]),
+    );
     return VPTDetection(
       version,
       int.parse(imageMeta[0]),
       int.parse(imageMeta[1]),
-      double.parse(imageMeta[2]),
       clinicalMeta,
       DeviceMeta(
         double.parse(deviceMeta[0]),
@@ -104,7 +101,6 @@ class VPTDetection {
       version,
       imageHeight,
       imageWidth,
-      ratioOfImageToScreen,
       clinicalMeta,
       deviceMeta,
       inferredClassification,

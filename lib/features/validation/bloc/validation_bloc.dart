@@ -115,7 +115,6 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           imageBytes: imageResult.bytes,
           imageHeight: detection.imageHeight,
           imageWidth: detection.imageWidth,
-          ratio: detection.ratioOfImageToScreen,
           classification: classification,
           offsets: detection.output.landmarks,
         ));

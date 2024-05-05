@@ -80,7 +80,6 @@ class VideoDetectionRepository
             1,
             input.height,
             input.width,
-            params!["ratio"],
             clinicalMeta,
             DeviceMeta(_currentAccel.x, _currentAccel.y, _currentAccel.z,
                 _currentGyro.x, _currentGyro.y, _currentGyro.z),

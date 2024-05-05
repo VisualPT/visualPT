@@ -65,8 +65,12 @@ class ValidationView extends StatelessWidget {
               width: MediaQuery.of(context).size.width),
           ConstrainedBox(
               constraints: BoxConstraints.tightFor(
-                  height: state.imageHeight.toDouble() * state.ratio,
-                  width: state.imageWidth.toDouble() * state.ratio),
+                  height: state.imageHeight.toDouble() *
+                      (MediaQuery.of(context).size.width /
+                          state.imageWidth.toDouble()),
+                  width: state.imageWidth.toDouble() *
+                      MediaQuery.of(context).size.width /
+                      state.imageWidth.toDouble()),
               child: Stack(
                 alignment: Alignment.center,
                 fit: StackFit.expand,
@@ -78,17 +82,9 @@ class ValidationView extends StatelessWidget {
                     fit: BoxFit
                         .fitWidth, // This ensures that the image covers the entire space defined by height and width
                   ),
-                  PoseBbox(
-                      points: state.offsets
-                          .map((o) => o * state.ratio)
-                          .toList()
-                          .sublist(0, 34)),
-                  PoseSway(
-                      points:
-                          state.offsets.map((o) => o * state.ratio).toList()),
-                  PoseOverlay(
-                      points:
-                          state.offsets.map((o) => o * state.ratio).toList()),
+                  PoseBbox(state.offsets),
+                  PoseSway(points: state.offsets),
+                  PoseOverlay(points: state.offsets),
                 ],
               )),
           Positioned(
