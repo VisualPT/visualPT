@@ -223,8 +223,6 @@ class PoseSwayPainter extends CustomPainter {
 
     if (offsets != null) {
       canvas.drawLine(offsets.low, offsets.high, paint);
-      //TODO: STORE THE DEGREES OF THE IMAGE WITH THE IMAGE
-      print(offsets.degrees);
     }
   }
 

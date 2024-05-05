@@ -113,9 +113,9 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
           key: searchKey,
           dataBytes: dataResult.bytes,
           imageBytes: imageResult.bytes,
-          imageHeight: detection.imageHeight as int,
-          imageWidth: detection.imageWidth as int,
-          ratio: detection.ratioOfImageToScreen as double,
+          imageHeight: detection.imageHeight,
+          imageWidth: detection.imageWidth,
+          ratio: detection.ratioOfImageToScreen,
           classification: classification,
           offsets: detection.output.landmarks,
         ));
@@ -136,11 +136,15 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     _processedInputs.add(event.input > -1 ? 1 : 0);
     //Store the validated data
     if (event.input > -1) {
-      final oldData = String.fromCharCodes(event.dataBytes);
-      final index = oldData.lastIndexOf(',', oldData.indexOf('\n') - 1);
-      final newData =
-          oldData.replaceRange(index + 1, index + 2, "${event.input}");
-      final encodedData = utf8.encode(newData);
+      final dataOutput = String.fromCharCodes(event.dataBytes);
+      final detection = VPTDetection.fromCSV(dataOutput);
+      final newDetection = detection
+          .copyWith(
+            inferredClassification: event.input.toString(),
+          )
+          .toCSV();
+
+      final encodedData = utf8.encode(newDetection);
 
       _storage.remove(
           '$type/raw/${event.key}.csv', amplify.StorageAccessLevel.guest);

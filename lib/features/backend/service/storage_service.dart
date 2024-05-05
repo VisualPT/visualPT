@@ -4,10 +4,14 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 class StorageService {
   StorageService();
   void upload(HttpPayload data, String key, StorageAccessLevel accessLevel) {
-    Amplify.Storage.uploadData(
-        data: data,
-        key: key,
-        options: StorageUploadDataOptions(accessLevel: accessLevel));
+    try {
+      Amplify.Storage.uploadData(
+          data: data,
+          key: key,
+          options: StorageUploadDataOptions(accessLevel: accessLevel));
+    } catch (e) {
+      print('Error uploading file: $e');
+    }
   }
 
   StorageDownloadDataOperation<StorageDownloadDataRequest,

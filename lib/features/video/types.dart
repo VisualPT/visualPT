@@ -26,9 +26,9 @@ class DeviceMeta {
 class VPTDetection {
   final int version;
   //Image Meta
-  final num imageHeight;
-  final num imageWidth;
-  final num ratioOfImageToScreen;
+  final int imageHeight;
+  final int imageWidth;
+  final double ratioOfImageToScreen;
   //Clinical Meta
   final ClinicalMeta clinicalMeta;
   //Detection Meta
@@ -62,7 +62,7 @@ class VPTDetection {
         "$imageHeight,$imageWidth,$ratioOfImageToScreen\n"
         "${clinicalMeta.csv()}\n"
         "${deviceMeta.csv()},$inferredClassification\n"
-        "${output.output.map((line) => line.join(","))}";
+        "${output.output.map((keypoint) => keypoint.join(",")).join("\n")}";
   }
 
   static VPTDetection fromCSV(String dataOutput) {
@@ -82,8 +82,8 @@ class VPTDetection {
         double.parse(imageMeta[2]));
     return VPTDetection(
       version,
-      double.parse(imageMeta[0]),
-      double.parse(imageMeta[1]),
+      int.parse(imageMeta[0]),
+      int.parse(imageMeta[1]),
       double.parse(imageMeta[2]),
       clinicalMeta,
       DeviceMeta(
@@ -94,6 +94,19 @@ class VPTDetection {
         double.parse(deviceMeta[4]),
         double.parse(deviceMeta[5]),
       ),
+      inferredClassification,
+      output,
+    );
+  }
+
+  VPTDetection copyWith({required String inferredClassification}) {
+    return VPTDetection(
+      version,
+      imageHeight,
+      imageWidth,
+      ratioOfImageToScreen,
+      clinicalMeta,
+      deviceMeta,
       inferredClassification,
       output,
     );

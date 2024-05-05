@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
@@ -19,12 +21,24 @@ class VideoDetectionRepository
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final accelerometer = userAccelerometerEventStream();
-  final gyroscope = gyroscopeEventStream();
+  final accelStream = userAccelerometerEventStream();
+  final gyroStream = gyroscopeEventStream();
+  StreamSubscription<GyroscopeEvent>? _gyroSubscription;
+  StreamSubscription<UserAccelerometerEvent>? _accelSubscription;
+  GyroscopeEvent _currentGyro = GyroscopeEvent(0, 0, 0);
+  UserAccelerometerEvent _currentAccel = UserAccelerometerEvent(0, 0, 0);
   final String userID;
   final ClinicalMeta clinicalMeta;
   VideoDetectionRepository(this.clinicalMeta, this.userID)
-      : super(clinicalMeta);
+      : super(clinicalMeta) {
+    _gyroSubscription = gyroStream.listen((gyroData) {
+      _currentGyro = gyroData;
+    });
+
+    _accelSubscription = accelStream.listen((accelData) {
+      _currentAccel = accelData;
+    });
+  }
 
   @override
   Future<void> initialize() async {
@@ -62,16 +76,14 @@ class VideoDetectionRepository
       isolateUtils: _convertIsolateUtils,
       image: input,
     );
-
-    final acc = await accelerometer.last;
-    final gyro = await gyroscope.last;
     final data = VPTDetection(
             1,
             input.height,
             input.width,
             params!["ratio"],
             clinicalMeta,
-            DeviceMeta(acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z),
+            DeviceMeta(_currentAccel.x, _currentAccel.y, _currentAccel.z,
+                _currentGyro.x, _currentGyro.y, _currentGyro.z),
             "-1", //detectionMeta.estimate,
             output)
         .toCSV();
@@ -88,7 +100,10 @@ class VideoDetectionRepository
 
   @override
   void dispose() {
+    _detectionIsolateUtils.dispose();
     _convertIsolateUtils.dispose();
+    _gyroSubscription?.cancel();
+    _accelSubscription?.cancel();
   }
 }
 

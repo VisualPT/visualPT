@@ -293,10 +293,10 @@ class _PatientFormState extends State<PatientForm> {
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
                         ? ""
-                        : Gender.values[selectedItem - 1].name.toString();
+                        : FallHistory.values[selectedItem - 1].name.toString();
                   },
                   children: List<Text>.generate(
-                    3,
+                    4,
                     (index) => index == 0
                         ? const Text("")
                         : Text(FallHistory.values[index - 1].name.toString(),
