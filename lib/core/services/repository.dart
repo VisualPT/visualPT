@@ -13,8 +13,8 @@ abstract class Repository<I, O> {
 
   void add(I data) {
     if (!_streamController.isClosed) {
-      count = 0;
       _streamController.add(data);
+      count++;
     }
   }
 
