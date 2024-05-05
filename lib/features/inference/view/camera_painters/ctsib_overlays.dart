@@ -189,7 +189,6 @@ LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
   Offset top = Offset(smallestY * slope + xIntercept, smallestY);
   Offset bottom = Offset(largestY * slope + xIntercept, largestY);
   double degrees = atan(slope) * 180 / pi;
-  print("Slope: $slope, Y-Intercept: $xIntercept, Degrees: $degrees");
   return LineOfBestFit(top, bottom, degrees);
 }
 
