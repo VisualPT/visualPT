@@ -103,11 +103,10 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         final controller = (state as VideoStandby).controller;
+                        //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
                         final params = {
-                          "ratio":
-                              screenW / controller.value.previewSize!.height,
-                          "width": controller.value.previewSize!.height,
                           "height": controller.value.previewSize!.width,
+                          "width": controller.value.previewSize!.height,
                         };
                         vid.add(const VideoPlay());
                         detection.add(InferenceStart(params));

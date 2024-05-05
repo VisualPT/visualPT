@@ -22,5 +22,5 @@
 enum AssessmentType {
   CTSIB,
   GAIT,
-  BERG,
+  BERG
 }

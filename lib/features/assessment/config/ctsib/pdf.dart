@@ -427,11 +427,11 @@ String getNormativeMessage(int totalDuration, TemporalDate dob) {
 // Safe division function to handle NaN or Infinity
 String safeDivision(int numerator, int denominator) {
   if (denominator == 0 || numerator.isNaN || denominator.isNaN) {
-    return "Invalid";
+    return "Inconclusive";
   } else {
     final ratio = numerator / denominator;
     if (ratio.isNaN || ratio.isInfinite) {
-      return "Invalid";
+      return "Inconclusive";
     } else {
       return ratio.toStringAsPrecision(3);
     }
@@ -445,12 +445,12 @@ String determineStatus(String ratioStr) {
     ratio = double.parse(ratioStr);
   } catch (e) {
     // If parsing fails, consider the ratio as invalid
-    return "Invalid";
+    return "Inconclusive";
   }
 
   // Determine the status based on the parsed ratio value
   if (ratio == 0.0) {
-    return "Invalid"; // Ratio is 0.0, indicating an invalid or uncalculable result
+    return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
   } else if (ratio < 1) {
     return "Dysfunctional"; // System is dysfunctional if the ratio is less than 1
   } else {

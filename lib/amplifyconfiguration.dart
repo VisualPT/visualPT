@@ -1,4 +1,4 @@
-const amplifyconfig = ''' {
+const amplifyconfig = '''{
     "UserAgent": "aws-amplify-cli/2.0",
     "Version": "1.0",
     "api": {
@@ -30,17 +30,17 @@ const amplifyconfig = ''' {
                         "ApiKey": "da2-uj6vhfa3mna7hfwciugu7juooq",
                         "ClientDatabasePrefix": "visualpt_API_KEY"
                     },
-                    "visualpt_AMAZON_COGNITO_USER_POOLS": {
-                        "ApiUrl": "https://pzdub2f2czghti3zlrepb5awv4.appsync-api.us-east-1.amazonaws.com/graphql",
-                        "Region": "us-east-1",
-                        "AuthMode": "AMAZON_COGNITO_USER_POOLS",
-                        "ClientDatabasePrefix": "visualpt_AMAZON_COGNITO_USER_POOLS"
-                    },
                     "visualpt_AWS_IAM": {
                         "ApiUrl": "https://pzdub2f2czghti3zlrepb5awv4.appsync-api.us-east-1.amazonaws.com/graphql",
                         "Region": "us-east-1",
                         "AuthMode": "AWS_IAM",
                         "ClientDatabasePrefix": "visualpt_AWS_IAM"
+                    },
+                    "visualpt_AMAZON_COGNITO_USER_POOLS": {
+                        "ApiUrl": "https://pzdub2f2czghti3zlrepb5awv4.appsync-api.us-east-1.amazonaws.com/graphql",
+                        "Region": "us-east-1",
+                        "AuthMode": "AMAZON_COGNITO_USER_POOLS",
+                        "ClientDatabasePrefix": "visualpt_AMAZON_COGNITO_USER_POOLS"
                     }
                 },
                 "CredentialsProvider": {

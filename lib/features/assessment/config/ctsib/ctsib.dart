@@ -23,6 +23,8 @@ class CTSIB extends BaseAssessment {
           ]),
           seqInference: List.filled(6,
               [InferenceType.poseDetection, InferenceType.poseClassification]),
+          seqInstability: [false, false, false, true, true, true],
+          seqObtrusion: [false, false, true, false, false, true],
           formFields: {},
           isTrainingData: true,
         );
@@ -41,7 +43,6 @@ class CTSIBData {
   //Image Data
   final num imageHeight;
   final num imageWidth;
-  final num ratio;
   //Inference Data
   final int classIndex;
   final int conditionNumber;
@@ -50,7 +51,6 @@ class CTSIBData {
   const CTSIBData(
     this.imageHeight,
     this.imageWidth,
-    this.ratio,
     this.classIndex,
     this.conditionNumber,
     this.trialNumber,
@@ -62,7 +62,6 @@ class CTSIBData {
     final metadata = [
       imageHeight,
       imageWidth,
-      ratio,
       classIndex,
       conditionNumber,
       trialNumber
