@@ -219,13 +219,19 @@ class PoseSwayPainter extends CustomPainter {
             ? Colors.green
             : Colors.yellow
         : Colors.red; // Change this to the desired color
-    final Paint paint = Paint()
-      ..color = color.withAlpha(230) // Change this to the desired color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
 
     if (offsets != null) {
-      canvas.drawLine(offsets.low, offsets.high, paint);
+      //Put the degree text on the canvas
+      final text = TextSpan(
+          text: "${offsets.degrees.toStringAsFixed(2)}°",
+          style: TextStyle(color: color, fontSize: 30));
+      final textPainter = TextPainter(
+          text: text,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.center)
+        ..layout(minWidth: 0, maxWidth: size.width);
+      // Position the text at the top right of the canvas
+      textPainter.paint(canvas, Offset(size.width - textPainter.width, 0));
     }
   }
 
