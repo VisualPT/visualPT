@@ -1,0 +1,67 @@
+import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+
+class DeviceMeta {
+  final num deviceAcceleroX;
+  final num deviceAcceleroY;
+  final num deviceAcceleroZ;
+  final num deviceGyroX;
+  final num deviceGyroY;
+  final num deviceGyroZ;
+
+  const DeviceMeta(
+    this.deviceAcceleroX,
+    this.deviceAcceleroY,
+    this.deviceAcceleroZ,
+    this.deviceGyroX,
+    this.deviceGyroY,
+    this.deviceGyroZ,
+  );
+
+  String csv() {
+    return "$deviceAcceleroX,$deviceAcceleroY,$deviceAcceleroZ,$deviceGyroX,$deviceGyroY,$deviceGyroZ";
+  }
+}
+
+class VPTDetection {
+  final int version;
+  //Image Meta
+  final num imageHeight;
+  final num imageWidth;
+  final num ratioOfImageToScreen;
+  //Clinical Meta
+  final ClinicalMeta clinicalMeta;
+  //Detection Meta
+  final DeviceMeta deviceMeta;
+  final String inferredClassification;
+  //Detection Data
+  final PoseDetectionOutput output;
+
+  const VPTDetection(
+    this.version,
+    this.imageHeight,
+    this.imageWidth,
+    this.ratioOfImageToScreen,
+    this.clinicalMeta,
+    this.deviceMeta,
+    this.inferredClassification,
+    this.output,
+  );
+
+  // Formats the object into a string
+  //
+  // ==================
+  // <Version>\n
+  // <Image Meta>\n
+  // <Clinical Meta>\n
+  // <Detection Meta>\n
+  // <Detection Data>
+  // ==================
+  String toCSV() {
+    return "$version\n"
+        "$imageHeight,$imageWidth,$ratioOfImageToScreen\n"
+        "${clinicalMeta.csv()}\n"
+        "${deviceMeta.csv()},$inferredClassification\n"
+        "${output.output.map((line) => line.join(",")).join("\n")}";
+  }
+}

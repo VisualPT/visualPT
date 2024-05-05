@@ -64,6 +64,8 @@ PODS:
   - printing (1.0.0):
     - Flutter
   - ReachabilitySwift (5.0.0)
+  - sensors_plus (0.0.1):
+    - Flutter
   - SQLite.swift (0.13.2):
     - SQLite.swift/standard (= 0.13.2)
   - SQLite.swift/standard (0.13.2)
@@ -100,6 +102,7 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - printing (from `.symlinks/plugins/printing/ios`)
+  - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - tflite_flutter (from `.symlinks/plugins/tflite_flutter/ios`)
   - tflite_flutter_helper (from `.symlinks/plugins/tflite_flutter_helper/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
@@ -145,6 +148,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   printing:
     :path: ".symlinks/plugins/printing/ios"
+  sensors_plus:
+    :path: ".symlinks/plugins/sensors_plus/ios"
   tflite_flutter:
     :path: ".symlinks/plugins/tflite_flutter/ios"
   tflite_flutter_helper:
@@ -175,6 +180,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  sensors_plus: 18a9b346c43e157da17d2c8e99def703f9efb9d8
   SQLite.swift: 4fc2be46c36392e3b87afe6fe7f1801c1daa07ef
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   TensorFlowLiteC: a836de9b6e6018665ccc349538bdd2c3b80dd7a5
