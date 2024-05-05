@@ -72,7 +72,7 @@ class VideoDetectionRepository
             params!["ratio"],
             clinicalMeta,
             DeviceMeta(acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z),
-            "TODO", //detectionMeta.estimate,
+            "-1", //detectionMeta.estimate,
             output)
         .toCSV();
 

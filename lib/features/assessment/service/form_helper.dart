@@ -45,4 +45,17 @@ class FormHelper {
         return FallHistory.NONE;
     }
   }
+
+  static AssessmentType assessmentTypeParse(String part) {
+    switch (part) {
+      case "CTSIB":
+        return AssessmentType.CTSIB;
+      case "BERG":
+        return AssessmentType.BERG;
+      case "GAIT":
+        return AssessmentType.GAIT;
+      default:
+        return AssessmentType.CTSIB;
+    }
+  }
 }

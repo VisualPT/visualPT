@@ -62,6 +62,40 @@ class VPTDetection {
         "$imageHeight,$imageWidth,$ratioOfImageToScreen\n"
         "${clinicalMeta.csv()}\n"
         "${deviceMeta.csv()},$inferredClassification\n"
-        "${output.output.map((line) => line.join(",")).join("\n")}";
+        "${output.output.map((line) => line.join(","))}";
+  }
+
+  static VPTDetection fromCSV(String dataOutput) {
+    final lines = dataOutput.split("\n");
+    final version = int.parse(lines.removeAt(0));
+    final imageMeta = lines.removeAt(0).split(",");
+    final clinicalMeta = ClinicalMeta.fromCSV(lines.removeAt(0));
+    final deviceMeta = lines.removeAt(0).split(",");
+    final inferredClassification = deviceMeta.removeLast();
+    final output = PoseDetectionOutput(
+        lines
+            .map((line) => line.split(",").map((e) => double.parse(e)).toList())
+            .toList(),
+        256,
+        int.parse(imageMeta[0]),
+        int.parse(imageMeta[1]),
+        double.parse(imageMeta[2]));
+    return VPTDetection(
+      version,
+      double.parse(imageMeta[0]),
+      double.parse(imageMeta[1]),
+      double.parse(imageMeta[2]),
+      clinicalMeta,
+      DeviceMeta(
+        double.parse(deviceMeta[0]),
+        double.parse(deviceMeta[1]),
+        double.parse(deviceMeta[2]),
+        double.parse(deviceMeta[3]),
+        double.parse(deviceMeta[4]),
+        double.parse(deviceMeta[5]),
+      ),
+      inferredClassification,
+      output,
+    );
   }
 }
