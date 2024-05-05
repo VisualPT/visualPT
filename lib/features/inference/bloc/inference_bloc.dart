@@ -11,7 +11,8 @@ part 'inference_state.dart';
 
 class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this.inferenceRepository, this.outputRepository)
+  InferenceBloc(
+      this.inferenceRepository, this.outputRepository, this.sampleRate)
       : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
@@ -24,8 +25,8 @@ class InferenceBloc<I, O extends AiModelOutput>
 
   final Repository<I, O> inferenceRepository;
   final Repository<O, dynamic>? outputRepository;
+  final sampleRate;
 
-  static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
   late int storageBacklog;
@@ -52,7 +53,7 @@ class InferenceBloc<I, O extends AiModelOutput>
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
-    if (inferenceRepository.count % sampleRateFrames == 0) {
+    if (inferenceRepository.count % sampleRate == 0) {
       storageBacklog++;
     }
     if (processing) return null;

@@ -1,6 +1,9 @@
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
+const VPTDetectionRate = 30;
+const VPTClassificationRate = 1;
+
 class DeviceMeta {
   final num deviceAcceleroX;
   final num deviceAcceleroY;

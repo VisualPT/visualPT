@@ -10,6 +10,7 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/service/video_detection_repository.dart';
+import 'package:visualpt/features/video/types.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
@@ -61,7 +62,8 @@ class VideoPresenter extends StatelessWidget {
               return InferenceBloc<CameraImage, PoseDetectionOutput>(
                   RepositoryProvider.of<VideoDetectionRepository>(context),
                   RepositoryProvider.of<DetectionClassificationRepository>(
-                      context))
+                      context),
+                  VPTDetectionRate)
                 ..add(InferenceInit(address));
             },
           ),
@@ -72,7 +74,8 @@ class VideoPresenter extends StatelessWidget {
                       PoseClassificationOutput>(
                   RepositoryProvider.of<DetectionClassificationRepository>(
                       context),
-                  null)
+                  null,
+                  VPTClassificationRate)
                 ..add(InferenceInit(address));
             },
           )
