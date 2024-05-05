@@ -25,6 +25,7 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController dobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController heightController = TextEditingController();
+  TextEditingController fallHistoryController = TextEditingController();
   bool storeData = true;
 
   @override
@@ -68,6 +69,11 @@ class _PatientFormState extends State<PatientForm> {
                   "Height",
                   controller: heightController,
                   inputPopup: heightPopup,
+                ),
+                FormInput(
+                  "Fall History",
+                  controller: fallHistoryController,
+                  inputPopup: fallHistoryPopup,
                 ),
                 // Container(
                 //     alignment: Alignment.center,
@@ -122,7 +128,8 @@ class _PatientFormState extends State<PatientForm> {
                                         dobController.text,
                                         genderController.text,
                                         heightController.text,
-                                        widget.user.email),
+                                        widget.user.email,
+                                        fallHistoryController.text),
                                     storeData));
                           }
                         } catch (e) {
@@ -237,6 +244,62 @@ class _PatientFormState extends State<PatientForm> {
                     (index) => index == 0
                         ? const Text("")
                         : Text(Gender.values[index - 1].name.toString(),
+                            style: Styles.popupSelectionText),
+                  ),
+                ),
+              ),
+            ),
+          ]),
+    );
+  }
+
+  Future<String?> fallHistoryPopup() {
+    String? value;
+    return showCupertinoModalPopup<String>(
+      context: context,
+      builder: (BuildContext context) => Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            //TODO Make this a reusable widget
+            Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(8.0),
+              color: CupertinoColors.white,
+              alignment: Alignment.centerRight,
+              child: Row(
+                children: [
+                  const Text("Fall History", style: Styles.inputStyle),
+                  const Spacer(),
+                  CupertinoButton(
+                      color: CupertinoColors.link,
+                      onPressed: () => Navigator.pop(context, value),
+                      child: const Text("Save")),
+                ],
+              ),
+            ),
+            Container(
+              height: 216,
+              padding: const EdgeInsets.only(top: 6.0),
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              color: CupertinoColors.white,
+              child: SafeArea(
+                top: false,
+                child: CupertinoPicker(
+                  backgroundColor: CupertinoColors.white,
+                  itemExtent: Styles.kItemExtent,
+                  onSelectedItemChanged: (int selectedItem) {
+                    value = selectedItem == 0
+                        ? ""
+                        : Gender.values[selectedItem - 1].name.toString();
+                  },
+                  children: List<Text>.generate(
+                    3,
+                    (index) => index == 0
+                        ? const Text("")
+                        : Text(FallHistory.values[index - 1].name.toString(),
                             style: Styles.popupSelectionText),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
@@ -9,11 +10,10 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/service/video_detection_repository.dart';
-import 'package:visualpt/models/AssessmentType.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  final AssessmentType? assessmentType;
+  final ClinicalMeta meta;
   final int address;
   final Widget Function(BuildContext context, VideoRecording state) onRecording;
   final Widget Function(BuildContext context, VideoStandby state) onStandby;
@@ -21,7 +21,7 @@ class VideoPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
   const VideoPresenter(
-    this.assessmentType,
+    this.meta,
     this.address, {
     super.key,
     required this.onLoading,
@@ -36,13 +36,13 @@ class VideoPresenter extends StatelessWidget {
       providers: [
         RepositoryProvider(
           create: (context) => VideoDetectionRepository(
-              assessmentType,
+              meta,
               (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
                   .user
                   .email),
         ),
         RepositoryProvider(
-          create: (context) => DetectionClassificationRepository(),
+          create: (context) => DetectionClassificationRepository(meta),
         ),
       ],
       child: MultiBlocProvider(

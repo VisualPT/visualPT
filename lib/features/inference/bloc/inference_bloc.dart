@@ -35,7 +35,7 @@ class InferenceBloc<I, O extends AiModelOutput>
 //TODO: Figure out what this is doing here
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
-    await inferenceRepository.initialize(event.address);
+    await inferenceRepository.initialize();
     isReady = true;
     emit(InferenceStandby<I, O>());
   }
@@ -62,7 +62,10 @@ class InferenceBloc<I, O extends AiModelOutput>
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
-          input: event.input, params: event.params, output: data));
+        input: event.input,
+        output: data,
+        params: event.params,
+      ));
     }
   }
 

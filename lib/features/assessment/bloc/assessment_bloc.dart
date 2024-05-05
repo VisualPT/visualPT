@@ -3,6 +3,7 @@ import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 
@@ -47,8 +48,17 @@ class AssessmentBloc<T extends BaseAssessment>
         type: assessmentParams.type,
         datetime: TemporalDateTime(DateTime.now()),
         segments: segments);
+    final meta = ClinicalMeta(
+        patient.dob.toString(),
+        patient.gender,
+        patient.fall_history,
+        assessmentParams.type,
+        assessmentParams.seqObtrusion[conditionIndex],
+        assessmentParams.seqInstability[conditionIndex],
+        conditionIndex,
+        1);
     emit(AssessmentActive<T>(
-        patient, storeData, conditionIndex, this.assessmentParams));
+        meta, patient, storeData, conditionIndex, this.assessmentParams));
   }
 
   FutureOr<void> _onIncrement(
@@ -59,6 +69,15 @@ class AssessmentBloc<T extends BaseAssessment>
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
+    final meta = ClinicalMeta(
+        patient.dob.toString(),
+        patient.gender,
+        patient.fall_history,
+        assessmentParams.type,
+        assessmentParams.seqObtrusion[conditionIndex],
+        assessmentParams.seqInstability[conditionIndex],
+        conditionIndex,
+        1);
     if (conditionIndex == assessmentParams.sequences) {
       final finishTime = DateTime.now();
       final int assessmentDurationSeconds =
@@ -69,7 +88,7 @@ class AssessmentBloc<T extends BaseAssessment>
           patient, storeData, dbAssessment, assessmentParams));
     } else {
       emit(AssessmentActive<T>(
-          patient, storeData, conditionIndex, assessmentParams));
+          meta, patient, storeData, conditionIndex, assessmentParams));
     }
   }
 

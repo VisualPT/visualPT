@@ -10,6 +10,8 @@ class BaseAssessment {
   final List<String> seqNames;
   final List<List<String>> seqInstructions;
   final List<List<InferenceType>> seqInference;
+  final List<bool> seqObtrusion;
+  final List<bool> seqInstability;
   final Map<Map<String, String>, String> formFields;
   final bool isTrainingData;
 
@@ -19,6 +21,8 @@ class BaseAssessment {
       required this.seqNames,
       required this.seqInstructions,
       required this.seqInference,
+      required this.seqObtrusion,
+      required this.seqInstability,
       required this.formFields,
       required this.isTrainingData});
 }

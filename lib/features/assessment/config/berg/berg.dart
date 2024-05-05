@@ -22,6 +22,8 @@ class BERG extends BaseAssessment {
             "Lighting must be sufficient to clearly see the patient",
           ]),
           seqInference: List.filled(6, [InferenceType.poseDetection]),
+          seqInstability: [false, false, false, false, false, false],
+          seqObtrusion: [false, false, false, false, false, false],
           formFields: {},
           isTrainingData: true,
         );

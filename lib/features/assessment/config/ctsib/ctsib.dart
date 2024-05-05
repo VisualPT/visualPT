@@ -23,6 +23,8 @@ class CTSIB extends BaseAssessment {
           ]),
           seqInference: List.filled(6,
               [InferenceType.poseDetection, InferenceType.poseClassification]),
+          seqInstability: [false, false, false, true, true, true],
+          seqObtrusion: [false, false, true, false, false, true],
           formFields: {},
           isTrainingData: true,
         );

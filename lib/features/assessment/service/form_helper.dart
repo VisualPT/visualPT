@@ -1,17 +1,23 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt/models/Gender.dart';
-import 'package:visualpt/models/Patient.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class FormHelper {
-  static Patient createPatient(String firstName, String lastName,
-      String dateOfBirth, String gender, String height, String email) {
+  static Patient createPatient(
+      String firstName,
+      String lastName,
+      String dateOfBirth,
+      String gender,
+      String height,
+      String email,
+      String fallHistory) {
     return Patient(
         first_name: firstName,
         last_name: lastName,
         dob: TemporalDate(DateTime.parse(dateOfBirth)),
         gender: FormHelper.genderParse(gender),
         height_in_inches: double.parse(height.split("\"")[0]),
-        provider_contact: email);
+        provider_contact: email,
+        fall_history: FormHelper.fallHistoryParse(fallHistory));
   }
 
   static Gender genderParse(String text) {
@@ -24,6 +30,19 @@ class FormHelper {
 
       default:
         return Gender.MALE;
+    }
+  }
+
+  static FallHistory fallHistoryParse(String text) {
+    switch (text) {
+      case "NONE":
+        return FallHistory.NONE;
+      case "FEW":
+        return FallHistory.FEW;
+      case "RECURRENT":
+        return FallHistory.RECURRENT;
+      default:
+        return FallHistory.NONE;
     }
   }
 }
