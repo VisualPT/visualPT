@@ -220,17 +220,7 @@ class PoseSwayPainter extends CustomPainter {
         : Colors.red; // Change this to the desired color
 
     if (offsets != null) {
-      //Put the degree text on the canvas
-      final text = TextSpan(
-          text: "${offsets.degrees.toStringAsFixed(1)}°",
-          style: TextStyle(color: color, fontSize: 30));
-      final textPainter = TextPainter(
-          text: text,
-          textDirection: TextDirection.ltr,
-          textAlign: TextAlign.center)
-        ..layout(minWidth: 0, maxWidth: size.width);
-      // Position the text at the top right of the canvas
-      textPainter.paint(canvas, Offset(size.width - textPainter.width, 0));
+      canvas.drawLine(offsets.low, offsets.high, Paint()..color = color);
     }
   }
 

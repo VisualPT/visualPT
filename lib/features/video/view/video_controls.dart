@@ -28,7 +28,6 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                 InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
             context),
         timer = BlocProvider.of<TimerBloc>(context),
-        screenW = MediaQuery.of(context).size.width,
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
@@ -54,34 +53,19 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Takes the least amount of space
-              children: [
-                Container(
-                  color: CupertinoColors.white,
-                  child: const Padding(
-                    padding: EdgeInsets.all(2.0), // Add padding as needed
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize:
-                              MainAxisSize.min, // Fit content in the column
-                          children: [
-                            PoseDetectionIndicator(),
-                            PoseClassificationIndicator(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+          Container(
+              color: CupertinoColors.white,
+              child: const Padding(
+                padding: EdgeInsets.all(2.0), // Add padding as needed
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min, // Fit content in the column
+                  children: [
+                    PoseDetectionIndicator(),
+                    PoseClassificationIndicator(),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              )),
           videoView,
           const Spacer(),
           BlocBuilder<TimerBloc, TimerState>(
