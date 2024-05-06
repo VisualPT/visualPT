@@ -188,7 +188,7 @@ LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
 
   Offset top = Offset(smallestY * slope + xIntercept, smallestY);
   Offset bottom = Offset(largestY * slope + xIntercept, largestY);
-  double degrees = atan(slope) * 180 / pi;
+  double degrees = (atan(slope) * 180 / pi).abs();
   return LineOfBestFit(top, bottom, degrees);
 }
 
