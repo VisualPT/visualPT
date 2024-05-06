@@ -13,10 +13,11 @@ import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/types.dart';
 
 class VideoDetectionRepository
-    extends Repository<CameraImage, PoseDetectionOutput> {
+    extends Repository<CameraCapture, PoseDetectionOutput> {
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
@@ -50,13 +51,14 @@ class VideoDetectionRepository
 
   @override
   Future<PoseDetectionOutput?> runPredict(
-      CameraImage input, Map<String, dynamic>? params) async {
+      String id, CameraCapture input, Map<String, dynamic>? params) async {
     if (!isInitialized) {
       throw Exception(
           "runPredict: Detection Inference Service not initialized");
     }
-    final data = preProcessData(input);
+    final data = preProcessData(input.input);
     await _poseDetectionService.inference(
+      id: id,
       isolateUtils: _detectionIsolateUtils,
       input: data,
       params: params,
@@ -65,7 +67,7 @@ class VideoDetectionRepository
   }
 
   @override
-  Future<void> store(CameraImage input, PoseDetectionOutput output,
+  Future<void> store(String id, CameraCapture input, PoseDetectionOutput output,
       Map<String, dynamic>? params) async {
     if (!isInitialized) {
       throw Exception("store: Detection Inference Service not initialized");
@@ -74,12 +76,13 @@ class VideoDetectionRepository
 
     final png = await ImageUtils.convert(
       isolateUtils: _convertIsolateUtils,
-      image: input,
+      image: input.input,
     );
     final data = VPTDetection(
             1,
-            input.height,
-            input.width,
+            id,
+            input.input.height,
+            input.input.width,
             clinicalMeta,
             DeviceMeta(_currentAccel.x, _currentAccel.y, _currentAccel.z,
                 _currentGyro.x, _currentGyro.y, _currentGyro.z),
@@ -91,8 +94,8 @@ class VideoDetectionRepository
     final dataPayload = S3DataPayload.string(data);
 
 //TODO: Put a user tag instead of a random number
-    final id = "${userID}_${DateTime.now().millisecondsSinceEpoch}";
-    final key = "${meta.assessment.name}/raw/$id";
+    final idPath = "${userID}_$id";
+    final key = "${meta.assessment.name}/raw/$idPath";
     storageService.upload(imagePayload, '$key.png', StorageAccessLevel.guest);
     storageService.upload(dataPayload, '$key.csv', StorageAccessLevel.guest);
   }

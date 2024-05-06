@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
@@ -22,7 +21,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final detection =
-            BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
+            BlocProvider.of<InferenceBloc<CameraCapture, PoseDetectionOutput>>(
                 context),
         classification = BlocProvider.of<
                 InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
@@ -32,8 +31,8 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
     void onComplete() {
-      detection.add(const InferenceEnd());
-      classification.add(const InferenceEnd());
+      detection.add(const InferenceEnd("End"));
+      classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       timer.add(const TimerReset());
       final segment = Segment(
@@ -45,10 +44,10 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
     }
 
 //TODO: Make the video controls show up when ALL the models are ready
-    return BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
-            InferenceState<CameraImage, PoseDetectionOutput>>(
+    return BlocBuilder<InferenceBloc<CameraCapture, PoseDetectionOutput>,
+            InferenceState<CameraCapture, PoseDetectionOutput>>(
         builder: (context, infState) {
-      if (infState is InferenceRunning<CameraImage, PoseDetectionOutput> &&
+      if (infState is InferenceRunning<CameraCapture, PoseDetectionOutput> &&
           infState.response != null) {}
       return Column(
         mainAxisSize: MainAxisSize.max,
@@ -76,12 +75,12 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   const Spacer(),
-                  if (infState is InferenceLoading<CameraImage,
+                  if (infState is InferenceLoading<CameraCapture,
                       PoseDetectionOutput>) ...[
                     const CupertinoActivityIndicator(
                       radius: 20,
                     )
-                  ] else if (infState is InferenceStandby<CameraImage,
+                  ] else if (infState is InferenceStandby<CameraCapture,
                           PoseDetectionOutput> &&
                       state is VideoStandby) ...[
                     GestureDetector(
@@ -93,8 +92,8 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                           "width": controller.value.previewSize!.height,
                         };
                         vid.add(const VideoPlay());
-                        detection.add(InferenceStart(params));
-                        classification.add(InferenceStart(params));
+                        detection.add(InferenceStart("Start", params));
+                        classification.add(InferenceStart("Start", params));
                         timer.add(const TimerStarted());
                       },
                       child: const Icon(CupertinoIcons.circle_fill,

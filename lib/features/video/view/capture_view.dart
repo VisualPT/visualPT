@@ -49,12 +49,14 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
         ),
-        VideoControls<T>(
-            state: state,
-            videoView: Camera(controller: vid.controller!, children: [
-              if (vid.controller != null)
-                PoseDetectionOverlay(controller: vid.controller!),
-            ])),
+        vid.controller != null
+            ? VideoControls<T>(
+                state: state,
+                videoView: Camera(controller: vid.controller!, children: [
+                  if (vid.controller != null)
+                    PoseDetectionOverlay(controller: vid.controller!),
+                ]))
+            : Container(),
       ],
     ));
   }

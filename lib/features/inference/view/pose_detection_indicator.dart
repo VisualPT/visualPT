@@ -6,6 +6,11 @@ import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.
 import 'package:visualpt/features/inference/view/inference_indicator.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
+class CameraCapture extends Identifiable {
+  final CameraImage input;
+  const CameraCapture(super.id, this.input);
+}
+
 class PoseDetectionIndicator extends StatelessWidget {
   const PoseDetectionIndicator({super.key});
   static const icon = CupertinoIcons.person;
@@ -13,7 +18,7 @@ class PoseDetectionIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InferencePresenter<CameraImage, PoseDetectionOutput>(
+    return InferencePresenter<CameraCapture, PoseDetectionOutput>(
       onRunning: onRunning,
       onStandby: onStandby,
       onLoad: onLoad,
@@ -22,7 +27,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onRunning(BuildContext context,
-      InferenceRunning<CameraImage, PoseDetectionOutput> state) {
+      InferenceRunning<CameraCapture, PoseDetectionOutput> state) {
     final offsets = state.response != null
         ? computeLineOfBestFit(
             state.response!.landmarks.sublist(0, 34), const Size(256, 256))
@@ -44,7 +49,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onStandby(BuildContext context,
-      InferenceStandby<CameraImage, PoseDetectionOutput> state) {
+      InferenceStandby<CameraCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemYellow,
@@ -53,7 +58,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onLoad(BuildContext context,
-      InferenceLoading<CameraImage, PoseDetectionOutput> state) {
+      InferenceLoading<CameraCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemGrey,
@@ -62,7 +67,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onError(BuildContext context,
-      InferenceError<CameraImage, PoseDetectionOutput> state) {
+      InferenceError<CameraCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemRed,

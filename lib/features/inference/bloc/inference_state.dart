@@ -1,5 +1,13 @@
 part of 'inference_bloc.dart';
 
+abstract class Identifiable extends Equatable {
+  final String id;
+  const Identifiable(this.id);
+
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
+
 abstract class InferenceState<I, O> extends Equatable {
   final String id;
   final O? response;

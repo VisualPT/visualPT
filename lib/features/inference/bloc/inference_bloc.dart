@@ -10,7 +10,7 @@ part 'inference_event.dart';
 part 'inference_state.dart';
 
 //TODO: Add toggleable loggers to all blocs
-class InferenceBloc<I, O extends AiModelOutput>
+class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
   InferenceBloc(
       this.inferenceRepository, this.outputRepository, this.sampleRate)
@@ -46,7 +46,7 @@ class InferenceBloc<I, O extends AiModelOutput>
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(input: data, params: event.params));
+        add(InferenceInput(data.id, input: data, params: event.params));
       }
     });
     emit(InferenceRunning<I, O>(
@@ -55,18 +55,17 @@ class InferenceBloc<I, O extends AiModelOutput>
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
-    final id = DateTime.now().toString();
     if (inferenceRepository.count % sampleRate == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data =
-        await inferenceRepository.runPredict(event.input, event.params);
+    final data = await inferenceRepository.runPredict(
+        event.id, event.input, event.params);
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
-        id: id,
+        event.id,
         input: event.input,
         output: data,
         params: event.params,
@@ -83,7 +82,8 @@ class InferenceBloc<I, O extends AiModelOutput>
           //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
           //TODO: Add a path to the repository to store the data
           storageBacklog--;
-          inferenceRepository.store(event.input, event.output!, event.params);
+          inferenceRepository.store(
+              event.id, event.input, event.output!, event.params);
         }
       }
       if (isReady && !isClosed && !emit.isDone) {
@@ -98,7 +98,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     isReady = false;
     nullResponsePort.close();
     if (_subscription != null) {
-      _subscription!.cancel();
+      _subscription?.cancel();
     }
     inferenceRepository.dispose();
     emit(InferenceStandby<I, O>());
@@ -113,16 +113,6 @@ class InferenceBloc<I, O extends AiModelOutput>
   //     log('InferenceBloc Change Current State: InferenceOutput, next state: ${transition.event}, next state: ${transition.nextState}');
   //   }
   //   log('InferenceBloc Transition: $transition');
-  // }
-
-  // @override
-  // Future<void> close() {
-  //   if (_subscription != null) {
-  //     _subscription!.cancel();
-  //   }
-  //   nullResponsePort.close();
-  //   inferenceRepository.dispose();
-  //   return super.close();
   // }
 
   @override

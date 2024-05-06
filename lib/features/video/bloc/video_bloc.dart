@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/service/video_detection_repository.dart';
 
 part 'video_event.dart';
@@ -18,7 +19,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
   late Duration duration = const Duration(seconds: 0);
-  late DateTime start;
+  DateTime? _start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
     try {
@@ -63,29 +64,34 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
-    start = DateTime.now();
+    _start = DateTime.now();
     if (controller == null) {
       emit(VideoError(
           exception: Exception("Camera controller was not initialized")));
     }
     controller!.startImageStream((image) {
-      videoDetectionRepo.add(image);
+      final id = DateTime.now().millisecondsSinceEpoch.toString();
+      videoDetectionRepo.add(CameraCapture(id, image));
     });
     emit(VideoRecording(controller!));
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    duration = DateTime.now().difference(start);
-    if (controller != null && controller!.value.isStreamingImages) {
-      if (event.reset) {
-        emit(VideoStandby(controller!));
-      }
-      await controller!.stopImageStream();
+    if (_start == null) {
+      print("Video was not started");
     } else {
-      log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+      duration = DateTime.now().difference(_start!);
+      if (controller != null && controller!.value.isStreamingImages) {
+        if (event.reset) {
+          emit(VideoStandby(controller!));
+        }
+        await controller!.stopImageStream();
+      } else {
+        log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+      }
+      controller!.dispose();
+      emit(const VideoLoading());
     }
-    controller!.dispose();
-    emit(const VideoLoading());
   }
 
   // @override

@@ -24,6 +24,7 @@ class ModelInferenceService<I, O> {
   AiModelOutput? inferenceResults;
 
   Future<void> inference({
+    required String id,
     required IsolateUtils isolateUtils,
     required I input,
     required Map<String, dynamic>? params,
@@ -33,6 +34,7 @@ class ModelInferenceService<I, O> {
     isolateUtils.sendMessage(
       handler: handler,
       params: {
+        'id': id,
         'input': input,
         'detectorAddress': model.getAddress,
         'params': params,

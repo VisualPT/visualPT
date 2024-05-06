@@ -10,7 +10,7 @@ final Map<int, String> classifications = {
 };
 
 class PoseClassificationOutput extends AiModelOutput {
-  const PoseClassificationOutput(super.output);
+  const PoseClassificationOutput(super.id, super.output);
 
   //Get the index of the highest valued number in the classification output map
   int getIndex() {

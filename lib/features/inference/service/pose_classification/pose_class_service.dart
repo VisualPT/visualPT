@@ -85,7 +85,7 @@ class PoseClassification
 
   @override
   PoseClassificationOutput? predict(
-      PoseDetectionOutput input, Map<String, dynamic>? params) {
+      String id, PoseDetectionOutput input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -108,20 +108,15 @@ class PoseClassification
 
     interpreter!.runForMultipleInputs(inputs, outputs);
 
-    print({
-      "output": output,
-      "prediction": output.getDoubleList(),
-      "shape": output.getShape(),
-    });
     final prediction = output.getDoubleList();
-    return PoseClassificationOutput(prediction);
+    return PoseClassificationOutput(input.id, prediction);
   }
 }
 
 PoseClassificationOutput? runPoseClassifier(Map<String, dynamic> params) {
   final pose = PoseClassification(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  return pose.predict(params['input'], params['params']);
+  return pose.predict(params['id'], params['input'], params['params']);
 }
 
 List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {

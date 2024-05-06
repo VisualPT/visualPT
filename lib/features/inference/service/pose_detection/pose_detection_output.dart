@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:visualpt/features/inference/service/ai_model.dart';
 
 class PoseDetectionOutput extends AiModelOutput {
-  PoseDetectionOutput(super.output, int inputSize, int width, int height) {
+  PoseDetectionOutput(
+      super.id, super.output, int inputSize, int width, int height) {
     const double percentOfImageHeightThreshold = 0.5;
 
     double min = height.roundToDouble(), max = 0;
