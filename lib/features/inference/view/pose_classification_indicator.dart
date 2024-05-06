@@ -22,11 +22,15 @@ class PoseClassificationIndicator extends StatelessWidget {
 
   Widget onRunning(BuildContext context,
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
-    return const InferenceIndicator(
-        icon: icon,
-        color: CupertinoColors.activeGreen,
-        type: type,
-        message: "Running");
+    return InferenceIndicator(
+      icon: icon,
+      color: CupertinoColors.activeGreen,
+      type: type,
+      message: "Running",
+      formattedTextWidget: Text(state.response?.name ?? "No pose detected",
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: state.response?.getColor())),
+    );
   }
 
   Widget onStandby(BuildContext context,

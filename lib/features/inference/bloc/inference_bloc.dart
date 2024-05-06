@@ -9,6 +9,7 @@ import 'package:visualpt/features/inference/service/ai_model.dart';
 part 'inference_event.dart';
 part 'inference_state.dart';
 
+//TODO: Add toggleable loggers to all blocs
 class InferenceBloc<I, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
   InferenceBloc(
@@ -25,7 +26,7 @@ class InferenceBloc<I, O extends AiModelOutput>
 
   final Repository<I, O> inferenceRepository;
   final Repository<O, dynamic>? outputRepository;
-  final sampleRate;
+  final int sampleRate;
 
   bool isReady = false;
   bool processing = false;
@@ -48,11 +49,13 @@ class InferenceBloc<I, O extends AiModelOutput>
         add(InferenceInput(input: data, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, const {"height": 0, "width": 0}));
+    emit(InferenceRunning<I, O>(
+        null, "defaultID", const {"height": 0, "width": 0}));
   }
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
+    final id = DateTime.now().toString();
     if (inferenceRepository.count % sampleRate == 0) {
       storageBacklog++;
     }
@@ -63,6 +66,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
+        id: id,
         input: event.input,
         output: data,
         params: event.params,
@@ -83,10 +87,10 @@ class InferenceBloc<I, O extends AiModelOutput>
         }
       }
       if (isReady && !isClosed && !emit.isDone) {
-        emit(InferenceRunning<I, O>(event.output, event.params));
+        emit(InferenceRunning<I, O>(event.output, event.id, event.params));
       }
     } catch (e) {
-      log("Error: $e");
+      log("Output Error: $e");
     }
   }
 
@@ -125,6 +129,6 @@ class InferenceBloc<I, O extends AiModelOutput>
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    log('InferenceBloc Error: $error');
+    log('InferenceBloc Error: $stackTrace $error');
   }
 }

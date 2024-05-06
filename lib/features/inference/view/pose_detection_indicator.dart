@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
 import 'package:visualpt/features/inference/view/inference_indicator.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
@@ -22,11 +23,24 @@ class PoseDetectionIndicator extends StatelessWidget {
 
   Widget onRunning(BuildContext context,
       InferenceRunning<CameraImage, PoseDetectionOutput> state) {
-    return const InferenceIndicator(
-        icon: icon,
-        color: CupertinoColors.activeGreen,
-        type: type,
-        message: "Running");
+    final offsets = state.response != null
+        ? computeLineOfBestFit(
+            state.response!.landmarks.sublist(0, 34), const Size(256, 256))
+        : null;
+    final color = offsets != null
+        ? offsets.degrees.abs() < MAX_SWAY_ANGLE
+            ? CupertinoColors.systemGreen
+            : CupertinoColors.systemYellow
+        : CupertinoColors.systemRed;
+    return InferenceIndicator(
+      icon: icon,
+      color: CupertinoColors.activeGreen,
+      type: type,
+      message: "Running",
+      formattedTextWidget: Text(
+          "${offsets?.degrees.toStringAsFixed(1) ?? "0.0"}°",
+          style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+    );
   }
 
   Widget onStandby(BuildContext context,

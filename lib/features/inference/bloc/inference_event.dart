@@ -33,13 +33,15 @@ class InferenceInput<I, O> extends InferenceEvent<I, O> {
 }
 
 class InferenceOutput<I, O> extends InferenceEvent<I, O> {
+  final String id;
   final I input;
   final Map<String, dynamic>? params;
   final O? output;
-  const InferenceOutput({required this.input, this.params, this.output});
+  const InferenceOutput(
+      {required this.id, required this.input, this.params, this.output});
 
   @override
-  List<Object?> get props => [output];
+  List<Object?> get props => [id, input, params, output];
 }
 
 class InferenceEnd<I, O> extends InferenceEvent<I, O> {

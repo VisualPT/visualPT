@@ -9,11 +9,11 @@ import '../../constants/model_file.dart';
 import '../ai_model.dart';
 
 const Map<int, String> classifications = {
-  -1: "invalid",
   0: "static",
   1: "arms uncrossed",
   2: "trunk flex",
   3: "feet separated",
+  -1: "invalid",
 };
 
 class NormConst {
@@ -50,8 +50,8 @@ class PoseClassification
   PoseClassification({super.interpreter}) {
     loadModel();
   }
-  static const int inputSize = 256;
-  static const double threshold = 0.70;
+  // static const int inputSize = 256;
+  // static const double threshold = 0.70;
 
   @override
   List<Object> get props => [];
@@ -108,7 +108,12 @@ class PoseClassification
 
     interpreter!.runForMultipleInputs(inputs, outputs);
 
-    final prediction = output.getDoubleValue(0);
+    print({
+      "output": output,
+      "prediction": output.getDoubleList(),
+      "shape": output.getShape(),
+    });
+    final prediction = output.getDoubleList();
     return PoseClassificationOutput(prediction);
   }
 }
@@ -116,8 +121,7 @@ class PoseClassification
 PoseClassificationOutput? runPoseClassifier(Map<String, dynamic> params) {
   final pose = PoseClassification(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final result = pose.predict(params['input'], params['params']);
-  return result;
+  return pose.predict(params['input'], params['params']);
 }
 
 List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {
@@ -162,7 +166,9 @@ List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {
       idistx < NormConst.distXY[0] - (NormConst.sds[4]);
 
   if (isBad) {
-    return null;
+    print('Bad data');
+    //TODO: We let all the data pass through to inference to keep the UI running even if the input is bad.
+    // return null;
   }
 
   // Scale and translate data

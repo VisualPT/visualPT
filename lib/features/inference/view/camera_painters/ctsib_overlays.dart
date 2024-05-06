@@ -222,7 +222,7 @@ class PoseSwayPainter extends CustomPainter {
     if (offsets != null) {
       //Put the degree text on the canvas
       final text = TextSpan(
-          text: "${offsets.degrees.toStringAsFixed(2)}°",
+          text: "${offsets.degrees.toStringAsFixed(1)}°",
           style: TextStyle(color: color, fontSize: 30));
       final textPainter = TextPainter(
           text: text,

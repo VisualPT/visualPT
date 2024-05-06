@@ -1,15 +1,16 @@
 part of 'inference_bloc.dart';
 
 abstract class InferenceState<I, O> extends Equatable {
+  final String id;
   final O? response;
-  const InferenceState(this.response);
+  const InferenceState(this.response, this.id);
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [this.response ?? ""];
 }
 
 class InferenceLoading<I, O> extends InferenceState<I, O> {
-  const InferenceLoading() : super(null);
+  const InferenceLoading() : super(null, "Loading");
 
   @override
   List<Object> get props => [];
@@ -17,14 +18,14 @@ class InferenceLoading<I, O> extends InferenceState<I, O> {
 
 class InferenceRunning<I, O> extends InferenceState<I, O> {
   final Map<String, dynamic>? params;
-  const InferenceRunning(super.response, this.params);
+  const InferenceRunning(super.response, super.id, this.params);
 
   @override
-  List<Object> get props => [response ?? "", params ?? ""];
+  List<Object> get props => [response ?? "", params ?? "", id];
 }
 
 class InferenceStandby<I, O> extends InferenceState<I, O> {
-  const InferenceStandby() : super(null);
+  const InferenceStandby() : super(null, "Standby");
 
   @override
   List<Object> get props => [];
@@ -32,7 +33,7 @@ class InferenceStandby<I, O> extends InferenceState<I, O> {
 
 class InferenceError<I, O> extends InferenceState<I, O> {
   final Exception error;
-  const InferenceError({required this.error}) : super(null);
+  const InferenceError({required this.error}) : super(null, "Error");
 
   @override
   List<Object> get props => [];
