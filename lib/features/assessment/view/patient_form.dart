@@ -100,15 +100,16 @@ class _PatientFormState extends State<PatientForm> {
                 //                 });
                 //               }),
                 //         ])),
-                // CupertinoButton(
-                //     onPressed: () {
-                //       firstNameController.text = "Sample";
-                //       lastNameController.text = "Patient";
-                //       dobController.text = "2000-01-01";
-                //       genderController.text = "MALE";
-                //       heightController.text = "60\"";
-                //     },
-                //     child: const Text("Autofill")),
+                CupertinoButton(
+                    onPressed: () {
+                      firstNameController.text = "Sample";
+                      lastNameController.text = "Patient";
+                      dobController.text = "2000-01-01";
+                      genderController.text = "MALE";
+                      heightController.text = "60\"";
+                      fallHistoryController.text = "NONE";
+                    },
+                    child: const Text("Autofill")),
                 Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: CupertinoButton(
