@@ -2,21 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/styles.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 
 class AssessmentCard extends StatelessWidget {
-  final String imagePath;
-  final AssessmentType assessmentType;
-  final String subtitle;
-  final bool available;
+  final BaseAssessment assessment;
   const AssessmentCard(
-      {Key? key,
-      required this.imagePath,
-      required this.assessmentType,
-      required this.subtitle,
-      this.available = true})
-      : super(key: key);
+    this.assessment, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,50 +27,157 @@ class AssessmentCard extends StatelessWidget {
             .contains("charlesrichardsonusa@gmail.com");
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: GestureDetector(
-        onTap: () => available
-            ? Navigator.pushNamed(context, "/assessment",
-                arguments: assessmentType)
-            : null,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height / 4,
-            width: MediaQuery.of(context).size.height / 4,
-            child: Container(
-              decoration: BoxDecoration(
-                color:
-                    available ? CupertinoColors.white : Styles.comingSoonColor,
-                borderRadius: Styles.borderRadiusM,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Image(
-                  image: AssetImage(imagePath),
-                  fit: BoxFit.contain,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          //Unusused visual for now, leaving for inspiriation lol
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: assessment.isAvailable
+                ? CupertinoColors.white
+                : Styles.comingSoonColor,
+            borderRadius: Styles.borderRadiusM,
+          ),
+          child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 12,
+                  width: MediaQuery.of(context).size.height / 12,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: Styles.borderRadiusM,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: Image(
+                        image: AssetImage(assessment.imagePath),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(assessmentType.name,
-                  style: available ? Styles.title : Styles.comingSoonTitle),
-              Text(subtitle,
-                  style:
-                      available ? Styles.subtitle : Styles.comingSoonSubtitle)
-            ],
-          ),
-          Center(
-              child: isAdmin && available
-                  ? CupertinoButton(
-                      onPressed: () =>
-                          {nav.toPath(path: "/validate", args: assessmentType)},
-                      color: Styles.actionSecondary,
-                      child: const Text("Validate", style: Styles.subtitle))
-                  : Container())
-        ]),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(assessment.type.name, style: Styles.title),
+                      Row(
+                        children: [
+                          Text(assessment.normalDuration,
+                              style: Styles.heading3),
+                          //Create a popup similar to the AssessmentInstructions that takes in the assessment.details and displays it on top of the view
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                assessment.isAvailable
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () => assessment.isAvailable
+                              ? Navigator.pushNamed(context, "/assessment",
+                                  arguments: assessment.type)
+                              : null,
+                          child: Container(
+                            padding: const EdgeInsets.all(4.0),
+                            decoration: const BoxDecoration(
+                              color: Styles.actionPrimary,
+                              borderRadius: Styles.borderRadiusM,
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.play_arrow,
+                              color: CupertinoColors.white,
+                              size: 60,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => showCupertinoModalPopup(
+                        context: context,
+                        builder: (context) => Container(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          decoration: const BoxDecoration(
+                            color: Styles.white,
+                            borderRadius: Styles.borderRadiusM,
+                          ),
+                          child: CupertinoScrollbar(
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      assessment.name,
+                                      style: Styles.heading1,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    assessment.details,
+                                    style: Styles.popupSelectionText,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: const BoxDecoration(
+                            color: Styles.actionSecondary,
+                            borderRadius: Styles.borderRadiusM,
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.info,
+                            color: CupertinoColors.black,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ),
+                    isAdmin && assessment.isAvailable
+                        ? Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: GestureDetector(
+                              onTap: () => nav.toPath(
+                                  path: "/validate", args: assessment.type),
+                              child: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: const BoxDecoration(
+                                  color: Styles.actionSecondary,
+                                  borderRadius: Styles.borderRadiusM,
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.eye,
+                                  color: CupertinoColors.black,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+              ]),
+        ),
       ),
     );
   }

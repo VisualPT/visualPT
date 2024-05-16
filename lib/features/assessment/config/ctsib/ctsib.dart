@@ -1,33 +1,64 @@
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+
 import 'package:visualpt/models/ModelProvider.dart';
 
-class CTSIB extends BaseAssessment {
-  CTSIB()
-      : super(
-          type: AssessmentType.CTSIB,
-          sequences: 6,
-          seqNames: [
-            "Eyes Open, Firm Surface",
-            "Eyes Closed, Firm Surface",
-            "Visual Conflict Dome, Firm Surface",
-            "Eyes Open, Foam Surface",
-            "Eyes Closed, Foam Surface",
-            "Visual Conflict Dome, Foam Surface",
-          ],
-          seqInstructions: List.filled(6, [
-            "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-            "Camera position must be static and level",
-            "Lighting must be sufficient to clearly see the patient",
-          ]),
-          seqInference: List.filled(6,
-              [InferenceType.poseDetection, InferenceType.poseClassification]),
-          seqInstability: [false, false, false, true, true, true],
-          seqObtrusion: [false, false, true, false, false, true],
-          formFields: {},
-          isTrainingData: true,
-        );
+class CTSIB implements BaseAssessment {
+  @override
+  AssessmentType get type => AssessmentType.CTSIB;
+
+  @override
+  String get name => "Clinical Test of Sensory Interaction on Balance";
+
+  @override
+  String get normalDuration => "5 minutes";
+
+  @override
+  get details =>
+      """The Clinical Test of Sensory Interaction on Balance (CTSIB) is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the patient standing on a firm surface with eyes open, eyes closed, and with a visual conflict dome.\n\nThe test is then repeated with the patient standing on a foam surface.""";
+
+  @override
+  String get imagePath => "assets/images/ctsib_mainlogo.png";
+
+  @override
+  int get sequences => 6;
+
+  @override
+  List<String> get seqNames => [
+        "Eyes Open, Firm Surface",
+        "Eyes Closed, Firm Surface",
+        "Visual Conflict Dome, Firm Surface",
+        "Eyes Open, Foam Surface",
+        "Eyes Closed, Foam Surface",
+        "Visual Conflict Dome, Foam Surface",
+      ];
+
+  @override
+  List<List<String>> get seqInstructions => List.filled(6, [
+        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
+        "Camera position must be static and level",
+        "Lighting must be sufficient to clearly see the patient",
+      ]);
+
+  @override
+  List<List<InferenceType>> get seqInference => List.filled(
+      6, [InferenceType.poseDetection, InferenceType.poseClassification]);
+
+  @override
+  List<bool> get seqObtrusion => [false, false, false, true, true, true];
+
+  @override
+  List<bool> get seqInstability => [false, false, true, false, false, true];
+
+  @override
+  Map<Map<String, String>, String> get formFields => {};
+
+  @override
+  bool get isTrainingData => true;
+
+  @override
+  bool get isAvailable => true;
 
   //Numbers are in m/s and start in the 6-12, then 13-19, then 20-29, 30-39... to 80+
   static const norms = [179.7, 180.0, 179.9, 177.7];
