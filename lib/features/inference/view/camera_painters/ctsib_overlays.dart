@@ -127,21 +127,13 @@ class BoxPainter extends CustomPainter {
 
     final Paint xPaint = Paint()
       ..color = xColor.withAlpha(200)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..style = PaintingStyle.stroke;
     final Paint yPaint = Paint()
       ..color = yColor.withAlpha(200)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..style = PaintingStyle.stroke;
     final Paint paint = Paint()
       ..color = Colors.blue.withAlpha(200)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    // //Draw the computed box
-    // canvas.drawRect(
-    //     Rect.fromPoints(Offset(0, 0), Offset(bBox["maxX"], bBox["maxY"])),
-    //     paint);
+      ..style = PaintingStyle.stroke;
 
     // Draw the box
     canvas.drawLine(tl, tr, yPaint); // top horizontal line
