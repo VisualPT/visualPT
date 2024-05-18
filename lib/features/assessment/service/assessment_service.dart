@@ -28,12 +28,14 @@ class AssessmentService extends DataStoreService<Assessment> {
     return assessment.copyWith(pdf: pdf);
   }
 
-  Assessment addSegments(Assessment assessment, List<Segment> segments) {
-    log("Adding segments to assessment object");
-    return assessment.copyWith(segments: segments);
+  Assessment addConditions(Assessment assessment, List<Condition> conditions) {
+    log("Adding conditions to assessment object");
+    //Add all the incomong conditions to the existing conditions in the assessment
+    conditions.addAll(assessment.Conditions ?? []);
+    return assessment.copyWith(Conditions: conditions);
   }
 
-  Assessment addDuration(Assessment assessment, int durationSeconds) {
+  Assessment addDuration(Assessment assessment, double durationSeconds) {
     log("Adding duration (in seconds) to assessment object");
     return assessment.copyWith(duration: durationSeconds);
   }

@@ -43,7 +43,8 @@ class _PatientFormState extends State<PatientForm> {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
         BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-            FormHelper.createPatient(
+            FormHelper.createSubject(
+                widget.user.id,
                 firstNameController.text,
                 lastNameController.text,
                 dobController.text,

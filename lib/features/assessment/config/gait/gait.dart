@@ -16,7 +16,7 @@ class GAIT implements BaseAssessment {
 
   @override
   String get details =>
-      """The Gait Velocity Test is a quick and easy way to assess a patient's walking speed. \nThe test is performed by having the patient walk a set distance and measuring the time it takes to complete the distance.""";
+      """The Gait Velocity Test is a quick and easy way to assess a subject's walking speed. \nThe test is performed by having the subject walk a set distance and measuring the time it takes to complete the distance.""";
 
   @override
   String get imagePath => "assets/images/gv_mainlogo.png";
@@ -31,7 +31,7 @@ class GAIT implements BaseAssessment {
   List<List<String>> get seqInstructions => List.filled(1, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the patient",
+        "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override
@@ -79,7 +79,7 @@ class GaitNorms {
 // class GaitPatientData {
 //   late String managingtherapistEmail = 'sample@example.com';
 //   late String firstname = 'sample';
-//   late String lastname = 'patient';
+//   late String lastname = 'subject';
 //   late String bday = '01/01/1901';
 //   late bool isMale = true;
 //   late String age = '0';
@@ -97,7 +97,7 @@ class GAITData {
   //final int classIndex;
   //final int conditionNumber;
   final int trialNumber;
-  //final Patient patient; TODO: #140 Implement Patient Row in the Metadata @DrBubbles42 this should probably become a third row
+  //final Patient subject; TODO: #140 Implement Patient Row in the Metadata @DrBubbles42 this should probably become a third row
   //final GaitDetectionOutput output;
   const GAITData(
     this.imageHeight,

@@ -10,7 +10,7 @@ import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/models/Segment.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   final VideoState state;
@@ -35,12 +35,15 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
       classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       timer.add(const TimerReset());
-      final segment = Segment(
-          duration_seconds:
-              BlocProvider.of<TimerBloc>(context).state.duration.inSeconds,
-          file: "REMOVE");
+      final condition = Condition(
+        assessmentID: BlocProvider.of<AssessmentBloc>(context).dbAssessment.id,
+        duration:
+            BlocProvider.of<TimerBloc>(context).state.duration.inMilliseconds /
+                1000,
+      );
+      //TODO: Add the relevant information here to access in the PDF Analysis
       vid.add(const VideoInit());
-      asmt.add(AssessmentIncrement(segment));
+      asmt.add(AssessmentIncrement(condition));
     }
 
 //TODO: Make the video controls show up when ALL the models are ready

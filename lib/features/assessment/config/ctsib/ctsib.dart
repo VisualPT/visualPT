@@ -16,7 +16,7 @@ class CTSIB implements BaseAssessment {
 
   @override
   get details =>
-      """The Clinical Test of Sensory Interaction on Balance (CTSIB) is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the patient standing on a firm surface with eyes open, eyes closed, and with a visual conflict dome.\n\nThe test is then repeated with the patient standing on a foam surface.""";
+      """The Clinical Test of Sensory Interaction on Balance (CTSIB) is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the subject standing on a firm surface with eyes open, eyes closed, and with a visual conflict dome.\n\nThe test is then repeated with the subject standing on a foam surface.""";
 
   @override
   String get imagePath => "assets/images/ctsib_mainlogo.png";
@@ -38,7 +38,7 @@ class CTSIB implements BaseAssessment {
   List<List<String>> get seqInstructions => List.filled(6, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the patient",
+        "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override

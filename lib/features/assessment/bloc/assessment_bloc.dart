@@ -15,9 +15,9 @@ class AssessmentBloc<T extends BaseAssessment>
     extends Bloc<AssessmentEvent, AssessmentState<T>> {
   final T assessmentParams;
   late Assessment dbAssessment;
-  late Patient patient;
+  late Subject subject;
   late DateTime startTime;
-  List<Segment> segments = [];
+  List<Condition> conditions = [];
   int conditionIndex = 0;
   bool storeData = false;
 
@@ -32,63 +32,66 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     if (event.reset) {
+      //TODO these should be created at the END of the assessment with all of the aggregated data, not the beginning?
       dbAssessment = Assessment(
-          patientID: patient.id,
+          subjectID: subject.id,
           type: assessmentParams.type,
           datetime: TemporalDateTime(DateTime.now()),
-          segments: segments);
-      segments = [];
+          duration: 0,
+          Conditions: conditions);
+      conditions = [];
       startTime = DateTime.now();
       conditionIndex = 0;
     }
-    patient = event.patient;
+    subject = event.subject;
     storeData = event.storeData;
     dbAssessment = Assessment(
-        patientID: patient.id,
+        subjectID: subject.id,
         type: assessmentParams.type,
+        duration: 0,
         datetime: TemporalDateTime(DateTime.now()),
-        segments: segments);
+        Conditions: conditions);
     final meta = ClinicalMeta(
-        patient.dob.toString(),
-        patient.gender,
-        patient.fall_history,
+        subject.dob.toString(),
+        subject.gender,
+        subject.fall_history,
         assessmentParams.type,
         assessmentParams.seqObtrusion[conditionIndex],
         assessmentParams.seqInstability[conditionIndex],
         conditionIndex,
         1);
     emit(AssessmentActive<T>(
-        meta, patient, storeData, conditionIndex, this.assessmentParams));
+        meta, subject, storeData, conditionIndex, this.assessmentParams));
   }
 
   FutureOr<void> _onIncrement(
       AssessmentIncrement event, Emitter<AssessmentState> emit) async {
     emit(AssessmentLoading<T>(assessmentParams, conditionIndex));
-    segments.add(event.segment);
+    conditions.add(event.condition);
     conditionIndex = conditionIndex + 1;
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
     if (conditionIndex == assessmentParams.sequences) {
       final finishTime = DateTime.now();
-      final int assessmentDurationSeconds =
-          finishTime.difference(startTime).inSeconds;
+      final double assessmentDurationSeconds =
+          finishTime.difference(startTime).inMilliseconds / 1000;
       dbAssessment = dbAssessment.copyWith(
-          segments: segments, duration: assessmentDurationSeconds);
+          Conditions: conditions, duration: assessmentDurationSeconds);
       emit(AssessmentAnalysis<T>(
-          patient, storeData, dbAssessment, assessmentParams));
+          subject, storeData, dbAssessment, assessmentParams));
     } else {
       final meta = ClinicalMeta(
-          patient.dob.toString(),
-          patient.gender,
-          patient.fall_history,
+          subject.dob.toString(),
+          subject.gender,
+          subject.fall_history,
           assessmentParams.type,
           assessmentParams.seqObtrusion[conditionIndex],
           assessmentParams.seqInstability[conditionIndex],
           conditionIndex,
           1);
       emit(AssessmentActive<T>(
-          meta, patient, storeData, conditionIndex, assessmentParams));
+          meta, subject, storeData, conditionIndex, assessmentParams));
     }
   }
 

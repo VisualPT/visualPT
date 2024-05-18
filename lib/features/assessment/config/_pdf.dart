@@ -76,5 +76,5 @@ abstract class PDF {
     return;
   }
 
-  Future<Uint8List> generatePdf(Patient patient, Assessment assessment);
+  Future<Uint8List> generatePdf(Subject subject, Assessment assessment);
 }

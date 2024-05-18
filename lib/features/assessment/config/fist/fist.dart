@@ -29,7 +29,7 @@ class FIST implements BaseAssessment {
   List<List<String>> get seqInstructions => List.filled(1, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the patient",
+        "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override

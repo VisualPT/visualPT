@@ -11,12 +11,12 @@ import '../_pdf.dart';
 
 class GaitPDF extends PDF {
   @override
-  Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
     final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
-        title: patient.last_name + patient.first_name + patient.dob.toString(),
+        title: subject.last_name + subject.first_name + subject.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
@@ -70,7 +70,7 @@ class GaitPDF extends PDF {
                                         text: "Patient Name: ", style: detail),
                                     TextSpan(
                                         text:
-                                            "${patient.first_name} ${patient.last_name}",
+                                            "${subject.first_name} ${subject.last_name}",
                                         style: detailBold),
                                   ]),
                                 ),
@@ -80,7 +80,7 @@ class GaitPDF extends PDF {
                                     TextSpan(
                                         text: "Birth Date: ", style: detail),
                                     TextSpan(
-                                        text: patient.dob.toString(),
+                                        text: subject.dob.toString(),
                                         style: detailBold),
                                   ]),
                                 ),
@@ -112,7 +112,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Age: ", style: detail),
                         TextSpan(
-                            text: patient.dob.toString(),
+                            text: subject.dob.toString(),
                             style: detailBold), //TODO DOB to age
                       ]),
                     ),
@@ -121,7 +121,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Gender: ", style: detail),
                         TextSpan(
-                            text: patient.gender.toString(), style: detailBold),
+                            text: subject.gender.toString(), style: detailBold),
                       ]),
                     ),
                     Spacer(),
@@ -213,7 +213,7 @@ class GaitPDF extends PDF {
                     Positioned(
                       top: 0.1,
                       left: positioner(GaitNorms.getVelocityFromAge(
-                              patient.gender, patient.dob)
+                              subject.gender, subject.dob)
                           .toString()),
                       child: Container(
                         height: 0.25 * inch,
@@ -267,7 +267,7 @@ class GaitPDF extends PDF {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: detailBold,
-                  text: getComparisonMessage(30, patient.gender, patient.dob),
+                  text: getComparisonMessage(30, subject.gender, subject.dob),
                 ),
               ),
             ),

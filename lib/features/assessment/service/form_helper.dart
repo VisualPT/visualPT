@@ -2,7 +2,8 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class FormHelper {
-  static Patient createPatient(
+  static Subject createSubject(
+      String userID,
       String firstName,
       String lastName,
       String dateOfBirth,
@@ -10,7 +11,8 @@ class FormHelper {
       String height,
       String email,
       String fallHistory) {
-    return Patient(
+    return Subject(
+        userID: userID,
         first_name: firstName,
         last_name: lastName,
         dob: TemporalDate(DateTime.parse(dateOfBirth)),

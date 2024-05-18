@@ -14,7 +14,7 @@ class REACH implements BaseAssessment {
 
   @override
   String get details =>
-      """The Functional Reach Test is a quick and easy way to assess a patient's balance and stability.\n The test is performed by having the patient stand with their feet shoulder-width apart and reaching forward as far as they can without taking a step.""";
+      """The Functional Reach Test is a quick and easy way to assess a subject's balance and stability.\n The test is performed by having the subject stand with their feet shoulder-width apart and reaching forward as far as they can without taking a step.""";
 
   @override
   String get imagePath => "assets/images/reach_mainlogo.png";
@@ -29,7 +29,7 @@ class REACH implements BaseAssessment {
   List<List<String>> get seqInstructions => List.filled(1, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the patient",
+        "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override

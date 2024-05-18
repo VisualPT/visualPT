@@ -7,10 +7,10 @@ class PdfLoading extends PdfState {}
 
 class PdfReady extends PdfState {
   final PDFView pdfView;
-  final Patient patient;
+  final Subject subject;
   final Assessment assessment;
   PdfReady(
-      {required this.pdfView, required this.patient, required this.assessment});
+      {required this.pdfView, required this.subject, required this.assessment});
 }
 
 class PdfError extends PdfState {

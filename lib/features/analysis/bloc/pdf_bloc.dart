@@ -34,7 +34,7 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
     try {
       await document
           .configPdfStyles()
-          .then((_) => document.generatePdf(event.patient, event.assessment))
+          .then((_) => document.generatePdf(event.subject, event.assessment))
           .then((pdfData) {
         PDFView view = PDFView(
             enableSwipe: false,
@@ -45,7 +45,7 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
             pageSnap: false);
         emit(PdfReady(
             pdfView: view,
-            patient: event.patient,
+            subject: event.subject,
             assessment: event.assessment));
       });
     } on Exception catch (error) {

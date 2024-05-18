@@ -25,7 +25,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         pageTitle: "${asmtState.assessment.type.name} analysis",
         child: AnalysisPresenter(
           onCreate: PdfInit(
-              patient: asmtState.patient, assessment: asmtState.dbAssessment),
+              subject: asmtState.subject, assessment: asmtState.dbAssessment),
           onReady: pdfReady,
           onLoading: pdfLoading,
           onError: pdfError,
@@ -49,7 +49,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 onPressed: () {
                   //TODO Add an are you sure popup
                   BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-                      asmtState.patient, asmtState.storeData,
+                      asmtState.subject, asmtState.storeData,
                       reset: true));
                 },
                 child: const Text(
@@ -62,7 +62,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 color: CupertinoColors.link,
                 onPressed: () => onSend(
                   context,
-                  asmtState.patient,
+                  asmtState.subject,
                   asmtState.dbAssessment,
                   state.pdfView.pdfData!,
                 ),
@@ -89,7 +89,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
           child: const Text("Retry"),
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(
                 PdfInit(
-                    patient: asmtState.patient,
+                    subject: asmtState.subject,
                     assessment: asmtState.dbAssessment),
               ))
     ]));
@@ -99,19 +99,19 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   ///Saves the PDF and stores assessment by default
   void onSend(
     BuildContext context,
-    Patient patient,
+    Subject subject,
     Assessment assessment,
     Uint8List pdf,
   ) {
     appDialog(
         context: context,
         title: "Save and Send",
-        content: "Email will be sent to: ${patient.provider_contact}",
+        content: "Email will be sent to: ${subject.provider_contact}",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
           assessment = AssessmentService().addPDF(assessment, pdf);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
-              patient: patient,
+              subject: subject,
               assessment: assessment,
               onSuccess: () => AppNav(context).setHome(),
               onFail: () => log("Email failed")));
