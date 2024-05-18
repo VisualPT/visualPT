@@ -92,7 +92,7 @@ class ValidationView extends StatelessWidget {
             child: Column(
               children: [
                 Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}",
-                    style: Styles.subactionText),
+                    style: Styles.heading3),
                 BlocProvider.of<ValidationBloc>(context)
                         .processedKeys
                         .isNotEmpty
