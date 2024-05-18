@@ -11,19 +11,29 @@ class Styles {
   Styles._internal();
 
   static const kItemExtent = 32.0;
+  // Primary Colors
+  static const skyBlue = Color(0xFF74C6E7);
+  static const orange = Color(0xFFEA7A36);
 
-  //Default Colors
-  static const backgroundPrimary = Color(0xFF91DAFF);
-  static const backgroundAccent = Color(0xFF4EC3FF);
-  static const backgroundComplementory = Color(0xFFf8c098);
+  // Secondary Colors
+  static const navyBlue = Color(0xFF19365A);
+  static const white = Color(0xFFFFFFFF);
+  static const black = Color(0xFF000000);
+  static const ceruleanBlue = Color(0xFF2C8ECA);
 
-  static const actionPrimary = Color(0xFF1F7A97);
-  static const actionSecondary = Color(0x551F7A97);
+  // Action Colors (Derived from Primary for buttons, highlights, CTAs)
+  static const actionPrimary = Color(0xDCEA7A36); //orange at 87% opacity
+  static const actionSecondary = skyBlue;
 
+  // Background Colors (Neutral background colors)
+  static const backgroundPrimary = white;
+  static const backgroundAccent =
+      Color(0x202C8ECA); //ceruleanBlue at 12% opacity
+  static const backgroundComplementary =
+      Color(0x2019365A); //navyBlue at 12% opacity
+
+  // Other Colors
   static const comingSoonColor = Color(0x77777777);
-
-  static const white = CupertinoColors.white;
-  static const black = CupertinoColors.black;
   static const transparent = Colors.transparent;
 
   //Asset Paths
@@ -36,7 +46,9 @@ class Styles {
   );
   static const subtitle = TextStyle(fontSize: 24);
   static const heading1 = TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
-  static const heading2 = TextStyle(fontSize: 20);
+  static const heading2 = TextStyle(
+    fontSize: 20,
+  );
   static const heading3 = TextStyle(fontSize: 18);
   static const placeholderStyle =
       TextStyle(color: CupertinoColors.inactiveGray, fontSize: 24);

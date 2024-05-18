@@ -28,6 +28,36 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController fallHistoryController = TextEditingController();
   bool storeData = true;
 
+  void handleAutofill() {
+    firstNameController.text = "Sample";
+    lastNameController.text = "Patient";
+    dobController.text = "2000-01-01";
+    genderController.text = "MALE";
+    heightController.text = "60\"";
+    fallHistoryController.text = "NONE";
+  }
+
+  void handleFormSubmit() {
+    //TODO <are you sure this data is correct?> modal
+    try {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+            FormHelper.createPatient(
+                firstNameController.text,
+                lastNameController.text,
+                dobController.text,
+                genderController.text,
+                heightController.text,
+                widget.user.email,
+                fallHistoryController.text),
+            storeData));
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseView(
@@ -38,13 +68,20 @@ class _PatientFormState extends State<PatientForm> {
           child: ConstrainedBox(
             constraints: BoxConstraints(
               minHeight: 100,
-              maxHeight: MediaQuery.of(context).size.height,
+              maxHeight: MediaQuery.of(context).size.height - 150,
             ),
             child: Column(
               //TODO: add a reset button
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                const Spacer(),
+                const Text(
+                  "A few pieces of info to \n curate your experience",
+                  style: Styles.heading3,
+                  textAlign: TextAlign.center,
+                ),
+                const Spacer(),
                 // FormInput(
                 //   "First Name",
                 //   controller: firstNameController,
@@ -101,45 +138,17 @@ class _PatientFormState extends State<PatientForm> {
                 //               }),
                 //         ])),
                 CupertinoButton(
-                    onPressed: () {
-                      firstNameController.text = "Sample";
-                      lastNameController.text = "Patient";
-                      dobController.text = "2000-01-01";
-                      genderController.text = "MALE";
-                      heightController.text = "60\"";
-                      fallHistoryController.text = "NONE";
-                    },
-                    child: const Text("Autofill")),
-                Padding(
+                    onPressed: handleAutofill,
+                    child: const Text("Autofill",
+                        style: TextStyle(color: Styles.white))),
+                Container(
                     padding: const EdgeInsets.all(16.0),
                     child: CupertinoButton(
                       color: Styles.actionPrimary,
-                      onPressed: () {
-                        //TODO <are you sure this data is correct?> modal
-                        try {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            ;
-
-                            BlocProvider.of<AssessmentBloc>(context).add(
-                                AssessmentInit(
-                                    FormHelper.createPatient(
-                                        firstNameController.text,
-                                        lastNameController.text,
-                                        dobController.text,
-                                        genderController.text,
-                                        heightController.text,
-                                        widget.user.email,
-                                        fallHistoryController.text),
-                                    storeData));
-                          }
-                        } catch (e) {
-                          rethrow;
-                        }
-                      },
+                      onPressed: handleFormSubmit,
                       child: const Text("Next", style: Styles.actionText),
                     )),
-                Text(widget.user.email),
+                const Spacer(),
               ],
             ),
           ),

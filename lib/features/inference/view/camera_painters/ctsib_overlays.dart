@@ -127,10 +127,13 @@ class BoxPainter extends CustomPainter {
 
     final Paint xPaint = Paint()
       ..color = xColor.withAlpha(200)
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
     final Paint yPaint = Paint()
       ..color = yColor.withAlpha(200)
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
     final Paint paint = Paint()
       ..color = Colors.blue.withAlpha(200)
       ..style = PaintingStyle.stroke;
@@ -211,8 +214,12 @@ class PoseSwayPainter extends CustomPainter {
             : Colors.yellow
         : Colors.red; // Change this to the desired color
 
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5;
+
     if (offsets != null) {
-      canvas.drawLine(offsets.low, offsets.high, Paint()..color = color);
+      canvas.drawLine(offsets.low, offsets.high, paint);
     }
   }
 

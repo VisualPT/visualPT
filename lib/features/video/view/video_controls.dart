@@ -84,21 +84,28 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                           PoseDetectionOutput> &&
                       state is VideoStandby) ...[
                     GestureDetector(
-                      onTap: () {
-                        final controller = (state as VideoStandby).controller;
-                        //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
-                        final params = {
-                          "height": controller.value.previewSize!.width,
-                          "width": controller.value.previewSize!.height,
-                        };
-                        vid.add(const VideoPlay());
-                        detection.add(InferenceStart("Start", params));
-                        classification.add(InferenceStart("Start", params));
-                        timer.add(const TimerStarted());
-                      },
-                      child: const Icon(CupertinoIcons.circle_fill,
-                          color: Styles.white, size: 80),
-                    )
+                        onTap: () {
+                          final controller = (state as VideoStandby).controller;
+                          //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
+                          final params = {
+                            "height": controller.value.previewSize!.width,
+                            "width": controller.value.previewSize!.height,
+                          };
+                          vid.add(const VideoPlay());
+                          detection.add(InferenceStart("Start", params));
+                          classification.add(InferenceStart("Start", params));
+                          timer.add(const TimerStarted());
+                        },
+                        child: Container(
+                            decoration: const BoxDecoration(
+                              color: Styles.actionSecondary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.circle_fill,
+                              color: Styles.actionPrimary,
+                              size: 100,
+                            )))
                   ] else ...[
                     GestureDetector(
                         onTap: () {
@@ -113,7 +120,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                     GestureDetector(
                         onTap: () => onComplete(),
                         child: const Icon(CupertinoIcons.stop,
-                            color: Styles.backgroundComplementory, size: 80)),
+                            color: Styles.actionPrimary, size: 100)),
                     const Spacer(),
                     Text(formatter(timerState.duration),
                         style: Styles.timerTextStyle),

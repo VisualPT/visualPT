@@ -56,7 +56,7 @@ class _FormInputState extends State<FormInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.only(right: 16.0),
       child: Stack(
         alignment: Alignment.center,
@@ -72,8 +72,12 @@ class _FormInputState extends State<FormInput> {
             placeholder: widget.field,
             placeholderStyle: Styles.placeholderStyle,
             obscureText: obsController,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: CupertinoColors.white,
+              border: Border.all(
+                color: Styles.black,
+                width: 1,
+              ),
               borderRadius: Styles.borderRadiusM,
             ),
             validator: widget.validator ??

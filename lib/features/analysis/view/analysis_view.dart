@@ -105,7 +105,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   ) {
     appDialog(
         context: context,
-        title: "Save patient gait data",
+        title: "Save and Send",
         content: "Email will be sent to: ${patient.provider_contact}",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {

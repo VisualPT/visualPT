@@ -65,11 +65,9 @@ class _BaseViewState extends State<BaseView> {
             width: screenSize.width,
             child: Stack(alignment: Alignment.center, children: [
               const ViewBackground(),
-              SizedBox(
-                height: screenSize.height,
-                width: screenSize.width,
+              SafeArea(
                 child: widget.child,
-              ),
+              )
             ]),
           )),
       //InstructionModal below
@@ -86,7 +84,7 @@ class _BaseViewState extends State<BaseView> {
                       //Create rounded corners
                       decoration: const BoxDecoration(
                           borderRadius: Styles.borderRadiusM,
-                          color: Styles.backgroundAccent),
+                          color: Styles.ceruleanBlue),
                       child: widget.instructions),
                   onTap: () => setState(() => showInstructions = false)))
           : Container()
