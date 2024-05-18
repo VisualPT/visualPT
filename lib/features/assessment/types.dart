@@ -36,7 +36,7 @@ class ClinicalMeta {
       parts[4] == "true",
       parts[5] == "true",
       int.parse(parts[6]),
-      int.parse(parts[7]),
+      int.tryParse(parts[7]) ?? 1,
     );
   }
 }

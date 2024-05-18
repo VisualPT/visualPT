@@ -118,3 +118,46 @@ class VPTDetection {
     );
   }
 }
+
+class VPTDetectionV0 {
+  //Image Meta
+  final int imageHeight;
+  final int imageWidth;
+  final double ratio;
+  final bool classification;
+  //Detection Data
+  final PoseDetectionOutput detection;
+  VPTDetectionV0(
+    this.imageHeight,
+    this.imageWidth,
+    this.ratio,
+    this.classification,
+    this.detection,
+  );
+
+  static fromCSV(String id, String dataOutput) {
+    final imageMetadata = dataOutput.split('\n').first.split(',');
+
+    final imageHeight = int.parse(imageMetadata.elementAt(0));
+    final imageWidth = int.parse(imageMetadata.elementAt(1));
+    final ratio = double.parse(imageMetadata.elementAt(2));
+    final classification =
+        int.parse(imageMetadata.elementAt(3)) == 1 ? true : false;
+
+    final detection = dataOutput.substring(dataOutput.indexOf('\n'));
+
+    final output =
+        PoseDetectionOutput(id, detection, 256, imageHeight, imageWidth);
+    return VPTDetectionV0(
+        imageHeight, imageWidth, ratio, classification, output);
+  }
+}
+
+parseVersionedDetection(String id, String dataOutput) {
+  final version = int.parse(dataOutput.split('\n').first);
+  if (version == 1) {
+    return VPTDetection.fromCSV(dataOutput);
+  } else {
+    return VPTDetectionV0.fromCSV(id, dataOutput);
+  }
+}
