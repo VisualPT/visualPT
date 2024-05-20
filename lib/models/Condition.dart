@@ -29,6 +29,7 @@ class Condition extends amplify_core.Model {
   static const classType = const _ConditionModelType();
   final String id;
   final String? _assessmentID;
+  final int? _sequenceNumber;
   final double? _duration;
   final List<Trial>? _trials;
   final amplify_core.TemporalDateTime? _createdAt;
@@ -50,6 +51,19 @@ class Condition extends amplify_core.Model {
   String get assessmentID {
     try {
       return _assessmentID!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  int get sequenceNumber {
+    try {
+      return _sequenceNumber!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -85,12 +99,13 @@ class Condition extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const Condition._internal({required this.id, required assessmentID, required duration, trials, createdAt, updatedAt}): _assessmentID = assessmentID, _duration = duration, _trials = trials, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Condition._internal({required this.id, required assessmentID, required sequenceNumber, required duration, trials, createdAt, updatedAt}): _assessmentID = assessmentID, _sequenceNumber = sequenceNumber, _duration = duration, _trials = trials, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Condition({String? id, required String assessmentID, required double duration, List<Trial>? trials}) {
+  factory Condition({String? id, required String assessmentID, required int sequenceNumber, required double duration, List<Trial>? trials}) {
     return Condition._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       assessmentID: assessmentID,
+      sequenceNumber: sequenceNumber,
       duration: duration,
       trials: trials != null ? List<Trial>.unmodifiable(trials) : trials);
   }
@@ -105,6 +120,7 @@ class Condition extends amplify_core.Model {
     return other is Condition &&
       id == other.id &&
       _assessmentID == other._assessmentID &&
+      _sequenceNumber == other._sequenceNumber &&
       _duration == other._duration &&
       DeepCollectionEquality().equals(_trials, other._trials);
   }
@@ -119,6 +135,7 @@ class Condition extends amplify_core.Model {
     buffer.write("Condition {");
     buffer.write("id=" + "$id" + ", ");
     buffer.write("assessmentID=" + "$_assessmentID" + ", ");
+    buffer.write("sequenceNumber=" + (_sequenceNumber != null ? _sequenceNumber!.toString() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
@@ -127,22 +144,25 @@ class Condition extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Condition copyWith({String? assessmentID, double? duration, List<Trial>? trials}) {
+  Condition copyWith({String? assessmentID, int? sequenceNumber, double? duration, List<Trial>? trials}) {
     return Condition._internal(
       id: id,
       assessmentID: assessmentID ?? this.assessmentID,
+      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
       duration: duration ?? this.duration,
       trials: trials ?? this.trials);
   }
   
   Condition copyWithModelFieldValues({
     ModelFieldValue<String>? assessmentID,
+    ModelFieldValue<int>? sequenceNumber,
     ModelFieldValue<double>? duration,
     ModelFieldValue<List<Trial>>? trials
   }) {
     return Condition._internal(
       id: id,
       assessmentID: assessmentID == null ? this.assessmentID : assessmentID.value,
+      sequenceNumber: sequenceNumber == null ? this.sequenceNumber : sequenceNumber.value,
       duration: duration == null ? this.duration : duration.value,
       trials: trials == null ? this.trials : trials.value
     );
@@ -151,6 +171,7 @@ class Condition extends amplify_core.Model {
   Condition.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
       _assessmentID = json['assessmentID'],
+      _sequenceNumber = (json['sequenceNumber'] as num?)?.toInt(),
       _duration = (json['duration'] as num?)?.toDouble(),
       _trials = json['trials']  is Map
         ? (json['trials']['items'] is List
@@ -169,12 +190,13 @@ class Condition extends amplify_core.Model {
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'assessmentID': _assessmentID, 'duration': _duration, 'trials': _trials?.map((Trial? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'assessmentID': _assessmentID, 'sequenceNumber': _sequenceNumber, 'duration': _duration, 'trials': _trials?.map((Trial? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
     'assessmentID': _assessmentID,
+    'sequenceNumber': _sequenceNumber,
     'duration': _duration,
     'trials': _trials,
     'createdAt': _createdAt,
@@ -184,6 +206,7 @@ class Condition extends amplify_core.Model {
   static final amplify_core.QueryModelIdentifier<ConditionModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<ConditionModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
   static final ASSESSMENTID = amplify_core.QueryField(fieldName: "assessmentID");
+  static final SEQUENCENUMBER = amplify_core.QueryField(fieldName: "sequenceNumber");
   static final DURATION = amplify_core.QueryField(fieldName: "duration");
   static final TRIALS = amplify_core.QueryField(
     fieldName: "trials",
@@ -216,6 +239,12 @@ class Condition extends amplify_core.Model {
       key: Condition.ASSESSMENTID,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Condition.SEQUENCENUMBER,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.int)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(

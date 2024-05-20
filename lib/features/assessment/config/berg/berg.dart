@@ -21,10 +21,13 @@ class BERG implements BaseAssessment {
   String get imagePath => "assets/images/berg_mainlogo.png";
 
   @override
-  int get sequences => 6;
+  int get conditions => 6;
 
   @override
-  List<String> get seqNames => [
+  int get trials => 1;
+
+  @override
+  List<String> get conditionNames => [
         "Standing Unsupported with Feet Together",
         "Standing on One Leg",
         "Pick Up Object from the Floor",
@@ -34,21 +37,23 @@ class BERG implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get seqInstructions => List.filled(6, [
+  List<List<String>> get conditionInstructions => List.filled(6, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
         "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override
-  List<List<InferenceType>> get seqInference =>
+  List<List<InferenceType>> get conditionInference =>
       List.filled(6, [InferenceType.poseDetection]);
 
   @override
-  List<bool> get seqObtrusion => [false, false, false, false, false, false];
+  List<bool> get conditionObtrusion =>
+      [false, false, false, false, false, false];
 
   @override
-  List<bool> get seqInstability => [false, false, false, false, false, false];
+  List<bool> get conditionInstability =>
+      [false, false, false, false, false, false];
 
   @override
   Map<Map<String, String>, String> get formFields => {};

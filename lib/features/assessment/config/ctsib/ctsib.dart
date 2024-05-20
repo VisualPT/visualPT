@@ -22,10 +22,13 @@ class CTSIB implements BaseAssessment {
   String get imagePath => "assets/images/ctsib_mainlogo.png";
 
   @override
-  int get sequences => 6;
+  int get conditions => 6;
 
   @override
-  List<String> get seqNames => [
+  int get trials => 1;
+
+  @override
+  List<String> get conditionNames => [
         "Eyes Open, Firm Surface",
         "Eyes Closed, Firm Surface",
         "Visual Conflict Dome, Firm Surface",
@@ -35,21 +38,22 @@ class CTSIB implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get seqInstructions => List.filled(6, [
+  List<List<String>> get conditionInstructions => List.filled(6, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
         "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override
-  List<List<InferenceType>> get seqInference => List.filled(
+  List<List<InferenceType>> get conditionInference => List.filled(
       6, [InferenceType.poseDetection, InferenceType.poseClassification]);
 
   @override
-  List<bool> get seqObtrusion => [false, false, false, true, true, true];
+  List<bool> get conditionObtrusion => [false, false, false, true, true, true];
 
   @override
-  List<bool> get seqInstability => [false, false, true, false, false, true];
+  List<bool> get conditionInstability =>
+      [false, false, true, false, false, true];
 
   @override
   Map<Map<String, String>, String> get formFields => {};

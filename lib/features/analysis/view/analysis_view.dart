@@ -48,9 +48,8 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 color: CupertinoColors.link,
                 onPressed: () {
                   //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-                      asmtState.subject, asmtState.storeData,
-                      reset: true));
+                  BlocProvider.of<AssessmentBloc>(context)
+                      .add(AssessmentInit(asmtState.subject, reset: true));
                 },
                 child: const Text(
                   "Redo Assessment",

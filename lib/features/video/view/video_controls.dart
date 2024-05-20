@@ -36,14 +36,15 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
       vid.add(const VideoStop(reset: false));
       timer.add(const TimerReset());
       final condition = Condition(
-        assessmentID: BlocProvider.of<AssessmentBloc>(context).dbAssessment.id,
+        assessmentID: BlocProvider.of<AssessmentBloc>(context).assessment.id,
+        sequenceNumber: asmt.conditionIndex,
         duration:
             BlocProvider.of<TimerBloc>(context).state.duration.inMilliseconds /
                 1000,
       );
       //TODO: Add the relevant information here to access in the PDF Analysis
       vid.add(const VideoInit());
-      asmt.add(AssessmentIncrement(condition));
+      asmt.add(AssessmentCondition(condition));
     }
 
 //TODO: Make the video controls show up when ALL the models are ready

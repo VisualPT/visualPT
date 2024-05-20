@@ -51,8 +51,7 @@ class _PatientFormState extends State<PatientForm> {
                 genderController.text,
                 heightController.text,
                 widget.user.email,
-                fallHistoryController.text),
-            storeData));
+                fallHistoryController.text)));
       }
     } catch (e) {
       rethrow;

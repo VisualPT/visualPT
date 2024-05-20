@@ -20,27 +20,30 @@ class FIST implements BaseAssessment {
   String get imagePath => "assets/images/fist_mainlogo.png";
 
   @override
-  int get sequences => 1;
+  int get conditions => 1;
 
   @override
-  List<String> get seqNames => ["Sitting"];
+  int get trials => 1;
 
   @override
-  List<List<String>> get seqInstructions => List.filled(1, [
+  List<String> get conditionNames => ["Sitting"];
+
+  @override
+  List<List<String>> get conditionInstructions => List.filled(1, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
         "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override
-  List<List<InferenceType>> get seqInference =>
+  List<List<InferenceType>> get conditionInference =>
       List.filled(1, [InferenceType.poseDetection]);
 
   @override
-  List<bool> get seqObtrusion => [false];
+  List<bool> get conditionObtrusion => [false];
 
   @override
-  List<bool> get seqInstability => [false];
+  List<bool> get conditionInstability => [false];
 
   @override
   Map<Map<String, String>, String> get formFields => {};

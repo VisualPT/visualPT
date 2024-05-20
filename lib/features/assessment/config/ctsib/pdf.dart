@@ -204,7 +204,7 @@ class CtsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text(ctsib.seqNames[i], style: detail),
+                  child: Text(ctsib.conditionNames[i], style: detail),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
@@ -229,7 +229,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * ctsib.sequences} seconds",
+                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * ctsib.conditions} seconds",
                 ),
               ),
             ],

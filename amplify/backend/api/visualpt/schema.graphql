@@ -56,6 +56,7 @@ type Assessment @model @auth(rules: [{ allow: owner }]) {
 type Condition @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   assessmentID: ID! @index(name: "byAssessment")
+  sequenceNumber: Int!
   duration: Float! #seconds
   trials: [Trial!] @hasMany(indexName: "byCondition", fields: ["id"])
 }
