@@ -16,9 +16,10 @@ class AssessmentBloc<T extends BaseAssessment>
   final T config;
   late Subject subject;
   late Assessment assessment;
-  DateTime startTime = DateTime.now();
-  int conditionIndex = 0;
-  int trialIndex = 0;
+  Condition? currentCondition;
+  DateTime assessmentStartTime = DateTime.now();
+  DateTime conditionStartTime = DateTime.now();
+
   bool storeData = true;
 
   AssessmentBloc(this.config) : super(AssessmentForm<T>(config)) {
@@ -30,8 +31,7 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     if (event.reset) {
-      startTime = DateTime.now();
-      conditionIndex = 0;
+      assessmentStartTime = DateTime.now();
     }
     subject = event.subject;
     assessment = Assessment(
@@ -40,82 +40,96 @@ class AssessmentBloc<T extends BaseAssessment>
         duration: 0,
         datetime: TemporalDateTime(DateTime.now()),
         Conditions: []);
-    final meta = ClinicalMeta(
-        subject.dob.toString(),
-        subject.gender,
-        subject.fall_history,
-        config.type,
-        config.conditionObtrusion[conditionIndex],
-        config.conditionInstability[conditionIndex],
-        conditionIndex,
-        1);
+    conditionStartTime = DateTime.now();
+    currentCondition = Condition(
+        assessmentID: assessment.id,
+        duration: 0,
+        sequenceNumber: 0,
+        trials: []);
     emit(AssessmentActive<T>(
-        meta, subject, conditionIndex, trialIndex, storeData, this.config));
+        getMeta(subject, config, 0, 0), subject, storeData, this.config));
   }
 
   FutureOr<void> _onCondition(
       AssessmentCondition event, Emitter<AssessmentState> emit) async {
-    emit(AssessmentLoading<T>(config, conditionIndex));
-    assessment.Conditions?.add(event.condition);
-    assessment.copyWith(Conditions: assessment.Conditions);
-    conditionIndex = conditionIndex + 1;
+    print({
+      assessment.duration,
+      assessment.Conditions,
+      assessment.Conditions?.map((e) => e.trials).toList()
+    });
+    currentCondition = currentCondition?.copyWith(
+        duration: getElapsedSeconds(conditionStartTime));
+    emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
-    if (conditionIndex == config.conditions) {
-      final finishTime = DateTime.now();
+    final newConditions = List<Condition>.from(
+        [...(assessment.Conditions ?? []), currentCondition]);
+    //Reset the current condition object
+    currentCondition = Condition(
+        assessmentID: assessment.id,
+        duration: 0,
+        sequenceNumber: newConditions.length - 1,
+        trials: []);
+    if (assessment.Conditions?.length == config.conditions) {
       final double assessmentDurationSeconds =
-          finishTime.difference(startTime).inMilliseconds / 1000;
-// Create a new list of Conditions by adding the new Condition to the existing list
-      List<Condition> updatedConditions =
-          List.from(assessment.Conditions ?? []);
-      updatedConditions.add(event.condition);
+          getElapsedSeconds(assessmentStartTime);
       assessment = assessment.copyWith(
-          Conditions: updatedConditions, duration: assessmentDurationSeconds);
+          Conditions: newConditions, duration: assessmentDurationSeconds);
       emit(AssessmentAnalysis<T>(subject, storeData, assessment, config));
     } else {
-      final meta = ClinicalMeta(
-          subject.dob.toString(),
-          subject.gender,
-          subject.fall_history,
-          config.type,
-          config.conditionObtrusion[conditionIndex],
-          config.conditionInstability[conditionIndex],
-          conditionIndex,
-          1);
+      conditionStartTime = DateTime.now();
       emit(AssessmentActive<T>(
-          meta, subject, conditionIndex, trialIndex, storeData, config));
+          getMeta(subject, config, assessment.Conditions?.length ?? 0, 0),
+          subject,
+          storeData,
+          config));
     }
   }
 
   FutureOr<void> _onTrial(
       AssessmentTrial event, Emitter<AssessmentState> emit) async {
     // Update the latest condition with the new trial
-    List<Condition> conditions = List.from(assessment.Conditions ?? [])
-      ..sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
-    emit(AssessmentLoading<T>(config, conditions.length));
-    Condition latestCondition = conditions.removeLast();
-    final trials = latestCondition.trials ?? [];
-    trials.add(event.trial);
-    latestCondition.copyWith(trials: trials);
-    // If this is the last trial
-    if (trials.length == config.trials) {
-      // Add the completed condition to the assessment
-      add(AssessmentCondition(latestCondition));
-    } else {
-      //
-      final meta = ClinicalMeta(
-          subject.dob.toString(),
-          subject.gender,
-          subject.fall_history,
-          config.type,
-          config.conditionObtrusion[conditionIndex],
-          config.conditionInstability[conditionIndex],
-          conditionIndex,
-          1);
-      emit(AssessmentActive<T>(meta, subject, conditions.length,
-          latestCondition.trials?.length ?? 0, storeData, config));
+    final trial = Trial(
+        conditionID: currentCondition?.id ?? "Error ID",
+        duration: event.duration.inMilliseconds / 1000, //seconds
+        Detections: event.detections);
+
+    currentCondition = currentCondition == null
+        ? Condition(
+            assessmentID: assessment.id,
+            duration: 0,
+            sequenceNumber: assessment.Conditions?.length ?? 0,
+            trials: [trial])
+        : currentCondition
+            ?.copyWith(trials: [...currentCondition?.trials ?? [], trial]);
+
+    //Check if its the last trial
+    if (currentCondition?.trials?.length == config.trials) {
+      currentCondition = currentCondition?.copyWith(
+          duration: getElapsedSeconds(conditionStartTime));
+      final List<Condition> allConditions = [
+        ...(assessment.Conditions ?? []),
+        currentCondition!
+      ];
+      assessment = assessment.copyWith(Conditions: allConditions);
+      add(AssessmentCondition());
+      return;
     }
+
+    //If it is not, then we need to update the state to show the next trial
+
+    //
+    emit(AssessmentActive<T>(
+        getMeta(
+          subject,
+          config,
+          assessment.Conditions?.length ?? 0,
+          currentCondition?.trials?.length ?? 0,
+        ),
+        subject,
+        storeData,
+        config));
   }
 
   // @override
@@ -132,4 +146,21 @@ class AssessmentBloc<T extends BaseAssessment>
     super.onError(error, stackTrace);
     debugPrint('AssessmentBloc: $stackTrace, $error');
   }
+}
+
+double getElapsedSeconds(DateTime start) {
+  return DateTime.now().difference(start).inMilliseconds / 1000;
+}
+
+AssessmentMeta getMeta(Subject subject, BaseAssessment config,
+    int conditionIndex, int trialIndex) {
+  return AssessmentMeta(
+      subject.dob.toString(),
+      subject.gender,
+      subject.fall_history,
+      config.type,
+      config.conditionObtrusion[conditionIndex],
+      config.conditionInstability[conditionIndex],
+      conditionIndex,
+      trialIndex);
 }

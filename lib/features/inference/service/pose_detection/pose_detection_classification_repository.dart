@@ -9,8 +9,9 @@ class DetectionClassificationRepository
     extends Repository<PoseDetectionOutput, PoseClassificationOutput> {
   final ModelInferenceService _poseClassService = ModelInferenceService();
   final IsolateUtils _classificationIsolateUtils = IsolateUtils();
-  final ClinicalMeta clinicalMeta;
-  DetectionClassificationRepository(this.clinicalMeta) : super(clinicalMeta);
+  final AssessmentMeta assessmentMeta;
+  DetectionClassificationRepository(this.assessmentMeta)
+      : super(assessmentMeta);
 
   @override
   Future<void> initialize() async {
@@ -26,13 +27,14 @@ class DetectionClassificationRepository
     if (!isInitialized) {
       throw Exception("Classification Inference Service not initialized");
     }
-    await _poseClassService.inference(
+    final output = await _poseClassService.inference(
       id: id,
       isolateUtils: _classificationIsolateUtils,
       input: input,
       params: params,
-    );
-    return _poseClassService.inferenceResults as PoseClassificationOutput?;
+    ) as PoseClassificationOutput?;
+    if (output != null) localStorage[input] = output;
+    return output;
   }
 
   @override
@@ -53,7 +55,6 @@ class DetectionClassificationRepository
 
   @override
   void dispose() {
-    _poseClassService.inferenceResults = null;
     _classificationIsolateUtils.dispose();
   }
 }

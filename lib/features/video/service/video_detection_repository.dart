@@ -17,7 +17,7 @@ import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/types.dart';
 
 class VideoDetectionRepository
-    extends Repository<CameraCapture, PoseDetectionOutput> {
+    extends Repository<DeviceCapture, PoseDetectionOutput> {
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
@@ -26,18 +26,20 @@ class VideoDetectionRepository
   final gyroStream = gyroscopeEventStream();
   StreamSubscription<GyroscopeEvent>? _gyroSubscription;
   StreamSubscription<UserAccelerometerEvent>? _accelSubscription;
-  GyroscopeEvent _currentGyro = GyroscopeEvent(0, 0, 0);
-  UserAccelerometerEvent _currentAccel = UserAccelerometerEvent(0, 0, 0);
+  GyroscopeEvent currentGyro = GyroscopeEvent(0, 0, 0);
+  UserAccelerometerEvent currentAccel = UserAccelerometerEvent(0, 0, 0);
   final String userID;
-  final ClinicalMeta clinicalMeta;
-  VideoDetectionRepository(this.clinicalMeta, this.userID)
-      : super(clinicalMeta) {
+  final AssessmentMeta assessmentMeta;
+  final List<VPTDetection> detectionBucket = [];
+
+  VideoDetectionRepository(this.assessmentMeta, this.userID)
+      : super(assessmentMeta) {
     _gyroSubscription = gyroStream.listen((gyroData) {
-      _currentGyro = gyroData;
+      currentGyro = gyroData;
     });
 
     _accelSubscription = accelStream.listen((accelData) {
-      _currentAccel = accelData;
+      currentAccel = accelData;
     });
   }
 
@@ -51,23 +53,24 @@ class VideoDetectionRepository
 
   @override
   Future<PoseDetectionOutput?> runPredict(
-      String id, CameraCapture input, Map<String, dynamic>? params) async {
+      String id, DeviceCapture input, Map<String, dynamic>? params) async {
     if (!isInitialized) {
       throw Exception(
           "runPredict: Detection Inference Service not initialized");
     }
     final data = preProcessData(input.input);
-    await _poseDetectionService.inference(
+    final output = await _poseDetectionService.inference(
       id: id,
       isolateUtils: _detectionIsolateUtils,
       input: data,
       params: params,
-    );
-    return _poseDetectionService.inferenceResults as PoseDetectionOutput?;
+    ) as PoseDetectionOutput?;
+    if (output != null) localStorage[input] = output;
+    return output;
   }
 
   @override
-  Future<void> store(String id, CameraCapture input, PoseDetectionOutput output,
+  Future<void> store(String id, DeviceCapture input, PoseDetectionOutput output,
       Map<String, dynamic>? params) async {
     if (!isInitialized) {
       throw Exception("store: Detection Inference Service not initialized");
@@ -79,19 +82,18 @@ class VideoDetectionRepository
       image: input.input,
     );
     final data = VPTDetection(
-            1,
-            id,
-            input.input.height,
-            input.input.width,
-            clinicalMeta,
-            DeviceMeta(_currentAccel.x, _currentAccel.y, _currentAccel.z,
-                _currentGyro.x, _currentGyro.y, _currentGyro.z),
-            "-1", //detectionMeta.estimate,
-            output)
-        .toCSV();
+        1,
+        id,
+        input.input.height,
+        input.input.width,
+        assessmentMeta,
+        DeviceMeta(currentAccel.x, currentAccel.y, currentAccel.z,
+            currentGyro.x, currentGyro.y, currentGyro.z),
+        "-1", //detectionMeta.estimate,
+        output);
 
     final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
-    final dataPayload = S3DataPayload.string(data);
+    final dataPayload = S3DataPayload.string(data.toCSV());
 
 //TODO: Put a user tag instead of a random number
     final idPath = "${userID}_$id";

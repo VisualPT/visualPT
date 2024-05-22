@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/service/video_detection_repository.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 part 'video_event.dart';
 part 'video_state.dart';
@@ -24,6 +25,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
     try {
       final cameras = await availableCameras();
+      //TODO: Add a check for the camera capabilities (are we on simulator?)
       controller = CameraController(
         cameras.firstWhere(
             (camera) => camera.lensDirection == CameraLensDirection.back),
@@ -71,7 +73,16 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     }
     controller!.startImageStream((image) {
       final id = DateTime.now().millisecondsSinceEpoch.toString();
-      videoDetectionRepo.add(CameraCapture(id, image));
+      final measurements = DetectionEnv(
+          imageHeight: image.height,
+          imageWidth: image.width,
+          accX: videoDetectionRepo.currentAccel.x,
+          accY: videoDetectionRepo.currentAccel.y,
+          accZ: videoDetectionRepo.currentAccel.z,
+          gyroX: videoDetectionRepo.currentGyro.x,
+          gyroY: videoDetectionRepo.currentGyro.y,
+          gyroZ: videoDetectionRepo.currentGyro.z);
+      videoDetectionRepo.add(DeviceCapture(id, image, measurements));
     });
     emit(VideoRecording(controller!));
   }
@@ -105,7 +116,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    debugPrint('VideoBlock Error: $error, $stackTrace');
+    debugPrint('VideoBloc Error: $error, $stackTrace');
   }
   // Future<File> getData() async {
   // }

@@ -13,17 +13,17 @@ class AssessmentInit extends AssessmentEvent {
 }
 
 class AssessmentCondition extends AssessmentEvent {
-  final Condition condition;
-  AssessmentCondition(this.condition);
+  AssessmentCondition();
 
   @override
-  List<Object?> get props => [condition];
+  List<Object?> get props => [];
 }
 
 class AssessmentTrial extends AssessmentEvent {
-  final Trial trial;
-  AssessmentTrial(this.trial);
+  final Duration duration;
+  final List<Detection> detections;
+  AssessmentTrial(this.detections, this.duration);
 
   @override
-  List<Object?> get props => [trial];
+  List<Object?> get props => [duration, detections];
 }
