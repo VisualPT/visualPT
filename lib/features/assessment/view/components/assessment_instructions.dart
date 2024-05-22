@@ -10,7 +10,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var formattedInstructionList = state
-        .assessment.conditionInstructions[state.condition]
+        .assessment.conditionInstructions[state.meta.condition]
         .map((instruction) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -28,7 +28,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
           Text(state.meta.assessment.name, style: Styles.title),
           const Spacer(),
           Text(
-              "Criteria ${(state.condition + 1).toString()} of ${state.assessment.conditions.toString()}",
+              "Criteria ${(state.meta.condition + 1).toString()} of ${state.assessment.conditions.toString()}",
               style: Styles.subactionText),
           const Spacer(),
           Container(
@@ -37,7 +37,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
             color: Styles.black,
           ),
           Text(
-            state.assessment.conditionNames[state.condition],
+            state.assessment.conditionNames[state.meta.condition],
             style: Styles.heading1,
             textAlign: TextAlign.center,
           ),

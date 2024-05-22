@@ -33,7 +33,7 @@ class VPTDetection {
   final int imageHeight;
   final int imageWidth;
   //Clinical Meta
-  final ClinicalMeta clinicalMeta;
+  final AssessmentMeta assessmentMeta;
   //Detection Meta
   final DeviceMeta deviceMeta;
   final String inferredClassification;
@@ -45,7 +45,7 @@ class VPTDetection {
     this.id,
     this.imageHeight,
     this.imageWidth,
-    this.clinicalMeta,
+    this.assessmentMeta,
     this.deviceMeta,
     this.inferredClassification,
     this.output,
@@ -64,7 +64,7 @@ class VPTDetection {
     return "$version\n"
         "$id\n"
         "$imageHeight,$imageWidth\n"
-        "${clinicalMeta.csv()}\n"
+        "${assessmentMeta.csv()}\n"
         "${deviceMeta.csv()},$inferredClassification\n"
         "${output.output.map((keypoint) => keypoint.join(",")).join("\n")}";
   }
@@ -74,7 +74,7 @@ class VPTDetection {
     final version = int.parse(lines.removeAt(0));
     final id = lines.removeAt(0);
     final imageMeta = lines.removeAt(0).split(",");
-    final clinicalMeta = ClinicalMeta.fromCSV(lines.removeAt(0));
+    final assessmentMeta = AssessmentMeta.fromCSV(lines.removeAt(0));
     final deviceMeta = lines.removeAt(0).split(",");
     final inferredClassification = deviceMeta.removeLast();
     final output = PoseDetectionOutput(
@@ -91,7 +91,7 @@ class VPTDetection {
       id,
       int.parse(imageMeta[0]),
       int.parse(imageMeta[1]),
-      clinicalMeta,
+      assessmentMeta,
       DeviceMeta(
         double.parse(deviceMeta[0]),
         double.parse(deviceMeta[1]),
@@ -111,7 +111,7 @@ class VPTDetection {
       id,
       imageHeight,
       imageWidth,
-      clinicalMeta,
+      assessmentMeta,
       deviceMeta,
       inferredClassification,
       output,

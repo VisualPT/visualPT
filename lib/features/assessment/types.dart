@@ -1,7 +1,7 @@
 import 'package:visualpt/features/assessment/service/form_helper.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-class ClinicalMeta {
+class AssessmentMeta {
   final String dateOfBirth;
   final Gender gender;
   final FallHistory fallHistory;
@@ -11,7 +11,7 @@ class ClinicalMeta {
   final int condition;
   final int trial;
 
-  const ClinicalMeta(
+  const AssessmentMeta(
     this.dateOfBirth,
     this.gender,
     this.fallHistory,
@@ -28,7 +28,7 @@ class ClinicalMeta {
 
   static fromCSV(String removeAt) {
     final parts = removeAt.split(",");
-    return ClinicalMeta(
+    return AssessmentMeta(
       parts[0],
       FormHelper.genderParse(parts[1]),
       FormHelper.fallHistoryParse(parts[2]),

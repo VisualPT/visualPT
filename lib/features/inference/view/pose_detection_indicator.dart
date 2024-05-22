@@ -5,10 +5,28 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.dart';
 import 'package:visualpt/features/inference/view/inference_indicator.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
-class CameraCapture extends Identifiable {
+class DeviceCapture extends Identifiable {
   final CameraImage input;
-  const CameraCapture(super.id, this.input);
+  final DetectionEnv measurements;
+  const DeviceCapture(super.id, this.input, this.measurements);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DeviceCapture &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => "DeviceCapture{id: $id}";
+
+  @override //the props
+  List<Object> get props => [id];
 }
 
 class PoseDetectionIndicator extends StatelessWidget {
@@ -18,7 +36,7 @@ class PoseDetectionIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InferencePresenter<CameraCapture, PoseDetectionOutput>(
+    return InferencePresenter<DeviceCapture, PoseDetectionOutput>(
       onRunning: onRunning,
       onStandby: onStandby,
       onLoad: onLoad,
@@ -27,7 +45,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onRunning(BuildContext context,
-      InferenceRunning<CameraCapture, PoseDetectionOutput> state) {
+      InferenceRunning<DeviceCapture, PoseDetectionOutput> state) {
     final offsets = state.response != null
         ? computeLineOfBestFit(
             state.response!.landmarks.sublist(0, 34), const Size(256, 256))
@@ -49,7 +67,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onStandby(BuildContext context,
-      InferenceStandby<CameraCapture, PoseDetectionOutput> state) {
+      InferenceStandby<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemYellow,
@@ -58,7 +76,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onLoad(BuildContext context,
-      InferenceLoading<CameraCapture, PoseDetectionOutput> state) {
+      InferenceLoading<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemGrey,
@@ -67,7 +85,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   }
 
   Widget onError(BuildContext context,
-      InferenceError<CameraCapture, PoseDetectionOutput> state) {
+      InferenceError<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
         icon: icon,
         color: CupertinoColors.systemRed,

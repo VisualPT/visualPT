@@ -11,7 +11,6 @@ import 'package:visualpt/features/email/bloc/email_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/service/assessment_service.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
@@ -22,7 +21,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.assessment.type.name} analysis",
+        pageTitle: "${asmtState.assessment.type.name} Report",
         child: AnalysisPresenter(
           onCreate: PdfInit(
               subject: asmtState.subject, assessment: asmtState.dbAssessment),

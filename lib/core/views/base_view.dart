@@ -33,7 +33,7 @@ class _BaseViewState extends State<BaseView> {
             backgroundColor: Styles.backgroundAccent,
             middle: ConstrainedBox(
                 constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.7),
+                    maxWidth: MediaQuery.of(context).size.width * 0.75),
                 child: widget.pageTitle == null
                     ? const Image(
                         image: AssetImage(Styles.mainLogoPath),

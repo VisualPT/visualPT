@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:visualpt/features/assessment/types.dart';
 
 abstract class Repository<I, O> {
-  final ClinicalMeta meta;
+  final AssessmentMeta meta;
   final StreamController<I> _streamController;
   var isInitialized = false;
   var count = 0;
+  var localStorage = <I, O>{};
+
   Repository(this.meta) : _streamController = StreamController.broadcast();
 
   Stream<I> get stream => _streamController.stream;

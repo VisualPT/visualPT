@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
@@ -11,19 +11,16 @@ import 'package:visualpt/features/video/view/video_controls.dart';
 
 //TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView<T extends BaseAssessment> extends StatelessWidget {
-  final ClinicalMeta clinicalMeta;
-  final int conditionNumber;
-  final bool storeData;
-  const CaptureView(this.clinicalMeta, this.conditionNumber, this.storeData,
-      {super.key});
+  final AssessmentActive<T> state;
+  const CaptureView(this.state, {super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const ViewBackground(),
         VideoPresenter(
-          clinicalMeta,
-          conditionNumber,
+          state.meta,
+          state.assessment.conditions,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onLoading: loadingVideo,

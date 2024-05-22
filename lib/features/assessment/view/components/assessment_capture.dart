@@ -13,12 +13,10 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle:
-            "${state.assessment.type.name}\n${state.assessment.conditionNames[state.condition]}",
+            "${state.assessment.type.name} ${state.assessment.conditionNames[state.meta.condition]} \n Trial ${state.meta.trial + 1}",
         instructions: AssessmentInstructions(state),
         child: CaptureView<T>(
-          state.meta,
-          state.condition,
-          state.storeData,
+          state,
         ));
   }
 }

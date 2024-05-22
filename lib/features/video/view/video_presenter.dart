@@ -14,7 +14,7 @@ import 'package:visualpt/features/video/types.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
-  final ClinicalMeta meta;
+  final AssessmentMeta meta;
   final int address;
   final Widget Function(BuildContext context, VideoRecording state) onRecording;
   final Widget Function(BuildContext context, VideoStandby state) onStandby;
@@ -59,7 +59,7 @@ class VideoPresenter extends StatelessWidget {
           BlocProvider(
             lazy: false,
             create: (context) {
-              return InferenceBloc<CameraCapture, PoseDetectionOutput>(
+              return InferenceBloc<DeviceCapture, PoseDetectionOutput>(
                   RepositoryProvider.of<VideoDetectionRepository>(context),
                   RepositoryProvider.of<DetectionClassificationRepository>(
                       context),

@@ -13,16 +13,14 @@ class AssessmentForm<T> extends AssessmentState<T> {
 }
 
 class AssessmentActive<T> extends AssessmentState<T> {
-  final ClinicalMeta meta;
+  final AssessmentMeta meta;
   final Subject subject;
-  final int condition;
-  final int trial;
   final bool storeData;
-  const AssessmentActive(this.meta, this.subject, this.condition, this.trial,
-      this.storeData, super.assessment);
+  const AssessmentActive(
+      this.meta, this.subject, this.storeData, super.assessment);
 
   @override
-  List<Object?> get props => [assessment, condition, trial, storeData];
+  List<Object?> get props => [meta, assessment, storeData];
 }
 
 class AssessmentAnalysis<T> extends AssessmentState<T> {
