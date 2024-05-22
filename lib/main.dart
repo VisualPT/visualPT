@@ -46,6 +46,7 @@ class VisualPT extends StatelessWidget {
           ),
         ],
         child: CupertinoApp(
+          debugShowCheckedModeBanner: false,
           theme: const CupertinoThemeData(
               brightness: Brightness.light,
               textTheme: CupertinoTextThemeData(

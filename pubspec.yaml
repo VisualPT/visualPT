@@ -34,6 +34,7 @@ dependencies:
   amplify_datastore: ^1.6.0
   amplify_auth_cognito: ^1.6.2
   amplify_storage_s3: ^1.6.2
+  app_tracking_transparency: ^2.0.5
   bloc_concurrency: ^0.2.4
   camera: ^0.10.5+9
   connectivity_plus: ^5.0.2
