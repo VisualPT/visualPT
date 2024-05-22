@@ -149,7 +149,8 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Total Duration: ", style: detail),
                 TextSpan(
-                    text: assessment.duration.toString(), style: detailBold),
+                    text: assessment.duration.toStringAsFixed(2),
+                    style: detailBold),
                 TextSpan(text: " seconds", style: detail),
               ]),
             ),

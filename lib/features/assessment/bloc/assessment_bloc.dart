@@ -52,11 +52,6 @@ class AssessmentBloc<T extends BaseAssessment>
 
   FutureOr<void> _onCondition(
       AssessmentCondition event, Emitter<AssessmentState> emit) async {
-    print({
-      assessment.duration,
-      assessment.Conditions,
-      assessment.Conditions?.map((e) => e.trials).toList()
-    });
     currentCondition = currentCondition?.copyWith(
         duration: getElapsedSeconds(conditionStartTime));
     emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));

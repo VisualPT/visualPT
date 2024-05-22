@@ -36,7 +36,7 @@ class _AssessmentFormState extends State<AssessmentForm> {
 
   Future<void> requestPermissions() async {
     //TODO: Use this for analytics?
-    // AppTrackingTransparency.getAdvertisingIdentifier().then((v) => print(v));
+    // AppTrackingTransparency.getAdvertisingIdentifier();
     // If the system can show an authorization request dialog
     if (await AppTrackingTransparency.trackingAuthorizationStatus ==
         TrackingStatus.notDetermined) {
@@ -45,9 +45,7 @@ class _AssessmentFormState extends State<AssessmentForm> {
       // Wait for dialog popping animation
       await Future.delayed(const Duration(milliseconds: 200));
       // Request system's tracking authorization dialog
-      final status =
-          await AppTrackingTransparency.requestTrackingAuthorization();
-      print(status);
+      await AppTrackingTransparency.requestTrackingAuthorization();
     }
   }
 
