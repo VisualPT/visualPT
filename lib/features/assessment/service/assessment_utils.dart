@@ -9,6 +9,7 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/models/AssessmentType.dart';
 import 'package:visualpt/models/Detection.dart';
+import 'package:visualpt/models/Trial.dart';
 
 class AssessmentUtils {
   static AssessmentView getView(AssessmentType type) {
@@ -46,5 +47,11 @@ class AssessmentUtils {
       }
     });
     return linked;
+  }
+
+  static double getAvgDuration(List<Trial>? trials) {
+    return trials?.fold<double>(0.0,
+            (previousValue, element) => previousValue + element.duration) ??
+        0.0 / (trials?.length ?? 1);
   }
 }

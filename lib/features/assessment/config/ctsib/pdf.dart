@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/core/utils/math_utils.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
@@ -42,19 +44,6 @@ class CtsibPDF extends PDF {
     );
     return pdf.save();
   }
-
-  // List<Widget> axisLabel() {
-  //   final values = List<double>.generate(9, (i) => i * 0.2)
-  //       .map<Text>((value) => value >= 1.0
-  //           ? Text(value.toStringAsPrecision(2))
-  //           : Text(value.toStringAsPrecision(1)))
-  //       .toList();
-  //   return List<Widget>.generate(
-  //       17, (i) => i % 2 == 0 ? values[i ~/ 2] : Spacer());
-  // }
-
-  // double positioner(String velocity) =>
-  //     (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
 
   Widget headerData() {
     return Header(
@@ -151,7 +140,8 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Total Duration: ", style: detail),
                 TextSpan(
-                    text: assessment.duration.toString(), style: detailBold),
+                    text: assessment.duration.toStringAsFixed(2),
+                    style: detailBold),
                 TextSpan(text: " seconds", style: detail),
               ]),
             ),
@@ -195,7 +185,7 @@ class CtsibPDF extends PDF {
             ],
           ),
           // Create a table row for each segment
-          for (int i = 0; i < assessment.Conditions!.length; i++)
+          for (int i = 0; i < (assessment.Conditions?.length ?? 1) - 1; i++)
             TableRow(
               children: [
                 Padding(
@@ -209,7 +199,7 @@ class CtsibPDF extends PDF {
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${assessment.Conditions![i].duration.toString()} / 30 seconds",
+                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(2)} / 30 seconds",
                       style: detail),
                 ),
               ],
@@ -229,7 +219,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * ctsib.conditions} seconds",
+                  "${assessment.Conditions?.map((s) => s.duration).reduce((a, b) => a + b).toStringAsFixed(1) ?? 0.0} / ${30 * ctsib.conditions} seconds",
                 ),
               ),
             ],
@@ -240,13 +230,12 @@ class CtsibPDF extends PDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    // Assuming assessment.conditions contains data for conditions in order: C1, C2, C3, C4, C5, C6
-    final c1 = assessment.Conditions![0].duration;
-    final c2 = assessment.Conditions![1].duration;
-    final c3 = assessment.Conditions![2].duration;
-    final c4 = assessment.Conditions![3].duration;
-    final c5 = assessment.Conditions![4].duration;
-    final c6 = assessment.Conditions![5].duration;
+    final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
+    final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
+    final c3 = AssessmentUtils.getAvgDuration(assessment.Conditions?[2].trials);
+    final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+    final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
+    final c6 = AssessmentUtils.getAvgDuration(assessment.Conditions?[5].trials);
 
     // Calculating ratios safely
     final somRatio = safeDivision(c2, c1);
@@ -300,46 +289,42 @@ class CtsibPDF extends PDF {
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
   Widget normativeData(Subject subject, Assessment assessment) {
+    final totalDuration = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
+                (previousValue, element) => previousValue + element.duration))
+            .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
+        0.0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
       RichText(
           text: TextSpan(
-              text: getNormativeMessage(
-                  assessment.Conditions!
-                      .map((s) => s.duration)
-                      .reduce((a, b) => a + b),
-                  subject.dob),
+              text: getNormativeMessage(totalDuration, subject.dob),
               style: detail)),
     ]);
   }
 
   Widget interpretationData(Assessment assessment) {
+    final is9xFallRisk = checkFallRisk(assessment);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Interpretation", style: subHeader)),
-      RichText(
+      if (is9xFallRisk)
+        RichText(
+          textAlign: TextAlign.left,
           text: TextSpan(
               text:
-                  "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
-              style: disclaimer)),
+                  "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
+              style: detail),
+        ),
       RichText(
           text: TextSpan(
-              text:
-                  "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
-              style: disclaimer)),
-      RichText(
-          text: TextSpan(
-              text:
-                  "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-              style: disclaimer)),
-      RichText(
-          text: TextSpan(
-              text:
-                  "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
-              style: disclaimer)),
+              text: generateConditionRatioText(assessment), style: detail)),
+      //             "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
+      //             "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
+      //             "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+      //             "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
     ]);
   }
 
@@ -390,19 +375,19 @@ class CtsibPDF extends PDF {
     );
   }
 
-  TableRow _createConditionRow(String testName, String ratio, String status) {
+  TableRow _createConditionRow(String testName, double ratio, String status) {
     return TableRow(children: [
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(testName),
+        child: Text(testName, style: detail),
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text("${ratio * 100}%"),
+        child: Text("${ratio.toStringAsFixed(2)}%", style: detail),
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(status),
+        child: Text(status, style: detail),
       ),
     ]);
   }
@@ -411,44 +396,17 @@ class CtsibPDF extends PDF {
 String getNormativeMessage(double totalDuration, TemporalDate dob) {
   int age = getAge(dob);
   double norm = CTSIB.getAgeNorm(age);
-  double percent =
-      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
-          .roundToDouble();
+  int percent =
+      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100).round();
 
-  if (percent < -10) {
-    return "Patient is ${percent.abs()}% better than normative data, which has a mean of $norm seconds";
-  } else if (percent > 10) {
-    return "Patient is ${percent.abs()}% worse than normative data, which has a mean of $norm seconds";
+  if (percent.abs() > 10) {
+    return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
   } else {
     return "Patient is within 10% of normative data, which has a mean of $norm seconds";
   }
 }
 
-// Safe division function to handle NaN or Infinity
-String safeDivision(double numerator, double denominator) {
-  if (denominator == 0 || numerator.isNaN || denominator.isNaN) {
-    return "Inconclusive";
-  } else {
-    final ratio = numerator / denominator;
-    if (ratio.isNaN || ratio.isInfinite) {
-      return "Inconclusive";
-    } else {
-      return ratio.toStringAsPrecision(2) * 100;
-    }
-  }
-}
-
-String determineStatus(String ratioStr) {
-  // Attempt to parse the ratio string to double
-  double ratio;
-  try {
-    ratio = double.parse(ratioStr);
-  } catch (e) {
-    // If parsing fails, consider the ratio as invalid
-    return "Inconclusive";
-  }
-
-  // Determine the status based on the parsed ratio value
+String determineStatus(double ratio) {
   if (ratio == 0.0) {
     return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
   } else if (ratio < 1) {
@@ -456,4 +414,52 @@ String determineStatus(String ratioStr) {
   } else {
     return "Functional"; // System is considered functional otherwise
   }
+}
+
+bool checkFallRisk(Assessment assessment) {
+  // Calculate the total duration of the assessment (only for conditions 5 and 6)
+  bool is9xFallRisk(int i) {
+    final total =
+        AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) > 30.0;
+    return total;
+  }
+
+  // Determine if the patient is at risk of falling based on the total duration
+  return is9xFallRisk(4) || is9xFallRisk(5);
+}
+
+String generateConditionRatioText(Assessment assessment) {
+  final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
+  final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
+  final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+  final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
+
+  // Calculating ratios safely
+  final somRatio = safeDivision(c2, c1);
+  final visRatio = safeDivision(c4, c1);
+  final vestRatio = safeDivision(c5, c1);
+
+  final ratios = [
+    (
+      vestRatio,
+      "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
+    ),
+    (
+      visRatio,
+      "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
+    ),
+    (
+      somRatio,
+      "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
+    ),
+  ];
+
+  // Determine the worst ratio among the three
+  final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
+
+  if (lowest.$1 > 99) {
+    return "No significant findings were observed.";
+  }
+
+  return lowest.$2;
 }
