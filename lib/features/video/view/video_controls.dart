@@ -72,7 +72,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: const Padding(
                 padding: EdgeInsets.all(2.0), // Add padding as needed
                 child: Column(
@@ -134,7 +134,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                               .add(const TimerReset());
                         },
                         child: const Icon(CupertinoIcons.restart,
-                            color: CupertinoColors.white, size: 40)),
+                            color: Styles.white, size: 40)),
                     const Spacer(),
                     GestureDetector(
                         onTap: () => onComplete(),

@@ -94,7 +94,7 @@ class AssessmentCard extends StatelessWidget {
                         ),
                         child: const Icon(
                           CupertinoIcons.play_arrow,
-                          color: CupertinoColors.white,
+                          color: Styles.white,
                           size: 60,
                         ),
                       ),
@@ -156,7 +156,7 @@ class AssessmentCard extends StatelessWidget {
                       ),
                       child: const Icon(
                         CupertinoIcons.info,
-                        color: CupertinoColors.black,
+                        color: Styles.black,
                         size: 30,
                       ),
                     ),
@@ -180,7 +180,7 @@ class AssessmentCard extends StatelessWidget {
                             ),
                             child: const Icon(
                               CupertinoIcons.eye,
-                              color: CupertinoColors.black,
+                              color: Styles.black,
                               size: 30,
                             ),
                           ),

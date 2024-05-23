@@ -121,7 +121,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemGreen,
+                    color: Styles.green,
                     child: const Text("Static"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -133,7 +133,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Arm"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -145,7 +145,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Trunk"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -157,7 +157,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Foot"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -169,7 +169,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemRed,
+                    color: Styles.red,
                     child: const Text("Invalid"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(

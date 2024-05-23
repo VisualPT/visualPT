@@ -4,9 +4,8 @@ import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-// export 'gait/pdf.dart';
-
 abstract class PDF {
+  //TODO Hide in a styles class
   late Font logoVisualFont;
   late Font logoPTFont;
   late Font baseFont;
@@ -37,6 +36,8 @@ abstract class PDF {
   late TextStyle invisible;
 
   late RichText RichTextLogo;
+
+  //TODO: Add a default BaseAssessment for all the PDFs to depend on
 
   Future<void> configPdfStyles() async {
     logoVisualFont = await PdfGoogleFonts.unboundedBold();

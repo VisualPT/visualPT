@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 class InferenceIndicator extends StatefulWidget {
   const InferenceIndicator(
@@ -38,8 +39,7 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
                       shape: BoxShape.circle,
                       color: widget.color.withAlpha(128),
                       border: Border.all()),
-                  child: Icon(widget.icon,
-                      size: 16, color: CupertinoColors.black)),
+                  child: Icon(widget.icon, size: 16, color: Styles.black)),
               Text("${widget.type} "),
               const Spacer(),
               widget.formattedTextWidget,

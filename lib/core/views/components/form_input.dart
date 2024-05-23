@@ -73,7 +73,7 @@ class _FormInputState extends State<FormInput> {
             placeholderStyle: Styles.placeholderStyle,
             obscureText: obsController,
             decoration: BoxDecoration(
-              color: CupertinoColors.white,
+              color: Styles.white,
               border: Border.all(
                 color: Styles.black,
                 width: 1,
@@ -103,7 +103,7 @@ class _FormInputState extends State<FormInput> {
                         obsController
                             ? CupertinoIcons.eye_fill
                             : CupertinoIcons.eye_slash_fill,
-                        color: CupertinoColors.inactiveGray),
+                        color: Styles.inactiveGray),
                     onTap: () => setState(() => obsController = !obsController),
                   ),
                 )

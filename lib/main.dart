@@ -50,7 +50,10 @@ class VisualPT extends StatelessWidget {
           theme: const CupertinoThemeData(
               brightness: Brightness.light,
               textTheme: CupertinoTextThemeData(
-                  textStyle: TextStyle(color: CupertinoColors.black))),
+                  textStyle: TextStyle(
+                      fontFamily: "Raleway",
+                      fontWeight: FontWeight.bold,
+                      color: Styles.black))),
           routes: {
             "/": (context) => const LandingView(),
             "/home": (context) => const HomeView(),

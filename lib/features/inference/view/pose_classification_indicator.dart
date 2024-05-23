@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
@@ -24,7 +25,7 @@ class PoseClassificationIndicator extends StatelessWidget {
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
     return InferenceIndicator(
       icon: icon,
-      color: CupertinoColors.activeGreen,
+      color: Styles.green,
       type: type,
       message: "Running",
       formattedTextWidget: Text(state.response?.name ?? "No pose detected",
@@ -36,27 +37,18 @@ class PoseClassificationIndicator extends StatelessWidget {
   Widget onStandby(BuildContext context,
       InferenceStandby<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon,
-        color: CupertinoColors.systemYellow,
-        type: type,
-        message: "Standby");
+        icon: icon, color: Styles.yellow, type: type, message: "Standby");
   }
 
   Widget onLoad(BuildContext context,
       InferenceLoading<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon,
-        color: CupertinoColors.systemGrey,
-        type: type,
-        message: "Loading");
+        icon: icon, color: Styles.inactiveGray, type: type, message: "Loading");
   }
 
   Widget onError(BuildContext context,
       InferenceError<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon,
-        color: CupertinoColors.systemRed,
-        type: type,
-        message: "Error");
+        icon: icon, color: Styles.errorRed, type: type, message: "Error");
   }
 }

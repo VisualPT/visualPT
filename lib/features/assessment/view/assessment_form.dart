@@ -143,7 +143,7 @@ class _AssessmentFormState extends State<AssessmentForm> {
                   //         vertical: 8.0, horizontal: 20.0),
                   //     padding: const EdgeInsets.all(2.0),
                   //     decoration: const BoxDecoration(
-                  //         color: CupertinoColors.white,
+                  //         color: Styles.white,
                   //         borderRadius: Styles.borderRadiusM),
                   //     child: Row(
                   //         mainAxisAlignment: MainAxisAlignment.center,
@@ -151,8 +151,6 @@ class _AssessmentFormState extends State<AssessmentForm> {
                   //         children: [
                   //           Text(
                   //             "Store Data",
-                  //             style: Styles.inputStyle
-                  //                 .apply(color: CupertinoColors.systemGrey),
                   //           ),
                   //           CupertinoSwitch(
                   //               value: storeData,
@@ -206,14 +204,14 @@ class _AssessmentFormState extends State<AssessmentForm> {
           Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(8.0),
-            color: CupertinoColors.white,
+            color: Styles.white,
             alignment: Alignment.centerRight,
             child: Row(
               children: [
                 const Text("Date", style: Styles.inputStyle),
                 const Spacer(),
                 CupertinoButton(
-                    color: CupertinoColors.link,
+                    color: Styles.link,
                     onPressed: () => Navigator.pop(context, value),
                     child: const Text("Save")),
               ],
@@ -225,11 +223,11 @@ class _AssessmentFormState extends State<AssessmentForm> {
             margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            color: CupertinoColors.white,
+            color: Styles.white,
             child: SafeArea(
               top: false,
               child: CupertinoDatePicker(
-                backgroundColor: CupertinoColors.white,
+                backgroundColor: Styles.white,
                 initialDateTime: DateTime.now(),
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (DateTime newDate) =>
@@ -256,14 +254,14 @@ class _AssessmentFormState extends State<AssessmentForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Gender", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -275,11 +273,11 @@ class _AssessmentFormState extends State<AssessmentForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
@@ -312,14 +310,14 @@ class _AssessmentFormState extends State<AssessmentForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Fall History", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -331,11 +329,11 @@ class _AssessmentFormState extends State<AssessmentForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
@@ -376,14 +374,14 @@ class _AssessmentFormState extends State<AssessmentForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Height", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -395,11 +393,11 @@ class _AssessmentFormState extends State<AssessmentForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int heightInches) {
                     value = "${heightInches + minHeight}\"";

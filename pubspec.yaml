@@ -98,6 +98,8 @@ flutter:
     - family: Unbounded
       fonts:
         - asset: assets/fonts/unbounded.ttf
+    - family: Raleway
+      fonts:
         - asset: assets/fonts/raleway.ttf
 
   #   - family: Trajan Pro

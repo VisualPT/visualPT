@@ -76,7 +76,7 @@ class _BaseViewState extends State<BaseView> {
               alignment: Alignment.center,
               height: screenSize.height,
               width: screenSize.width,
-              color: CupertinoColors.black.withOpacity(0.5),
+              color: Styles.black.withOpacity(0.5),
               child: GestureDetector(
                   child: Container(
                       height: screenSize.height * 0.7,

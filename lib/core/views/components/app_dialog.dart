@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 Future<void> appDialog(
     {required BuildContext context,
@@ -18,7 +19,7 @@ Future<void> appDialog(
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: CupertinoButton(
-            color: CupertinoColors.secondaryLabel,
+            color: Styles.blue,
             onPressed: secondaryCallback,
             child: Text(secondaryAction),
           ),
@@ -26,7 +27,7 @@ Future<void> appDialog(
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: CupertinoButton(
-            color: CupertinoColors.link,
+            color: Styles.link,
             onPressed: primaryCallback,
             child: Text(primaryAction),
           ),

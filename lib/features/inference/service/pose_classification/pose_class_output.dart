@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
 
 final Map<int, String> classifications = {
@@ -36,15 +37,15 @@ class PoseClassificationOutput extends AiModelOutput {
   Color getColor() {
     switch (name) {
       case "static":
-        return CupertinoColors.systemGreen;
+        return Styles.green;
       case "arms uncrossed":
-        return CupertinoColors.systemYellow;
+        return Styles.yellow;
       case "trunk flex":
-        return CupertinoColors.systemYellow;
+        return Styles.yellow;
       case "feet separated":
-        return CupertinoColors.systemYellow;
+        return Styles.yellow;
       default:
-        return CupertinoColors.systemBlue;
+        return Styles.blue;
     }
   }
 
