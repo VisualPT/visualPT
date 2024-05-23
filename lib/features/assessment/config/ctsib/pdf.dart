@@ -10,6 +10,7 @@ import 'package:visualpt/features/assessment/config/_pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
 class CtsibPDF extends PDF {
+  final ctsib = CTSIB();
   @override
   Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
@@ -31,9 +32,13 @@ class CtsibPDF extends PDF {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
             subjectData(subject, assessment),
+            Spacer(),
             assessmentData(subject, assessment),
+            Spacer(),
             conditionRatioTable(assessment),
+            Spacer(),
             normativeData(subject, assessment),
+            Spacer(),
             interpretationData(assessment),
             //diagnosisData(),
             Spacer(),
@@ -52,107 +57,95 @@ class CtsibPDF extends PDF {
           RichTextLogo,
           RichText(
               textAlign: TextAlign.center,
-              text: TextSpan(
-                  text: "Clinical Test of Sensory Integration & Balance Report",
-                  style: header),
+              text: TextSpan(text: "${ctsib.name} Report", style: header),
               overflow: TextOverflow.span),
-          RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: disclaimer,
-                  text:
-                      "VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
         ],
       ),
     );
   }
 
   Widget subjectData(Subject subject, Assessment assessment) {
-    return SizedBox(
-      height: 1.3 * inch,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(text: "Patient Information", style: subHeader)),
-        Row(children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            RichText(
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Patient Information", style: subHeader)),
+      Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Name: ", style: detail),
+              TextSpan(
+                  text: "Anonymous Data Collection",
+                  //TODO: text: "${subject.first_name} ${subject.last_name}",
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "DOB: ", style: detail),
+              TextSpan(text: subject.dob.toString(), style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Age: ", style: detail),
+              TextSpan(
+                  text: (DateTime.now()
+                              .difference(subject.dob.getDateTime())
+                              .inDays ~/
+                          365)
+                      .toString(),
+                  style: detailBold), //TODO DOB to age
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Gender: ", style: detail),
+              TextSpan(text: subject.gender.name, style: detailBold),
+            ]),
+          ),
+        ]),
+        Spacer(),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          //TODO internationalize this date format to local time
+          RichText(
               text: TextSpan(children: [
-                TextSpan(text: "Name: ", style: detail),
-                TextSpan(
-                    text: "Anonymous Data Collection",
-                    //TODO: text: "${subject.first_name} ${subject.last_name}",
-                    style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "DOB: ", style: detail),
-                TextSpan(text: subject.dob.toString(), style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Age: ", style: detail),
-                TextSpan(
-                    text: (DateTime.now()
-                                .difference(subject.dob.getDateTime())
-                                .inDays ~/
-                            365)
-                        .toString(),
-                    style: detailBold), //TODO DOB to age
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Gender: ", style: detail),
-                TextSpan(text: subject.gender.name, style: detailBold),
-              ]),
-            ),
-          ]),
-          Spacer(),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            //TODO internationalize this date format to local time
-            RichText(
-                text: TextSpan(children: [
-              TextSpan(text: "Date: ", style: detail),
+            TextSpan(text: "Date: ", style: detail),
+            TextSpan(
+                text: DateTime.parse(assessment.datetime.toString())
+                    .toLocal()
+                    .toIso8601String()
+                    .substring(0, 10),
+                style: detailBold),
+          ])),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Time: ", style: detail),
               TextSpan(
                   text: DateTime.parse(assessment.datetime.toString())
                       .toLocal()
                       .toIso8601String()
-                      .substring(0, 10),
+                      .substring(11)
+                      .split('.')[0]
+                      .substring(0, 5),
                   style: detailBold),
-            ])),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Time: ", style: detail),
-                TextSpan(
-                    text: DateTime.parse(assessment.datetime.toString())
-                        .toLocal()
-                        .toIso8601String()
-                        .substring(11)
-                        .split('.')[0]
-                        .substring(0, 5),
-                    style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Total Duration: ", style: detail),
-                TextSpan(
-                    text: assessment.duration.toStringAsFixed(2),
-                    style: detailBold),
-                TextSpan(text: " seconds", style: detail),
-              ]),
-            ),
-          ]),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Total Duration: ", style: detail),
+              TextSpan(
+                  text: assessment.duration.toStringAsFixed(2),
+                  style: detailBold),
+              TextSpan(text: " seconds", style: detail),
+            ]),
+          ),
         ]),
       ]),
-    );
+    ]);
   }
 
   Widget assessmentData(Subject subject, Assessment assessment) {
-    final ctsib = CTSIB();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,

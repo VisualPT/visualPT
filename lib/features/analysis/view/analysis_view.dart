@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
 import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
@@ -36,7 +37,15 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
       child: Column(children: [
         AspectRatio(
           aspectRatio: 8.5 / 11,
-          child: state.pdfView,
+          child: PDFView(
+              key: Key(state.pdfData.hashCode.toString()),
+              pdfData: state.pdfData,
+              enableSwipe: false,
+              pageFling: false,
+              onError: (error) => print("PDFView Error: $error"),
+              onPageError: (page, error) =>
+                  print("PDFView Error: $page $error"),
+              pageSnap: false),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
@@ -44,33 +53,38 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
             children: [
               CupertinoButton(
                 padding: const EdgeInsets.all(13.0),
-                color: CupertinoColors.link,
+                color: Styles.actionSecondary,
                 onPressed: () {
                   //TODO Add an are you sure popup
                   BlocProvider.of<AssessmentBloc>(context)
                       .add(AssessmentInit(asmtState.subject, reset: true));
                 },
-                child: const Text(
-                  "Redo Assessment",
-                ),
+                child: const Text("Redo Assessment",
+                    style: TextStyle(color: Styles.black)),
               ),
               const Spacer(),
               CupertinoButton(
                 padding: const EdgeInsets.all(13.0),
-                color: CupertinoColors.link,
+                color: Styles.actionPrimary,
                 onPressed: () => onSend(
                   context,
                   asmtState.subject,
                   asmtState.dbAssessment,
-                  state.pdfView.pdfData!,
+                  state.pdfData,
                 ),
-                child: const Text(
-                  "Save to email",
-                ),
+                child: const Text("Save to email",
+                    style: TextStyle(color: Styles.black)),
               ),
             ],
           ),
-        )
+        ),
+        CupertinoButton(
+            color: Styles.actionSecondary,
+            child: const Text("Refresh PDF",
+                style: TextStyle(color: Styles.black)),
+            onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                subject: asmtState.subject,
+                assessment: asmtState.dbAssessment)))
       ]),
     );
   }
