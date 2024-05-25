@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 const double MAX_SWAY_ANGLE = 12;
 
@@ -150,43 +151,6 @@ class BoxPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
-// Function to compute the line of best fit
-// Returns a tuple where item1 is the slope (m) and item2 is the y-intercept (b) of the line y = mx + b
-LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
-  double sumX = 0,
-      sumY = 0,
-      sumY2 = 0,
-      sumXY = 0,
-      smallestY = double.infinity,
-      largestY = double.negativeInfinity;
-  int n = points.length;
-
-  for (var p in points) {
-    final point = p.scale(size.width / 255, size.height / 255);
-    sumX += point.dx;
-    sumY += point.dy;
-    sumY2 += point.dy * point.dy;
-    sumXY += point.dx * point.dy;
-    if (point.dy < smallestY) {
-      smallestY = point.dy;
-    }
-    if (point.dy > largestY) {
-      largestY = point.dy;
-    }
-  }
-
-  // Calculating slope (m) and y-intercept (b) for the line of best fit
-  // m = (N Σ(xy) - Σx Σy) / (N Σ(x^2) - (Σx)^2)
-  // b = Σy - m * Σx / N
-  double slope = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
-  double xIntercept = (sumX - slope * sumY) / n;
-
-  Offset top = Offset(smallestY * slope + xIntercept, smallestY);
-  Offset bottom = Offset(largestY * slope + xIntercept, largestY);
-  double degrees = (atan(slope) * 180 / pi).abs();
-  return LineOfBestFit(top, bottom, degrees);
-}
-
 class PoseSway extends StatelessWidget {
   final List<Offset>? points;
   const PoseSway({this.points, super.key});
@@ -206,7 +170,7 @@ class PoseSwayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final offsets = points != null
-        ? computeLineOfBestFit(points!.sublist(0, 34), size)
+        ? PoseDetectionOutput.computeLineOfBestFit(points!.sublist(0, 34), size)
         : null;
     final color = offsets != null
         ? offsets.degrees.abs() < MAX_SWAY_ANGLE
@@ -229,11 +193,3 @@ class PoseSwayPainter extends CustomPainter {
 
 // Utility function to convert degrees to radians
 double radians(double degrees) => degrees * pi / 180;
-
-class LineOfBestFit {
-  final Offset low;
-  final Offset high;
-  final double degrees;
-
-  LineOfBestFit(this.low, this.high, this.degrees);
-}

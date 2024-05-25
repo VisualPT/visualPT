@@ -48,7 +48,7 @@ class PoseDetectionIndicator extends StatelessWidget {
   Widget onRunning(BuildContext context,
       InferenceRunning<DeviceCapture, PoseDetectionOutput> state) {
     final offsets = state.response != null
-        ? computeLineOfBestFit(
+        ? PoseDetectionOutput.computeLineOfBestFit(
             state.response!.landmarks.sublist(0, 34), const Size(256, 256))
         : null;
     final color = offsets != null

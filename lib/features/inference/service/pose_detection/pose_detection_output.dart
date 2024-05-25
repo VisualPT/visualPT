@@ -60,6 +60,78 @@ class PoseDetectionOutput extends AiModelOutput {
     return output;
   }
 
+  static double computeAngle(List<Offset> points) {
+    double sumX = 0,
+        sumY = 0,
+        sumY2 = 0,
+        sumXY = 0,
+        smallestY = double.infinity,
+        largestY = double.negativeInfinity;
+    int n = points.length;
+
+    for (var point in points) {
+      sumX += point.dx;
+      sumY += point.dy;
+      sumY2 += point.dy * point.dy;
+      sumXY += point.dx * point.dy;
+      if (point.dy < smallestY) {
+        smallestY = point.dy;
+      }
+      if (point.dy > largestY) {
+        largestY = point.dy;
+      }
+    }
+    double slope = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
+
+    double degrees = (atan(slope) * 180 / pi).abs();
+    return degrees;
+  }
+
+// Function to compute the line of best fit
+// Returns a tuple where item1 is the slope (m) and item2 is the y-intercept (b) of the line y = mx + b
+  static LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
+    double sumX = 0,
+        sumY = 0,
+        sumY2 = 0,
+        sumXY = 0,
+        smallestY = double.infinity,
+        largestY = double.negativeInfinity;
+    int n = points.length;
+
+    for (var p in points) {
+      final point = p.scale(size.width / 255, size.height / 255);
+      sumX += point.dx;
+      sumY += point.dy;
+      sumY2 += point.dy * point.dy;
+      sumXY += point.dx * point.dy;
+      if (point.dy < smallestY) {
+        smallestY = point.dy;
+      }
+      if (point.dy > largestY) {
+        largestY = point.dy;
+      }
+    }
+
+    // Calculating slope (m) and y-intercept (b) for the line of best fit
+    // m = (N Σ(xy) - Σx Σy) / (N Σ(x^2) - (Σx)^2)
+    // b = Σy - m * Σx / N
+    double slope = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
+    double xIntercept = (sumX - slope * sumY) / n;
+
+    Offset top = Offset(smallestY * slope + xIntercept, smallestY);
+    Offset bottom = Offset(largestY * slope + xIntercept, largestY);
+    double degrees = (atan(slope) * 180 / pi).abs();
+    return LineOfBestFit(top, bottom, degrees);
+  }
+
   @override
   List<Object> get props => [landmarks, depthPoints, visibilityPoints];
+}
+
+class LineOfBestFit {
+  final Offset low;
+  final Offset high;
+  final double degrees;
+
+  LineOfBestFit(this.low, this.high, this.degrees);
 }
