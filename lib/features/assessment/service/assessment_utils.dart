@@ -7,6 +7,7 @@ import 'package:visualpt/features/assessment/view/assessment_view.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
+import 'package:visualpt/models/Assessment.dart';
 import 'package:visualpt/models/AssessmentType.dart';
 import 'package:visualpt/models/Detection.dart';
 import 'package:visualpt/models/Trial.dart';
@@ -42,7 +43,7 @@ class AssessmentUtils {
           instability: params["instability"],
           env: key.measurements,
           keypoints: value.toString(),
-          prediction: classification.toString(),
+          prediction: classification.getIndex().toString(),
         ));
       }
     });
@@ -53,5 +54,26 @@ class AssessmentUtils {
     return trials?.fold<double>(0.0,
             (previousValue, element) => previousValue + element.duration) ??
         0.0 / (trials?.length ?? 1);
+  }
+
+  static double getTotalAverageDuration(Assessment assessment) {
+    if (assessment.Conditions == null || assessment.Conditions!.isEmpty) {
+      return 0.0;
+    }
+
+    double totalDuration = 0.0;
+
+    for (var condition in assessment.Conditions!) {
+      if (condition.trials != null && condition.trials!.isNotEmpty) {
+        double conditionTotalDuration = condition.trials!
+            .map((trial) => trial.duration)
+            .reduce((a, b) => a + b);
+        double conditionAverageDuration =
+            conditionTotalDuration / condition.trials!.length;
+        totalDuration += conditionAverageDuration;
+      }
+    }
+
+    return totalDuration;
   }
 }

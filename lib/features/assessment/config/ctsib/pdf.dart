@@ -75,15 +75,16 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "Name: ", style: detail),
               TextSpan(
-                  text: "Anonymous Data Collection",
-                  //TODO: text: "${subject.first_name} ${subject.last_name}",
+                  text: "${subject.first_name} ${subject.last_name}",
                   style: detailBold),
             ]),
           ),
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
-              TextSpan(text: subject.dob.toString(), style: detailBold),
+              TextSpan(
+                  text: formatDate(subject.dob.getDateTime()),
+                  style: detailBold),
             ]),
           ),
           RichText(
@@ -112,22 +113,16 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
             TextSpan(text: "Date: ", style: detail),
             TextSpan(
-                text: DateTime.parse(assessment.datetime.toString())
-                    .toLocal()
-                    .toIso8601String()
-                    .substring(0, 10),
+                text:
+                    formatDate(DateTime.parse(assessment.datetime.toString())),
                 style: detailBold),
           ])),
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Time: ", style: detail),
               TextSpan(
-                  text: DateTime.parse(assessment.datetime.toString())
-                      .toLocal()
-                      .toIso8601String()
-                      .substring(11)
-                      .split('.')[0]
-                      .substring(0, 5),
+                  text: formatTime(
+                      DateTime.parse(assessment.datetime.toString()).toLocal()),
                   style: detailBold),
             ]),
           ),
@@ -135,9 +130,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "Total Duration: ", style: detail),
               TextSpan(
-                  text: assessment.duration.toStringAsFixed(2),
-                  style: detailBold),
-              TextSpan(text: " seconds", style: detail),
+                  text: formatDuration(assessment.duration), style: detailBold),
             ]),
           ),
         ]),
@@ -153,9 +146,9 @@ class CtsibPDF extends PDF {
       Table(
         border: TableBorder.all(color: black),
         columnWidths: {
-          0: const FlexColumnWidth(2),
-          1: const FlexColumnWidth(6),
-          2: const FlexColumnWidth(4),
+          0: const IntrinsicColumnWidth(),
+          1: const IntrinsicColumnWidth(),
+          2: const IntrinsicColumnWidth(),
         },
         children: [
           // Create table header
@@ -163,37 +156,90 @@ class CtsibPDF extends PDF {
             children: [
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text(''),
+                child: Text('#',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text('Condition',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('Surface',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('Vision',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('Trials',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Sway Degree',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Leading Pose',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text('Result',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
             ],
           ),
-          // Create a table row for each segment
-          for (int i = 0; i < (assessment.Conditions?.length ?? 1) - 1; i++)
+          for (int i = 0; i < (assessment.Conditions?.length ?? 1); i++)
             TableRow(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text((i + 1).toString(), style: detail),
+                  child: Text((i + 1).toString(),
+                      style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text(ctsib.conditionNames[i], style: detail),
+                  child: Text(ctsib.surface[i],
+                      style: detail, textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(ctsib.vision[i],
+                      style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(2)} / 30 seconds",
-                      style: detail),
+                      assessment.Conditions?[i].trials?.length.toString() ??
+                          "0",
+                      style: detail,
+                      textAlign: TextAlign.center),
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        "${CTSIB.averageSwayPerCondition(assessment)[i].toStringAsFixed(2)}°",
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        CTSIB.getMostFrequentClassification(assessment, i),
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(1)} / 30",
+                      style: detail,
+                      textAlign: TextAlign.center),
                 ),
               ],
             ),
@@ -202,18 +248,46 @@ class CtsibPDF extends PDF {
             children: [
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text('Total Score',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('Total',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text(''),
+                child: Text('', textAlign: TextAlign.center),
               ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('', textAlign: TextAlign.center),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      assessment.Conditions?.fold(0,
+                                  (curr, c) => curr + (c.trials?.length ?? 0))
+                              .toString() ??
+                          '',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      "${(CTSIB.averageSwayPerCondition(assessment).fold<double>(0.0, (previousValue, element) => previousValue + element) / ctsib.conditions).toStringAsFixed(2)}°",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      CTSIB.getMostFrequentIndexAcrossAllEntries(
+                          CTSIB.getPredictionTotals(assessment)),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                  "${assessment.Conditions?.map((s) => s.duration).reduce((a, b) => a + b).toStringAsFixed(1) ?? 0.0} / ${30 * ctsib.conditions} seconds",
-                ),
+                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * ctsib.conditions} seconds",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
             ],
           ),
@@ -259,13 +333,15 @@ class CtsibPDF extends PDF {
             ),
             Padding(
               padding: const EdgeInsets.all(3.0),
-              child:
-                  Text('Ratio', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Ratio',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
             ),
             Padding(
               padding: const EdgeInsets.all(3.0),
-              child:
-                  Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Status',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
             ),
           ]),
           _createConditionRow("Somatosensory (SOM) Test", somRatio, somStatus),
@@ -376,11 +452,12 @@ class CtsibPDF extends PDF {
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text("${ratio.toStringAsFixed(2)}%", style: detail),
+        child: Text("${ratio.toStringAsFixed(2)}%",
+            style: detail, textAlign: TextAlign.center),
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(status, style: detail),
+        child: Text(status, style: detail, textAlign: TextAlign.center),
       ),
     ]);
   }
@@ -402,7 +479,7 @@ String getNormativeMessage(double totalDuration, TemporalDate dob) {
 String determineStatus(double ratio) {
   if (ratio == 0.0) {
     return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
-  } else if (ratio < 1) {
+  } else if (ratio < 99) {
     return "Dysfunctional"; // System is dysfunctional if the ratio is less than 1
   } else {
     return "Functional"; // System is considered functional otherwise
