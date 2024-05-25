@@ -69,8 +69,7 @@ class AssessmentBloc<T extends BaseAssessment>
     if (assessment.Conditions?.length == config.conditions) {
       final double assessmentDurationSeconds =
           getElapsedSeconds(assessmentStartTime);
-      assessment = assessment.copyWith(
-          Conditions: newConditions, duration: assessmentDurationSeconds);
+      assessment = assessment.copyWith(duration: assessmentDurationSeconds);
       emit(AssessmentAnalysis<T>(subject, storeData, assessment, config));
     } else {
       conditionStartTime = DateTime.now();
