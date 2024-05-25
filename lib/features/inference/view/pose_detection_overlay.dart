@@ -31,7 +31,8 @@ class PoseDetectionOverlay extends StatelessWidget {
         PoseBbox(response?.landmarks),
         PoseSway(points: response?.landmarks),
         response != null
-            ? response.heightThreshold
+            ? response
+                    .exceedsHeightThreshold(controller.value.previewSize!.width)
                 ? PoseOverlay(points: response.landmarks)
                 : const Center(child: Text("Get closer!"))
             : const Center(child: Text("Keep subject in frame!"))

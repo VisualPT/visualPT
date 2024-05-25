@@ -82,9 +82,6 @@ class VPTDetection {
       lines
           .map((line) => line.split(",").map((e) => double.parse(e)).toList())
           .toList(),
-      256,
-      int.parse(imageMeta[0]),
-      int.parse(imageMeta[1]),
     );
     return VPTDetection(
       version,
@@ -146,8 +143,7 @@ class VPTDetectionV0 {
 
     final detection = dataOutput.substring(dataOutput.indexOf('\n'));
 
-    final output =
-        PoseDetectionOutput(id, detection, 256, imageHeight, imageWidth);
+    final output = PoseDetectionOutput(id, detection);
     return VPTDetectionV0(
         imageHeight, imageWidth, ratio, classification, output);
   }

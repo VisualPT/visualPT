@@ -81,10 +81,7 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
-    final width = (params?['width'] as double).toInt();
-    final height = (params?['height'] as double).toInt();
-
-    return PoseDetectionOutput(id, landmarkPoints, inputSize, width, height);
+    return PoseDetectionOutput(id, landmarkPoints);
   }
 }
 
