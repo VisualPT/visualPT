@@ -42,7 +42,7 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
 
   @override
   PoseDetectionOutput? predict(
-      TensorImage input, Map<String, dynamic>? params) {
+      String id, TensorImage input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -75,15 +75,13 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
       return null;
     }
 
-    //TODO: there are 33 landmarks, why is there 39 defined here?
+    // Data Shape Defined by: https://storage.googleapis.com/mediapipe-assets/Model%20Card%20BlazePose%20GHUM%203D.pdf
+    // Further detail here: https://github.com/google/mediapipe/issues/4752
     final landmarkPoints = outputLandmarks
         .getDoubleList()
         .reshape<double>([39, 5]) as List<List<double>>;
 
-    final width = (params?['width'] as double).toInt();
-    final height = (params?['height'] as double).toInt();
-
-    return PoseDetectionOutput(landmarkPoints, inputSize, width, height);
+    return PoseDetectionOutput(id, landmarkPoints);
   }
 }
 
@@ -91,9 +89,10 @@ PoseDetectionOutput? runPoseDetector(Map<String, dynamic> params) {
   final pose = PoseDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
+  final id = params['id'] as String;
   final input = params['input'] as TensorImage;
 
-  final result = pose.predict(input, params['params']);
+  final result = pose.predict(id, input, params['params']);
 
   return result;
 }

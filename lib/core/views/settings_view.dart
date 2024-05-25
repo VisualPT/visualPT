@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
 class SettingsView extends StatelessWidget {

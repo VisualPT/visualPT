@@ -32,6 +32,8 @@
 	<array>
 		<string>_dartobservatory._tcp</string>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>VisualPT will collect video of you to generate a personalized screening report</string>
 	<key>NSCameraUsageDescription</key>
 	<string>VisualPT needs access to the camera to take photos and videos</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

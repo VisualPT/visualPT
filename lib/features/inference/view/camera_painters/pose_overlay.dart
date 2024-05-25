@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 class PoseOverlay extends StatelessWidget {
   final List<Offset>? points;
@@ -31,19 +32,19 @@ class PosePainter extends CustomPainter {
         .toList();
     if (points.isNotEmpty) {
       var pointPaint = Paint()
-        ..color = CupertinoColors.systemBlue
+        ..color = Styles.blue
         ..strokeWidth = 8;
       var headPaint = Paint()
-        ..color = CupertinoColors.systemYellow
+        ..color = Styles.yellow
         ..strokeWidth = 2;
       var leftPaint = Paint()
-        ..color = CupertinoColors.systemMint
+        ..color = Styles.mint
         ..strokeWidth = 2;
       var rightPaint = Paint()
-        ..color = CupertinoColors.systemMint
+        ..color = Styles.mint
         ..strokeWidth = 2;
       var bodyPaint = Paint()
-        ..color = CupertinoColors.systemBlue
+        ..color = Styles.mint
         ..strokeWidth = 2;
 
       canvas.drawPoints(

@@ -9,36 +9,36 @@ import '../../constants/model_file.dart';
 import '../ai_model.dart';
 
 const Map<int, String> classifications = {
-  -1: "invalid",
   0: "static",
   1: "arms uncrossed",
   2: "trunk flex",
   3: "feet separated",
+  -1: "invalid",
 };
 
 class NormConst {
-  static const double meanMaxX = 154.18105273776584;
-  static const double meanMaxY = 226.64141575183743;
-  static const double meanMinX = 94.35607003542333;
-  static const double meanMinY = 32.165283149850914;
+  static const double meanMaxX = 148.9316624640058;
+  static const double meanMaxY = 218.3240010129572;
+  static const double meanMinX = 102.51440336306322;
+  static const double meanMinY = 48.208955628623634;
   static const double maxX = 257.3079833984375;
   static const double maxY = 274.50079345703125;
   static const double minX = -4.650461196899414;
   static const double minY = -2.4850502014160156;
-  static const List<double> center = [191.0224458, 182.39294565];
-  static const List<double> distXY = [24.05671016, 1.48454173];
-  static const double distAbsoluteXY = 24.126362310231567;
+  static const List<double> center = [194.46347425, 192.89205381];
+  static const List<double> distXY = [22.34033741, 0.91201126];
+  static const double distAbsoluteXY = 22.373311160212694;
   static const List<List<double>> centers = [
-    [166.965735639622, 180.90840392019234],
-    [191.02244580181596, 182.39294565113542],
-    [215.0791559640099, 183.8774873820785]
+    [172.12313683600976, 191.98004254546555],
+    [194.46347424701685, 192.89205381036996],
+    [216.80381165802393, 193.80406507527437]
   ];
   static const List<double> sds = [
-    15.63874639965528,
-    15.063585556528396,
-    16.839463809071564,
-    12.842026919066111,
-    14.672498078400517
+    10.666145181421614,
+    13.742566405833044,
+    12.633746248003606,
+    15.850760792503975,
+    15.914418021459383
   ];
   static const double z = 1.9599639845400536;
 
@@ -50,8 +50,8 @@ class PoseClassification
   PoseClassification({super.interpreter}) {
     loadModel();
   }
-  static const int inputSize = 256;
-  static const double threshold = 0.70;
+  // static const int inputSize = 256;
+  // static const double threshold = 0.70;
 
   @override
   List<Object> get props => [];
@@ -85,7 +85,7 @@ class PoseClassification
 
   @override
   PoseClassificationOutput? predict(
-      PoseDetectionOutput input, Map<String, dynamic>? params) {
+      String id, PoseDetectionOutput input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -108,16 +108,15 @@ class PoseClassification
 
     interpreter!.runForMultipleInputs(inputs, outputs);
 
-    final prediction = output.getDoubleValue(0);
-    return PoseClassificationOutput(prediction);
+    final prediction = output.getDoubleList();
+    return PoseClassificationOutput(input.id, prediction);
   }
 }
 
 PoseClassificationOutput? runPoseClassifier(Map<String, dynamic> params) {
   final pose = PoseClassification(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final result = pose.predict(params['input'], params['params']);
-  return result;
+  return pose.predict(params['id'], params['input'], params['params']);
 }
 
 List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {
@@ -162,7 +161,9 @@ List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {
       idistx < NormConst.distXY[0] - (NormConst.sds[4]);
 
   if (isBad) {
-    return null;
+    print('Bad data');
+    //TODO: We let all the data pass through to inference to keep the UI running even if the input is bad.
+    // return null;
   }
 
   // Scale and translate data

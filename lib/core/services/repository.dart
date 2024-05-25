@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:visualpt/features/assessment/types.dart';
 
 abstract class Repository<I, O> {
-  final ClinicalMeta meta;
+  final AssessmentMeta meta;
   final StreamController<I> _streamController;
   var isInitialized = false;
   var count = 0;
+  var localStorage = <I, O>{};
+
   Repository(this.meta) : _streamController = StreamController.broadcast();
 
   Stream<I> get stream => _streamController.stream;
@@ -19,8 +21,9 @@ abstract class Repository<I, O> {
   }
 
   Future<void> initialize();
-  Future<O?> runPredict(I input, Map<String, dynamic>? params);
-  Future<void> store(I input, O output, Map<String, dynamic>? params);
+  Future<O?> runPredict(String id, I input, Map<String, dynamic>? params);
+  Future<void> store(
+      String id, I input, O output, Map<String, dynamic>? params);
 
   void dispose() {
     _streamController.close();

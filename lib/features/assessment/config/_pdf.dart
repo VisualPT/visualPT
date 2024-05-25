@@ -1,12 +1,12 @@
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-// export 'gait/pdf.dart';
-
 abstract class PDF {
+  //TODO Hide in a styles class
   late Font logoVisualFont;
   late Font logoPTFont;
   late Font baseFont;
@@ -37,6 +37,8 @@ abstract class PDF {
   late TextStyle invisible;
 
   late RichText RichTextLogo;
+
+  //TODO: Add a default BaseAssessment for all the PDFs to depend on
 
   Future<void> configPdfStyles() async {
     logoVisualFont = await PdfGoogleFonts.unboundedBold();
@@ -76,5 +78,25 @@ abstract class PDF {
     return;
   }
 
-  Future<Uint8List> generatePdf(Patient patient, Assessment assessment);
+  Future<Uint8List> generatePdf(Subject subject, Assessment assessment);
+
+  String formatTime(DateTime dateTime) {
+    final DateFormat formatter = DateFormat('hh:mm a');
+    return formatter.format(dateTime);
+  }
+
+  String formatDate(DateTime dateTime) {
+    final DateFormat formatter = DateFormat('MMMM dd, yyyy');
+    return formatter.format(dateTime);
+  }
+
+  String formatDuration(double durationInSeconds) {
+    int minutes = durationInSeconds ~/ 60;
+    double remainingSeconds = durationInSeconds % 60;
+    //If the duration is less than a minute, return only the seconds
+    if (minutes == 0) {
+      return "${remainingSeconds.toStringAsFixed(2)} seconds";
+    }
+    return "$minutes minutes ${remainingSeconds.toStringAsFixed(2)} seconds";
+  }
 }

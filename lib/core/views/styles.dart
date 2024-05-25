@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,68 +9,88 @@ class Styles {
   factory Styles() => _instance;
   Styles._internal();
 
-  static const double kItemExtent = 32.0;
+  static const kItemExtent = 32.0;
 
-  //Default Colors
-  static const Color backgroundPrimary = Color(0xFF91DAFF);
-  static const Color backgroundAccent = Color(0xFF4EC3FF);
-  static const Color backgroundComplementory = Color(0xFFf8c098);
+  // Base Colors
+  static const white = Color(0xFFFFFFFF);
+  static const black = Color(0xFF000000);
+  static const gray = Color(0xFF777777);
+  static const blue = Color(0xFF007AFF);
+  static const green = Color(0xFF4CD964);
+  static const red = Color(0xFFFF3B30);
+  static const yellow = Color(0xFFFFCC00);
+  static const orange = Color(0xFFFF9500);
+  static const mint = Color(0xFF00C2A8);
 
-  static const Color actionPrimary = Color(0xFF1F7A97);
-  static const Color actionSecondary = Color(0x551F7A97);
+  // Status Colors
+  static const inactiveGray = Color(0xFFCCCCCC);
+  static const link = Color(0xFF2C8ECA);
+  static const errorRed = Color(0xFFD32F2F);
 
-  static const Color comingSoonColor = Color(0x77777777);
+  // Primary Colors
+  static const skyBlue = Color(0xFF74C6E7);
+  static const activeOrange = Color(0xFFEA7A36);
 
-  static const Color white = CupertinoColors.white;
-  static const Color black = CupertinoColors.black;
-  static const Color transparent = Colors.transparent;
+  // Secondary Colors
+  static const navyBlue = Color(0xFF19365A);
+  static const ceruleanBlue = Color(0xFF2C8ECA);
+
+  // Action Colors (Derived from Primary for buttons, highlights, CTAs)
+  static const actionPrimary = Color(0xDCEA7A36); //activeOrange at 87% opacity
+  static const actionSecondary = skyBlue;
+
+  // Background Colors (Neutral background colors)
+  static const backgroundPrimary = white;
+  static const backgroundAccent =
+      Color(0x202C8ECA); //ceruleanBlue at 12% opacity
+  static const backgroundComplementary =
+      Color(0x2019365A); //navyBlue at 12% opacity
+
+  // Other Colors
+  static const comingSoonColor = Color(0x77777777);
+  static const transparent = Colors.transparent;
 
   //Asset Paths
-  static const String mainLogoPath = "assets/images/vpt_mainlogo.png";
-  static const String ctsibLogoPath = "assets/images/ctsib_mainlogo.png";
-  static const String gvLogoPath = "assets/images/gv_mainlogo.png";
-  static const String bergLogoPath = "assets/images/berg_mainlogo.png";
-
+  static const mainLogoPath = "assets/images/vpt_mainlogo.png";
   //Text Styles
-  static const TextStyle title = TextStyle(
+  static const title = TextStyle(
     fontFamily: "Unbounded",
     fontSize: 32,
     fontWeight: FontWeight.bold,
   );
-  static const TextStyle subtitle =
-      TextStyle(fontFamily: "Unbounded", fontSize: 24);
-  static const TextStyle heading1 =
-      TextStyle(fontFamily: "Unbounded", fontSize: 22);
-  static const TextStyle heading2 =
-      TextStyle(fontFamily: "Unbounded", fontSize: 20);
-  static const TextStyle heading3 =
-      TextStyle(fontFamily: "Unbounded", fontSize: 18);
-  static const TextStyle placeholderStyle =
-      TextStyle(color: CupertinoColors.inactiveGray, fontSize: 24);
-  static const TextStyle inputStyle =
-      TextStyle(color: CupertinoColors.black, fontSize: 24);
-  static const TextStyle actionText = TextStyle(
-      color: CupertinoColors.white, fontSize: 28, fontWeight: FontWeight.bold);
-  static const TextStyle subactionText = TextStyle(
-      color: CupertinoColors.white, fontSize: 18, fontWeight: FontWeight.bold);
-  static const TextStyle popupSelectionText =
-      TextStyle(color: CupertinoColors.black);
+  static const subtitle = TextStyle(fontSize: 24);
+  static const heading1 = TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
+  static const heading2 = TextStyle(
+    fontSize: 20,
+  );
+  static const heading3 = TextStyle(fontSize: 18);
+  static const placeholderStyle =
+      TextStyle(color: Styles.inactiveGray, fontSize: 24);
+  static const inputStyle = TextStyle(color: Styles.black, fontSize: 24);
+  static const actionText =
+      TextStyle(color: Styles.white, fontSize: 28, fontWeight: FontWeight.bold);
+  static const subactionText =
+      TextStyle(color: Styles.white, fontSize: 18, fontWeight: FontWeight.bold);
+  static const popupSelectionText =
+      TextStyle(color: Styles.black, fontSize: 20);
 
-  static const TextStyle comingSoonTitle = TextStyle(
-      color: comingSoonColor, fontSize: 32, fontWeight: FontWeight.bold);
-  static const TextStyle comingSoonSubtitle = TextStyle(
+  static const comingSoonTitle = TextStyle(
+    color: comingSoonColor,
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    fontFamily: "Unbounded",
+  );
+  static const comingSoonSubtitle = TextStyle(
       color: comingSoonColor, fontSize: 24, fontWeight: FontWeight.bold);
+  static const comingSoonHeading3 =
+      TextStyle(color: comingSoonColor, fontSize: 18);
 
   static TextStyle timerTextStyle = GoogleFonts.robotoMono(
       fontWeight: FontWeight.bold, fontSize: 24, color: white.withOpacity(0.8));
-  static const TextStyle error =
-      TextStyle(color: CupertinoColors.destructiveRed);
+  static const error = TextStyle(color: Styles.errorRed);
 
   //Borders
-  static const BorderRadius borderRadiusS =
-      BorderRadius.all(Radius.circular(4));
-  static const BorderRadius borderRadiusM =
-      BorderRadius.all(Radius.circular(8));
-  static const BorderRadius borderRadiusL =
-      BorderRadius.all(Radius.circular(16));
+  static const borderRadiusS = BorderRadius.all(Radius.circular(4));
+  static const borderRadiusM = BorderRadius.all(Radius.circular(8));
+  static const borderRadiusL = BorderRadius.all(Radius.circular(16));
 }

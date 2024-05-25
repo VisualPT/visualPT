@@ -9,11 +9,11 @@ import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 class CtsibPDF extends PDF {
   final baseAssessment = CTSIB();
   @override
-  Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
 
     final pdf = Document(
-        title: patient.last_name + patient.first_name + patient.dob.toString(),
+        title: subject.last_name + subject.first_name + subject.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
@@ -28,10 +28,10 @@ class CtsibPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            patientData(patient, assessment),
-            // assessmentData(patient, assessment),
+            subjectData(subject, assessment),
+            // assessmentData(subject, assessment),
             // interpretationData(assessment),
-            // normativeData(patient, assessment),
+            // normativeData(subject, assessment),
             diagnosisData(),
             Spacer(),
             footerData(),
@@ -77,7 +77,7 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget patientData(Patient patient, Assessment assessment) {
+  Widget subjectData(Subject subject, Assessment assessment) {
     return SizedBox(
       height: 1.5 * inch,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -90,14 +90,14 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Name: ", style: detail),
                 TextSpan(
-                    text: "${patient.first_name} ${patient.last_name}",
+                    text: "${subject.first_name} ${subject.last_name}",
                     style: detailBold),
               ]),
             ),
             RichText(
               text: TextSpan(children: [
                 TextSpan(text: "DOB: ", style: detail),
-                TextSpan(text: patient.dob.toString(), style: detailBold),
+                TextSpan(text: subject.dob.toString(), style: detailBold),
               ]),
             ),
             RichText(
@@ -105,7 +105,7 @@ class CtsibPDF extends PDF {
                 TextSpan(text: "Age: ", style: detail),
                 TextSpan(
                     text: (DateTime.now()
-                                .difference(patient.dob.getDateTime())
+                                .difference(subject.dob.getDateTime())
                                 .inDays ~/
                             365)
                         .toString(),
@@ -115,7 +115,7 @@ class CtsibPDF extends PDF {
             RichText(
               text: TextSpan(children: [
                 TextSpan(text: "Gender: ", style: detail),
-                TextSpan(text: patient.gender.name, style: detailBold),
+                TextSpan(text: subject.gender.name, style: detailBold),
               ]),
             ),
           ]),
@@ -149,7 +149,8 @@ class CtsibPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Total Duration: ", style: detail),
                 TextSpan(
-                    text: assessment.duration.toString(), style: detailBold),
+                    text: assessment.duration.toStringAsFixed(2),
+                    style: detailBold),
                 TextSpan(text: " seconds", style: detail),
               ]),
             ),
@@ -159,7 +160,7 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget assessmentData(Patient patient, Assessment assessment) {
+  Widget assessmentData(Subject subject, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -192,7 +193,7 @@ class CtsibPDF extends PDF {
             ],
           ),
           // Create a table row for each segment
-          for (int i = 0; i < assessment.segments!.length; i++)
+          for (int i = 0; i < assessment.Conditions!.length; i++)
             TableRow(
               children: [
                 Padding(
@@ -201,12 +202,12 @@ class CtsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(baseAssessment.seqNames[i]),
+                  child: Text(baseAssessment.conditionNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      "${assessment.segments![i].duration_seconds.toString()} / 30 seconds"),
+                      "${assessment.Conditions![i].duration.toString()} / 30 seconds"),
                 ),
               ],
             ),
@@ -225,7 +226,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * baseAssessment.sequences} seconds",
+                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * baseAssessment.conditions} seconds",
                 ),
               ),
             ],
@@ -264,7 +265,7 @@ class CtsibPDF extends PDF {
   }
 
 //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Patient patient, Assessment assessment) {
+  Widget normativeData(Subject subject, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -272,10 +273,10 @@ class CtsibPDF extends PDF {
       RichText(
           text: TextSpan(
               text: getNormativeMessage(
-                  assessment.segments!
-                      .map((s) => s.duration_seconds)
+                  assessment.Conditions!
+                      .map((s) => s.duration)
                       .reduce((a, b) => a + b),
-                  patient.dob),
+                  subject.dob),
               style: detailBold)),
     ]);
   }
@@ -328,6 +329,6 @@ class CtsibPDF extends PDF {
   }
 }
 
-String getNormativeMessage(int totalDuration, TemporalDate dob) {
+String getNormativeMessage(double totalDuration, TemporalDate dob) {
   return "TODO";
 }

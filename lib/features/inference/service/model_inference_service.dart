@@ -21,9 +21,9 @@ enum Models {
 class ModelInferenceService<I, O> {
   late AiModel model;
   late Function handler;
-  AiModelOutput? inferenceResults;
 
-  Future<void> inference({
+  Future<AiModelOutput?> inference({
+    required String id,
     required IsolateUtils isolateUtils,
     required I input,
     required Map<String, dynamic>? params,
@@ -33,6 +33,7 @@ class ModelInferenceService<I, O> {
     isolateUtils.sendMessage(
       handler: handler,
       params: {
+        'id': id,
         'input': input,
         'detectorAddress': model.getAddress,
         'params': params,
@@ -41,8 +42,9 @@ class ModelInferenceService<I, O> {
       responsePort: responsePort,
     );
 
-    inferenceResults = await responsePort.first;
+    final results = await responsePort.first;
     responsePort.close();
+    return results;
   }
 
   void setModelConfig(int index) {

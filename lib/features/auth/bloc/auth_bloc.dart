@@ -46,7 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         log("Status $status", name: "Auto Auth");
         if (status) {
           final user = await _authRepository.setUser();
-          if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+          if (!isClosed && !emit.isDone) emit(AuthSuccess(user));
         } else {
           if (!isClosed && !emit.isDone) emit(const AuthSignUp());
         }
@@ -88,7 +88,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final result = await _authRepository.completeLogin();
       if (result == "done") {
         final user = await _authRepository.setUser();
-        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user));
       } else {
         if (!isClosed) emit(AuthCode(message: result));
       }
@@ -105,7 +105,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final result = await _authRepository.completeSignUp();
       if (result) {
         final user = await _authRepository.setUser();
-        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user));
         return;
       } else {
         if (!isClosed) emit(const AuthCode());
@@ -134,7 +134,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final response = await _authRepository.completeLogin();
       if (result.isSignUpComplete && response == "done") {
         final user = await _authRepository.setUser();
-        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user));
       } else {
         emit(AuthCode(message: response));
       }
@@ -175,7 +175,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (result.isPasswordReset) {
         await _authRepository.completeLogin();
         final user = await _authRepository.setUser();
-        if (!isClosed && !emit.isDone) emit(AuthSuccess(user: user));
+        if (!isClosed && !emit.isDone) emit(AuthSuccess(user));
       } else {
         emit(const AuthReset(message: "Failed to reset password"));
       }

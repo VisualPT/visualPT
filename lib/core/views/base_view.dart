@@ -33,7 +33,7 @@ class _BaseViewState extends State<BaseView> {
             backgroundColor: Styles.backgroundAccent,
             middle: ConstrainedBox(
                 constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.7),
+                    maxWidth: MediaQuery.of(context).size.width * 0.75),
                 child: widget.pageTitle == null
                     ? const Image(
                         image: AssetImage(Styles.mainLogoPath),
@@ -65,11 +65,9 @@ class _BaseViewState extends State<BaseView> {
             width: screenSize.width,
             child: Stack(alignment: Alignment.center, children: [
               const ViewBackground(),
-              SizedBox(
-                height: screenSize.height,
-                width: screenSize.width,
+              SafeArea(
                 child: widget.child,
-              ),
+              )
             ]),
           )),
       //InstructionModal below
@@ -78,7 +76,7 @@ class _BaseViewState extends State<BaseView> {
               alignment: Alignment.center,
               height: screenSize.height,
               width: screenSize.width,
-              color: CupertinoColors.black.withOpacity(0.5),
+              color: Styles.black.withOpacity(0.5),
               child: GestureDetector(
                   child: Container(
                       height: screenSize.height * 0.7,
@@ -86,7 +84,7 @@ class _BaseViewState extends State<BaseView> {
                       //Create rounded corners
                       decoration: const BoxDecoration(
                           borderRadius: Styles.borderRadiusM,
-                          color: Styles.backgroundAccent),
+                          color: Styles.ceruleanBlue),
                       child: widget.instructions),
                   onTap: () => setState(() => showInstructions = false)))
           : Container()

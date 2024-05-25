@@ -7,7 +7,6 @@ import 'package:visualpt/features/auth/service/auth_service.dart';
 import 'package:visualpt/features/auth/service/auth_utils.dart';
 import 'package:visualpt/features/auth/view/auth_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
 //TODO: Create some animations between auth states

@@ -17,25 +17,26 @@
 // Generated files can be excluded from analysis in analysis_options.yaml
 // For more info, see: https://dart.dev/guides/language/analysis-options#excluding-code-from-analysis
 
-// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
+// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, override_on_non_overriding_member, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
 import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'package:collection/collection.dart';
 
 
-/** This is an auto generated class representing the Patient type in your schema. */
-class Patient extends amplify_core.Model {
-  static const classType = const _PatientModelType();
+/** This is an auto generated class representing the Subject type in your schema. */
+class Subject extends amplify_core.Model {
+  static const classType = const _SubjectModelType();
   final String id;
+  final String? _userID;
   final String? _first_name;
   final String? _last_name;
   final amplify_core.TemporalDate? _dob;
   final Gender? _gender;
   final double? _height_in_inches;
-  final List<Assessment>? _Assessments;
-  final String? _provider_contact;
   final FallHistory? _fall_history;
+  final String? _provider_contact;
+  final List<Assessment>? _Assessments;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -46,10 +47,23 @@ class Patient extends amplify_core.Model {
   @override
   String getId() => id;
   
-  PatientModelIdentifier get modelIdentifier {
-      return PatientModelIdentifier(
+  SubjectModelIdentifier get modelIdentifier {
+      return SubjectModelIdentifier(
         id: id
       );
+  }
+  
+  String get userID {
+    try {
+      return _userID!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
   String get first_name {
@@ -117,8 +131,17 @@ class Patient extends amplify_core.Model {
     }
   }
   
-  List<Assessment>? get Assessments {
-    return _Assessments;
+  FallHistory get fall_history {
+    try {
+      return _fall_history!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
   String get provider_contact {
@@ -134,17 +157,8 @@ class Patient extends amplify_core.Model {
     }
   }
   
-  FallHistory get fall_history {
-    try {
-      return _fall_history!;
-    } catch(e) {
-      throw amplify_core.AmplifyCodeGenModelException(
-          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
+  List<Assessment>? get Assessments {
+    return _Assessments;
   }
   
   amplify_core.TemporalDateTime? get createdAt {
@@ -155,19 +169,20 @@ class Patient extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const Patient._internal({required this.id, required first_name, required last_name, required dob, required gender, required height_in_inches, Assessments, required provider_contact, required fall_history, createdAt, updatedAt}): _first_name = first_name, _last_name = last_name, _dob = dob, _gender = gender, _height_in_inches = height_in_inches, _Assessments = Assessments, _provider_contact = provider_contact, _fall_history = fall_history, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Subject._internal({required this.id, required userID, required first_name, required last_name, required dob, required gender, required height_in_inches, required fall_history, required provider_contact, Assessments, createdAt, updatedAt}): _userID = userID, _first_name = first_name, _last_name = last_name, _dob = dob, _gender = gender, _height_in_inches = height_in_inches, _fall_history = fall_history, _provider_contact = provider_contact, _Assessments = Assessments, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Patient({String? id, required String first_name, required String last_name, required amplify_core.TemporalDate dob, required Gender gender, required double height_in_inches, List<Assessment>? Assessments, required String provider_contact, required FallHistory fall_history}) {
-    return Patient._internal(
+  factory Subject({String? id, required String userID, required String first_name, required String last_name, required amplify_core.TemporalDate dob, required Gender gender, required double height_in_inches, required FallHistory fall_history, required String provider_contact, List<Assessment>? Assessments}) {
+    return Subject._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
+      userID: userID,
       first_name: first_name,
       last_name: last_name,
       dob: dob,
       gender: gender,
       height_in_inches: height_in_inches,
-      Assessments: Assessments != null ? List<Assessment>.unmodifiable(Assessments) : Assessments,
+      fall_history: fall_history,
       provider_contact: provider_contact,
-      fall_history: fall_history);
+      Assessments: Assessments != null ? List<Assessment>.unmodifiable(Assessments) : Assessments);
   }
   
   bool equals(Object other) {
@@ -177,16 +192,17 @@ class Patient extends amplify_core.Model {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is Patient &&
+    return other is Subject &&
       id == other.id &&
+      _userID == other._userID &&
       _first_name == other._first_name &&
       _last_name == other._last_name &&
       _dob == other._dob &&
       _gender == other._gender &&
       _height_in_inches == other._height_in_inches &&
-      DeepCollectionEquality().equals(_Assessments, other._Assessments) &&
+      _fall_history == other._fall_history &&
       _provider_contact == other._provider_contact &&
-      _fall_history == other._fall_history;
+      DeepCollectionEquality().equals(_Assessments, other._Assessments);
   }
   
   @override
@@ -196,15 +212,16 @@ class Patient extends amplify_core.Model {
   String toString() {
     var buffer = new StringBuffer();
     
-    buffer.write("Patient {");
+    buffer.write("Subject {");
     buffer.write("id=" + "$id" + ", ");
+    buffer.write("userID=" + "$_userID" + ", ");
     buffer.write("first_name=" + "$_first_name" + ", ");
     buffer.write("last_name=" + "$_last_name" + ", ");
     buffer.write("dob=" + (_dob != null ? _dob!.format() : "null") + ", ");
     buffer.write("gender=" + (_gender != null ? amplify_core.enumToString(_gender)! : "null") + ", ");
     buffer.write("height_in_inches=" + (_height_in_inches != null ? _height_in_inches!.toString() : "null") + ", ");
-    buffer.write("provider_contact=" + "$_provider_contact" + ", ");
     buffer.write("fall_history=" + (_fall_history != null ? amplify_core.enumToString(_fall_history)! : "null") + ", ");
+    buffer.write("provider_contact=" + "$_provider_contact" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -212,93 +229,106 @@ class Patient extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Patient copyWith({String? first_name, String? last_name, amplify_core.TemporalDate? dob, Gender? gender, double? height_in_inches, List<Assessment>? Assessments, String? provider_contact, FallHistory? fall_history}) {
-    return Patient._internal(
+  Subject copyWith({String? userID, String? first_name, String? last_name, amplify_core.TemporalDate? dob, Gender? gender, double? height_in_inches, FallHistory? fall_history, String? provider_contact, List<Assessment>? Assessments}) {
+    return Subject._internal(
       id: id,
+      userID: userID ?? this.userID,
       first_name: first_name ?? this.first_name,
       last_name: last_name ?? this.last_name,
       dob: dob ?? this.dob,
       gender: gender ?? this.gender,
       height_in_inches: height_in_inches ?? this.height_in_inches,
-      Assessments: Assessments ?? this.Assessments,
+      fall_history: fall_history ?? this.fall_history,
       provider_contact: provider_contact ?? this.provider_contact,
-      fall_history: fall_history ?? this.fall_history);
+      Assessments: Assessments ?? this.Assessments);
   }
   
-  Patient copyWithModelFieldValues({
+  Subject copyWithModelFieldValues({
+    ModelFieldValue<String>? userID,
     ModelFieldValue<String>? first_name,
     ModelFieldValue<String>? last_name,
     ModelFieldValue<amplify_core.TemporalDate>? dob,
     ModelFieldValue<Gender>? gender,
     ModelFieldValue<double>? height_in_inches,
-    ModelFieldValue<List<Assessment>?>? Assessments,
+    ModelFieldValue<FallHistory>? fall_history,
     ModelFieldValue<String>? provider_contact,
-    ModelFieldValue<FallHistory>? fall_history
+    ModelFieldValue<List<Assessment>>? Assessments
   }) {
-    return Patient._internal(
+    return Subject._internal(
       id: id,
+      userID: userID == null ? this.userID : userID.value,
       first_name: first_name == null ? this.first_name : first_name.value,
       last_name: last_name == null ? this.last_name : last_name.value,
       dob: dob == null ? this.dob : dob.value,
       gender: gender == null ? this.gender : gender.value,
       height_in_inches: height_in_inches == null ? this.height_in_inches : height_in_inches.value,
-      Assessments: Assessments == null ? this.Assessments : Assessments.value,
+      fall_history: fall_history == null ? this.fall_history : fall_history.value,
       provider_contact: provider_contact == null ? this.provider_contact : provider_contact.value,
-      fall_history: fall_history == null ? this.fall_history : fall_history.value
+      Assessments: Assessments == null ? this.Assessments : Assessments.value
     );
   }
   
-  Patient.fromJson(Map<String, dynamic> json)  
+  Subject.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
+      _userID = json['userID'],
       _first_name = json['first_name'],
       _last_name = json['last_name'],
       _dob = json['dob'] != null ? amplify_core.TemporalDate.fromString(json['dob']) : null,
       _gender = amplify_core.enumFromString<Gender>(json['gender'], Gender.values),
       _height_in_inches = (json['height_in_inches'] as num?)?.toDouble(),
-      _Assessments = json['Assessments'] is List
-        ? (json['Assessments'] as List)
-          .where((e) => e?['serializedData'] != null)
-          .map((e) => Assessment.fromJson(new Map<String, dynamic>.from(e['serializedData'])))
-          .toList()
-        : null,
-      _provider_contact = json['provider_contact'],
       _fall_history = amplify_core.enumFromString<FallHistory>(json['fall_history'], FallHistory.values),
+      _provider_contact = json['provider_contact'],
+      _Assessments = json['Assessments']  is Map
+        ? (json['Assessments']['items'] is List
+          ? (json['Assessments']['items'] as List)
+              .where((e) => e != null)
+              .map((e) => Assessment.fromJson(new Map<String, dynamic>.from(e)))
+              .toList()
+          : null)
+        : (json['Assessments'] is List
+          ? (json['Assessments'] as List)
+              .where((e) => e?['serializedData'] != null)
+              .map((e) => Assessment.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
+              .toList()
+          : null),
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'first_name': _first_name, 'last_name': _last_name, 'dob': _dob?.format(), 'gender': amplify_core.enumToString(_gender), 'height_in_inches': _height_in_inches, 'Assessments': _Assessments?.map((Assessment? e) => e?.toJson()).toList(), 'provider_contact': _provider_contact, 'fall_history': amplify_core.enumToString(_fall_history), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'userID': _userID, 'first_name': _first_name, 'last_name': _last_name, 'dob': _dob?.format(), 'gender': amplify_core.enumToString(_gender), 'height_in_inches': _height_in_inches, 'fall_history': amplify_core.enumToString(_fall_history), 'provider_contact': _provider_contact, 'Assessments': _Assessments?.map((Assessment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
+    'userID': _userID,
     'first_name': _first_name,
     'last_name': _last_name,
     'dob': _dob,
     'gender': _gender,
     'height_in_inches': _height_in_inches,
-    'Assessments': _Assessments,
-    'provider_contact': _provider_contact,
     'fall_history': _fall_history,
+    'provider_contact': _provider_contact,
+    'Assessments': _Assessments,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
 
-  static final amplify_core.QueryModelIdentifier<PatientModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<PatientModelIdentifier>();
+  static final amplify_core.QueryModelIdentifier<SubjectModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<SubjectModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
+  static final USERID = amplify_core.QueryField(fieldName: "userID");
   static final FIRST_NAME = amplify_core.QueryField(fieldName: "first_name");
   static final LAST_NAME = amplify_core.QueryField(fieldName: "last_name");
   static final DOB = amplify_core.QueryField(fieldName: "dob");
   static final GENDER = amplify_core.QueryField(fieldName: "gender");
   static final HEIGHT_IN_INCHES = amplify_core.QueryField(fieldName: "height_in_inches");
+  static final FALL_HISTORY = amplify_core.QueryField(fieldName: "fall_history");
+  static final PROVIDER_CONTACT = amplify_core.QueryField(fieldName: "provider_contact");
   static final ASSESSMENTS = amplify_core.QueryField(
     fieldName: "Assessments",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Assessment'));
-  static final PROVIDER_CONTACT = amplify_core.QueryField(fieldName: "provider_contact");
-  static final FALL_HISTORY = amplify_core.QueryField(fieldName: "fall_history");
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
-    modelSchemaDefinition.name = "Patient";
-    modelSchemaDefinition.pluralName = "Patients";
+    modelSchemaDefinition.name = "Subject";
+    modelSchemaDefinition.pluralName = "Subjects";
     
     modelSchemaDefinition.authRules = [
       amplify_core.AuthRule(
@@ -314,55 +344,65 @@ class Patient extends amplify_core.Model {
         ])
     ];
     
+    modelSchemaDefinition.indexes = [
+      amplify_core.ModelIndex(fields: const ["userID"], name: "byUser")
+    ];
+    
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.FIRST_NAME,
+      key: Subject.USERID,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.LAST_NAME,
+      key: Subject.FIRST_NAME,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.DOB,
+      key: Subject.LAST_NAME,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Subject.DOB,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.date)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.GENDER,
+      key: Subject.GENDER,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.HEIGHT_IN_INCHES,
+      key: Subject.HEIGHT_IN_INCHES,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
-      key: Patient.ASSESSMENTS,
-      isRequired: false,
-      ofModelName: 'Assessment',
-      associatedKey: Assessment.PATIENTID
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Subject.FALL_HISTORY,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.PROVIDER_CONTACT,
+      key: Subject.PROVIDER_CONTACT,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Patient.FALL_HISTORY,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
+      key: Subject.ASSESSMENTS,
       isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
+      ofModelName: 'Assessment',
+      associatedKey: Assessment.SUBJECTID
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
@@ -381,29 +421,29 @@ class Patient extends amplify_core.Model {
   });
 }
 
-class _PatientModelType extends amplify_core.ModelType<Patient> {
-  const _PatientModelType();
+class _SubjectModelType extends amplify_core.ModelType<Subject> {
+  const _SubjectModelType();
   
   @override
-  Patient fromJson(Map<String, dynamic> jsonData) {
-    return Patient.fromJson(jsonData);
+  Subject fromJson(Map<String, dynamic> jsonData) {
+    return Subject.fromJson(jsonData);
   }
   
   @override
   String modelName() {
-    return 'Patient';
+    return 'Subject';
   }
 }
 
 /**
  * This is an auto generated class representing the model identifier
- * of [Patient] in your schema.
+ * of [Subject] in your schema.
  */
-class PatientModelIdentifier implements amplify_core.ModelIdentifier<Patient> {
+class SubjectModelIdentifier implements amplify_core.ModelIdentifier<Subject> {
   final String id;
 
-  /** Create an instance of PatientModelIdentifier using [id] the primary key. */
-  const PatientModelIdentifier({
+  /** Create an instance of SubjectModelIdentifier using [id] the primary key. */
+  const SubjectModelIdentifier({
     required this.id});
   
   @override
@@ -421,7 +461,7 @@ class PatientModelIdentifier implements amplify_core.ModelIdentifier<Patient> {
   String serializeAsString() => serializeAsMap().values.join('#');
   
   @override
-  String toString() => 'PatientModelIdentifier(id: $id)';
+  String toString() => 'SubjectModelIdentifier(id: $id)';
   
   @override
   bool operator ==(Object other) {
@@ -429,7 +469,7 @@ class PatientModelIdentifier implements amplify_core.ModelIdentifier<Patient> {
       return true;
     }
     
-    return other is PatientModelIdentifier &&
+    return other is SubjectModelIdentifier &&
       id == other.id;
   }
   

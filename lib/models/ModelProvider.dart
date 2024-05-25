@@ -17,32 +17,36 @@
 // Generated files can be excluded from analysis in analysis_options.yaml
 // For more info, see: https://dart.dev/guides/language/analysis-options#excluding-code-from-analysis
 
-// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
+// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, override_on_non_overriding_member, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'Assessment.dart';
-import 'Patient.dart';
-import 'SkeletalSequence.dart';
+import 'Condition.dart';
+import 'Subject.dart';
+import 'Trial.dart';
 import 'User.dart';
-import 'Segment.dart';
+import 'Detection.dart';
+import 'DetectionEnv.dart';
 
 export 'Assessment.dart';
 export 'AssessmentType.dart';
+export 'Condition.dart';
+export 'Detection.dart';
+export 'DetectionEnv.dart';
 export 'FallHistory.dart';
 export 'Gender.dart';
-export 'Patient.dart';
-export 'Segment.dart';
-export 'SkeletalSequence.dart';
+export 'Subject.dart';
+export 'Trial.dart';
 export 'User.dart';
 export 'UserStatus.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "d41332019fd2d0d7b205ffa62f47af5b";
+  String version = "ccf10a6e35209782c0e84a2c4e74c03a";
   @override
-  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Patient.schema, SkeletalSequence.schema, User.schema];
+  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Condition.schema, Subject.schema, Trial.schema, User.schema];
   @override
-  List<amplify_core.ModelSchema> customTypeSchemas = [Segment.schema];
+  List<amplify_core.ModelSchema> customTypeSchemas = [Detection.schema, DetectionEnv.schema];
   static final ModelProvider _instance = ModelProvider();
 
   static ModelProvider get instance => _instance;
@@ -51,10 +55,12 @@ class ModelProvider implements amplify_core.ModelProviderInterface {
     switch(modelName) {
       case "Assessment":
         return Assessment.classType;
-      case "Patient":
-        return Patient.classType;
-      case "SkeletalSequence":
-        return SkeletalSequence.classType;
+      case "Condition":
+        return Condition.classType;
+      case "Subject":
+        return Subject.classType;
+      case "Trial":
+        return Trial.classType;
       case "User":
         return User.classType;
       default:

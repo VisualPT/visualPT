@@ -3,17 +3,20 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/core/utils/math_utils.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
 class CtsibPDF extends PDF {
+  final ctsib = CTSIB();
   @override
-  Future<Uint8List> generatePdf(Patient patient, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
 
     final pdf = Document(
-        title: patient.last_name + patient.first_name + patient.dob.toString(),
+        title: subject.last_name + subject.first_name + subject.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
@@ -28,10 +31,14 @@ class CtsibPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            patientData(patient, assessment),
-            assessmentData(patient, assessment),
+            subjectData(subject, assessment),
+            Spacer(),
+            assessmentData(subject, assessment),
+            Spacer(),
             conditionRatioTable(assessment),
-            normativeData(patient, assessment),
+            Spacer(),
+            normativeData(subject, assessment),
+            Spacer(),
             interpretationData(assessment),
             //diagnosisData(),
             Spacer(),
@@ -43,19 +50,6 @@ class CtsibPDF extends PDF {
     return pdf.save();
   }
 
-  // List<Widget> axisLabel() {
-  //   final values = List<double>.generate(9, (i) => i * 0.2)
-  //       .map<Text>((value) => value >= 1.0
-  //           ? Text(value.toStringAsPrecision(2))
-  //           : Text(value.toStringAsPrecision(1)))
-  //       .toList();
-  //   return List<Widget>.generate(
-  //       17, (i) => i % 2 == 0 ? values[i ~/ 2] : Spacer());
-  // }
-
-  // double positioner(String velocity) =>
-  //     (2.95 * inch * double.parse(velocity)).clamp(0 * inch, 4.75 * inch);
-
   Widget headerData() {
     return Header(
       child: Column(
@@ -63,106 +57,88 @@ class CtsibPDF extends PDF {
           RichTextLogo,
           RichText(
               textAlign: TextAlign.center,
-              text: TextSpan(
-                  text: "Clinical Test of Sensory Integration & Balance Report",
-                  style: header),
+              text: TextSpan(text: "${ctsib.name} Report", style: header),
               overflow: TextOverflow.span),
-          RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: disclaimer,
-                  text:
-                      "VisualPT computer vision system with machine learning to detect sensory and balance impairments")),
         ],
       ),
     );
   }
 
-  Widget patientData(Patient patient, Assessment assessment) {
-    return SizedBox(
-      height: 1.3 * inch,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(text: "Patient Information", style: subHeader)),
-        Row(children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Name: ", style: detail),
-                TextSpan(
-                    text: "Anonymous Data Collection",
-                    //TODO: text: "${patient.first_name} ${patient.last_name}",
-                    style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "DOB: ", style: detail),
-                TextSpan(text: patient.dob.toString(), style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Age: ", style: detail),
-                TextSpan(
-                    text: (DateTime.now()
-                                .difference(patient.dob.getDateTime())
-                                .inDays ~/
-                            365)
-                        .toString(),
-                    style: detailBold), //TODO DOB to age
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Gender: ", style: detail),
-                TextSpan(text: patient.gender.name, style: detailBold),
-              ]),
-            ),
-          ]),
-          Spacer(),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            //TODO internationalize this date format to local time
-            RichText(
-                text: TextSpan(children: [
-              TextSpan(text: "Date: ", style: detail),
+  Widget subjectData(Subject subject, Assessment assessment) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Patient Information", style: subHeader)),
+      Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Name: ", style: detail),
               TextSpan(
-                  text: DateTime.parse(assessment.datetime.toString())
-                      .toLocal()
-                      .toIso8601String()
-                      .substring(0, 10),
+                  text: "${subject.first_name} ${subject.last_name}",
                   style: detailBold),
-            ])),
-            RichText(
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "DOB: ", style: detail),
+              TextSpan(
+                  text: formatDate(subject.dob.getDateTime()),
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Age: ", style: detail),
+              TextSpan(
+                  text: (DateTime.now()
+                              .difference(subject.dob.getDateTime())
+                              .inDays ~/
+                          365)
+                      .toString(),
+                  style: detailBold), //TODO DOB to age
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Gender: ", style: detail),
+              TextSpan(text: subject.gender.name, style: detailBold),
+            ]),
+          ),
+        ]),
+        Spacer(),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          //TODO internationalize this date format to local time
+          RichText(
               text: TextSpan(children: [
-                TextSpan(text: "Time: ", style: detail),
-                TextSpan(
-                    text: DateTime.parse(assessment.datetime.toString())
-                        .toLocal()
-                        .toIso8601String()
-                        .substring(11)
-                        .split('.')[0]
-                        .substring(0, 5),
-                    style: detailBold),
-              ]),
-            ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(text: "Total Duration: ", style: detail),
-                TextSpan(
-                    text: assessment.duration.toString(), style: detailBold),
-                TextSpan(text: " seconds", style: detail),
-              ]),
-            ),
-          ]),
+            TextSpan(text: "Date: ", style: detail),
+            TextSpan(
+                text:
+                    formatDate(DateTime.parse(assessment.datetime.toString())),
+                style: detailBold),
+          ])),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Time: ", style: detail),
+              TextSpan(
+                  text: formatTime(
+                      DateTime.parse(assessment.datetime.toString()).toLocal()),
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Total Duration: ", style: detail),
+              TextSpan(
+                  text: formatDuration(assessment.duration), style: detailBold),
+            ]),
+          ),
         ]),
       ]),
-    );
+    ]);
   }
 
-  Widget assessmentData(Patient patient, Assessment assessment) {
-    final ctsib = CTSIB();
+  Widget assessmentData(Subject subject, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -170,9 +146,9 @@ class CtsibPDF extends PDF {
       Table(
         border: TableBorder.all(color: black),
         columnWidths: {
-          0: const FlexColumnWidth(2),
-          1: const FlexColumnWidth(6),
-          2: const FlexColumnWidth(4),
+          0: const IntrinsicColumnWidth(),
+          1: const IntrinsicColumnWidth(),
+          2: const IntrinsicColumnWidth(),
         },
         children: [
           // Create table header
@@ -180,37 +156,90 @@ class CtsibPDF extends PDF {
             children: [
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text(''),
+                child: Text('#',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text('Condition',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('Surface',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('Vision',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('Trials',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Sway Degree',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Leading Pose',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text('Result',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
             ],
           ),
-          // Create a table row for each segment
-          for (int i = 0; i < assessment.segments!.length; i++)
+          for (int i = 0; i < (assessment.Conditions?.length ?? 1); i++)
             TableRow(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text((i + 1).toString(), style: detail),
+                  child: Text((i + 1).toString(),
+                      style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text(ctsib.seqNames[i], style: detail),
+                  child: Text(ctsib.surface[i],
+                      style: detail, textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(ctsib.vision[i],
+                      style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${assessment.segments![i].duration_seconds.toString()} / 30 seconds",
-                      style: detail),
+                      assessment.Conditions?[i].trials?.length.toString() ??
+                          "0",
+                      style: detail,
+                      textAlign: TextAlign.center),
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        "${CTSIB.averageSwayPerCondition(assessment)[i].toStringAsFixed(2)}°",
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        CTSIB.getMostFrequentClassification(assessment, i),
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(1)} / 30",
+                      style: detail,
+                      textAlign: TextAlign.center),
                 ),
               ],
             ),
@@ -219,18 +248,46 @@ class CtsibPDF extends PDF {
             children: [
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text('Total Score',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('Total',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
               Padding(
                 padding: const EdgeInsets.all(3.0),
-                child: Text(''),
+                child: Text('', textAlign: TextAlign.center),
               ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text('', textAlign: TextAlign.center),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      assessment.Conditions?.fold(0,
+                                  (curr, c) => curr + (c.trials?.length ?? 0))
+                              .toString() ??
+                          '',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      "${(CTSIB.averageSwayPerCondition(assessment).fold<double>(0.0, (previousValue, element) => previousValue + element) / ctsib.conditions).toStringAsFixed(2)}°",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      CTSIB.getMostFrequentIndexAcrossAllEntries(
+                          CTSIB.getPredictionTotals(assessment)),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                  "${assessment.segments!.map((s) => s.duration_seconds).reduce((a, b) => a + b).toString()} / ${30 * ctsib.sequences} seconds",
-                ),
+                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * ctsib.conditions} seconds",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
               ),
             ],
           ),
@@ -240,13 +297,12 @@ class CtsibPDF extends PDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    // Assuming assessment.segments contains data for conditions in order: C1, C2, C3, C4, C5, C6
-    final c1 = assessment.segments![0].duration_seconds;
-    final c2 = assessment.segments![1].duration_seconds;
-    final c3 = assessment.segments![2].duration_seconds;
-    final c4 = assessment.segments![3].duration_seconds;
-    final c5 = assessment.segments![4].duration_seconds;
-    final c6 = assessment.segments![5].duration_seconds;
+    final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
+    final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
+    final c3 = AssessmentUtils.getAvgDuration(assessment.Conditions?[2].trials);
+    final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+    final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
+    final c6 = AssessmentUtils.getAvgDuration(assessment.Conditions?[5].trials);
 
     // Calculating ratios safely
     final somRatio = safeDivision(c2, c1);
@@ -277,13 +333,15 @@ class CtsibPDF extends PDF {
             ),
             Padding(
               padding: const EdgeInsets.all(3.0),
-              child:
-                  Text('Ratio', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Ratio',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
             ),
             Padding(
               padding: const EdgeInsets.all(3.0),
-              child:
-                  Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Status',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
             ),
           ]),
           _createConditionRow("Somatosensory (SOM) Test", somRatio, somStatus),
@@ -299,47 +357,43 @@ class CtsibPDF extends PDF {
   }
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Patient patient, Assessment assessment) {
+  Widget normativeData(Subject subject, Assessment assessment) {
+    final totalDuration = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
+                (previousValue, element) => previousValue + element.duration))
+            .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
+        0.0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
       RichText(
           text: TextSpan(
-              text: getNormativeMessage(
-                  assessment.segments!
-                      .map((s) => s.duration_seconds)
-                      .reduce((a, b) => a + b),
-                  patient.dob),
+              text: getNormativeMessage(totalDuration, subject.dob),
               style: detail)),
     ]);
   }
 
   Widget interpretationData(Assessment assessment) {
+    final is9xFallRisk = checkFallRisk(assessment);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Interpretation", style: subHeader)),
-      RichText(
+      if (is9xFallRisk)
+        RichText(
+          textAlign: TextAlign.left,
           text: TextSpan(
               text:
-                  "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
-              style: disclaimer)),
+                  "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
+              style: detail),
+        ),
       RichText(
           text: TextSpan(
-              text:
-                  "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
-              style: disclaimer)),
-      RichText(
-          text: TextSpan(
-              text:
-                  "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-              style: disclaimer)),
-      RichText(
-          text: TextSpan(
-              text:
-                  "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
-              style: disclaimer)),
+              text: generateConditionRatioText(assessment), style: detail)),
+      //             "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
+      //             "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
+      //             "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+      //             "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
     ]);
   }
 
@@ -390,70 +444,92 @@ class CtsibPDF extends PDF {
     );
   }
 
-  TableRow _createConditionRow(String testName, String ratio, String status) {
+  TableRow _createConditionRow(String testName, double ratio, String status) {
     return TableRow(children: [
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(testName),
+        child: Text(testName, style: detail),
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(ratio),
+        child: Text("${ratio.toStringAsFixed(2)}%",
+            style: detail, textAlign: TextAlign.center),
       ),
       Padding(
         padding: const EdgeInsets.all(3.0),
-        child: Text(status),
+        child: Text(status, style: detail, textAlign: TextAlign.center),
       ),
     ]);
   }
 }
 
-String getNormativeMessage(int totalDuration, TemporalDate dob) {
+String getNormativeMessage(double totalDuration, TemporalDate dob) {
   int age = getAge(dob);
   double norm = CTSIB.getAgeNorm(age);
-  double percent =
-      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100)
-          .roundToDouble();
+  int percent =
+      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100).round();
 
-  if (percent < -10) {
-    return "Patient is ${percent.abs()}% better than normative data, which has a mean of $norm seconds";
-  } else if (percent > 10) {
-    return "Patient is ${percent.abs()}% worse than normative data, which has a mean of $norm seconds";
+  if (percent.abs() > 10) {
+    return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
   } else {
     return "Patient is within 10% of normative data, which has a mean of $norm seconds";
   }
 }
 
-// Safe division function to handle NaN or Infinity
-String safeDivision(int numerator, int denominator) {
-  if (denominator == 0 || numerator.isNaN || denominator.isNaN) {
-    return "Inconclusive";
-  } else {
-    final ratio = numerator / denominator;
-    if (ratio.isNaN || ratio.isInfinite) {
-      return "Inconclusive";
-    } else {
-      return ratio.toStringAsPrecision(3);
-    }
-  }
-}
-
-String determineStatus(String ratioStr) {
-  // Attempt to parse the ratio string to double
-  double ratio;
-  try {
-    ratio = double.parse(ratioStr);
-  } catch (e) {
-    // If parsing fails, consider the ratio as invalid
-    return "Inconclusive";
-  }
-
-  // Determine the status based on the parsed ratio value
+String determineStatus(double ratio) {
   if (ratio == 0.0) {
     return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
-  } else if (ratio < 1) {
+  } else if (ratio < 99) {
     return "Dysfunctional"; // System is dysfunctional if the ratio is less than 1
   } else {
     return "Functional"; // System is considered functional otherwise
   }
+}
+
+bool checkFallRisk(Assessment assessment) {
+  // Calculate the total duration of the assessment (only for conditions 5 and 6)
+  bool is9xFallRisk(int i) {
+    final total =
+        AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) > 30.0;
+    return total;
+  }
+
+  // Determine if the patient is at risk of falling based on the total duration
+  return is9xFallRisk(4) || is9xFallRisk(5);
+}
+
+String generateConditionRatioText(Assessment assessment) {
+  final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
+  final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
+  final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+  final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
+
+  // Calculating ratios safely
+  final somRatio = safeDivision(c2, c1);
+  final visRatio = safeDivision(c4, c1);
+  final vestRatio = safeDivision(c5, c1);
+
+  final ratios = [
+    (
+      vestRatio,
+      "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
+    ),
+    (
+      visRatio,
+      "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
+    ),
+    (
+      somRatio,
+      "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
+    ),
+  ];
+
+  // Determine the worst ratio among the three
+  final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
+
+  if (lowest.$1 > 99) {
+    return "No significant findings were observed.";
+  }
+
+  return lowest.$2;
 }

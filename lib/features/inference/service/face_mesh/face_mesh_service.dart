@@ -57,7 +57,8 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
   }
 
   @override
-  FaceOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
+  FaceOutput? predict(
+      String id, image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -95,7 +96,7 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
         point[1] / inputSize * input.height,
       ));
     }
-    return FaceOutput(landmarkResults);
+    return FaceOutput(id, landmarkResults);
   }
 }
 
@@ -103,13 +104,13 @@ FaceOutput? runFaceMesh(Map<String, dynamic> params) {
   final faceMesh =
       FaceMesh(interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['input']);
-  final result = faceMesh.predict(image, {});
+  final result = faceMesh.predict(params["id"], image, {});
 
   return result;
 }
 
 class FaceOutput extends AiModelOutput {
-  const FaceOutput(super.output);
+  const FaceOutput(super.id, super.output);
 
   @override
   List<dynamic> get props => output;

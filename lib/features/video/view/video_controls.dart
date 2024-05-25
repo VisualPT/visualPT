@@ -1,17 +1,18 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/models/Segment.dart';
+import 'package:visualpt/features/video/service/video_detection_repository.dart';
 
 class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   final VideoState state;
@@ -22,66 +23,67 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final detection =
-            BlocProvider.of<InferenceBloc<CameraImage, PoseDetectionOutput>>(
+            BlocProvider.of<InferenceBloc<DeviceCapture, PoseDetectionOutput>>(
                 context),
         classification = BlocProvider.of<
                 InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
             context),
         timer = BlocProvider.of<TimerBloc>(context),
-        screenW = MediaQuery.of(context).size.width,
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
     void onComplete() {
-      detection.add(const InferenceEnd());
-      classification.add(const InferenceEnd());
+      final index = BlocProvider.of<AssessmentBloc>(context)
+              .currentCondition
+              ?.sequenceNumber ??
+          0;
+      final duration = timer.state.duration;
+      detection.add(const InferenceEnd("End"));
+      classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       timer.add(const TimerReset());
-      final segment = Segment(
-          duration_seconds:
-              BlocProvider.of<TimerBloc>(context).state.duration.inSeconds,
-          file: "REMOVE");
+      //TODO: Add the relevant information here to access in the PDF Analysis
       vid.add(const VideoInit());
-      asmt.add(AssessmentIncrement(segment));
+      asmt.add(AssessmentTrial(
+          AssessmentUtils.linkOutput(
+              RepositoryProvider.of<VideoDetectionRepository>(context)
+                  .localStorage,
+              RepositoryProvider.of<DetectionClassificationRepository>(context)
+                  .localStorage,
+              {
+                "index": index,
+                "obtrustion": BlocProvider.of<AssessmentBloc>(context)
+                    .config
+                    .conditionObtrusion[index],
+                "instability": BlocProvider.of<AssessmentBloc>(context)
+                    .config
+                    .conditionInstability[index]
+              }),
+          duration));
     }
 
 //TODO: Make the video controls show up when ALL the models are ready
-    return BlocBuilder<InferenceBloc<CameraImage, PoseDetectionOutput>,
-            InferenceState<CameraImage, PoseDetectionOutput>>(
+    return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
+            InferenceState<DeviceCapture, PoseDetectionOutput>>(
         builder: (context, infState) {
-      if (infState is InferenceRunning<CameraImage, PoseDetectionOutput> &&
+      if (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
           infState.response != null) {}
       return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Takes the least amount of space
-              children: [
-                Container(
-                  color: CupertinoColors.white,
-                  child: const Padding(
-                    padding: EdgeInsets.all(2.0), // Add padding as needed
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize:
-                              MainAxisSize.min, // Fit content in the column
-                          children: [
-                            PoseDetectionIndicator(),
-                            PoseClassificationIndicator(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+          Container(
+              color: Styles.white,
+              child: const Padding(
+                padding: EdgeInsets.all(2.0), // Add padding as needed
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min, // Fit content in the column
+                  children: [
+                    PoseDetectionIndicator(),
+                    PoseClassificationIndicator(),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              )),
           videoView,
           const Spacer(),
           BlocBuilder<TimerBloc, TimerState>(
@@ -92,30 +94,37 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   const Spacer(),
-                  if (infState is InferenceLoading<CameraImage,
+                  if (infState is InferenceLoading<DeviceCapture,
                       PoseDetectionOutput>) ...[
                     const CupertinoActivityIndicator(
                       radius: 20,
                     )
-                  ] else if (infState is InferenceStandby<CameraImage,
+                  ] else if (infState is InferenceStandby<DeviceCapture,
                           PoseDetectionOutput> &&
                       state is VideoStandby) ...[
                     GestureDetector(
-                      onTap: () {
-                        final controller = (state as VideoStandby).controller;
-                        //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
-                        final params = {
-                          "height": controller.value.previewSize!.width,
-                          "width": controller.value.previewSize!.height,
-                        };
-                        vid.add(const VideoPlay());
-                        detection.add(InferenceStart(params));
-                        classification.add(InferenceStart(params));
-                        timer.add(const TimerStarted());
-                      },
-                      child: const Icon(CupertinoIcons.circle_fill,
-                          color: Styles.white, size: 80),
-                    )
+                        onTap: () {
+                          final controller = (state as VideoStandby).controller;
+                          //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
+                          final params = {
+                            "height": controller.value.previewSize!.width,
+                            "width": controller.value.previewSize!.height,
+                          };
+                          vid.add(const VideoPlay());
+                          detection.add(InferenceStart("Start", params));
+                          classification.add(InferenceStart("Start", params));
+                          timer.add(const TimerStarted());
+                        },
+                        child: Container(
+                            decoration: const BoxDecoration(
+                              color: Styles.actionSecondary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.circle_fill,
+                              color: Styles.actionPrimary,
+                              size: 100,
+                            )))
                   ] else ...[
                     GestureDetector(
                         onTap: () {
@@ -125,12 +134,12 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                               .add(const TimerReset());
                         },
                         child: const Icon(CupertinoIcons.restart,
-                            color: CupertinoColors.white, size: 40)),
+                            color: Styles.white, size: 40)),
                     const Spacer(),
                     GestureDetector(
                         onTap: () => onComplete(),
                         child: const Icon(CupertinoIcons.stop,
-                            color: Styles.backgroundComplementory, size: 80)),
+                            color: Styles.actionPrimary, size: 100)),
                     const Spacer(),
                     Text(formatter(timerState.duration),
                         style: Styles.timerTextStyle),

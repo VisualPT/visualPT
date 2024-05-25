@@ -2,7 +2,8 @@ part of 'auth_bloc.dart';
 
 @immutable
 abstract class AuthState extends Equatable {
-  const AuthState();
+  final User? user;
+  const AuthState({this.user});
 }
 
 class AuthSignUp extends AuthState {
@@ -54,8 +55,9 @@ class AuthLoad extends AuthState {
 }
 
 class AuthSuccess extends AuthState {
+  @override
   final User user;
-  const AuthSuccess({required this.user});
+  const AuthSuccess(this.user) : super();
 
   @override
   List<Object> get props => [user];

@@ -37,10 +37,10 @@ class AnalysisPresenter extends StatelessWidget {
             } else if (state is PdfLoading) {
               return onLoading(context, state);
             } else {
-              throw Exception("Invalid Pdf State");
+              throw "Invalid Pdf State";
             }
-          } on Exception catch (e) {
-            return onError(context, state, e);
+          } catch (e) {
+            return onError(context, state, Exception(e.toString()));
           }
         },
       ),

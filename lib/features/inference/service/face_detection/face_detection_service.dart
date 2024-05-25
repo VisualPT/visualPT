@@ -85,7 +85,8 @@ class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
   }
 
   @override
-  FaceBboxOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
+  FaceBboxOutput? predict(
+      String id, image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -162,21 +163,22 @@ class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
     rectFaces.sort((a, b) => b['score'].compareTo(a['score']));
 
     //return rectFaces[0]
-    return FaceBboxOutput(rectFaces);
+    return FaceBboxOutput(id, rectFaces);
   }
 }
 
 FaceBboxOutput? runFaceDetector(Map<String, dynamic> params) {
   final faceDetection = FaceDetection(
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
+  final id = params['id'] as String;
   final input = ImageUtils.convertCameraImage(params['input']);
-  final result = faceDetection.predict(input, {});
+  final result = faceDetection.predict(id, input, {});
 
   return result;
 }
 
 class FaceBboxOutput extends AiModelOutput {
-  const FaceBboxOutput(super.output);
+  const FaceBboxOutput(super.id, super.output);
 
   @override
   List<dynamic> get props => output;

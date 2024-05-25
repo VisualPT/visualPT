@@ -21,9 +21,9 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
 
   FutureOr<void> _onSend(EmailSend event, Emitter<EmailState> emit) async {
     final Map<String, String> templateParams = {
-      'patient_name': "${event.patient.first_name} ${event.patient.last_name}",
-      'patient_dob': event.patient.dob.toString(),
-      'user_email': event.patient.provider_contact,
+      'patient_name': "${event.subject.first_name} ${event.subject.last_name}",
+      'patient_dob': event.subject.dob.toString(),
+      'user_email': event.subject.provider_contact,
       'patient_pdf': event.assessment.pdf!,
     };
     Response response = await EmailService().sendAssessmentPDF(templateParams);
