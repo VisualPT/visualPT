@@ -180,7 +180,7 @@ class CtsibPDF extends PDF {
               ),
               Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text('Sway Degree',
+                  child: Text('Avg Sway (Max)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -225,7 +225,7 @@ class CtsibPDF extends PDF {
                 Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].toStringAsFixed(2)}°",
+                        "${CTSIB.averageSwayPerCondition(assessment)[i].toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].toStringAsFixed(2)})°",
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(

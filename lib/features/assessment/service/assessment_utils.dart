@@ -1,7 +1,9 @@
 import 'package:visualpt/features/assessment/config/berg/berg.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
+import 'package:visualpt/features/assessment/config/ctsib_collect/ctsib_collect.dart';
 import 'package:visualpt/features/assessment/config/fist/fist.dart';
 import 'package:visualpt/features/assessment/config/gait/gait.dart';
+import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
 import 'package:visualpt/features/assessment/config/reach/reach.dart';
 import 'package:visualpt/features/assessment/view/assessment_view.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
@@ -17,6 +19,10 @@ class AssessmentUtils {
     switch (type) {
       case AssessmentType.CTSIB:
         return AssessmentView(CTSIB());
+      case AssessmentType.MCTSIB:
+        return AssessmentView(MCTSIB());
+      case AssessmentType.CTSIB_COLLECT:
+        return AssessmentView(CTSIB_COLLECT());
       case AssessmentType.BERG:
         return AssessmentView(BERG());
       case AssessmentType.GAIT:

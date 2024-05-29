@@ -35,7 +35,7 @@ class AssessmentCard extends StatelessWidget {
         ),
         borderRadius: Styles.borderRadiusM,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,12 +58,13 @@ class AssessmentCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(assessment.type.name, style: Styles.title),
+                  Text(assessment.type.name.replaceAll("_", "\n"),
+                      style: Styles.title),
                   Row(
                     children: [
                       Text(assessment.normalDuration, style: Styles.heading3),

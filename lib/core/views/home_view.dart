@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/features/assessment/config/_config.dart';
+import 'package:visualpt/features/assessment/config/ctsib_collect/ctsib_collect.dart';
+import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
 import 'package:visualpt/features/assessment/view/components/assessment_card.dart';
 import 'package:visualpt/core/views/_views.dart';
 
@@ -26,6 +28,8 @@ class HomeView extends StatelessWidget {
                   shrinkWrap: false,
                   children: [
                     AssessmentCard(CTSIB()),
+                    AssessmentCard(MCTSIB()),
+                    AssessmentCard(CTSIB_COLLECT()),
                     AssessmentCard(BERG()),
                     AssessmentCard(GAIT()),
                     AssessmentCard(REACH()),
