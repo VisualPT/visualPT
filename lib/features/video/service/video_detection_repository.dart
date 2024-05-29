@@ -109,6 +109,15 @@ class VideoDetectionRepository
     _gyroSubscription?.cancel();
     _accelSubscription?.cancel();
   }
+
+  Future<void> saveVideo(String id, XFile file) async {
+    final storageService = StorageService();
+    final key = "${assessmentMeta.assessment.name}/video/$id.mp4";
+    final fileBytes = await file.readAsBytes();
+    final videoPayload =
+        S3DataPayload.bytes(fileBytes, contentType: "video/mp4");
+    storageService.upload(videoPayload, key, StorageAccessLevel.guest);
+  }
 }
 
 TensorImage preProcessData(CameraImage input) {

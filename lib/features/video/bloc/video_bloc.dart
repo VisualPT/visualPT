@@ -19,7 +19,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
-  late Duration duration = const Duration(seconds: 0);
+  late Duration videoDuration = const Duration(seconds: 0);
   DateTime? _start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
@@ -71,7 +71,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       emit(VideoError(
           exception: Exception("Camera controller was not initialized")));
     }
-    controller!.startImageStream((image) {
+    controller!.startVideoRecording(onAvailable: (image) {
       final id = DateTime.now().millisecondsSinceEpoch.toString();
       final measurements = DetectionEnv(
           imageHeight: image.height,
@@ -91,17 +91,19 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     if (_start == null) {
       print("Video was not started");
     } else {
-      duration = DateTime.now().difference(_start!);
+      videoDuration = DateTime.now().difference(_start!);
       if (controller != null && controller!.value.isStreamingImages) {
         if (event.reset) {
           emit(VideoStandby(controller!));
         }
-        await controller!.stopImageStream();
+        final file = await controller!.stopVideoRecording();
+        videoDetectionRepo.saveVideo(_start.toString(), file);
+        emit(VideoStopped(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
       }
-      controller!.dispose();
       emit(const VideoLoading());
+      controller!.dispose();
     }
   }
 

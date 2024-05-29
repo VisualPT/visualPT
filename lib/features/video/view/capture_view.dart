@@ -19,10 +19,12 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       children: [
         const ViewBackground(),
         VideoPresenter(
+          key: UniqueKey(),
           state.meta,
           state.assessment.conditions,
           onRecording: showingVideo,
           onStandby: showingVideo,
+          onStopped: stoppedVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
         ),
@@ -60,6 +62,21 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 
   Widget loadingVideo(BuildContext _, VideoState __) {
     return const Center(child: AppLoading(message: "Video Stream Loading"));
+  }
+
+  Widget stoppedVideo(BuildContext context, VideoStopped state) {
+    final vid = BlocProvider.of<VideoBloc>(context);
+    return Center(
+      child: Column(
+        children: [
+          const Text("Video Stopped"),
+          CupertinoButton(
+            onPressed: () => vid.add(const VideoPlay()),
+            child: const Text("Restart"),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget errorVideo(BuildContext context, VideoState state, Exception e) {

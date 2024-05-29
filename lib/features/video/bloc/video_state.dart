@@ -31,6 +31,16 @@ class VideoStandby extends VideoState {
   List<Object?> get props => [controller];
 }
 
+class VideoStopped extends VideoState {
+  final XFile file;
+  final Duration videoDuration;
+  const VideoStopped(this.file, this.videoDuration)
+      : super(CupertinoIcons.stop);
+
+  @override
+  List<Object?> get props => [file, videoDuration];
+}
+
 class VideoError extends VideoState {
   final Exception exception;
   const VideoError({
