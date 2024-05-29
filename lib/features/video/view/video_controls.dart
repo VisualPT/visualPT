@@ -42,8 +42,6 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
       classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       timer.add(const TimerReset());
-      //TODO: Add the relevant information here to access in the PDF Analysis
-      vid.add(const VideoInit());
       asmt.add(AssessmentTrial(
           AssessmentUtils.linkOutput(
               RepositoryProvider.of<VideoDetectionRepository>(context)

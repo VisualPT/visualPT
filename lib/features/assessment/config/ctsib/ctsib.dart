@@ -58,15 +58,15 @@ class CTSIB implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(6, [
+  List<List<String>> get conditionInstructions => List.filled(conditions, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
         "Lighting must be sufficient to clearly see the subject",
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference => List.filled(
-      6, [InferenceType.poseDetection, InferenceType.poseClassification]);
+  List<List<InferenceType>> get conditionInference => List.filled(conditions,
+      [InferenceType.poseDetection, InferenceType.poseClassification]);
 
   @override
   List<bool> get conditionObtrusion => [false, false, false, true, true, true];
@@ -127,6 +127,37 @@ class CTSIB implements BaseAssessment {
       }
       // Calculate and return the average sway for this condition
       return totalAndCount.$2 / totalAndCount.$1;
+    }).toList();
+  }
+
+  static List<double> maxSwayPerCondition(Assessment assessment) {
+    // Filter out null conditions and conditions without trials
+    final validConditions = assessment.Conditions?.where((condition) =>
+                condition.trials != null && condition.trials!.isNotEmpty)
+            .toList() ??
+        [];
+
+    return validConditions.map((condition) {
+      // Calculate total sway and count of detections
+      final maxSway =
+          condition.trials!.fold<double>(0.0, (previousValue, trial) {
+        if (trial.Detections == null || trial.Detections!.isEmpty) {
+          return previousValue;
+        }
+        final trialMaxSway = trial.Detections!.fold<double>(0.0,
+            (trialPreviousValue, detection) {
+          final poseOutput =
+              PoseDetectionOutput.fromString(detection.keypoints);
+          final angle = PoseDetectionOutput.computeAngle(
+              poseOutput.map((e) => Offset(e[0], e[1])).toList());
+
+          return trialPreviousValue > angle ? trialPreviousValue : angle;
+        });
+
+        return previousValue > trialMaxSway ? previousValue : trialMaxSway;
+      });
+
+      return maxSway;
     }).toList();
   }
 

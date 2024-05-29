@@ -55,7 +55,7 @@ class Styles {
   //Text Styles
   static const title = TextStyle(
     fontFamily: "Unbounded",
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: FontWeight.bold,
   );
   static const subtitle = TextStyle(fontSize: 24);
