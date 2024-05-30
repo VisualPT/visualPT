@@ -42,7 +42,7 @@ export 'UserStatus.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "ccf10a6e35209782c0e84a2c4e74c03a";
+  String version = "ce263c873b35f1bb4af8b157836700a5";
   @override
   List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Condition.schema, Subject.schema, Trial.schema, User.schema];
   @override

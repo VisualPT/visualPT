@@ -64,6 +64,7 @@ type Condition @model @auth(rules: [{ allow: owner }]) {
 type Trial @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   conditionID: ID! @index(name: "byCondition")
+  start_time: AWSDateTime!
   duration: Float! #seconds
   Detections: [Detection!]
 }

@@ -86,6 +86,7 @@ class AssessmentBloc<T extends BaseAssessment>
     // Update the latest condition with the new trial
     final trial = Trial(
         conditionID: currentCondition?.id ?? "Error ID",
+        start_time: event.startTime,
         duration: event.duration.inMilliseconds / 1000, //seconds
         Detections: event.detections);
 

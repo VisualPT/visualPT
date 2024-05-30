@@ -21,8 +21,9 @@ class AssessmentCondition extends AssessmentEvent {
 
 class AssessmentTrial extends AssessmentEvent {
   final Duration duration;
+  final TemporalDateTime startTime;
   final List<Detection> detections;
-  AssessmentTrial(this.detections, this.duration);
+  AssessmentTrial(this.detections, this.startTime, this.duration);
 
   @override
   List<Object?> get props => [duration, detections];
