@@ -79,13 +79,13 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
             ],
           ),
         ),
-        CupertinoButton(
-            color: Styles.actionSecondary,
-            child: const Text("Refresh PDF",
-                style: TextStyle(color: Styles.black)),
-            onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                subject: asmtState.subject,
-                assessment: asmtState.dbAssessment)))
+        // CupertinoButton(
+        //     color: Styles.actionSecondary,
+        //     child: const Text("Refresh PDF",
+        //         style: TextStyle(color: Styles.black)),
+        //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
+        //         subject: asmtState.subject,
+        //         assessment: asmtState.dbAssessment)))
       ]),
     );
   }
