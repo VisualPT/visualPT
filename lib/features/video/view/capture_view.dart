@@ -44,10 +44,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         child: Stack(
       alignment: Alignment.topCenter,
       children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-        ),
         vid.controller != null
             ? VideoControls<T>(
                 state: state,

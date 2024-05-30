@@ -61,98 +61,120 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
           duration));
     }
 
-//TODO: Make the video controls show up when ALL the models are ready
     return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
-            InferenceState<DeviceCapture, PoseDetectionOutput>>(
-        builder: (context, infState) {
-      if (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
-          infState.response != null) {}
-      return Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Container(
-              color: Styles.white,
-              child: const Padding(
-                padding: EdgeInsets.all(2.0), // Add padding as needed
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min, // Fit content in the column
-                  children: [
-                    PoseDetectionIndicator(),
-                    PoseClassificationIndicator(),
-                  ],
+        InferenceState<DeviceCapture, PoseDetectionOutput>>(
+      builder: (context, infState) {
+        if (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
+            infState.response != null) {}
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              alignment: Alignment.center,
+              fit: StackFit.expand,
+              children: [
+                videoView,
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Styles.white,
+                    child: const Padding(
+                      padding: EdgeInsets.all(1.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PoseDetectionIndicator(),
+                          PoseClassificationIndicator(),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              )),
-          videoView,
-          const Spacer(),
-          BlocBuilder<TimerBloc, TimerState>(
-            builder: (context, timerState) {
-              if (timerState is TimerRunComplete) {
-                onComplete(state as VideoRecording);
-              }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const Spacer(),
-                  if (infState is InferenceLoading<DeviceCapture,
-                      PoseDetectionOutput>) ...[
-                    const CupertinoActivityIndicator(
-                      radius: 20,
-                    )
-                  ] else if (infState is InferenceStandby<DeviceCapture,
-                          PoseDetectionOutput> &&
-                      state is VideoStandby) ...[
-                    GestureDetector(
-                        onTap: () {
-                          final controller = (state as VideoStandby).controller;
-                          //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
-                          final params = {
-                            "height": controller.value.previewSize!.width,
-                            "width": controller.value.previewSize!.height,
-                          };
-                          vid.add(const VideoPlay());
-                          detection.add(InferenceStart("Start", params));
-                          classification.add(InferenceStart("Start", params));
-                          timer.add(const TimerStarted());
-                        },
-                        child: Container(
-                            decoration: const BoxDecoration(
-                              color: Styles.actionSecondary,
-                              shape: BoxShape.circle,
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: BlocBuilder<TimerBloc, TimerState>(
+                    builder: (context, timerState) {
+                      if (timerState is TimerRunComplete) {
+                        onComplete(state as VideoRecording);
+                      }
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Spacer(),
+                          if (infState is InferenceLoading<DeviceCapture,
+                              PoseDetectionOutput>) ...[
+                            const CupertinoActivityIndicator(
+                              radius: 20,
+                            )
+                          ] else if (infState is InferenceStandby<DeviceCapture,
+                                  PoseDetectionOutput> &&
+                              state is VideoStandby) ...[
+                            GestureDetector(
+                              onTap: () {
+                                final controller =
+                                    (state as VideoStandby).controller;
+                                //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
+                                final params = {
+                                  "height": controller.value.previewSize!.width,
+                                  "width": controller.value.previewSize!.height,
+                                };
+                                vid.add(const VideoPlay());
+                                detection.add(InferenceStart("Start", params));
+                                classification
+                                    .add(InferenceStart("Start", params));
+                                timer.add(const TimerStarted());
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Styles.actionSecondary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.circle_fill,
+                                  color: Styles.actionPrimary,
+                                  size: 100,
+                                ),
+                              ),
+                            )
+                          ] else ...[
+                            GestureDetector(
+                              onTap: () {
+                                BlocProvider.of<VideoBloc>(context)
+                                    .add(const VideoStop(reset: true));
+                                BlocProvider.of<TimerBloc>(context)
+                                    .add(const TimerReset());
+                              },
+                              child: const Icon(CupertinoIcons.restart,
+                                  color: Styles.white, size: 40),
                             ),
-                            child: const Icon(
-                              CupertinoIcons.circle_fill,
-                              color: Styles.actionPrimary,
-                              size: 100,
-                            )))
-                  ] else ...[
-                    GestureDetector(
-                        onTap: () {
-                          BlocProvider.of<VideoBloc>(context)
-                              .add(const VideoStop(reset: true));
-                          BlocProvider.of<TimerBloc>(context)
-                              .add(const TimerReset());
-                        },
-                        child: const Icon(CupertinoIcons.restart,
-                            color: Styles.white, size: 40)),
-                    const Spacer(),
-                    GestureDetector(
-                        onTap: () => onComplete(state as VideoRecording),
-                        child: const Icon(CupertinoIcons.stop,
-                            color: Styles.actionPrimary, size: 100)),
-                    const Spacer(),
-                    Text(formatter(timerState.duration),
-                        style: Styles.timerTextStyle),
-                  ],
-                  const Spacer(),
-                ],
-              );
-            },
-          ),
-        ],
-      );
-    });
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () => onComplete(state as VideoRecording),
+                              child: const Icon(CupertinoIcons.stop,
+                                  color: Styles.actionPrimary, size: 100),
+                            ),
+                            const Spacer(),
+                            Text(formatter(timerState.duration),
+                                style: Styles.timerTextStyle),
+                          ],
+                          const Spacer(),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }
 
