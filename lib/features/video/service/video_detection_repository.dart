@@ -30,7 +30,6 @@ class VideoDetectionRepository
   UserAccelerometerEvent currentAccel = UserAccelerometerEvent(0, 0, 0);
   final String userID;
   final AssessmentMeta assessmentMeta;
-  final List<VPTDetection> detectionBucket = [];
 
   VideoDetectionRepository(this.assessmentMeta, this.userID)
       : super(assessmentMeta) {
@@ -95,7 +94,6 @@ class VideoDetectionRepository
     final imagePayload = S3DataPayload.bytes(png, contentType: "image/png");
     final dataPayload = S3DataPayload.string(data.toCSV());
 
-//TODO: Put a user tag instead of a random number
     final idPath = "${userID}_$id";
     final key = "${meta.assessment.name}/raw/$idPath";
     storageService.upload(imagePayload, '$key.png', StorageAccessLevel.guest);
