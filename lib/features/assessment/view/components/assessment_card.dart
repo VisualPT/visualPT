@@ -54,42 +54,39 @@ class AssessmentCard extends StatelessWidget {
                         ),
                         Row(mainAxisSize: MainAxisSize.max, children: [
                           const Spacer(),
-                          assessment.isAvailable
-                              ? Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: GestureDetector(
-                                        onTap: () => assessment.isAvailable
-                                            ? nav.toPath(
-                                                path: "/assessment",
-                                                args: assessment.type)
-                                            : null,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4.0),
-                                          decoration: BoxDecoration(
-                                            color: Styles.actionPrimary,
-                                            border: Border.all(
-                                              color: Styles.black,
-                                              width: 1,
-                                            ),
-                                            borderRadius: Styles.borderRadiusM,
-                                          ),
-                                          child: const Icon(
-                                            CupertinoIcons.play_arrow,
-                                            color: Styles.white,
-                                            size: 60,
-                                          ),
+                          Column(
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () => assessment.isAvailable
+                                        ? nav.toPath(
+                                            path: "/assessment",
+                                            args: assessment.type)
+                                        : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: BoxDecoration(
+                                        color: Styles.actionPrimary.withAlpha(
+                                            assessment.isAvailable ? 255 : 128),
+                                        border: Border.all(
+                                          color: Styles.black,
+                                          width: 1,
                                         ),
+                                        borderRadius: Styles.borderRadiusM,
+                                      ),
+                                      child: const Icon(
+                                        CupertinoIcons.play_arrow,
+                                        color: Styles.white,
+                                        size: 60,
                                       ),
                                     ),
-                                    const Text("Capture",
-                                        style: Styles.heading3),
-                                  ],
-                                )
-                              : Container(),
+                                  )),
+                              const Text("Capture", style: Styles.heading3),
+                            ],
+                          ),
                           const Spacer(),
-                          isAdmin && assessment.isAvailable
+                          isAdmin
                               ? Column(
                                   children: [
                                     Padding(
@@ -101,7 +98,11 @@ class AssessmentCard extends StatelessWidget {
                                         child: Container(
                                           padding: const EdgeInsets.all(4.0),
                                           decoration: BoxDecoration(
-                                            color: Styles.actionSecondary,
+                                            color: Styles.actionSecondary
+                                                .withAlpha(
+                                                    assessment.isAvailable
+                                                        ? 255
+                                                        : 128),
                                             border: Border.all(
                                               color: Styles.black,
                                               width: 1,

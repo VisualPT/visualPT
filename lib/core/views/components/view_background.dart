@@ -2,40 +2,62 @@ import 'package:flutter/cupertino.dart';
 import 'package:visualpt/core/views/styles.dart';
 
 class ViewBackground extends StatelessWidget {
-  final int seed;
-  const ViewBackground({super.key, this.seed = 0});
+  const ViewBackground({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = MediaQuery.of(context).size.height / 2;
+    final containerSize = MediaQuery.of(context).size.height / 3;
 
     return Container(
-      color: Styles.backgroundPrimary,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Styles.backgroundPrimary,
+            Styles.backgroundAccent,
+          ],
+        ),
+      ),
       child: Stack(
         children: [
           Positioned(
-            //TODO If able to prevent rebuilds use container1Pos.dx .dy
-            left: 90,
-            top: 70,
+            left: MediaQuery.of(context).size.width * 0.2,
+            top: MediaQuery.of(context).size.height * 0.1,
             child: Container(
               width: containerSize,
               height: containerSize,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Styles.ceruleanBlue,
+                boxShadow: [
+                  BoxShadow(
+                    color: Styles.black.withOpacity(0.2),
+                    spreadRadius: 3,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5), // changes position of shadow
+                  ),
+                ],
               ),
             ),
           ),
           Positioned(
-            //If able to prevent rebuilds use container2Pos.dx .dy
-            left: 30,
-            top: 500,
+            left: MediaQuery.of(context).size.width * 0.6,
+            top: MediaQuery.of(context).size.height * 0.4,
             child: Container(
-              width: containerSize,
-              height: containerSize,
-              decoration: const BoxDecoration(
+              width: containerSize * 0.8,
+              height: containerSize * 0.8,
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Styles.ceruleanBlue,
+                boxShadow: [
+                  BoxShadow(
+                    color: Styles.black.withOpacity(0.2),
+                    spreadRadius: 3,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5), // changes position of shadow
+                  ),
+                ],
               ),
             ),
           ),

@@ -163,7 +163,7 @@ class _AssessmentFormState extends State<AssessmentForm> {
                   CupertinoButton(
                       onPressed: handleAutofill,
                       child: const Text("Autofill",
-                          style: TextStyle(color: Styles.white))),
+                          style: TextStyle(color: Styles.black))),
                   Container(
                       padding: const EdgeInsets.all(16.0),
                       child: CupertinoButton(
