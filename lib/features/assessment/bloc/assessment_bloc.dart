@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,11 +34,12 @@ class AssessmentBloc<T extends BaseAssessment>
       assessmentStartTime = DateTime.now();
     }
     subject = event.subject;
+    amplify.Amplify.DataStore.save(subject);
     assessment = Assessment(
         subjectID: subject.id,
         type: config.type,
         duration: 0,
-        datetime: TemporalDateTime(DateTime.now()),
+        datetime: amplify.TemporalDateTime(DateTime.now()),
         Conditions: []);
     conditionStartTime = DateTime.now();
     currentCondition = Condition(
@@ -52,9 +53,10 @@ class AssessmentBloc<T extends BaseAssessment>
 
   FutureOr<void> _onCondition(
       AssessmentCondition event, Emitter<AssessmentState> emit) async {
+    emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));
     currentCondition = currentCondition?.copyWith(
         duration: getElapsedSeconds(conditionStartTime));
-    emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));
+    amplify.Amplify.DataStore.save(currentCondition!);
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
@@ -70,6 +72,7 @@ class AssessmentBloc<T extends BaseAssessment>
       final double assessmentDurationSeconds =
           getElapsedSeconds(assessmentStartTime);
       assessment = assessment.copyWith(duration: assessmentDurationSeconds);
+      amplify.Amplify.DataStore.save(assessment);
       emit(AssessmentAnalysis<T>(subject, storeData, assessment, config));
     } else {
       conditionStartTime = DateTime.now();
@@ -89,7 +92,7 @@ class AssessmentBloc<T extends BaseAssessment>
         start_time: event.startTime,
         duration: event.duration.inMilliseconds / 1000, //seconds
         Detections: event.detections);
-
+    amplify.Amplify.DataStore.save(trial);
     currentCondition = currentCondition == null
         ? Condition(
             assessmentID: assessment.id,

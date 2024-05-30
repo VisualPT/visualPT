@@ -21,7 +21,7 @@ class AssessmentCondition extends AssessmentEvent {
 
 class AssessmentTrial extends AssessmentEvent {
   final Duration duration;
-  final TemporalDateTime startTime;
+  final amplify.TemporalDateTime startTime;
   final List<Detection> detections;
   AssessmentTrial(this.detections, this.startTime, this.duration);
 
