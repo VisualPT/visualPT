@@ -31,9 +31,9 @@ class HomeView extends StatelessWidget {
                     AssessmentCard(MCTSIB()),
                     AssessmentCard(CTSIB_COLLECT()),
                     AssessmentCard(BERG()),
-                    AssessmentCard(GAIT()),
-                    AssessmentCard(REACH()),
-                    AssessmentCard(FIST())
+                    //TODO: AssessmentCard(GAIT()),
+                    // AssessmentCard(REACH()),
+                    // AssessmentCard(FIST())
                   ],
                 ),
               ),
