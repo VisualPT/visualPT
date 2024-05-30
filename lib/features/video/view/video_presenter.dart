@@ -97,9 +97,7 @@ class VideoPresenter extends StatelessWidget {
                 throw Exception("Invalid Video State");
               }
             } catch (e) {
-              print(e);
-              return Container();
-              //return onError(context, state, e as Exception);
+              return onError(context, state, e as Exception);
             }
           },
         ),
