@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/view/pose_classification_overlay.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/camera.dart';
@@ -12,21 +11,20 @@ import 'package:visualpt/features/video/view/video_controls.dart';
 
 //TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView<T extends BaseAssessment> extends StatelessWidget {
-  final ClinicalMeta clinicalMeta;
-  final int conditionNumber;
-  final bool storeData;
-  const CaptureView(this.clinicalMeta, this.conditionNumber, this.storeData,
-      {super.key});
+  final AssessmentActive<T> state;
+  const CaptureView(this.state, {super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const ViewBackground(),
         VideoPresenter(
-          clinicalMeta,
-          conditionNumber,
+          key: UniqueKey(),
+          state.meta,
+          state.assessment.conditions,
           onRecording: showingVideo,
           onStandby: showingVideo,
+          onStopped: stoppedVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
         ),
@@ -46,24 +44,35 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         child: Stack(
       alignment: Alignment.topCenter,
       children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-        ),
-        VideoControls<T>(
-            state: state,
-            videoView: Camera(controller: vid.controller!, children: [
-              if (vid.controller != null)
-                PoseDetectionOverlay(controller: vid.controller!),
-              if (vid.controller != null)
-                PoseClassificationOverlay(controller: vid.controller!),
-            ])),
+        vid.controller != null
+            ? VideoControls<T>(
+                state: state,
+                videoView: Camera(controller: vid.controller!, children: [
+                  if (vid.controller != null)
+                    PoseDetectionOverlay(controller: vid.controller!),
+                ]))
+            : Container(),
       ],
     ));
   }
 
   Widget loadingVideo(BuildContext _, VideoState __) {
     return const Center(child: AppLoading(message: "Video Stream Loading"));
+  }
+
+  Widget stoppedVideo(BuildContext context, VideoStopped state) {
+    final vid = BlocProvider.of<VideoBloc>(context);
+    return Center(
+      child: Column(
+        children: [
+          const Text("Video Stopped"),
+          CupertinoButton(
+            onPressed: () => vid.add(const VideoPlay()),
+            child: const Text("Restart"),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget errorVideo(BuildContext context, VideoState state, Exception e) {

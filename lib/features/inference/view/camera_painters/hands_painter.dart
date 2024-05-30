@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 // Widget get _drawHands => _ModelPainter(
 //       customPainter: HandsPainter(
@@ -22,11 +23,11 @@ class HandsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (points.isNotEmpty) {
       var pointPaint = Paint()
-        ..color = CupertinoColors.activeOrange
+        ..color = Styles.activeOrange
         ..strokeWidth = 8;
 
       var linePaint = Paint()
-        ..color = CupertinoColors.activeOrange
+        ..color = Styles.activeOrange
         ..strokeWidth = 2;
 
       canvas.drawPoints(

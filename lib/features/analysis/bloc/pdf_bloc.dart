@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/features/assessment/config/ctsib_collect/pdf.dart';
+import 'package:visualpt/features/assessment/config/mctsib/pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/pdf.dart';
 import 'package:visualpt/features/assessment/config/gait/pdf.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
@@ -27,31 +29,30 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
         break;
       case AssessmentType.GAIT:
         document = GaitPDF();
-
+        break;
+      case AssessmentType.MCTSIB:
+        document = MctsibPDF();
+        break;
+      case AssessmentType.CTSIB_COLLECT:
+        document = CtsibCollectPDF();
         break;
       default:
     }
     try {
       await document
           .configPdfStyles()
-          .then((_) => document.generatePdf(event.patient, event.assessment))
+          .then((_) => document.generatePdf(event.subject, event.assessment))
           .then((pdfData) {
-        PDFView view = PDFView(
-            enableSwipe: false,
-            pdfData: pdfData,
-            pageFling: false,
-            onError: (error) => emit(PdfError(exception: error)),
-            onPageError: (page, error) => emit(PdfError(exception: error)),
-            pageSnap: false);
         emit(PdfReady(
-            pdfView: view,
-            patient: event.patient,
+            pdfData: pdfData,
+            subject: event.subject,
             assessment: event.assessment));
       });
     } on Exception catch (error) {
       emit(PdfError(exception: error));
-    } catch (e) {
-      log(e.toString(), name: 'PDF Error');
+    } catch (e, stackTrace) {
+      emit(PdfError(exception: Exception(e.toString())));
+      log(e.toString(), stackTrace: stackTrace, name: 'PDF Error');
     }
   }
 

@@ -4,19 +4,27 @@ part of 'assessment_bloc.dart';
 abstract class AssessmentEvent extends Equatable {}
 
 class AssessmentInit extends AssessmentEvent {
-  final Patient patient;
-  final bool storeData;
+  final Subject subject;
   final bool reset;
-  AssessmentInit(this.patient, this.storeData, {this.reset = false});
+  AssessmentInit(this.subject, {this.reset = false});
 
   @override
-  List<Object?> get props => [patient, reset];
+  List<Object?> get props => [subject, reset];
 }
 
-class AssessmentIncrement extends AssessmentEvent {
-  final Segment segment;
-  AssessmentIncrement(this.segment);
+class AssessmentCondition extends AssessmentEvent {
+  AssessmentCondition();
 
   @override
-  List<Object?> get props => [segment];
+  List<Object?> get props => [];
+}
+
+class AssessmentTrial extends AssessmentEvent {
+  final Duration duration;
+  final amplify.TemporalDateTime startTime;
+  final List<Detection>? detections;
+  AssessmentTrial(this.detections, this.startTime, this.duration);
+
+  @override
+  List<Object?> get props => [duration, detections];
 }

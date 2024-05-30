@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 // Widget get _drawBoundingBox {
 //   final bbox = results?['bbox'];
@@ -23,7 +24,7 @@ class FaceDetectionPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (bbox != Rect.zero) {
       var paint = Paint()
-        ..color = CupertinoColors.activeBlue
+        ..color = Styles.blue
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
 

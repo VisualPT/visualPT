@@ -17,10 +17,11 @@
 // Generated files can be excluded from analysis in analysis_options.yaml
 // For more info, see: https://dart.dev/guides/language/analysis-options#excluding-code-from-analysis
 
-// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
+// ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, override_on_non_overriding_member, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
 import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
+import 'package:collection/collection.dart';
 
 
 /** This is an auto generated class representing the User type in your schema. */
@@ -31,6 +32,7 @@ class User extends amplify_core.Model {
   final String? _first_name;
   final String? _last_name;
   final UserStatus? _status;
+  final List<Subject>? _Subjects;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -99,6 +101,10 @@ class User extends amplify_core.Model {
     }
   }
   
+  List<Subject>? get Subjects {
+    return _Subjects;
+  }
+  
   amplify_core.TemporalDateTime? get createdAt {
     return _createdAt;
   }
@@ -107,15 +113,16 @@ class User extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const User._internal({required this.id, required email, required first_name, required last_name, required status, createdAt, updatedAt}): _email = email, _first_name = first_name, _last_name = last_name, _status = status, _createdAt = createdAt, _updatedAt = updatedAt;
+  const User._internal({required this.id, required email, required first_name, required last_name, required status, Subjects, createdAt, updatedAt}): _email = email, _first_name = first_name, _last_name = last_name, _status = status, _Subjects = Subjects, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory User({String? id, required String email, required String first_name, required String last_name, required UserStatus status}) {
+  factory User({String? id, required String email, required String first_name, required String last_name, required UserStatus status, List<Subject>? Subjects}) {
     return User._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       email: email,
       first_name: first_name,
       last_name: last_name,
-      status: status);
+      status: status,
+      Subjects: Subjects != null ? List<Subject>.unmodifiable(Subjects) : Subjects);
   }
   
   bool equals(Object other) {
@@ -130,7 +137,8 @@ class User extends amplify_core.Model {
       _email == other._email &&
       _first_name == other._first_name &&
       _last_name == other._last_name &&
-      _status == other._status;
+      _status == other._status &&
+      DeepCollectionEquality().equals(_Subjects, other._Subjects);
   }
   
   @override
@@ -153,27 +161,30 @@ class User extends amplify_core.Model {
     return buffer.toString();
   }
   
-  User copyWith({String? email, String? first_name, String? last_name, UserStatus? status}) {
+  User copyWith({String? email, String? first_name, String? last_name, UserStatus? status, List<Subject>? Subjects}) {
     return User._internal(
       id: id,
       email: email ?? this.email,
       first_name: first_name ?? this.first_name,
       last_name: last_name ?? this.last_name,
-      status: status ?? this.status);
+      status: status ?? this.status,
+      Subjects: Subjects ?? this.Subjects);
   }
   
   User copyWithModelFieldValues({
     ModelFieldValue<String>? email,
     ModelFieldValue<String>? first_name,
     ModelFieldValue<String>? last_name,
-    ModelFieldValue<UserStatus>? status
+    ModelFieldValue<UserStatus>? status,
+    ModelFieldValue<List<Subject>>? Subjects
   }) {
     return User._internal(
       id: id,
       email: email == null ? this.email : email.value,
       first_name: first_name == null ? this.first_name : first_name.value,
       last_name: last_name == null ? this.last_name : last_name.value,
-      status: status == null ? this.status : status.value
+      status: status == null ? this.status : status.value,
+      Subjects: Subjects == null ? this.Subjects : Subjects.value
     );
   }
   
@@ -183,11 +194,24 @@ class User extends amplify_core.Model {
       _first_name = json['first_name'],
       _last_name = json['last_name'],
       _status = amplify_core.enumFromString<UserStatus>(json['status'], UserStatus.values),
+      _Subjects = json['Subjects']  is Map
+        ? (json['Subjects']['items'] is List
+          ? (json['Subjects']['items'] as List)
+              .where((e) => e != null)
+              .map((e) => Subject.fromJson(new Map<String, dynamic>.from(e)))
+              .toList()
+          : null)
+        : (json['Subjects'] is List
+          ? (json['Subjects'] as List)
+              .where((e) => e?['serializedData'] != null)
+              .map((e) => Subject.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
+              .toList()
+          : null),
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'email': _email, 'first_name': _first_name, 'last_name': _last_name, 'status': amplify_core.enumToString(_status), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'email': _email, 'first_name': _first_name, 'last_name': _last_name, 'status': amplify_core.enumToString(_status), 'Subjects': _Subjects?.map((Subject? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
@@ -196,6 +220,7 @@ class User extends amplify_core.Model {
     'first_name': _first_name,
     'last_name': _last_name,
     'status': _status,
+    'Subjects': _Subjects,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
@@ -206,6 +231,9 @@ class User extends amplify_core.Model {
   static final FIRST_NAME = amplify_core.QueryField(fieldName: "first_name");
   static final LAST_NAME = amplify_core.QueryField(fieldName: "last_name");
   static final STATUS = amplify_core.QueryField(fieldName: "status");
+  static final SUBJECTS = amplify_core.QueryField(
+    fieldName: "Subjects",
+    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Subject'));
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "User";
     modelSchemaDefinition.pluralName = "Users";
@@ -245,6 +273,13 @@ class User extends amplify_core.Model {
       key: User.STATUS,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
+      key: User.SUBJECTS,
+      isRequired: true,
+      ofModelName: 'Subject',
+      associatedKey: Subject.USERID
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(

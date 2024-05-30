@@ -21,6 +21,8 @@ PODS:
     - AWSCore (~> 2.33.0)
     - AWSPluginsCore (= 1.30.7)
     - SQLite.swift (= 0.13.2)
+  - app_tracking_transparency (0.0.1):
+    - Flutter
   - AppSyncRealTimeClient (3.1.2):
     - Starscream (= 4.0.4)
   - AWSCore (2.33.10)
@@ -93,6 +95,7 @@ DEPENDENCIES:
   - amplify_auth_cognito (from `.symlinks/plugins/amplify_auth_cognito/darwin`)
   - amplify_datastore (from `.symlinks/plugins/amplify_datastore/ios`)
   - amplify_secure_storage (from `.symlinks/plugins/amplify_secure_storage/ios`)
+  - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -130,6 +133,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/amplify_datastore/ios"
   amplify_secure_storage:
     :path: ".symlinks/plugins/amplify_secure_storage/ios"
+  app_tracking_transparency:
+    :path: ".symlinks/plugins/app_tracking_transparency/ios"
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
@@ -165,6 +170,7 @@ SPEC CHECKSUMS:
   amplify_datastore: 37a8779bb5f59df11d3483fae7a7861333f28aab
   amplify_secure_storage: be403397a8ba39f5e0f2a05303b3ca03b53b9ee9
   AmplifyPlugins: 58a6212101b8f2d9f071caf4c312986c2d44b934
+  app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   AppSyncRealTimeClient: 36ff2f65f330bce7f1d0d2157a4ae5d255483dac
   AWSCore: 3c1a3dad47fcf9db8bebc633f296f10b690328c6
   AWSPluginsCore: fbc14b0381a27ff788b849dfbedb169559082d76

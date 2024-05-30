@@ -30,8 +30,13 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
   FutureOr<void> _onFetch(
       ValidationFetch event, Emitter<ValidationState> emit) async {
-    final storedKeys = await _storage.listRawData(type);
-    add(ValidationNext(keys: storedKeys));
+    try {
+      final storedKeys = await _storage.listRawData(type);
+      add(ValidationNext(keys: storedKeys));
+    } catch (e) {
+      log(e.toString());
+      emit(const ValidationLoad());
+    }
   }
 
   FutureOr<void> _onPrev(
@@ -101,11 +106,12 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
             throw Exception('No data file found');
           }
         }
+        final timestampID = searchKey.split("_").last;
         //Get the image and data from the storage
         final imageResult = await _storage.download(key: imageID).result;
         final dataResult = await _storage.download(key: dataID).result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
-        final detection = VPTDetection.fromCSV(dataOutput);
+        final detection = parseVersionedDetection(timestampID, dataOutput);
 
         final classification = detection.inferredClassification == "1";
         emit(ValidationDisplay(
@@ -170,5 +176,12 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
   FutureOr<void> _onEnd(ValidationEnd event, Emitter<ValidationState> emit) {
     log("No more data to validate");
     emit(const ValidationDispose([]));
+  }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    // TODO: implement onError
+    print({error, stackTrace});
+    super.onError(error, stackTrace);
   }
 }

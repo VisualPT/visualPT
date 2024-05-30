@@ -1,24 +1,24 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/service/form_helper.dart';
+import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 
-class PatientForm extends StatefulWidget {
-  final User user;
-  final AssessmentType assessmentType;
+class AssessmentForm<T extends BaseAssessment> extends StatefulWidget {
+  final T assessment;
 
-  const PatientForm(
-      {Key? key, required this.user, required this.assessmentType})
-      : super(key: key);
+  const AssessmentForm({Key? key, required this.assessment}) : super(key: key);
 
   @override
-  State<PatientForm> createState() => _PatientFormState();
+  State<AssessmentForm> createState() => _AssessmentFormState();
 }
 
-class _PatientFormState extends State<PatientForm> {
+class _AssessmentFormState extends State<AssessmentForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -29,122 +29,167 @@ class _PatientFormState extends State<PatientForm> {
   bool storeData = true;
 
   @override
-  Widget build(BuildContext context) {
-    return BaseView(
-      pageTitle: "Patient Information",
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: 100,
-              maxHeight: MediaQuery.of(context).size.height,
-            ),
-            child: Column(
-              //TODO: add a reset button
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // FormInput(
-                //   "First Name",
-                //   controller: firstNameController,
-                //   inputType: TextInputType.name,
-                // ),
-                // FormInput(
-                //   "Last Name",
-                //   controller: lastNameController,
-                //   inputType: TextInputType.name,
-                // ),
-                FormInput(
-                  "Birth Date",
-                  controller: dobController,
-                  inputPopup: datePopup,
-                ),
-                FormInput(
-                  "Gender",
-                  controller: genderController,
-                  inputPopup: genderPopup,
-                ),
-                FormInput(
-                  "Height",
-                  controller: heightController,
-                  inputPopup: heightPopup,
-                ),
-                FormInput(
-                  "Fall History",
-                  controller: fallHistoryController,
-                  inputPopup: fallHistoryPopup,
-                ),
-                // Container(
-                //     alignment: Alignment.center,
-                //     margin: const EdgeInsets.symmetric(
-                //         vertical: 8.0, horizontal: 20.0),
-                //     padding: const EdgeInsets.all(2.0),
-                //     decoration: const BoxDecoration(
-                //         color: CupertinoColors.white,
-                //         borderRadius: Styles.borderRadiusM),
-                //     child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         mainAxisSize: MainAxisSize.min,
-                //         children: [
-                //           Text(
-                //             "Store Data",
-                //             style: Styles.inputStyle
-                //                 .apply(color: CupertinoColors.systemGrey),
-                //           ),
-                //           CupertinoSwitch(
-                //               value: storeData,
-                //               onChanged: (bool value) {
-                //                 setState(() {
-                //                   storeData = value;
-                //                 });
-                //               }),
-                //         ])),
-                // CupertinoButton(
-                //     onPressed: () {
-                //       firstNameController.text = "Sample";
-                //       lastNameController.text = "Patient";
-                //       dobController.text = "2000-01-01";
-                //       genderController.text = "MALE";
-                //       heightController.text = "60\"";
-                //     },
-                //     child: const Text("Autofill")),
-                Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: CupertinoButton(
-                      color: Styles.actionPrimary,
-                      onPressed: () {
-                        //TODO <are you sure this data is correct?> modal
-                        try {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            ;
+  void initState() {
+    super.initState();
+    requestPermissions();
+  }
 
-                            BlocProvider.of<AssessmentBloc>(context).add(
-                                AssessmentInit(
-                                    FormHelper.createPatient(
-                                        firstNameController.text,
-                                        lastNameController.text,
-                                        dobController.text,
-                                        genderController.text,
-                                        heightController.text,
-                                        widget.user.email,
-                                        fallHistoryController.text),
-                                    storeData));
-                          }
-                        } catch (e) {
-                          rethrow;
-                        }
-                      },
-                      child: const Text("Next", style: Styles.actionText),
-                    )),
-                Text(widget.user.email),
-              ],
+  Future<void> requestPermissions() async {
+    //TODO: Use this for analytics?
+    // AppTrackingTransparency.getAdvertisingIdentifier();
+    // If the system can show an authorization request dialog
+    if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+        TrackingStatus.notDetermined) {
+      //TODO Show a custom explainer dialog before the system dialog
+      // await showCustomTrackingDialog(context);
+      // Wait for dialog popping animation
+      await Future.delayed(const Duration(milliseconds: 200));
+      // Request system's tracking authorization dialog
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
+  }
+
+  void handleAutofill() {
+    firstNameController.text = "Sample";
+    lastNameController.text = "Subject";
+    dobController.text = "2000-01-01";
+    genderController.text = "MALE";
+    heightController.text = "60\"";
+    fallHistoryController.text = "NONE";
+  }
+
+  void handleFormSubmit() {
+    //TODO <are you sure this data is correct?> modal
+    try {
+      final user = BlocProvider.of<AuthBloc>(context).state.user as User;
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+            FormHelper.createSubject(
+                user.id,
+                firstNameController.text,
+                lastNameController.text,
+                dobController.text,
+                genderController.text,
+                heightController.text,
+                user.email,
+                fallHistoryController.text)));
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nav = AppNav(context);
+    try {
+      return BaseView(
+        pageTitle: "Subject Information",
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: 100,
+                maxHeight: MediaQuery.of(context).size.height - 150,
+              ),
+              child: Column(
+                //TODO: add a reset button
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Spacer(),
+                  const Text(
+                    "A few pieces of info to \n curate your experience",
+                    style: Styles.heading3,
+                    textAlign: TextAlign.center,
+                  ),
+                  const Spacer(),
+                  // FormInput(
+                  //   "First Name",
+                  //   controller: firstNameController,
+                  //   inputType: TextInputType.name,
+                  // ),
+                  // FormInput(
+                  //   "Last Name",
+                  //   controller: lastNameController,
+                  //   inputType: TextInputType.name,
+                  // ),
+                  FormInput(
+                    "Birth Date",
+                    controller: dobController,
+                    inputPopup: datePopup,
+                  ),
+                  FormInput(
+                    "Gender",
+                    controller: genderController,
+                    inputPopup: genderPopup,
+                  ),
+                  FormInput(
+                    "Height",
+                    controller: heightController,
+                    inputPopup: heightPopup,
+                  ),
+                  FormInput(
+                    "Fall History",
+                    controller: fallHistoryController,
+                    inputPopup: fallHistoryPopup,
+                  ),
+                  // Container(
+                  //     alignment: Alignment.center,
+                  //     margin: const EdgeInsets.symmetric(
+                  //         vertical: 8.0, horizontal: 20.0),
+                  //     padding: const EdgeInsets.all(2.0),
+                  //     decoration: const BoxDecoration(
+                  //         color: Styles.white,
+                  //         borderRadius: Styles.borderRadiusM),
+                  //     child: Row(
+                  //         mainAxisAlignment: MainAxisAlignment.center,
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           Text(
+                  //             "Store Data",
+                  //           ),
+                  //           CupertinoSwitch(
+                  //               value: storeData,
+                  //               onChanged: (bool value) {
+                  //                 setState(() {
+                  //                   storeData = value;
+                  //                 });
+                  //               }),
+                  //         ])),
+                  CupertinoButton(
+                      onPressed: handleAutofill,
+                      child: const Text("Autofill",
+                          style: TextStyle(color: Styles.black))),
+                  Container(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CupertinoButton(
+                        color: Styles.actionPrimary,
+                        onPressed: handleFormSubmit,
+                        child: const Text("Next", style: Styles.actionText),
+                      )),
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      return BaseView(
+          pageTitle: "Patient View Error",
+          child: Column(
+            children: [
+              Text(e.toString()),
+              CupertinoButton(
+                  onPressed: () => nav.back(),
+                  child: const Text("Restart Assessment"))
+            ],
+          ));
+    }
   }
 
   //TODO: Put custom popups in utils/
@@ -159,14 +204,14 @@ class _PatientFormState extends State<PatientForm> {
           Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(8.0),
-            color: CupertinoColors.white,
+            color: Styles.white,
             alignment: Alignment.centerRight,
             child: Row(
               children: [
                 const Text("Date", style: Styles.inputStyle),
                 const Spacer(),
                 CupertinoButton(
-                    color: CupertinoColors.link,
+                    color: Styles.link,
                     onPressed: () => Navigator.pop(context, value),
                     child: const Text("Save")),
               ],
@@ -178,11 +223,11 @@ class _PatientFormState extends State<PatientForm> {
             margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            color: CupertinoColors.white,
+            color: Styles.white,
             child: SafeArea(
               top: false,
               child: CupertinoDatePicker(
-                backgroundColor: CupertinoColors.white,
+                backgroundColor: Styles.white,
                 initialDateTime: DateTime.now(),
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (DateTime newDate) =>
@@ -209,14 +254,14 @@ class _PatientFormState extends State<PatientForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Gender", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -228,11 +273,11 @@ class _PatientFormState extends State<PatientForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
@@ -265,14 +310,14 @@ class _PatientFormState extends State<PatientForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Fall History", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -284,11 +329,11 @@ class _PatientFormState extends State<PatientForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int selectedItem) {
                     value = selectedItem == 0
@@ -329,14 +374,14 @@ class _PatientFormState extends State<PatientForm> {
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8.0),
-              color: CupertinoColors.white,
+              color: Styles.white,
               alignment: Alignment.centerRight,
               child: Row(
                 children: [
                   const Text("Height", style: Styles.inputStyle),
                   const Spacer(),
                   CupertinoButton(
-                      color: CupertinoColors.link,
+                      color: Styles.link,
                       onPressed: () => Navigator.pop(context, value),
                       child: const Text("Save")),
                 ],
@@ -348,11 +393,11 @@ class _PatientFormState extends State<PatientForm> {
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              color: CupertinoColors.white,
+              color: Styles.white,
               child: SafeArea(
                 top: false,
                 child: CupertinoPicker(
-                  backgroundColor: CupertinoColors.white,
+                  backgroundColor: Styles.white,
                   itemExtent: Styles.kItemExtent,
                   onSelectedItemChanged: (int heightInches) {
                     value = "${heightInches + minHeight}\"";

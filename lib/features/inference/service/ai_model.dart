@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 
 // ignore: must_be_immutable
 abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
@@ -18,14 +19,14 @@ abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
   int get getAddress;
 
   Future<void> loadModel();
-  O? predict(I input, Map<String, dynamic>? params);
+  O? predict(String id, I input, Map<String, dynamic>? params);
 }
 
-abstract class AiModelOutput extends Equatable {
+abstract class AiModelOutput extends Identifiable {
   final dynamic output;
 
-  const AiModelOutput(this.output);
+  const AiModelOutput(super.id, this.output);
 
   @override
-  List<dynamic> get props => output;
+  List<dynamic> get props => [id, output];
 }

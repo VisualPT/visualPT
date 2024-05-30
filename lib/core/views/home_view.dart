@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/features/assessment/config/_config.dart';
+import 'package:visualpt/features/assessment/config/ctsib_collect/ctsib_collect.dart';
+import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
 import 'package:visualpt/features/assessment/view/components/assessment_card.dart';
-import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
 
 class HomeView extends StatelessWidget {
@@ -19,29 +21,19 @@ class HomeView extends StatelessWidget {
               child: SizedBox(
                 height: MediaQuery.of(context).size.height,
                 child: ListView(
-                  prototypeItem: const AssessmentCard(
-                      imagePath: Styles.ctsibLogoPath,
-                      assessmentType: AssessmentType.CTSIB,
-                      subtitle: "Prototype"),
+                  prototypeItem: AssessmentCard(
+                    CTSIB(),
+                  ),
                   padding: const EdgeInsets.all(8.0),
                   shrinkWrap: false,
-                  scrollDirection: Axis.horizontal,
-                  children: const [
-                    AssessmentCard(
-                        imagePath: Styles.ctsibLogoPath,
-                        assessmentType: AssessmentType.CTSIB,
-                        subtitle: "5 minutes"),
-                    AssessmentCard(
-                      imagePath: Styles.bergLogoPath,
-                      assessmentType: AssessmentType.BERG,
-                      subtitle: "10 minutes",
-                    ),
-                    AssessmentCard(
-                      imagePath: Styles.gvLogoPath,
-                      assessmentType: AssessmentType.GAIT,
-                      subtitle: "5 minutes",
-                      available: false,
-                    ),
+                  children: [
+                    AssessmentCard(CTSIB()),
+                    AssessmentCard(MCTSIB()),
+                    AssessmentCard(CTSIB_COLLECT()),
+                    AssessmentCard(BERG()),
+                    //TODO: AssessmentCard(GAIT()),
+                    // AssessmentCard(REACH()),
+                    // AssessmentCard(FIST())
                   ],
                 ),
               ),

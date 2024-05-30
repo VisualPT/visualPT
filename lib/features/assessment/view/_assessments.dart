@@ -3,26 +3,22 @@ import 'package:visualpt/models/ModelProvider.dart';
 // import 'package:visualpt/features/assessment/view/gait/gait.dart';
 
 /// The parameters that start with [seq] are used to define the individual sequences
-/// the length of the Lists should be equal to the [sequences] parameter
-class BaseAssessment {
-  final AssessmentType type;
-  final int sequences;
-  final List<String> seqNames;
-  final List<List<String>> seqInstructions;
-  final List<List<InferenceType>> seqInference;
-  final List<bool> seqObtrusion;
-  final List<bool> seqInstability;
-  final Map<Map<String, String>, String> formFields;
-  final bool isTrainingData;
+/// the length of the Lists should be equal to the [conditions] parameter
+abstract class BaseAssessment {
+  AssessmentType get type;
+  String get name;
+  String get normalDuration;
+  String get details;
+  String get imagePath;
 
-  BaseAssessment(
-      {required this.type,
-      required this.sequences,
-      required this.seqNames,
-      required this.seqInstructions,
-      required this.seqInference,
-      required this.seqObtrusion,
-      required this.seqInstability,
-      required this.formFields,
-      required this.isTrainingData});
+  int get conditions;
+  int get trials;
+  List<String> get conditionNames;
+  List<List<String>> get conditionInstructions;
+  List<List<InferenceType>> get conditionInference;
+  List<bool> get conditionObtrusion;
+  List<bool> get conditionInstability;
+  Map<Map<String, String>, String> get formFields;
+  bool get isTrainingData;
+  bool get isAvailable;
 }

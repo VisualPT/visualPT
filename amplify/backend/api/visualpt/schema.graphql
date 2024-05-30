@@ -4,65 +4,8 @@ enum FallHistory {
   RECURRENT
 }
 
-type Segment {
-  duration_seconds: Int!
-  file: String!
-}
-
 enum UserStatus {
   ADMIN
-}
-
-type User @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  email: AWSEmail!
-  first_name: String!
-  last_name: String!
-  status: UserStatus!
-}
-
-type SkeletalSequence @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  frame_num: Int!
-  nose: String
-  left_eye: String
-  right_eye: String
-  left_ear: String
-  right_ear: String
-  left_shoulder: String
-  right_shoulder: String
-  left_elbow: String
-  right_elbow: String
-  left_wrist: String
-  right_wrist: String
-  left_hip: String
-  right_hip: String
-  left_knee: String
-  right_knee: String
-  left_ankle: String
-  right_ankle: String
-}
-
-type Patient @model @auth(rules: [{allow: owner}]) {
-  id: ID!
-  first_name: String!
-  last_name: String!
-  dob: AWSDate!
-  gender: Gender!
-  height_in_inches: Float!
-  Assessments: [Assessment] @hasMany(indexName: "byPatient", fields: ["id"])
-  provider_contact: AWSEmail!
-  fall_history: FallHistory!
-}
-
-type Assessment @model @auth(rules: [{allow: owner}]) {
-  id: ID!
-  patientID: ID! @index(name: "byPatient")
-  type: AssessmentType!
-  datetime: AWSDateTime!
-  duration: Int
-  pdf: String
-  segments: [Segment]
 }
 
 enum Gender {
@@ -74,5 +17,97 @@ enum AssessmentType {
   CTSIB
   GAIT
   BERG
+  REACH
+  FIST
 }
- 
+
+type User @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  email: AWSEmail!
+  first_name: String!
+  last_name: String!
+  status: UserStatus!
+  Subjects: [Subject!] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type Subject @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  first_name: String!
+  last_name: String!
+  dob: AWSDate!
+  gender: Gender!
+  height_in_inches: Float!
+  fall_history: FallHistory!
+  provider_contact: AWSEmail!
+  Assessments: [Assessment!] @hasMany(indexName: "bySubject", fields: ["id"])
+}
+
+type Assessment @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  subjectID: ID! @index(name: "bySubject")
+  type: AssessmentType!
+  datetime: AWSDateTime!
+  duration: Float! #seconds
+  pdf: String
+  Conditions: [Condition!] @hasMany(indexName: "byAssessment", fields: ["id"])
+}
+
+type Condition @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  assessmentID: ID! @index(name: "byAssessment")
+  sequenceNumber: Int!
+  duration: Float! #seconds
+  trials: [Trial!] @hasMany(indexName: "byCondition", fields: ["id"])
+}
+
+type Trial @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  conditionID: ID! @index(name: "byCondition")
+  start_time: AWSDateTime!
+  duration: Float! #seconds
+  Detections: [Detection!]
+}
+
+type Detection {
+  id: String!
+  version: Int!
+  obtrustion: Boolean!
+  instability: Boolean!
+  env: DetectionEnv!
+  keypoints: String!
+  prediction: String
+}
+
+type DetectionEnv {
+  imageHeight: Int
+  imageWidth: Int
+  accX: Float
+  accY: Float
+  accZ: Float
+  gyroX: Float
+  gyroY: Float
+  gyroZ: Float
+}
+
+# type Keypoints {
+#   id: ID!
+#   frame_num: Int!
+#   nose: [Float]
+#   left_eye: [Float]
+#   right_eye: [Float]
+#   left_ear: [Float]
+#   right_ear: [Float]
+#   left_shoulder: [Float]
+#   right_shoulder: [Float]
+#   left_elbow: [Float]
+#   right_elbow: [Float]
+#   left_wrist: [Float]
+#   right_wrist: [Float]
+#   left_hip: [Float]
+#   right_hip: [Float]
+#   left_knee: [Float]
+#   right_knee: [Float]
+#   left_ankle: [Float]
+#   right_ankle: [Float]
+# }

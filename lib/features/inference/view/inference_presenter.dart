@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
 
-class InferencePresenter<I, O extends AiModelOutput> extends StatelessWidget {
+class InferencePresenter<I extends Identifiable, O extends AiModelOutput>
+    extends StatelessWidget {
   const InferencePresenter({
     required this.onRunning,
     required this.onStandby,

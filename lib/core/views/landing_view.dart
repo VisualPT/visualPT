@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/auth/view/auth_view.dart';
 import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
 import 'components/_components.dart';

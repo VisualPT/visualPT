@@ -9,9 +9,11 @@ import 'package:visualpt/features/inference/service/ai_model.dart';
 part 'inference_event.dart';
 part 'inference_state.dart';
 
-class InferenceBloc<I, O extends AiModelOutput>
+//TODO: Add toggleable loggers to all blocs
+class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this.inferenceRepository, this.outputRepository)
+  InferenceBloc(
+      this.inferenceRepository, this.outputRepository, this.sampleRate)
       : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
@@ -24,8 +26,8 @@ class InferenceBloc<I, O extends AiModelOutput>
 
   final Repository<I, O> inferenceRepository;
   final Repository<O, dynamic>? outputRepository;
+  final int sampleRate;
 
-  static const sampleRateFrames = 30;
   bool isReady = false;
   bool processing = false;
   late int storageBacklog;
@@ -44,24 +46,26 @@ class InferenceBloc<I, O extends AiModelOutput>
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
-        add(InferenceInput(input: data, params: event.params));
+        add(InferenceInput(data.id, input: data, params: event.params));
       }
     });
-    emit(InferenceRunning<I, O>(null, const {"height": 0, "width": 0}));
+    emit(InferenceRunning<I, O>(
+        null, "defaultID", const {"height": 0, "width": 0}));
   }
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
-    if (inferenceRepository.count % sampleRateFrames == 0) {
+    if (inferenceRepository.count % sampleRate == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data =
-        await inferenceRepository.runPredict(event.input, event.params);
+    final data = await inferenceRepository.runPredict(
+        event.id, event.input, event.params);
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
+        event.id,
         input: event.input,
         output: data,
         params: event.params,
@@ -78,14 +82,15 @@ class InferenceBloc<I, O extends AiModelOutput>
           //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
           //TODO: Add a path to the repository to store the data
           storageBacklog--;
-          inferenceRepository.store(event.input, event.output!, event.params);
+          inferenceRepository.store(
+              event.id, event.input, event.output!, event.params);
         }
       }
       if (isReady && !isClosed && !emit.isDone) {
-        emit(InferenceRunning<I, O>(event.output, event.params));
+        emit(InferenceRunning<I, O>(event.output, event.id, event.params));
       }
     } catch (e) {
-      log("Error: $e");
+      log("Output Error: $e");
     }
   }
 
@@ -93,7 +98,7 @@ class InferenceBloc<I, O extends AiModelOutput>
     isReady = false;
     nullResponsePort.close();
     if (_subscription != null) {
-      _subscription!.cancel();
+      _subscription?.cancel();
     }
     inferenceRepository.dispose();
     emit(InferenceStandby<I, O>());
@@ -110,20 +115,10 @@ class InferenceBloc<I, O extends AiModelOutput>
   //   log('InferenceBloc Transition: $transition');
   // }
 
-  // @override
-  // Future<void> close() {
-  //   if (_subscription != null) {
-  //     _subscription!.cancel();
-  //   }
-  //   nullResponsePort.close();
-  //   inferenceRepository.dispose();
-  //   return super.close();
-  // }
-
   @override
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    log('InferenceBloc Error: $error');
+    log('InferenceBloc Error: $stackTrace $error');
   }
 }

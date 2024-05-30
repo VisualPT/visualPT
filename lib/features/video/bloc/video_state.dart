@@ -15,7 +15,8 @@ class VideoLoading extends VideoState {
 
 class VideoRecording extends VideoState {
   final CameraController controller;
-  VideoRecording(this.controller)
+  final amplify.TemporalDateTime startTime;
+  VideoRecording(this.controller, this.startTime)
       : assert(controller.value.isInitialized),
         super(CupertinoIcons.square);
 
@@ -29,6 +30,16 @@ class VideoStandby extends VideoState {
 
   @override
   List<Object?> get props => [controller];
+}
+
+class VideoStopped extends VideoState {
+  final XFile file;
+  final Duration videoDuration;
+  const VideoStopped(this.file, this.videoDuration)
+      : super(CupertinoIcons.stop);
+
+  @override
+  List<Object?> get props => [file, videoDuration];
 }
 
 class VideoError extends VideoState {

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/views/_views.dart';
 
 // Widget get _drawLandmarks => _ModelPainter(
 //       customPainter: FaceMeshPainter(
@@ -22,7 +23,7 @@ class FaceMeshPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (points.isNotEmpty) {
       var paint1 = Paint()
-        ..color = CupertinoColors.activeGreen
+        ..color = Styles.green
         ..strokeWidth = 4;
 
       canvas.drawPoints(PointMode.points,

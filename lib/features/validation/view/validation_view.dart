@@ -6,7 +6,6 @@ import 'package:visualpt/features/inference/view/camera_painters/ctsib_overlays.
 import 'package:visualpt/features/validation/bloc/validation_bloc.dart';
 import 'package:visualpt/features/validation/view/validation_presenter.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/app_nav.dart';
 import 'package:visualpt/features/inference/view/camera_painters/pose_overlay.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -92,7 +91,7 @@ class ValidationView extends StatelessWidget {
             child: Column(
               children: [
                 Text("Remaining Images: ${(state.keys.length / 2).floor() + 1}",
-                    style: Styles.subactionText),
+                    style: Styles.heading3),
                 BlocProvider.of<ValidationBloc>(context)
                         .processedKeys
                         .isNotEmpty
@@ -122,7 +121,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemGreen,
+                    color: Styles.green,
                     child: const Text("Static"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -134,7 +133,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Arm"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -146,7 +145,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Trunk"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -158,7 +157,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemYellow,
+                    color: Styles.yellow,
                     child: const Text("Foot"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(
@@ -170,7 +169,7 @@ class ValidationView extends StatelessWidget {
                 const Spacer(flex: 2),
                 CupertinoButton(
                     padding: const EdgeInsets.all(16),
-                    color: CupertinoColors.systemRed,
+                    color: Styles.red,
                     child: const Text("Invalid"),
                     onPressed: () => BlocProvider.of<ValidationBloc>(context)
                         .add(ValidationInput(

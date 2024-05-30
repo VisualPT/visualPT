@@ -59,7 +59,8 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
   }
 
   @override
-  HandsOutput? predict(image_lib.Image input, Map<String, dynamic>? params) {
+  HandsOutput? predict(
+      String id, image_lib.Image input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -101,7 +102,7 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
       ));
     }
 
-    return HandsOutput(landmarkPoints);
+    return HandsOutput(id, landmarkPoints);
   }
 }
 
@@ -109,13 +110,13 @@ HandsOutput? runHandDetector(Map<String, dynamic> params) {
   final hands =
       Hands(interpreter: Interpreter.fromAddress(params['detectorAddress']));
   final image = ImageUtils.convertCameraImage(params['input']);
-  final result = hands.predict(image, {});
+  final result = hands.predict(params["id"], image, {});
 
   return result;
 }
 
 class HandsOutput extends AiModelOutput {
-  const HandsOutput(super.output);
+  const HandsOutput(super.id, super.output);
 
   @override
   List<dynamic> get props => output;
