@@ -10,8 +10,10 @@ class VideoService {
     // Collect all the futures for downloading and encoding the videos
     final videoFutures = assessment.Conditions?.expand((c) =>
             c.trials?.map<Future<String>>((t) async {
-              final download = storage.download(
-                  key: "${assessment.type.name}/videos/${t.start_time}");
+              final key =
+                  "${assessment.type.name}/video/${t.start_time.getDateTimeInUtc().millisecondsSinceEpoch.toString()}.mp4";
+              print(key);
+              final download = storage.download(key: key);
               final data = await download.result;
               return base64Encode(data.bytes);
             }) ??
