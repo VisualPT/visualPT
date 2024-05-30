@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +21,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
   late Duration videoDuration = const Duration(seconds: 0);
-  DateTime? _start;
+  amplify.TemporalDateTime? _start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
     try {
@@ -66,7 +67,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onPlay(VideoPlay event, Emitter<VideoState> emit) async {
-    _start = DateTime.now();
+    _start = amplify.TemporalDateTime(DateTime.now());
     if (controller == null) {
       emit(VideoError(
           exception: Exception("Camera controller was not initialized")));
@@ -84,20 +85,21 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           gyroZ: videoDetectionRepo.currentGyro.z);
       videoDetectionRepo.add(DeviceCapture(id, image, measurements));
     });
-    emit(VideoRecording(controller!));
+    emit(VideoRecording(controller!, _start!));
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
     if (_start == null) {
-      print("Video was not started");
+      print("There is no start time to label the video.");
     } else {
-      videoDuration = DateTime.now().difference(_start!);
+      videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
       if (controller != null && controller!.value.isStreamingImages) {
         if (event.reset) {
           emit(VideoStandby(controller!));
         }
         final file = await controller!.stopVideoRecording();
-        videoDetectionRepo.saveVideo(_start.toString(), file);
+        videoDetectionRepo.saveVideo(
+            _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(), file);
         emit(VideoStopped(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");

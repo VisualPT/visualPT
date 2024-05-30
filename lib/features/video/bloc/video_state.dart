@@ -15,7 +15,8 @@ class VideoLoading extends VideoState {
 
 class VideoRecording extends VideoState {
   final CameraController controller;
-  VideoRecording(this.controller)
+  final amplify.TemporalDateTime startTime;
+  VideoRecording(this.controller, this.startTime)
       : assert(controller.value.isInitialized),
         super(CupertinoIcons.square);
 

@@ -32,7 +32,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
-    void onComplete() {
+    void onComplete(VideoRecording state) {
       final index = BlocProvider.of<AssessmentBloc>(context)
               .currentCondition
               ?.sequenceNumber ??
@@ -57,6 +57,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                     .config
                     .conditionInstability[index]
               }),
+          state.startTime,
           duration));
     }
 
@@ -86,7 +87,9 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
           const Spacer(),
           BlocBuilder<TimerBloc, TimerState>(
             builder: (context, timerState) {
-              if (timerState is TimerRunComplete) onComplete();
+              if (timerState is TimerRunComplete) {
+                onComplete(state as VideoRecording);
+              }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
@@ -135,7 +138,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                             color: Styles.white, size: 40)),
                     const Spacer(),
                     GestureDetector(
-                        onTap: () => onComplete(),
+                        onTap: () => onComplete(state as VideoRecording),
                         child: const Icon(CupertinoIcons.stop,
                             color: Styles.actionPrimary, size: 100)),
                     const Spacer(),
