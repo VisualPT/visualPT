@@ -23,7 +23,8 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
     List<Map<String, String>> attachments = [];
     for (int i = 0; i < event.videos.length; i++) {
       attachments.add({
-        'filename': 'video_$i.mp4',
+        'filename':
+            '${event.assessment.type.name}_condition${i + 1}_${event.subject.last_name}.mp4',
         'content': event.videos[i],
         'type': 'video/mp4',
         'disposition': 'attachment'
