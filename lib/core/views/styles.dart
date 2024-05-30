@@ -72,7 +72,7 @@ class Styles {
   static const subactionText =
       TextStyle(color: Styles.white, fontSize: 18, fontWeight: FontWeight.bold);
   static const popupSelectionText =
-      TextStyle(color: Styles.black, fontSize: 20);
+      TextStyle(color: Styles.black, fontSize: 16);
 
   static const comingSoonTitle = TextStyle(
     color: comingSoonColor,
