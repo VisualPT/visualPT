@@ -9,6 +9,7 @@ import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
+import 'package:visualpt/features/video/service/video_service.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/service/assessment_service.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -109,12 +110,13 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
 
   ///The button that initates the email post
   ///Saves the PDF and stores assessment by default
-  void onSend(
+  Future<void> onSend(
     BuildContext context,
     Subject subject,
     Assessment assessment,
     Uint8List pdf,
-  ) {
+  ) async {
+    final videos = await VideoService.getVideosInBase64(assessment);
     appDialog(
         context: context,
         title: "Save and Send",
@@ -125,6 +127,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               subject: subject,
               assessment: assessment,
+              videos: videos,
               onSuccess: () => AppNav(context).setHome(),
               onFail: () => log("Email failed")));
           //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
