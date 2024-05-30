@@ -53,7 +53,7 @@ class AssessmentUtils {
         ));
       }
     });
-    return linked;
+    return linked.isNotEmpty ? linked : null;
   }
 
   static double getAvgDuration(List<Trial>? trials) {

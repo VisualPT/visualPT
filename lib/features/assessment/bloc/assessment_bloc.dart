@@ -34,19 +34,21 @@ class AssessmentBloc<T extends BaseAssessment>
       assessmentStartTime = DateTime.now();
     }
     subject = event.subject;
-    amplify.Amplify.DataStore.save(subject);
+    // amplify.Amplify.DataStore.save(subject);
     assessment = Assessment(
         subjectID: subject.id,
         type: config.type,
         duration: 0,
         datetime: amplify.TemporalDateTime(DateTime.now()),
-        Conditions: []);
+        Conditions: null);
+    // amplify.Amplify.DataStore.save(assessment);
     conditionStartTime = DateTime.now();
     currentCondition = Condition(
         assessmentID: assessment.id,
         duration: 0,
         sequenceNumber: 0,
-        trials: []);
+        trials: null);
+    // amplify.Amplify.DataStore.save(currentCondition!);
     emit(AssessmentActive<T>(
         getMeta(subject, config, 0, 0), subject, storeData, this.config));
   }
@@ -56,7 +58,7 @@ class AssessmentBloc<T extends BaseAssessment>
     emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));
     currentCondition = currentCondition?.copyWith(
         duration: getElapsedSeconds(conditionStartTime));
-    amplify.Amplify.DataStore.save(currentCondition!);
+    // amplify.Amplify.DataStore.save(currentCondition!);
     await Future.delayed(const Duration(
         seconds:
             1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
@@ -67,12 +69,13 @@ class AssessmentBloc<T extends BaseAssessment>
         assessmentID: assessment.id,
         duration: 0,
         sequenceNumber: newConditions.length - 1,
-        trials: []);
+        trials: null);
+    // amplify.Amplify.DataStore.save(currentCondition!);
     if (assessment.Conditions?.length == config.conditions) {
       final double assessmentDurationSeconds =
           getElapsedSeconds(assessmentStartTime);
       assessment = assessment.copyWith(duration: assessmentDurationSeconds);
-      amplify.Amplify.DataStore.save(assessment);
+      // amplify.Amplify.DataStore.save(assessment);
       emit(AssessmentAnalysis<T>(subject, storeData, assessment, config));
     } else {
       conditionStartTime = DateTime.now();
@@ -92,7 +95,11 @@ class AssessmentBloc<T extends BaseAssessment>
         start_time: event.startTime,
         duration: event.duration.inMilliseconds / 1000, //seconds
         Detections: event.detections);
-    amplify.Amplify.DataStore.save(trial);
+    // try {
+    //   amplify.Amplify.DataStore.save(trial);
+    // } on Exception catch (e) {
+    //   print("Error saving trial: $e");
+    // }
     currentCondition = currentCondition == null
         ? Condition(
             assessmentID: assessment.id,
