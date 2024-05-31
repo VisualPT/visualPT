@@ -137,6 +137,7 @@ class AssessmentCard extends StatelessWidget {
               ),
             ),
         child: Container(
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             color:
                 assessment.isAvailable ? Styles.white : Styles.comingSoonColor,
@@ -146,11 +147,11 @@ class AssessmentCard extends StatelessWidget {
             ),
             borderRadius: Styles.borderRadiusM,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
           margin: const EdgeInsets.symmetric(vertical: 2.0),
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 12,
@@ -168,25 +169,32 @@ class AssessmentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                Flexible(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(assessment.type.name.replaceAll("_", " "),
-                          style: Styles.title),
-                      Row(
-                        children: [
-                          Text(assessment.normalDuration,
-                              style: Styles.heading3),
-                          //Create a popup similar to the AssessmentInstructions that takes in the assessment.details and displays it on top of the view
-                        ],
-                      )
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(assessment.type.name.replaceAll("_", " "),
+                            style: Styles.title),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(assessment.name, style: Styles.heading3),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          assessment.normalDuration,
+                          style: Styles.body,
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const Spacer(),
+                )
               ]),
         ));
   }

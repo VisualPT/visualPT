@@ -9,7 +9,7 @@ class CTSIB_COLLECT implements BaseAssessment {
 
   @override
   String get name =>
-      "Clinical Test of Sensory Integration & Balance Data Collection";
+      "Clinical Test of Sensory Integration & Balance for AI Training";
 
   @override
   String get normalDuration => "10 minutes";

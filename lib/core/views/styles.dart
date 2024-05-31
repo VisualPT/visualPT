@@ -55,7 +55,7 @@ class Styles {
   //Text Styles
   static const title = TextStyle(
     fontFamily: "Unbounded",
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: FontWeight.bold,
   );
   static const subtitle = TextStyle(fontSize: 24);
@@ -64,6 +64,7 @@ class Styles {
     fontSize: 20,
   );
   static const heading3 = TextStyle(fontSize: 18);
+  static const body = TextStyle(fontSize: 16);
   static const placeholderStyle =
       TextStyle(color: Styles.inactiveGray, fontSize: 24);
   static const inputStyle = TextStyle(color: Styles.black, fontSize: 24);
