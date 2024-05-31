@@ -81,7 +81,6 @@ class _BaseViewState extends State<BaseView> {
                   child: Container(
                       height: screenSize.height * 0.7,
                       width: screenSize.width * 0.7,
-                      //Create rounded corners
                       decoration: const BoxDecoration(
                           borderRadius: Styles.borderRadiusM,
                           color: Styles.ceruleanBlue),

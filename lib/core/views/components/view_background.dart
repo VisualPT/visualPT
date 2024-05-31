@@ -6,8 +6,6 @@ class ViewBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = MediaQuery.of(context).size.height / 3;
-
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -18,50 +16,6 @@ class ViewBackground extends StatelessWidget {
             Styles.backgroundAccent,
           ],
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: MediaQuery.of(context).size.width * 0.2,
-            top: MediaQuery.of(context).size.height * 0.1,
-            child: Container(
-              width: containerSize,
-              height: containerSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Styles.ceruleanBlue,
-                boxShadow: [
-                  BoxShadow(
-                    color: Styles.black.withOpacity(0.2),
-                    spreadRadius: 3,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5), // changes position of shadow
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: MediaQuery.of(context).size.width * 0.6,
-            top: MediaQuery.of(context).size.height * 0.4,
-            child: Container(
-              width: containerSize * 0.8,
-              height: containerSize * 0.8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Styles.ceruleanBlue,
-                boxShadow: [
-                  BoxShadow(
-                    color: Styles.black.withOpacity(0.2),
-                    spreadRadius: 3,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5), // changes position of shadow
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -30,8 +30,7 @@ class AssessmentCard extends StatelessWidget {
         onTap: () => showCupertinoModalPopup(
               context: context,
               builder: (context) => Container(
-                height: MediaQuery.of(context).size.height * 0.7,
-                width: MediaQuery.of(context).size.width * 0.9,
+                width: MediaQuery.of(context).size.width,
                 decoration: const BoxDecoration(
                   color: Styles.white,
                   borderRadius: Styles.borderRadiusM,
@@ -40,6 +39,7 @@ class AssessmentCard extends StatelessWidget {
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         !assessment.isAvailable
                             ? const Text("Coming Soon",
