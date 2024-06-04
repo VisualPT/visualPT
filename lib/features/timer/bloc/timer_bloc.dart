@@ -13,6 +13,7 @@ part 'timer_state.dart';
 const Duration _minDuration = Duration(seconds: 0);
 const Duration _maxDuration = Duration(seconds: 30);
 
+//TODO: This would probbaly perform better if it was just a start time and the difference from that start time
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
   TimerBloc()
       : _ticker = const Ticker(),
