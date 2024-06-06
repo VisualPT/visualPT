@@ -1,9 +1,6 @@
-import 'dart:ui';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-
 import 'package:visualpt/models/ModelProvider.dart';
 
 class MCTSIB implements BaseAssessment {
@@ -83,74 +80,6 @@ class MCTSIB implements BaseAssessment {
   static double getAgeNorm(int age) {
     final int index = ageGroups.indexWhere((element) => element > age);
     return norms[index];
-  }
-
-  static List<double> averageSwayPerCondition(Assessment assessment) {
-    // Filter out null conditions and conditions without trials
-    final validConditions = assessment.Conditions?.where((condition) =>
-                condition.trials != null && condition.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validConditions.map((condition) {
-      // Calculate total sway and count of detections
-      final totalAndCount = condition.trials!.fold<(int, double)>((0, 0.0),
-          (previousValue, trial) {
-        if (trial.Detections == null || trial.Detections!.isEmpty) {
-          return previousValue;
-        }
-        final trialTotalAndCount = trial.Detections!
-            .fold<(int, double)>((0, 0.0), (trialPreviousValue, detection) {
-          final poseOutput =
-              PoseDetectionOutput.fromString(detection.keypoints);
-          final angle = PoseDetectionOutput.computeAngle(
-              poseOutput.map((e) => Offset(e[0], e[1])).toList());
-
-          return (trialPreviousValue.$1 + 1, trialPreviousValue.$2 + angle);
-        });
-        return (
-          previousValue.$1 + trialTotalAndCount.$1,
-          previousValue.$2 + trialTotalAndCount.$2
-        );
-      });
-
-      if (totalAndCount.$1 == 0) {
-        return 0.0;
-      }
-      // Calculate and return the average sway for this condition
-      return totalAndCount.$2 / totalAndCount.$1;
-    }).toList();
-  }
-
-  static List<double> maxSwayPerCondition(Assessment assessment) {
-    // Filter out null conditions and conditions without trials
-    final validConditions = assessment.Conditions?.where((condition) =>
-                condition.trials != null && condition.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validConditions.map((condition) {
-      // Calculate total sway and count of detections
-      final maxSway =
-          condition.trials!.fold<double>(0.0, (previousValue, trial) {
-        if (trial.Detections == null || trial.Detections!.isEmpty) {
-          return previousValue;
-        }
-        final trialMaxSway = trial.Detections!.fold<double>(0.0,
-            (trialPreviousValue, detection) {
-          final poseOutput =
-              PoseDetectionOutput.fromString(detection.keypoints);
-          final angle = PoseDetectionOutput.computeAngle(
-              poseOutput.map((e) => Offset(e[0], e[1])).toList());
-
-          return trialPreviousValue > angle ? trialPreviousValue : angle;
-        });
-
-        return previousValue > trialMaxSway ? previousValue : trialMaxSway;
-      });
-
-      return maxSway;
-    }).toList();
   }
 
   static List<List<int>> getPredictionTotals(Assessment assessment) {
