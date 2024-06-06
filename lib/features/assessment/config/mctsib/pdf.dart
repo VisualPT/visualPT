@@ -180,12 +180,22 @@ class MctsibPDF extends PDF {
               ),
               Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text('Avg Sway (Max)',
+                  child: Text('Avg Lat Sway (Max)',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Avg Lng Sway (Max)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text('Leading Pose',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text('Equilibrium Score',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -225,13 +235,27 @@ class MctsibPDF extends PDF {
                 Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].toStringAsFixed(2)})°",
+                        "${CTSIB.averageSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)})°",
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        "${CTSIB.averageSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)})°",
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Text(
                         CTSIB.getMostFrequentClassification(assessment, i),
+                        style: detail,
+                        textAlign: TextAlign.center)),
+                Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text(
+                        CTSIB
+                            .getEquilibriumScores(assessment)[i]
+                            .toStringAsFixed(2),
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
@@ -272,7 +296,31 @@ class MctsibPDF extends PDF {
               Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${(CTSIB.averageSwayPerCondition(assessment).fold<double>(0.0, (previousValue, element) => previousValue + element) / ctsib.conditions).toStringAsFixed(2)}°",
+                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
+                                double,
+                                double
+                              )>((
+                                0.0,
+                                0.0
+                              ), (avg, sway) => (
+                                avg.$1 + sway.$1,
+                                avg.$2 + sway.$2
+                              )).$1 / ctsib.conditions).toStringAsFixed(2)}°",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
+                                double,
+                                double
+                              )>((
+                                0.0,
+                                0.0
+                              ), (avg, sway) => (
+                                avg.$1 + sway.$1,
+                                avg.$2 + sway.$2
+                              )).$2 / ctsib.conditions).toStringAsFixed(2)}°",
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -281,6 +329,16 @@ class MctsibPDF extends PDF {
                       CTSIB.getMostFrequentIndexAcrossAllEntries(
                           CTSIB.getPredictionTotals(assessment)),
                       style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center)),
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(
+                      CTSIB
+                          .getEquilibriumScores(assessment)
+                          .fold<double>(
+                              0.0, (prevScore, score) => prevScore + score)
+                          .toStringAsFixed(1),
+                      style: detail,
                       textAlign: TextAlign.center)),
               Padding(
                 padding: const EdgeInsets.all(3.0),

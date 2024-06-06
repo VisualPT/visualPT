@@ -60,31 +60,58 @@ class PoseDetectionOutput extends AiModelOutput {
     return output;
   }
 
-  static double computeAngle(List<Offset> points) {
+//Computes the latitudidal (left/right (x,y)) and longitudidal (y, z) angles of the pose
+  static (double, double) computeAngles(List<(double, double, double)> points) {
     double sumX = 0,
         sumY = 0,
+        sumZ = 0,
         sumY2 = 0,
         sumXY = 0,
+        sumYZ = 0,
+        sumZ2 = 0,
         smallestY = double.infinity,
-        largestY = double.negativeInfinity;
+        largestY = double.negativeInfinity,
+        smallestX = double.infinity,
+        largestX = double.negativeInfinity,
+        smallestZ = double.infinity,
+        largestZ = double.negativeInfinity;
+
     int n = points.length;
 
     for (var point in points) {
-      sumX += point.dx;
-      sumY += point.dy;
-      sumY2 += point.dy * point.dy;
-      sumXY += point.dx * point.dy;
-      if (point.dy < smallestY) {
-        smallestY = point.dy;
+      sumX += point.$1;
+      sumY += point.$2;
+      sumZ += point.$3;
+      sumY2 += point.$2 * point.$2;
+      sumXY += point.$1 * point.$2;
+      sumYZ += point.$2 * point.$3;
+      sumZ2 += point.$3 * point.$3;
+      if (point.$2 < smallestY) {
+        smallestY = point.$2;
       }
-      if (point.dy > largestY) {
-        largestY = point.dy;
+      if (point.$2 > largestY) {
+        largestY = point.$2;
+      }
+      if (point.$1 < smallestX) {
+        smallestX = point.$1;
+      }
+      if (point.$1 > largestX) {
+        largestX = point.$1;
+      }
+      if (point.$3 < smallestZ) {
+        smallestZ = point.$3;
+      }
+      if (point.$3 > largestZ) {
+        largestZ = point.$3;
       }
     }
-    double slope = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
+    double slopeXY = (n * sumXY - sumX * sumY) / (n * sumY2 - sumY * sumY);
+    double slopeYZ = (n * sumYZ - sumY * sumZ) / (n * sumZ2 - sumZ * sumZ);
 
-    double degrees = (atan(slope) * 180 / pi).abs();
-    return degrees;
+    double degreesXY = (atan(slopeXY) * 180 / pi).abs();
+    double degreesYZ = (atan(slopeYZ) * 180 / pi).abs();
+
+    return (degreesXY, degreesYZ);
   }
 
 // Function to compute the line of best fit

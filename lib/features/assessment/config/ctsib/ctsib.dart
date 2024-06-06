@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:math';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
@@ -93,7 +93,7 @@ class CTSIB implements BaseAssessment {
     return norms[index];
   }
 
-  static List<double> averageSwayPerCondition(Assessment assessment) {
+  static List<(double, double)> averageSwayPerCondition(Assessment assessment) {
     // Filter out null conditions and conditions without trials
     final validConditions = assessment.Conditions?.where((condition) =>
                 condition.trials != null && condition.trials!.isNotEmpty)
@@ -102,35 +102,45 @@ class CTSIB implements BaseAssessment {
 
     return validConditions.map((condition) {
       // Calculate total sway and count of detections
-      final totalAndCount = condition.trials!.fold<(int, double)>((0, 0.0),
-          (previousValue, trial) {
+      final totalAndCount = condition.trials!.fold<(int, (double, double))>(
+          (0, (0.0, 0.0)), (previousValue, trial) {
         if (trial.Detections == null || trial.Detections!.isEmpty) {
           return previousValue;
         }
         final trialTotalAndCount = trial.Detections!
-            .fold<(int, double)>((0, 0.0), (trialPreviousValue, detection) {
+            .fold<(int, (double, double))>((0, (0.0, 0.0)),
+                (averageAngle, detection) {
           final poseOutput =
               PoseDetectionOutput.fromString(detection.keypoints);
-          final angle = PoseDetectionOutput.computeAngle(
-              poseOutput.map((e) => Offset(e[0], e[1])).toList());
+          final angle = PoseDetectionOutput.computeAngles(
+              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
 
-          return (trialPreviousValue.$1 + 1, trialPreviousValue.$2 + angle);
+          return (
+            averageAngle.$1 + 1,
+            (averageAngle.$2.$1 + angle.$1, averageAngle.$2.$2 + angle.$2)
+          );
         });
         return (
           previousValue.$1 + trialTotalAndCount.$1,
-          previousValue.$2 + trialTotalAndCount.$2
+          (
+            previousValue.$2.$1 + trialTotalAndCount.$2.$1,
+            previousValue.$2.$2 + trialTotalAndCount.$2.$2
+          )
         );
       });
 
       if (totalAndCount.$1 == 0) {
-        return 0.0;
+        return (0.0, 0.0);
       }
       // Calculate and return the average sway for this condition
-      return totalAndCount.$2 / totalAndCount.$1;
+      return (
+        totalAndCount.$2.$1 / totalAndCount.$1,
+        totalAndCount.$2.$2 / totalAndCount.$1
+      );
     }).toList();
   }
 
-  static List<double> maxSwayPerCondition(Assessment assessment) {
+  static List<(double, double)> maxSwayPerCondition(Assessment assessment) {
     // Filter out null conditions and conditions without trials
     final validConditions = assessment.Conditions?.where((condition) =>
                 condition.trials != null && condition.trials!.isNotEmpty)
@@ -139,22 +149,25 @@ class CTSIB implements BaseAssessment {
 
     return validConditions.map((condition) {
       // Calculate total sway and count of detections
-      final maxSway =
-          condition.trials!.fold<double>(0.0, (previousValue, trial) {
+      final maxSway = condition.trials!.fold<(double, double)>((0.0, 0.0),
+          (previousValue, trial) {
         if (trial.Detections == null || trial.Detections!.isEmpty) {
           return previousValue;
         }
-        final trialMaxSway = trial.Detections!.fold<double>(0.0,
-            (trialPreviousValue, detection) {
+        final trialMaxSway = trial.Detections!
+            .fold<(double, double)>((0.0, 0.0), (maxAngle, detection) {
           final poseOutput =
               PoseDetectionOutput.fromString(detection.keypoints);
-          final angle = PoseDetectionOutput.computeAngle(
-              poseOutput.map((e) => Offset(e[0], e[1])).toList());
+          final (lat, lng) = PoseDetectionOutput.computeAngles(
+              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
 
-          return trialPreviousValue > angle ? trialPreviousValue : angle;
+          return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
         });
 
-        return previousValue > trialMaxSway ? previousValue : trialMaxSway;
+        return (
+          max(previousValue.$1, trialMaxSway.$1),
+          max(previousValue.$2, trialMaxSway.$2)
+        );
       });
 
       return maxSway;
@@ -229,4 +242,59 @@ class CTSIB implements BaseAssessment {
 
     return classifications[mostFrequentIndex]?.toString() ?? "invalid";
   }
+
+  static List<double> getEquilibriumScores(Assessment assessment) {
+    //Equilibrium Score is the the proportion of the actual sway to the swayLimit, multiplied by 100, summed up and divided by the number of detections per trial, then summed across all trials and divided by the number of trials
+    final validConditions = assessment.Conditions?.where((condition) =>
+                condition.trials != null && condition.trials!.isNotEmpty)
+            .toList() ??
+        [];
+
+    final conditionScores = validConditions.map((condition) {
+      final trialsCountAndScoreSum = condition.trials!
+          .fold<(int, double)>((0, 0.0), (trialsCountAndScoreIterator, trial) {
+        if (trial.Detections == null || trial.Detections!.isEmpty) {
+          return trialsCountAndScoreIterator;
+        }
+        final detectionCountAndScoreSum = trial.Detections!.fold<(int, double)>(
+            (0, 0.0), (detectionCountAndScoreIterator, detection) {
+          final poseOutput =
+              PoseDetectionOutput.fromString(detection.keypoints);
+          final (lat, lng) = PoseDetectionOutput.computeAngles(
+              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+          final latProportion = lat / swayLimits[2];
+          //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
+          final lonProportion =
+              lng > 0 ? lng / swayLimits[0] : lng / swayLimits[1];
+          if (latProportion > 1 || lonProportion > 1) {
+            return (
+              detectionCountAndScoreIterator.$1 + 1,
+              detectionCountAndScoreIterator.$2,
+            );
+          }
+          final proportionOfFailure =
+              sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
+          final detectionScore = 100 * (1 - proportionOfFailure);
+          return (
+            detectionCountAndScoreIterator.$1 + 1,
+            detectionCountAndScoreIterator.$2 + detectionScore
+          );
+        });
+        final trialScore =
+            detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
+
+        return (
+          trialsCountAndScoreIterator.$1 + 1,
+          trialsCountAndScoreIterator.$2 + trialScore
+        );
+      });
+
+      return trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
+    }).toList();
+
+    return conditionScores;
+  }
 }
+
+//Anterior, Posterior, Lat
+const swayLimits = [8.0, 4.5, 8.0];
