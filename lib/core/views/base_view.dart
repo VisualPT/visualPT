@@ -79,8 +79,8 @@ class _BaseViewState extends State<BaseView> {
               color: Styles.black.withOpacity(0.5),
               child: GestureDetector(
                   child: Container(
-                      height: screenSize.height * 0.7,
-                      width: screenSize.width * 0.7,
+                      height: screenSize.height * 0.8,
+                      width: screenSize.width * 0.8,
                       decoration: const BoxDecoration(
                           borderRadius: Styles.borderRadiusM,
                           color: Styles.ceruleanBlue),
