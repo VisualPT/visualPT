@@ -146,60 +146,59 @@ class CtsibPDF extends PDF {
       Table(
         border: TableBorder.all(color: black),
         columnWidths: {
-          0: const IntrinsicColumnWidth(),
-          1: const IntrinsicColumnWidth(),
-          2: const IntrinsicColumnWidth(),
+          for (var item in List.generate(8, (index) => index))
+            item: const IntrinsicColumnWidth()
         },
         children: [
           // Create table header
           TableRow(
             children: [
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('#',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('Surface',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('Vision',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('Trials',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text('Avg Lat Sway (Max)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text('Avg Lon Sway (Max)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text('Leading Pose',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text('Equilibrium Score',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('Result',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
@@ -210,22 +209,22 @@ class CtsibPDF extends PDF {
             TableRow(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text((i + 1).toString(),
                       style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(ctsib.surface[i],
                       style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(ctsib.vision[i],
                       style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       assessment.Conditions?[i].trials?.length.toString() ??
                           "0",
@@ -233,25 +232,25 @@ class CtsibPDF extends PDF {
                       textAlign: TextAlign.center),
                 ),
                 Padding(
-                    padding: const EdgeInsets.all(3.0),
+                    padding: const EdgeInsets.all(2.0),
                     child: Text(
                         "${CTSIB.averageSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)})°",
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
-                    padding: const EdgeInsets.all(3.0),
+                    padding: const EdgeInsets.all(2.0),
                     child: Text(
                         "${CTSIB.averageSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)})°",
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
-                    padding: const EdgeInsets.all(3.0),
+                    padding: const EdgeInsets.all(2.0),
                     child: Text(
                         CTSIB.getMostFrequentClassification(assessment, i),
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
-                    padding: const EdgeInsets.all(3.0),
+                    padding: const EdgeInsets.all(2.0),
                     child: Text(
                         CTSIB
                             .getEquilibriumScores(assessment)[i]
@@ -259,7 +258,7 @@ class CtsibPDF extends PDF {
                         style: detail,
                         textAlign: TextAlign.center)),
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(1)} / 30",
                       style: detail,
@@ -271,21 +270,21 @@ class CtsibPDF extends PDF {
           TableRow(
             children: [
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('Total',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('', textAlign: TextAlign.center),
               ),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text('', textAlign: TextAlign.center),
               ),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       assessment.Conditions?.fold(0,
                                   (curr, c) => curr + (c.trials?.length ?? 0))
@@ -294,7 +293,7 @@ class CtsibPDF extends PDF {
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       "${(CTSIB.averageSwayPerCondition(assessment).fold<(
                                 double,
@@ -309,7 +308,7 @@ class CtsibPDF extends PDF {
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       "${(CTSIB.averageSwayPerCondition(assessment).fold<(
                                 double,
@@ -324,14 +323,14 @@ class CtsibPDF extends PDF {
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       CTSIB.getMostFrequentIndexAcrossAllEntries(
                           CTSIB.getPredictionTotals(assessment)),
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
-                  padding: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Text(
                       CTSIB
                           .getEquilibriumScores(assessment)
@@ -341,7 +340,7 @@ class CtsibPDF extends PDF {
                       style: detail,
                       textAlign: TextAlign.center)),
               Padding(
-                padding: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
                 child: Text(
                     "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * ctsib.conditions} seconds",
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -385,18 +384,18 @@ class CtsibPDF extends PDF {
         children: [
           TableRow(children: [
             Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(2.0),
               child:
                   Text('Test', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(2.0),
               child: Text('Ratio',
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center),
             ),
             Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(2.0),
               child: Text('Status',
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center),
@@ -505,16 +504,16 @@ class CtsibPDF extends PDF {
   TableRow _createConditionRow(String testName, double ratio, String status) {
     return TableRow(children: [
       Padding(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(2.0),
         child: Text(testName, style: detail),
       ),
       Padding(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(2.0),
         child: Text("${ratio.toStringAsFixed(2)}%",
             style: detail, textAlign: TextAlign.center),
       ),
       Padding(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(2.0),
         child: Text(status, style: detail, textAlign: TextAlign.center),
       ),
     ]);
