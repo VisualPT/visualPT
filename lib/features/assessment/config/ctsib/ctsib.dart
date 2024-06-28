@@ -250,49 +250,55 @@ class CTSIB implements BaseAssessment {
             .toList() ??
         [];
 
-    final conditionScores = validConditions.map((condition) {
-      final trialsCountAndScoreSum = condition.trials!
-          .fold<(int, double)>((0, 0.0), (trialsCountAndScoreIterator, trial) {
-        if (trial.Detections == null || trial.Detections!.isEmpty) {
-          return trialsCountAndScoreIterator;
-        }
-        final detectionCountAndScoreSum = trial.Detections!.fold<(int, double)>(
-            (0, 0.0), (detectionCountAndScoreIterator, detection) {
-          final poseOutput =
-              PoseDetectionOutput.fromString(detection.keypoints);
-          final (lat, lng) = PoseDetectionOutput.computeAngles(
-              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
-          final latProportion = lat / swayLimits[2];
-          //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
-          final lonProportion =
-              lng > 0 ? lng / swayLimits[0] : lng / swayLimits[1];
-          if (latProportion > 1 || lonProportion > 1) {
+    try {
+      final conditionScores = validConditions.map((condition) {
+        final trialsCountAndScoreSum = condition.trials!.fold<(int, double)>(
+            (0, 0.0), (trialsCountAndScoreIterator, trial) {
+          if (trial.Detections == null || trial.Detections!.isEmpty) {
+            return trialsCountAndScoreIterator;
+          }
+          final detectionCountAndScoreSum = trial.Detections!
+              .fold<(int, double)>((0, 0.0),
+                  (detectionCountAndScoreIterator, detection) {
+            final poseOutput =
+                PoseDetectionOutput.fromString(detection.keypoints);
+            final (lat, lng) = PoseDetectionOutput.computeAngles(
+                poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+            final latProportion = lat / swayLimits[2];
+            //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
+            final lonProportion =
+                lng > 0 ? lng / swayLimits[0] : lng / swayLimits[1];
+            if (latProportion > 1 || lonProportion > 1) {
+              return (
+                detectionCountAndScoreIterator.$1 + 1,
+                detectionCountAndScoreIterator.$2,
+              );
+            }
+            final proportionOfFailure =
+                sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
+            final detectionScore = 100 * (1 - proportionOfFailure);
             return (
               detectionCountAndScoreIterator.$1 + 1,
-              detectionCountAndScoreIterator.$2,
+              detectionCountAndScoreIterator.$2 + detectionScore
             );
-          }
-          final proportionOfFailure =
-              sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
-          final detectionScore = 100 * (1 - proportionOfFailure);
+          });
+          final trialScore =
+              detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
+
           return (
-            detectionCountAndScoreIterator.$1 + 1,
-            detectionCountAndScoreIterator.$2 + detectionScore
+            trialsCountAndScoreIterator.$1 + 1,
+            trialsCountAndScoreIterator.$2 + trialScore
           );
         });
-        final trialScore =
-            detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
-
-        return (
-          trialsCountAndScoreIterator.$1 + 1,
-          trialsCountAndScoreIterator.$2 + trialScore
-        );
-      });
-
-      return trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
-    }).toList();
-
-    return conditionScores;
+        final value = trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
+        return value.isNaN ? 0.0 : value;
+      }).toList();
+      return conditionScores;
+    } on Exception catch (e) {
+      print(e);
+      return List.generate(validConditions.length, (index) => 0.0,
+          growable: false);
+    }
   }
 }
 
