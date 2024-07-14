@@ -28,7 +28,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
           Text(state.meta.assessment.name, style: Styles.title),
           const Spacer(),
           Text(
-              "Criteria ${(state.meta.condition + 1).toString()} of ${state.assessment.conditions.toString()}",
+              "Condition ${(state.meta.condition + 1).toString()} of ${state.assessment.conditions.toString()}",
               style: Styles.subactionText),
           const Spacer(),
           Container(
