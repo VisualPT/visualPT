@@ -202,12 +202,12 @@ class CtsibPDF extends PDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
-    final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
-    final c3 = AssessmentUtils.getAvgDuration(assessment.Conditions?[2].trials);
-    final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
-    final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
-    final c6 = AssessmentUtils.getAvgDuration(assessment.Conditions?[5].trials);
+    final c1 = CTSIB.getEquilibriumScores(assessment)[0];
+    final c2 = CTSIB.getEquilibriumScores(assessment)[1];
+    final c3 = CTSIB.getEquilibriumScores(assessment)[2];
+    final c4 = CTSIB.getEquilibriumScores(assessment)[3];
+    final c5 = CTSIB.getEquilibriumScores(assessment)[4];
+    final c6 = CTSIB.getEquilibriumScores(assessment)[5];
 
     // Calculating ratios safely
     final somRatio = safeDivision(c2, c1);
