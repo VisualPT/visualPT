@@ -68,8 +68,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       //   }
       // });
     } catch (e) {
-      if (!isClosed && !emit.isDone)
+      if (!isClosed && !emit.isDone) {
         emit(AuthError(error: Exception("Failed to auto auth $e")));
+      }
     }
   }
 
