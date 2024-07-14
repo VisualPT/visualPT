@@ -142,213 +142,61 @@ class CtsibPDF extends PDF {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
-          text: TextSpan(text: "Assessment Information", style: subHeader)),
-      Table(
-        border: TableBorder.all(color: black),
-        columnWidths: {
-          for (var item in List.generate(8, (index) => index))
-            item: const IntrinsicColumnWidth()
-        },
-        children: [
-          // Create table header
-          TableRow(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('#',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
+          text: TextSpan(text: "Assessment Score", style: subHeader)),
+      Container(
+        padding: const EdgeInsets.only(top: 10),
+        height: 200,
+        child: Chart(
+          grid: CartesianGrid(
+            xAxis: FixedAxis.fromStrings(
+              List.generate(
+                ((assessment.Conditions?.length ?? 0) + 1),
+                (i) => (assessment.Conditions?.length ?? 0) != i
+                    ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
+                    : 'Total',
               ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('Surface',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('Vision',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('Trials',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text('Avg Lat Sway (Max)',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text('Avg Lon Sway (Max)',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text('Leading Pose',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text('Equilibrium Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('Result',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-            ],
-          ),
-          for (int i = 0; i < (assessment.Conditions?.length ?? 1); i++)
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text((i + 1).toString(),
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(ctsib.surface[i],
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(ctsib.vision[i],
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      assessment.Conditions?[i].trials?.length.toString() ??
-                          "0",
-                      style: detail,
-                      textAlign: TextAlign.center),
-                ),
-                Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)})°",
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)})°",
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Text(
-                        CTSIB.getMostFrequentClassification(assessment, i),
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Text(
-                        CTSIB
-                            .getEquilibriumScores(assessment)[i]
-                            .toStringAsFixed(2),
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(1)} / 30",
-                      style: detail,
-                      textAlign: TextAlign.center),
-                ),
-              ],
+              textStyle: const TextStyle(fontSize: 10),
+              marginStart: 30,
+              marginEnd: 30,
             ),
-          // Create a table row for the total duration score
-          TableRow(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('Total',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text('', textAlign: TextAlign.center),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      assessment.Conditions?.fold(0,
-                                  (curr, c) => curr + (c.trials?.length ?? 0))
-                              .toString() ??
-                          '',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
-                                double,
-                                double
-                              )>((
-                                0.0,
-                                0.0
-                              ), (avg, sway) => (
-                                avg.$1 + sway.$1,
-                                avg.$2 + sway.$2
-                              )).$1 / ctsib.conditions).toStringAsFixed(2)}°",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
-                                double,
-                                double
-                              )>((
-                                0.0,
-                                0.0
-                              ), (avg, sway) => (
-                                avg.$1 + sway.$1,
-                                avg.$2 + sway.$2
-                              )).$2 / ctsib.conditions).toStringAsFixed(2)}°",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      CTSIB.getMostFrequentIndexAcrossAllEntries(
-                          CTSIB.getPredictionTotals(assessment)),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                      CTSIB
-                          .getEquilibriumScores(assessment)
-                          .fold<double>(
-                              0.0, (prevScore, score) => prevScore + score)
-                          .toStringAsFixed(1),
-                      style: detail,
-                      textAlign: TextAlign.center)),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text(
-                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * ctsib.conditions} seconds",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-            ],
+            yAxis: FixedAxis([0, 20, 40, 60, 80, 100],
+                format: (v) => '$v', marginStart: 5),
           ),
-        ],
+          datasets:
+              List.generate(((assessment.Conditions?.length ?? 0) + 1), (i) {
+            if ((assessment.Conditions?.length ?? 0) != i) {
+              final condition = assessment.Conditions?[i];
+              return BarDataSet(
+                legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
+                color: PdfColors.blue,
+                data: List.generate(
+                  condition?.trials?.length ?? 0,
+                  (j) => PointChartValue(
+                    (i).toDouble(),
+                    CTSIB.getEquilibriumScores(assessment)[i],
+                  ),
+                ),
+                buildValue: (context, point) => Text(point.y.toStringAsFixed(2),
+                    style: const TextStyle(fontSize: 10)),
+                valuePosition: ValuePosition.auto,
+              );
+            }
+            return BarDataSet(
+                legend: '#${i + 1}',
+                color: PdfColors.blue,
+                data: [
+                  PointChartValue(
+                    (i).toDouble(),
+                    CTSIB.getEquilibriumScores(assessment).fold<double>(
+                            0.0, (prevScore, score) => prevScore + score) /
+                        i,
+                  )
+                ],
+                buildValue: (context, point) => Text(point.y.toStringAsFixed(2),
+                    style: const TextStyle(fontSize: 10)),
+                valuePosition: ValuePosition.auto);
+          }),
+        ),
       ),
     ]);
   }
@@ -377,8 +225,7 @@ class CtsibPDF extends PDF {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
-          text:
-              TextSpan(text: "Condition Ratio Information", style: subHeader)),
+          text: TextSpan(text: "Condition Ratios", style: subHeader)),
       Table(
         border: TableBorder.all(color: black),
         children: [
@@ -526,20 +373,16 @@ String getNormativeMessage(double totalDuration, TemporalDate dob) {
   int percent =
       (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100).round();
 
-  if (percent.abs() > 10) {
-    return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
-  } else {
-    return "Patient is within 10% of normative data, which has a mean of $norm seconds";
-  }
+  return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
 }
 
 String determineStatus(double ratio) {
   if (ratio == 0.0) {
     return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
   } else if (ratio < 99) {
-    return "Dysfunctional"; // System is dysfunctional if the ratio is less than 1
+    return "Dysfunctional"; // Patient is dysfunctional if the ratio is less than 1
   } else {
-    return "Functional"; // System is considered functional otherwise
+    return "Functional"; // Patient is considered functional otherwise
   }
 }
 

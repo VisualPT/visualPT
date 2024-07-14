@@ -262,20 +262,22 @@ class CTSIB implements BaseAssessment {
                   (detectionCountAndScoreIterator, detection) {
             final poseOutput =
                 PoseDetectionOutput.fromString(detection.keypoints);
-            final (lat, lng) = PoseDetectionOutput.computeAngles(
+            final (xSway, zSway) = PoseDetectionOutput.computeAngles(
                 poseOutput.map((e) => (e[0], e[1], e[2])).toList());
-            final latProportion = lat / swayLimits[2];
+            final latProportion = xSway / swayLimits[2];
             //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
-            final lonProportion =
-                lng > 0 ? lng / swayLimits[0] : lng / swayLimits[1];
-            if (latProportion > 1 || lonProportion > 1) {
+            // final lonProportion =
+            //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
+            //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
+            // A new pose detection model should be trained to fix this
+            if (latProportion > 1 /* || lonProportion > 1*/) {
               return (
                 detectionCountAndScoreIterator.$1 + 1,
                 detectionCountAndScoreIterator.$2,
               );
             }
-            final proportionOfFailure =
-                sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
+            final proportionOfFailure = latProportion;
+            //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
             final detectionScore = 100 * (1 - proportionOfFailure);
             return (
               detectionCountAndScoreIterator.$1 + 1,
