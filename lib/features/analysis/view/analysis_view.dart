@@ -58,7 +58,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 onPressed: () {
                   //TODO Add an are you sure popup
                   BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(asmtState.subject, reset: true));
+                      .add(AssessmentInit(asmtState.subject));
                 },
                 child: const Text("Redo Assessment",
                     style: TextStyle(color: Styles.black)),
