@@ -22,6 +22,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
           key: UniqueKey(),
           state.meta,
           state.assessment.conditions,
+          state.assessment.trialDuration,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onStopped: stoppedVideo,

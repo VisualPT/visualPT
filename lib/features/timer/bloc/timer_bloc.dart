@@ -9,20 +9,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'timer_event.dart';
 part 'timer_state.dart';
 
-//TODO This could change depending on the test, may need to specify this when creating the bloc in the future
 const Duration _minDuration = Duration(seconds: 0);
-const Duration _maxDuration = Duration(seconds: 30);
 
 //TODO: This would probbaly perform better if it was just a start time and the difference from that start time
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
-  TimerBloc()
-      : _ticker = const Ticker(),
+  TimerBloc({required this.duration})
+      : _ticker = Ticker(duration: duration),
         super(const TimerInitial(_minDuration)) {
     on<TimerStarted>(_onStarted);
     on<TimerReset>(_onReset);
     on<_TimerTicked>(_onTicked, transformer: droppable());
   }
 
+  final Duration duration;
   final Ticker _ticker;
   StreamSubscription<Duration>? _tickerSubscription;
 
@@ -47,7 +46,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
   void _onTicked(_TimerTicked event, Emitter<TimerState> emit) {
     emit(
-      event.duration < _maxDuration
+      event.duration < duration
           ? TimerRunInProgress(event.duration)
           : const TimerRunComplete(),
     );
@@ -57,13 +56,14 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 //Stream class that powers the entire BLOC
 class Ticker {
   static const increment = 10;
-  const Ticker();
+  final Duration duration;
+  const Ticker({required this.duration});
   Stream<Duration> tick() {
     return Stream.periodic(
       const Duration(milliseconds: increment),
       (x) => Duration(milliseconds: increment * x),
     ).takeWhile(
-      (duration) => duration <= _maxDuration,
+      (d) => d <= duration,
     );
   }
 }

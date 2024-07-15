@@ -27,6 +27,9 @@ class BERG implements BaseAssessment {
   int get trials => 1;
 
   @override
+  int get trialDuration => 30;
+
+  @override
   List<String> get conditionNames => [
         "Standing Unsupported with Feet Together",
         "Standing on One Leg",

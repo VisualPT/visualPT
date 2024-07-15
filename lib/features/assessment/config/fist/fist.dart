@@ -26,6 +26,9 @@ class FIST implements BaseAssessment {
   int get trials => 1;
 
   @override
+  int get trialDuration => 30;
+
+  @override
   List<String> get conditionNames => ["Sitting"];
 
   @override

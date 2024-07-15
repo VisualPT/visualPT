@@ -3,9 +3,9 @@ import 'package:visualpt/features/inference/constants/model_file.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
 
-class CTSIB_COLLECT implements BaseAssessment {
+class CTSIBCOLLECT implements BaseAssessment {
   @override
-  AssessmentType get type => AssessmentType.CTSIB_COLLECT;
+  AssessmentType get type => AssessmentType.CTSIBCOLLECT;
 
   @override
   String get name =>
@@ -26,6 +26,9 @@ class CTSIB_COLLECT implements BaseAssessment {
 
   @override
   int get trials => 3;
+
+  @override
+  int get trialDuration => 30;
 
   @override
   List<String> get conditionNames => [

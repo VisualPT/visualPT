@@ -13,6 +13,7 @@ abstract class BaseAssessment {
 
   int get conditions;
   int get trials;
+  int get trialDuration;
   List<String> get conditionNames;
   List<List<String>> get conditionInstructions;
   List<List<InferenceType>> get conditionInference;

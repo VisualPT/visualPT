@@ -27,6 +27,9 @@ class MCTSIB implements BaseAssessment {
   int get trials => 1;
 
   @override
+  int get trialDuration => 30;
+
+  @override
   List<String> get conditionNames => [
         "Eyes Open, Firm Surface",
         "Eyes Closed, Firm Surface",

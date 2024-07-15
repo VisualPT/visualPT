@@ -16,6 +16,7 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 class VideoPresenter extends StatelessWidget {
   final AssessmentMeta meta;
   final int address;
+  final int durationSeconds;
   final Widget Function(BuildContext context, VideoRecording state) onRecording;
   final Widget Function(BuildContext context, VideoStandby state) onStandby;
   final Widget Function(BuildContext context, VideoStopped state) onStopped;
@@ -24,7 +25,8 @@ class VideoPresenter extends StatelessWidget {
       onError;
   const VideoPresenter(
     this.meta,
-    this.address, {
+    this.address,
+    this.durationSeconds, {
     super.key,
     required this.onRecording,
     required this.onStandby,
@@ -56,7 +58,8 @@ class VideoPresenter extends StatelessWidget {
               ..add(const VideoInit()),
           ),
           BlocProvider(
-            create: (context) => TimerBloc(),
+            create: (context) =>
+                TimerBloc(duration: Duration(seconds: durationSeconds)),
           ),
           BlocProvider(
             lazy: false,

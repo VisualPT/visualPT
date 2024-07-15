@@ -41,7 +41,8 @@ class BackendBloc extends Bloc<BackendEvent, BackendState> {
 
   //TOOD: put this somewhere better
   void backendLoading() {
-    StreamSubscription<Duration> timer = const Ticker().tick().listen((_) {});
+    StreamSubscription<Duration> timer =
+        const Ticker(duration: Duration(seconds: 30)).tick().listen((_) {});
     timer.onData((data) {
       if (state is BackendOnline) {
         log("Ending timeout timer");
