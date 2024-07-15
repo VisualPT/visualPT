@@ -15,6 +15,9 @@ enum Gender {
 
 enum AssessmentType {
   CTSIB
+  MCTSIB
+  CTSIBCOLLECT
+  CTSIBDEMO
   GAIT
   BERG
   REACH

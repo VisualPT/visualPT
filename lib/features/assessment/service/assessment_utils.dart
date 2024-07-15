@@ -1,6 +1,7 @@
 import 'package:visualpt/features/assessment/config/berg/berg.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 import 'package:visualpt/features/assessment/config/ctsib_collect/ctsib_collect.dart';
+import 'package:visualpt/features/assessment/config/ctsib_demo/ctsib.dart';
 import 'package:visualpt/features/assessment/config/fist/fist.dart';
 import 'package:visualpt/features/assessment/config/gait/gait.dart';
 import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
@@ -21,8 +22,10 @@ class AssessmentUtils {
         return AssessmentView(CTSIB());
       case AssessmentType.MCTSIB:
         return AssessmentView(MCTSIB());
-      case AssessmentType.CTSIB_COLLECT:
-        return AssessmentView(CTSIB_COLLECT());
+      case AssessmentType.CTSIBCOLLECT:
+        return AssessmentView(CTSIBCOLLECT());
+      case AssessmentType.CTSIBDEMO:
+        return AssessmentView(CTSIBDEMO());
       case AssessmentType.BERG:
         return AssessmentView(BERG());
       case AssessmentType.GAIT:
