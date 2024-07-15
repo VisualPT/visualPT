@@ -33,7 +33,7 @@ class VideoStandby extends VideoState {
 }
 
 class VideoStopped extends VideoState {
-  final XFile file;
+  final XFile? file;
   final Duration videoDuration;
   const VideoStopped(this.file, this.videoDuration)
       : super(CupertinoIcons.stop);

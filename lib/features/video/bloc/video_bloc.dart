@@ -93,7 +93,9 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       print("There is no start time to label the video.");
     } else {
       videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
-      if (controller != null && controller!.value.isStreamingImages) {
+      if (controller != null &&
+          (controller!.value.isStreamingImages ||
+              controller!.value.isRecordingVideo)) {
         if (event.reset) {
           emit(VideoStandby(controller!));
         }
@@ -103,6 +105,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         emit(VideoStopped(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+        emit(VideoStopped(null, videoDuration));
       }
       emit(const VideoLoading());
       controller!.dispose();
