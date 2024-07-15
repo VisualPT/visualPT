@@ -6,7 +6,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
 
 class CtsibCollectPDF extends PDF {
-  final ctsib = CTSIB_COLLECT();
+  final ctsib = CTSIBCOLLECT();
   @override
   Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
