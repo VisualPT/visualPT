@@ -5,9 +5,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/config/ctsib_demo/pdf.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/ctsib_collect/pdf.dart';
 import 'package:visualpt/features/assessment/config/mctsib/pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/pdf.dart';
 import 'package:visualpt/features/assessment/config/gait/pdf.dart';
@@ -33,11 +31,6 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
         break;
       case AssessmentType.MCTSIB:
         document = MctsibPDF();
-        break;
-      case AssessmentType.CTSIBCOLLECT:
-        document = CtsibCollectPDF();
-      case AssessmentType.CTSIBDEMO:
-        document = CtsibDemoPDF();
         break;
       default:
     }
