@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/utils/amplify_utils.dart';
 import 'package:visualpt/core/utils/math_utils.dart';
+import 'package:visualpt/core/views/styles.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
@@ -153,14 +154,19 @@ class CtsibPDF extends PDF {
                 ((assessment.Conditions?.length ?? 0) + 1),
                 (i) => (assessment.Conditions?.length ?? 0) != i
                     ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
-                    : 'Total',
+                    : 'Cumulative',
               ),
               textStyle: const TextStyle(fontSize: 10),
               marginStart: 30,
               marginEnd: 30,
             ),
-            yAxis: FixedAxis([0, 20, 40, 60, 80, 100],
-                format: (v) => '$v', marginStart: 5),
+            yAxis: FixedAxis(
+              [0, 25, 50, 75, 100],
+              format: (v) => '$v',
+              marginStart: 5,
+              divisions: true,
+              divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
+            ),
           ),
           datasets:
               List.generate(((assessment.Conditions?.length ?? 0) + 1), (i) {
@@ -196,6 +202,7 @@ class CtsibPDF extends PDF {
                     style: const TextStyle(fontSize: 10)),
                 valuePosition: ValuePosition.auto);
           }),
+          //Lne at 75% to indicate the threshold for fall risk
         ),
       ),
     ]);
