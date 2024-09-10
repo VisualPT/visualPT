@@ -13,6 +13,16 @@ enum Gender {
   FEMALE
 }
 
+enum AgeRange {
+  BABY # 0 to 5
+  CHILD # 6 to 12
+  ADOLESCENT # 13 to 17
+  YOUNG_ADULT # 18 to 39
+  MIDDLE_ADULT # 40 to 64
+  OLDER_ADULT # 65 to 79
+  ELDERLY # 80+
+}
+
 enum AssessmentType {
   CTSIB
   MCTSIB
@@ -68,6 +78,16 @@ type Trial @model @auth(rules: [{ allow: owner }]) {
   start_time: AWSDateTime!
   duration: Float! #seconds
   Detections: [Detection!]
+}
+
+type Norms @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  type: AssessmentType!
+  sequenceNumber: Int!
+  age_range: AgeRange!
+  gender: Gender!
+  score_sum: Float!
+  trial_sum: Int!
 }
 
 type Detection {
