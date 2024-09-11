@@ -30,7 +30,7 @@ class CTSIB implements BaseAssessment {
   int get trials => 1;
 
   @override
-  int get trialDuration => 30;
+  int get trialDuration => 20;
 
   @override
   List<String> get conditionNames => [
