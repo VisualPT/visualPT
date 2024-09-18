@@ -34,7 +34,9 @@ enum AssessmentType {
   FIST
 }
 
-type User @model @auth(rules: [{ allow: public }]) {
+type User
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   email: AWSEmail!
   first_name: String!
@@ -43,7 +45,9 @@ type User @model @auth(rules: [{ allow: public }]) {
   Subjects: [Subject!] @hasMany(indexName: "byUser", fields: ["id"])
 }
 
-type Subject @model @auth(rules: [{ allow: owner }]) {
+type Subject
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   userID: ID! @index(name: "byUser")
   first_name: String!
@@ -56,7 +60,9 @@ type Subject @model @auth(rules: [{ allow: owner }]) {
   Assessments: [Assessment!] @hasMany(indexName: "bySubject", fields: ["id"])
 }
 
-type Assessment @model @auth(rules: [{ allow: owner }]) {
+type Assessment
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   subjectID: ID! @index(name: "bySubject")
   type: AssessmentType!
@@ -66,7 +72,9 @@ type Assessment @model @auth(rules: [{ allow: owner }]) {
   Conditions: [Condition!] @hasMany(indexName: "byAssessment", fields: ["id"])
 }
 
-type Condition @model @auth(rules: [{ allow: owner }]) {
+type Condition
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   assessmentID: ID! @index(name: "byAssessment")
   sequenceNumber: Int!
@@ -74,7 +82,9 @@ type Condition @model @auth(rules: [{ allow: owner }]) {
   trials: [Trial!] @hasMany(indexName: "byCondition", fields: ["id"])
 }
 
-type Trial @model @auth(rules: [{ allow: owner }]) {
+type Trial
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   conditionID: ID! @index(name: "byCondition")
   start_time: AWSDateTime!
