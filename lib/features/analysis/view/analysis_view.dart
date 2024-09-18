@@ -9,7 +9,6 @@ import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
-import 'package:visualpt/features/video/service/video_service.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/service/assessment_service.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -17,8 +16,9 @@ import 'package:visualpt/core/views/components/_components.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentAnalysis<T> asmtState;
+  final BaseAssessment assessmentMeta;
 
-  const AnalysisView(this.asmtState, {super.key});
+  const AnalysisView(this.asmtState, this.assessmentMeta, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +57,8 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 color: Styles.actionSecondary,
                 onPressed: () {
                   //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(asmtState.subject));
+                  BlocProvider.of<AssessmentBloc>(context).add(
+                      AssessmentInit(asmtState.subject, asmtState.storeData));
                 },
                 child: const Text("Redo Assessment",
                     style: TextStyle(color: Styles.black)),
@@ -110,27 +110,32 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
 
   ///The button that initates the email post
   ///Saves the PDF and stores assessment by default
-  Future<void> onSend(
+  void onSend(
     BuildContext context,
     Subject subject,
     Assessment assessment,
     Uint8List pdf,
-  ) async {
-    final videos = await VideoService.getVideosInBase64(assessment);
+  ) {
     appDialog(
         context: context,
-        title: "Save and Send",
-        content: "Email will be sent to: ${subject.provider_contact}",
+        title: asmtState.storeData ? "Save and Send" : "Home",
+        content: asmtState.storeData
+            ? "This will assume the data is valid and change the age-group norm table with the data from this assessment. Email will be sent to: ${subject.provider_contact}"
+            : "This data was indicated as a test and will not be saved. Are you sure you want to go back?",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
+          if (asmtState.storeData) {
+          updateNorms(assessmentMeta, assessment, subject);
           assessment = AssessmentService().addPDF(assessment, pdf);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               subject: subject,
               assessment: assessment,
-              videos: videos,
               onSuccess: () => AppNav(context).setHome(),
               onFail: () => log("Email failed")));
           //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
+          } else {
+            AppNav(context).setHome();
+          }
         });
   }
 }

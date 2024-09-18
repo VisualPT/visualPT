@@ -20,6 +20,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         const ViewBackground(),
         VideoPresenter(
           key: UniqueKey(),
+          state.storeData,
           state.meta,
           state.assessment.conditions,
           state.assessment.trialDuration,

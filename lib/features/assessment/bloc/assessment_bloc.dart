@@ -48,7 +48,7 @@ class AssessmentBloc<T extends BaseAssessment>
         trials: null);
     // amplify.Amplify.DataStore.save(currentCondition!);
     emit(AssessmentActive<T>(
-        getMeta(subject, config, 0, 0), subject, storeData, this.config));
+        getMeta(subject, config, 0, 0), subject, event.storeData, this.config));
   }
 
   FutureOr<void> _onCondition(

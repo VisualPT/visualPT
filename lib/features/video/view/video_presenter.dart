@@ -14,6 +14,7 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
+  final bool storeData;
   final AssessmentMeta meta;
   final int address;
   final int durationSeconds;
@@ -24,6 +25,7 @@ class VideoPresenter extends StatelessWidget {
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
   const VideoPresenter(
+    this.storeData,
     this.meta,
     this.address,
     this.durationSeconds, {
@@ -41,10 +43,11 @@ class VideoPresenter extends StatelessWidget {
       providers: [
         RepositoryProvider(
           create: (context) => VideoDetectionRepository(
-              meta,
-              (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-                  .user
-                  .email),
+            meta,
+            (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
+                .user
+                .email,
+          ),
         ),
         RepositoryProvider(
           create: (context) => DetectionClassificationRepository(meta),
@@ -68,7 +71,8 @@ class VideoPresenter extends StatelessWidget {
                   RepositoryProvider.of<VideoDetectionRepository>(context),
                   RepositoryProvider.of<DetectionClassificationRepository>(
                       context),
-                  VPTDetectionRate)
+                  VPTDetectionRate,
+                  storeData)
                 ..add(InferenceInit("init", address));
             },
           ),
@@ -80,7 +84,8 @@ class VideoPresenter extends StatelessWidget {
                   RepositoryProvider.of<DetectionClassificationRepository>(
                       context),
                   null,
-                  VPTClassificationRate)
+                  VPTClassificationRate,
+                  storeData)
                 ..add(InferenceInit("init", address));
             },
           )

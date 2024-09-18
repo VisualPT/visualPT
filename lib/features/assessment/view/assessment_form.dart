@@ -64,16 +64,17 @@ class _AssessmentFormState extends State<AssessmentForm> {
       final user = BlocProvider.of<AuthBloc>(context).state.user as User;
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
-        BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-            FormHelper.createSubject(
-                user.id,
-                firstNameController.text,
-                lastNameController.text,
-                dobController.text,
-                genderController.text,
-                heightController.text,
-                user.email,
-                fallHistoryController.text)));
+        final subject = FormHelper.createSubject(
+            user.id,
+            firstNameController.text,
+            lastNameController.text,
+            dobController.text,
+            genderController.text,
+            heightController.text,
+            user.email,
+            fallHistoryController.text);
+        BlocProvider.of<AssessmentBloc>(context)
+            .add(AssessmentInit(subject, storeData));
       }
     } catch (e) {
       print(e);
@@ -137,29 +138,29 @@ class _AssessmentFormState extends State<AssessmentForm> {
                     controller: fallHistoryController,
                     inputPopup: fallHistoryPopup,
                   ),
-                  // Container(
-                  //     alignment: Alignment.center,
-                  //     margin: const EdgeInsets.symmetric(
-                  //         vertical: 8.0, horizontal: 20.0),
-                  //     padding: const EdgeInsets.all(2.0),
-                  //     decoration: const BoxDecoration(
-                  //         color: Styles.white,
-                  //         borderRadius: Styles.borderRadiusM),
-                  //     child: Row(
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           Text(
-                  //             "Store Data",
-                  //           ),
-                  //           CupertinoSwitch(
-                  //               value: storeData,
-                  //               onChanged: (bool value) {
-                  //                 setState(() {
-                  //                   storeData = value;
-                  //                 });
-                  //               }),
-                  //         ])),
+                  Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 20.0),
+                      padding: const EdgeInsets.all(2.0),
+                      decoration: const BoxDecoration(
+                          color: Styles.white,
+                          borderRadius: Styles.borderRadiusM),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              "Store Data",
+                            ),
+                            CupertinoSwitch(
+                                value: storeData,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    storeData = value;
+                                  });
+                                }),
+                          ])),
                   CupertinoButton(
                       onPressed: handleAutofill,
                       child: const Text("Autofill",

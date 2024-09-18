@@ -1,13 +1,12 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
+import 'package:visualpt/features/assessment/config/berg/berg.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/config/_pdf.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
-class CtsibPDF extends PDF {
-  final baseAssessment = CTSIB();
+class BergPDF extends PDF {
+  final berg = BERG();
   @override
   Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
@@ -202,7 +201,7 @@ class CtsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(baseAssessment.conditionNames[i]),
+                  child: Text(berg.conditionNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -226,7 +225,7 @@ class CtsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * baseAssessment.conditions} seconds",
+                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * berg.conditions} seconds",
                 ),
               ),
             ],
@@ -265,18 +264,14 @@ class CtsibPDF extends PDF {
   }
 
 //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Subject subject, Assessment assessment) {
+  Widget normativeData(Assessment assessment, List<Norm>? norms) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
       RichText(
           text: TextSpan(
-              text: getNormativeMessage(
-                  assessment.Conditions!
-                      .map((s) => s.duration)
-                      .reduce((a, b) => a + b),
-                  subject.dob),
+              text: berg.getNormativeMessage(assessment, norms),
               style: detailBold)),
     ]);
   }
@@ -327,8 +322,4 @@ class CtsibPDF extends PDF {
       ),
     );
   }
-}
-
-String getNormativeMessage(double totalDuration, TemporalDate dob) {
-  return "TODO";
 }

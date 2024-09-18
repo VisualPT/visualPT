@@ -14,13 +14,15 @@ enum Gender {
 }
 
 enum AgeRange {
-  BABY # 0 to 5
-  CHILD # 6 to 12
-  ADOLESCENT # 13 to 17
-  YOUNG_ADULT # 18 to 39
-  MIDDLE_ADULT # 40 to 64
-  OLDER_ADULT # 65 to 79
-  ELDERLY # 80+
+  BABY_0_5
+  CHILD_6_12
+  TEEN_13_19
+  ADULT_20_39
+  ADULT_40_64
+  SENIOR_65_69
+  SENIOR_70_79
+  SENIOR_80_84
+  SENIOR_85_89
 }
 
 enum AssessmentType {
@@ -80,7 +82,7 @@ type Trial @model @auth(rules: [{ allow: owner }]) {
   Detections: [Detection!]
 }
 
-type Norms @model @auth(rules: [{ allow: public }]) {
+type Norm @model @auth(rules: [{ allow: private }]) {
   id: ID!
   type: AssessmentType!
   sequenceNumber: Int!

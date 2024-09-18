@@ -1,8 +1,6 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
 import 'package:visualpt/core/utils/math_utils.dart';
 import 'package:visualpt/core/views/styles.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
@@ -15,6 +13,8 @@ class CtsibPDF extends PDF {
   @override
   Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
+
+    final norms = await ctsib.getNorms(subject.dob, subject.gender);
 
     final pdf = Document(
         title: subject.last_name + subject.first_name + subject.dob.toString(),
@@ -38,7 +38,7 @@ class CtsibPDF extends PDF {
             Spacer(),
             conditionRatioTable(assessment),
             Spacer(),
-            normativeData(subject, assessment),
+            normativeData(assessment, norms),
             Spacer(),
             interpretationData(assessment),
             //diagnosisData(),
@@ -179,7 +179,7 @@ class CtsibPDF extends PDF {
                   condition?.trials?.length ?? 0,
                   (j) => PointChartValue(
                     (i).toDouble(),
-                    CTSIB.getEquilibriumScores(assessment)[i],
+                    ctsib.calculateScores(assessment)[i],
                   ),
                 ),
                 buildValue: (context, point) => Text(point.y.toStringAsFixed(2),
@@ -193,7 +193,7 @@ class CtsibPDF extends PDF {
                 data: [
                   PointChartValue(
                     (i).toDouble(),
-                    CTSIB.getEquilibriumScores(assessment).fold<double>(
+                    ctsib.calculateScores(assessment).fold<double>(
                             0.0, (prevScore, score) => prevScore + score) /
                         i,
                   )
@@ -209,12 +209,12 @@ class CtsibPDF extends PDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    final c1 = CTSIB.getEquilibriumScores(assessment)[0];
-    final c2 = CTSIB.getEquilibriumScores(assessment)[1];
-    final c3 = CTSIB.getEquilibriumScores(assessment)[2];
-    final c4 = CTSIB.getEquilibriumScores(assessment)[3];
-    final c5 = CTSIB.getEquilibriumScores(assessment)[4];
-    final c6 = CTSIB.getEquilibriumScores(assessment)[5];
+    final c1 = ctsib.calculateScores(assessment)[0];
+    final c2 = ctsib.calculateScores(assessment)[1];
+    final c3 = ctsib.calculateScores(assessment)[2];
+    final c4 = ctsib.calculateScores(assessment)[3];
+    final c5 = ctsib.calculateScores(assessment)[4];
+    final c6 = ctsib.calculateScores(assessment)[5];
 
     // Calculating ratios safely
     final somRatio = safeDivision(c2, c1);
@@ -268,19 +268,14 @@ class CtsibPDF extends PDF {
   }
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Subject subject, Assessment assessment) {
-    final totalDuration = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
-                (previousValue, element) => previousValue + element.duration))
-            .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
-        0.0;
+  Widget normativeData(Assessment assessment, List<Norm>? norms) {
+    final message = ctsib.getNormativeMessage(assessment, norms);
+
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(
-          text: TextSpan(
-              text: getNormativeMessage(totalDuration, subject.dob),
-              style: detail)),
+      RichText(text: TextSpan(text: message, style: detail)),
     ]);
   }
 
@@ -372,15 +367,6 @@ class CtsibPDF extends PDF {
       ),
     ]);
   }
-}
-
-String getNormativeMessage(double totalDuration, TemporalDate dob) {
-  int age = getAge(dob);
-  double norm = CTSIB.getAgeNorm(age);
-  int percent =
-      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100).round();
-
-  return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
 }
 
 String determineStatus(double ratio) {
