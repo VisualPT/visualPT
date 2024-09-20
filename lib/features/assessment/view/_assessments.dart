@@ -40,6 +40,11 @@ abstract class BaseAssessment {
   String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
     return "Default Normative Message";
   }
+
+  // Controls video recording, if returns true, the video will stop recording
+  bool isComplete(dynamic args) {
+    return false;
+  }
 }
 
 void updateNorms(

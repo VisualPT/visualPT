@@ -61,11 +61,19 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
           duration));
     }
 
+    void onPause(VideoRecording state) {
+      onComplete(state);
+    }
+
     return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
         InferenceState<DeviceCapture, PoseDetectionOutput>>(
       builder: (context, infState) {
         if (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
-            infState.response != null) {}
+            infState.response != null) {
+          if (asmt.config.isComplete(infState.response!)) {
+            onPause(state as VideoRecording);
+          }
+        }
         return LayoutBuilder(
           builder: (context, constraints) {
             return Stack(

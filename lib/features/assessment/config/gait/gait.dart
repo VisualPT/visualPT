@@ -83,6 +83,11 @@ class GAIT implements BaseAssessment {
     // TODO: implement getNormativeMessage
     throw UnimplementedError();
   }
+
+  @override
+  bool isComplete(args) {
+    return false;
+  }
 }
 
 class GaitNorms {

@@ -290,4 +290,10 @@ class MCTSIB implements BaseAssessment {
 
     return "Patients total score is $localScores. The global norm is $globalScores, which is ${percent.abs()}% of age gender norms";
   }
+
+  @override
+  bool isComplete(args) {
+    final (isFall, __) = CTSIB.poseToCtsibData(args.toString());
+    return isFall;
+  }
 }

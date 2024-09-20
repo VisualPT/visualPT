@@ -148,6 +148,7 @@ class CTSIB implements BaseAssessment {
   @override
   List<double> calculateScores(Assessment assessment) {
     //Equilibrium Score is the the proportion of the actual sway to the swayLimit, multiplied by 100, summed up and divided by the number of detections per trial, then summed across all trials and divided by the number of trials
+    //If the sway detected is greater than the sway limit, the score is 0
     final validConditions = assessment.Conditions?.where((condition) =>
                 condition.trials != null && condition.trials!.isNotEmpty)
             .toList() ??
@@ -162,30 +163,24 @@ class CTSIB implements BaseAssessment {
           }
           final detectionCountAndScoreSum = trial.Detections!
               .fold<(int, double)>((0, 0.0),
-                  (detectionCountAndScoreIterator, detection) {
-            final poseOutput =
-                PoseDetectionOutput.fromString(detection.keypoints);
-            final (xSway, zSway) = PoseDetectionOutput.computeAngles(
-                poseOutput.map((e) => (e[0], e[1], e[2])).toList());
-            final latProportion = xSway / swayLimits[2];
-            //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
-            // final lonProportion =
-            //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
-            //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
-            // A new pose detection model should be trained to fix this
-            if (latProportion > 1 /* || lonProportion > 1*/) {
+                  (detectionCountAndScore, detection) {
+            //If a fall has been registered, in other words, a detection registered and the score 0
+            if (detectionCountAndScore.$1 != 0 &&
+                detectionCountAndScore.$2 == 0) {
+              //The score remains 0
+              return detectionCountAndScore;
+            }
+            final (isFall, detectionScore) =
+                poseToCtsibData(detection.keypoints);
+
+            if (isFall) {
+              return (detectionCountAndScore.$1 + 1, 0.0);
+            } else {
               return (
-                detectionCountAndScoreIterator.$1 + 1,
-                detectionCountAndScoreIterator.$2,
+                detectionCountAndScore.$1 + 1,
+                detectionCountAndScore.$2 + detectionScore
               );
             }
-            final proportionOfFailure = latProportion;
-            //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
-            final detectionScore = 100 * (1 - proportionOfFailure);
-            return (
-              detectionCountAndScoreIterator.$1 + 1,
-              detectionCountAndScoreIterator.$2 + detectionScore
-            );
           });
           final trialScore =
               detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
@@ -219,6 +214,12 @@ class CTSIB implements BaseAssessment {
     final percent = ((localScores - globalScores) / globalScores) * 100;
 
     return "Patients total score is $localScores. The global norm is $globalScores, which is ${percent.abs()}% of age gender norms";
+  }
+
+  @override
+  bool isComplete(args) {
+    final (isFall, __) = CTSIB.poseToCtsibData(args.toString());
+    return isFall;
   }
 
   //Numbers are in m/s and start in the 6-12, then 13-19, then 20-29, 30-39... to 80+
@@ -373,6 +374,31 @@ class CTSIB implements BaseAssessment {
     });
 
     return classifications[mostFrequentIndex]?.toString() ?? "invalid";
+  }
+
+  //Returns isFall, equlibrium score
+  static (bool, double) poseToCtsibData(String keypoints) {
+    final poseOutput = PoseDetectionOutput.fromString(keypoints);
+
+    final (xSway, zSway) = PoseDetectionOutput.computeAngles(
+        poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+    final latProportion = xSway / swayLimits[2];
+    //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
+    // final lonProportion =
+    //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
+    //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
+    // A new pose detection model should be trained to fix this
+    if (latProportion > 1 /* || lonProportion > 1*/) {
+      //This indicates a fall
+      return (true, 0.0);
+    }
+    final proportionOfFailure = latProportion;
+    //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
+    final detectionScore = 100 * (1 - proportionOfFailure);
+    return (
+      false, //No fall
+      detectionScore,
+    );
   }
 }
 
