@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/video/types.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
@@ -57,12 +56,9 @@ class VideoPresenter extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (context) => VideoBloc(
-                RepositoryProvider.of<VideoDetectionRepository>(context))
+                RepositoryProvider.of<VideoDetectionRepository>(context),
+                Duration(seconds: durationSeconds))
               ..add(const VideoInit()),
-          ),
-          BlocProvider(
-            create: (context) =>
-                TimerBloc(duration: Duration(seconds: durationSeconds)),
           ),
           BlocProvider(
             lazy: false,

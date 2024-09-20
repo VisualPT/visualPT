@@ -13,6 +13,11 @@ class VideoPlay extends VideoEvent {
   const VideoPlay();
 }
 
+class VideoTick extends VideoEvent {
+  const VideoTick({required this.duration});
+  final Duration duration;
+}
+
 class VideoRestart extends VideoEvent {
   const VideoRestart();
 }

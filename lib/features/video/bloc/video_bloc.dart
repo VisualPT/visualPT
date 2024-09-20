@@ -13,14 +13,20 @@ part 'video_event.dart';
 part 'video_state.dart';
 
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  VideoBloc(this.videoDetectionRepo) : super(const VideoLoading()) {
+  VideoBloc(this.videoDetectionRepo, this.totalDuration)
+      : _ticker = Ticker(duration: totalDuration),
+        super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
+    on<VideoTick>(onTick);
     on<VideoStop>(onStop);
   }
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
   late Duration videoDuration = const Duration(seconds: 0);
+  final Duration totalDuration;
+  final Ticker _ticker;
+  StreamSubscription<Duration>? _tickerSubscription;
   amplify.TemporalDateTime? _start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
@@ -85,10 +91,21 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           gyroZ: videoDetectionRepo.currentGyro.z);
       videoDetectionRepo.add(DeviceCapture(id, image, measurements));
     });
-    emit(VideoRecording(controller!, _start!));
+    _tickerSubscription?.cancel();
+    _tickerSubscription =
+        _ticker.tick().listen((duration) => add(VideoTick(duration: duration)));
+  }
+
+  FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
+    emit(
+      event.duration < totalDuration
+          ? VideoRecording(controller!, _start!, event.duration)
+          : VideoStopped(null, totalDuration),
+    );
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
+    _tickerSubscription?.cancel();
     if (_start == null) {
       print("There is no start time to label the video.");
     } else {
@@ -128,6 +145,21 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   // Future<File> getData() async {
   // }
 }
+
+class Ticker {
+  static const increment = 10;
+  final Duration duration;
+  const Ticker({required this.duration});
+  Stream<Duration> tick() {
+    return Stream.periodic(
+      const Duration(milliseconds: increment),
+      (x) => Duration(milliseconds: increment * x),
+    ).takeWhile(
+      (d) => d <= duration,
+    );
+  }
+}
+
 
 //TODO create an onFocus state for this in the view file
 // void onFocus(TapDownDetails details, BoxConstraints constraints) {
