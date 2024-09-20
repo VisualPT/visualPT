@@ -40,7 +40,7 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
                       color: widget.color.withAlpha(128),
                       border: Border.all()),
                   child: Icon(widget.icon, size: 16, color: Styles.black)),
-              Text("${widget.type} "),
+              Text("${widget.type} ", style: Styles.heading2),
               const Spacer(),
               widget.formattedTextWidget,
             ]),

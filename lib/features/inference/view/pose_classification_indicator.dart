@@ -28,9 +28,11 @@ class PoseClassificationIndicator extends StatelessWidget {
       color: Styles.green,
       type: type,
       message: "Running",
-      formattedTextWidget: Text(state.response?.name ?? "No pose detected",
+      formattedTextWidget: Text(state.response?.name ?? "No subject",
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: state.response?.getColor())),
+              color: state.response?.getColor() ?? Styles.red,
+              fontSize: 22,
+              fontFamily: 'monospace')),
     );
   }
 

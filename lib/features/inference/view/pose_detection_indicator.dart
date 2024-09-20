@@ -62,8 +62,12 @@ class PoseDetectionIndicator extends StatelessWidget {
       type: type,
       message: "Running",
       formattedTextWidget: Text(
-          "${offsets?.degrees.toStringAsFixed(1) ?? "0.0"}°",
-          style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+          "${offsets?.degrees.toStringAsFixed(1) ?? "-.--"}°",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 22,
+              fontFamily: 'monospace')),
     );
   }
 

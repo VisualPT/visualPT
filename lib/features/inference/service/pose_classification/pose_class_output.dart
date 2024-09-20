@@ -4,9 +4,9 @@ import 'package:visualpt/features/inference/service/ai_model.dart';
 
 final Map<int, String> classifications = {
   0: "static",
-  1: "arms uncrossed",
+  1: "arms unfold",
   2: "trunk flex",
-  3: "feet separated",
+  3: "legs open",
   -1: "invalid",
 };
 
@@ -38,14 +38,14 @@ class PoseClassificationOutput extends AiModelOutput {
     switch (name) {
       case "static":
         return Styles.green;
-      case "arms uncrossed":
+      case "arms unfold":
         return Styles.yellow;
       case "trunk flex":
         return Styles.yellow;
-      case "feet separated":
+      case "legs open":
         return Styles.yellow;
       default:
-        return Styles.blue;
+        return Styles.red;
     }
   }
 
