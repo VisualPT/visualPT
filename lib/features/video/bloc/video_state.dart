@@ -34,9 +34,18 @@ class VideoStandby extends VideoState {
   List<Object?> get props => [controller];
 }
 
-class VideoStopped extends VideoState {
+class VideoPaused extends VideoState {
+  final CameraController controller;
+  const VideoPaused(this.controller, duration)
+      : super(CupertinoIcons.pause, duration);
+
+  @override
+  List<Object?> get props => [controller, duration];
+}
+
+class VideoEnded extends VideoState {
   final XFile? file;
-  const VideoStopped(this.file, Duration duration)
+  const VideoEnded(this.file, Duration duration)
       : super(CupertinoIcons.stop, duration);
 
   @override

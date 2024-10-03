@@ -45,6 +45,7 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
 
   FutureOr<void> _onStart(
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
+    inferenceRepository.reset(); //Handles the reset case
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
         add(InferenceInput(data.id, input: data, params: event.params));

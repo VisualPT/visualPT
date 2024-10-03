@@ -24,6 +24,10 @@ abstract class Repository<I, O> {
   Future<O?> runPredict(String id, I input, Map<String, dynamic>? params);
   Future<void> store(
       String id, I input, O output, Map<String, dynamic>? params);
+  void reset() {
+    localStorage.clear();
+    count = 0;
+  }
 
   void dispose() {
     _streamController.close();

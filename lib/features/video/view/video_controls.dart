@@ -30,50 +30,73 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
+    final vidDecRep = RepositoryProvider.of<VideoDetectionRepository>(context),
+        detClsRep =
+            RepositoryProvider.of<DetectionClassificationRepository>(context);
+
     void onComplete(VideoRecording state) {
-      final index = BlocProvider.of<AssessmentBloc>(context)
-              .currentCondition
-              ?.sequenceNumber ??
-          0;
+      final index = asmt.currentCondition?.sequenceNumber ?? 0;
 
       detection.add(const InferenceEnd("End"));
       classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       asmt.add(AssessmentTrial(
           AssessmentUtils.linkOutput(
-              RepositoryProvider.of<VideoDetectionRepository>(context)
-                  .localStorage,
-              RepositoryProvider.of<DetectionClassificationRepository>(context)
-                  .localStorage,
-              {
-                "index": index,
-                "obtrustion": BlocProvider.of<AssessmentBloc>(context)
-                    .config
-                    .conditionObtrusion[index],
-                "instability": BlocProvider.of<AssessmentBloc>(context)
-                    .config
-                    .conditionInstability[index]
-              }),
+              vidDecRep.localStorage, detClsRep.localStorage, {
+            "index": index,
+            "obtrustion": asmt.config.conditionObtrusion[index],
+            "instability": asmt.config.conditionInstability[index]
+          }),
           state.startTime,
           state.duration));
     }
 
     void onPause(VideoRecording state) {
-      //TODO: Add a control to pause the video, inference and timer until the user confirms their next steps
-      onComplete(state);
+      vid.add(const VideoPause());
+      detection.add(const InferenceEnd("End"));
+      classification.add(const InferenceEnd("End"));
+
+      //Show a dialog to confirm the user's next steps
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: const Text("Trial Complete"),
+              content: const Text(
+                  "Would you like to continue with the next trial or review the current trial?"),
+              actions: [
+                CupertinoDialogAction(
+                  child: const Text("Reset"),
+                  onPressed: () {
+                    vid.add(const VideoStop(reset: true));
+                    detection.add(const InferenceInit("Start", 1));
+                    classification.add(const InferenceInit("Start", 1));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                CupertinoDialogAction(
+                  child: const Text("Next"),
+                  onPressed: () {
+                    onComplete(state);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      });
     }
 
     return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
         InferenceState<DeviceCapture, PoseDetectionOutput>>(
       builder: (context, infState) {
-        if (state.duration >= Duration(seconds: asmt.config.trialDuration)) {
+        if (state.duration >= Duration(seconds: asmt.config.trialDuration) ||
+            (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
+                infState.response != null &&
+                asmt.config.isComplete(infState.response!))) {
           //Check if the duration will trigger a completed capture
-          onPause(state as VideoRecording);
-        } else if (infState
-                is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
-            infState.response != null &&
-            asmt.config.isComplete(infState.response!)) {
-          //Check if inference will trigger a completed capture
           onPause(state as VideoRecording);
         }
         return LayoutBuilder(
@@ -146,17 +169,9 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                           ),
                         )
                       ] else ...[
-                        GestureDetector(
-                          onTap: () {
-                            BlocProvider.of<VideoBloc>(context)
-                                .add(const VideoStop(reset: true));
-                          },
-                          child: const Icon(CupertinoIcons.restart,
-                              color: Styles.white, size: 40),
-                        ),
                         const Spacer(),
                         GestureDetector(
-                          onTap: () => onComplete(state as VideoRecording),
+                          onTap: () => onPause(state as VideoRecording),
                           child: const Icon(CupertinoIcons.stop,
                               color: Styles.actionPrimary, size: 100),
                         ),

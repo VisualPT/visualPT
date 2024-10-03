@@ -19,7 +19,8 @@ class VideoPresenter extends StatelessWidget {
   final int durationSeconds;
   final Widget Function(BuildContext context, VideoRecording state) onRecording;
   final Widget Function(BuildContext context, VideoStandby state) onStandby;
-  final Widget Function(BuildContext context, VideoStopped state) onStopped;
+  final Widget Function(BuildContext context, VideoPaused state) onPaused;
+  final Widget Function(BuildContext context, VideoEnded state) onEnded;
   final Widget Function(BuildContext context, VideoLoading state) onLoading;
   final Widget Function(BuildContext context, VideoState state, Exception e)
       onError;
@@ -31,7 +32,8 @@ class VideoPresenter extends StatelessWidget {
     super.key,
     required this.onRecording,
     required this.onStandby,
-    required this.onStopped,
+    required this.onPaused,
+    required this.onEnded,
     required this.onLoading,
     required this.onError,
   });
@@ -93,8 +95,10 @@ class VideoPresenter extends StatelessWidget {
                 return onStandby(context, state);
               } else if (state is VideoRecording) {
                 return onRecording(context, state);
-              } else if (state is VideoStopped) {
-                return onStopped(context, state);
+              } else if (state is VideoPaused) {
+                return onPaused(context, state);
+              } else if (state is VideoEnded) {
+                return onEnded(context, state);
               } else if (state is VideoLoading) {
                 return onLoading(context, state);
               } else {

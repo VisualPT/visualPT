@@ -18,6 +18,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
+    on<VideoPause>(onPause);
     on<VideoTick>(onTick);
     on<VideoStop>(onStop);
   }
@@ -96,11 +97,18 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         _ticker.tick().listen((duration) => add(VideoTick(duration: duration)));
   }
 
+  FutureOr<void> onPause(VideoPause event, Emitter<VideoState> emit) async {
+    //Prevent the video from adding any more resources into the repo
+    //Pause the timer
+    _tickerSubscription?.pause();
+    emit(VideoPaused(controller!, videoDuration));
+  }
+
   FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
     emit(
       event.duration < totalDuration
           ? VideoRecording(controller!, _start!, event.duration)
-          : VideoStopped(null, totalDuration),
+          : VideoEnded(null, totalDuration),
     );
   }
 
@@ -113,16 +121,17 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       if (controller != null &&
           (controller!.value.isStreamingImages ||
               controller!.value.isRecordingVideo)) {
+        final file = await controller!.stopVideoRecording();
         if (event.reset) {
           emit(VideoStandby(controller!));
+          return;
         }
-        final file = await controller!.stopVideoRecording();
         videoDetectionRepo.saveVideo(
             _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(), file);
-        emit(VideoStopped(file, videoDuration));
+        emit(VideoEnded(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
-        emit(VideoStopped(null, videoDuration));
+        emit(VideoEnded(null, videoDuration));
       }
       emit(const VideoLoading());
       controller!.dispose();

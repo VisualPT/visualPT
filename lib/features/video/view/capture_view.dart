@@ -9,7 +9,6 @@ import 'package:visualpt/features/video/view/video_presenter.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
-//TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentActive<T> state;
   const CaptureView(this.state, {super.key});
@@ -26,7 +25,8 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
           state.assessment.trialDuration,
           onRecording: showingVideo,
           onStandby: showingVideo,
-          onStopped: stoppedVideo,
+          onPaused: showingVideo,
+          onEnded: endedVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
         ),
@@ -62,7 +62,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
     return const Center(child: AppLoading(message: "Video Stream Loading"));
   }
 
-  Widget stoppedVideo(BuildContext context, VideoStopped state) {
+  Widget endedVideo(BuildContext context, VideoEnded state) {
     final vid = BlocProvider.of<VideoBloc>(context);
     return Center(
       child: Column(
