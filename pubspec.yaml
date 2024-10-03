@@ -49,7 +49,7 @@ dependencies:
   image: ^4.1.6
   intl: ^0.19.0
   path_provider: ^2.1.2
-  pdf: ^3.10.8
+  pdf: ^3.11.1
   pdf_widget_wrapper: ^1.0.4 # This is for a build error on 1.0.3, when the dependent package has an available update, this can be removed
   printing: ^5.12.0
   scidart: ^0.0.2-dev.12
