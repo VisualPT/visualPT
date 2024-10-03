@@ -52,7 +52,7 @@ class PoseDetectionIndicator extends StatelessWidget {
             state.response!.landmarks.sublist(0, 34), const Size(256, 256))
         : null;
     final color = offsets != null
-        ? offsets.degrees.abs() < MAX_SWAY_ANGLE
+        ? offsets.degrees.abs() < MAX_SWAY_ANGLE / 2
             ? Styles.green
             : Styles.yellow
         : Styles.red;
