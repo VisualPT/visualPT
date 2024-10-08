@@ -33,6 +33,8 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
         document = MctsibPDF();
         break;
       default:
+        throw Exception(
+            'Invalid Assessment Type, Cannot Generate PDF for ${event.assessment.type}');
     }
     try {
       await document
@@ -45,10 +47,11 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
             assessment: event.assessment));
       });
     } on Exception catch (error) {
+      log(error.toString(), name: 'PDF Error');
       emit(PdfError(exception: error));
     } catch (e, stackTrace) {
-      emit(PdfError(exception: Exception(e.toString())));
       log(e.toString(), stackTrace: stackTrace, name: 'PDF Error');
+      emit(PdfError(exception: Exception(e.toString())));
     }
   }
 

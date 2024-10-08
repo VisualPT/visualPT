@@ -39,13 +39,20 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: PDFView(
-              key: Key(state.pdfData.hashCode.toString()),
+              // key: Key(state.pdfData.hashCode.toString()),
               pdfData: state.pdfData,
               enableSwipe: false,
               pageFling: false,
-              onError: (error) => print("PDFView Error: $error"),
-              onPageError: (page, error) =>
-                  print("PDFView Error: $page $error"),
+              onError: (error) => {
+                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                        subject: asmtState.subject,
+                        assessment: asmtState.dbAssessment))
+                  },
+              onPageError: (page, error) => {
+                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                        subject: asmtState.subject,
+                        assessment: asmtState.dbAssessment))
+                  },
               pageSnap: false),
         ),
         Padding(
@@ -125,14 +132,14 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
           if (asmtState.storeData) {
-          updateNorms(assessmentMeta, assessment, subject);
-          assessment = AssessmentService().addPDF(assessment, pdf);
-          BlocProvider.of<EmailBloc>(context).add(EmailSend(
-              subject: subject,
-              assessment: assessment,
-              onSuccess: () => AppNav(context).setHome(),
-              onFail: () => log("Email failed")));
-          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
+            updateNorms(assessmentMeta, assessment, subject);
+            assessment = AssessmentService().addPDF(assessment, pdf);
+            BlocProvider.of<EmailBloc>(context).add(EmailSend(
+                subject: subject,
+                assessment: assessment,
+                onSuccess: () => AppNav(context).setHome(),
+                onFail: () => log("Email failed")));
+            //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
           } else {
             AppNav(context).setHome();
           }
