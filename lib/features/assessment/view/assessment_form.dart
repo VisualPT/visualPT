@@ -138,29 +138,26 @@ class _AssessmentFormState extends State<AssessmentForm> {
                     controller: fallHistoryController,
                     inputPopup: fallHistoryPopup,
                   ),
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        storeData = !storeData;
+                      });
+                    },
+                    child: Container(
                       alignment: Alignment.center,
                       margin: const EdgeInsets.symmetric(
                           vertical: 8.0, horizontal: 20.0),
-                      padding: const EdgeInsets.all(2.0),
-                      decoration: const BoxDecoration(
-                          color: Styles.white,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                          color: storeData ? Styles.blue : Styles.gray,
                           borderRadius: Styles.borderRadiusM),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              "Store Data",
-                            ),
-                            CupertinoSwitch(
-                                value: storeData,
-                                onChanged: (bool value) {
-                                  setState(() {
-                                    storeData = value;
-                                  });
-                                }),
-                          ])),
+                      child: const Text(
+                        "Store Data",
+                        style: Styles.placeholderStyle,
+                      ),
+                    ),
+                  ),
                   CupertinoButton(
                       onPressed: handleAutofill,
                       child: const Text("Autofill",
