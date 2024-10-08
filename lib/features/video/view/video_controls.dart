@@ -169,7 +169,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                           ),
                         )
                       ] else ...[
-                        const Spacer(),
+                        const Spacer(flex: 2),
                         GestureDetector(
                           onTap: () => onPause(state as VideoRecording),
                           child: const Icon(CupertinoIcons.stop,
