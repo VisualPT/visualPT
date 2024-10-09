@@ -16,14 +16,13 @@ import 'package:visualpt/core/views/components/_components.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentAnalysis<T> asmtState;
-  final BaseAssessment assessmentMeta;
 
-  const AnalysisView(this.asmtState, this.assessmentMeta, {super.key});
+  const AnalysisView(this.asmtState, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.assessment.type.name} Report",
+        pageTitle: "${asmtState.meta.type.name} Report",
         child: AnalysisPresenter(
           onCreate: PdfInit(
               subject: asmtState.subject, assessment: asmtState.dbAssessment),
@@ -132,7 +131,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
           if (asmtState.storeData) {
-            updateNorms(assessmentMeta, assessment, subject);
+            updateNorms(asmtState.meta, assessment, subject);
             assessment = AssessmentService().addPDF(assessment, pdf);
             BlocProvider.of<EmailBloc>(context).add(EmailSend(
                 subject: subject,

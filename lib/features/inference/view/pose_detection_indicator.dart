@@ -60,9 +60,7 @@ class PoseDetectionIndicator extends StatelessWidget {
       icon: icon,
       color: Styles.green,
       type: type,
-      message: "Running",
-      formattedTextWidget: Text(
-          "${offsets?.degrees.toStringAsFixed(1) ?? "-.--"}°",
+      child: Text("${offsets?.degrees.toStringAsFixed(1) ?? "-.--"}°",
           style: TextStyle(
               fontWeight: FontWeight.bold,
               color: color,
@@ -74,18 +72,28 @@ class PoseDetectionIndicator extends StatelessWidget {
   Widget onStandby(BuildContext context,
       InferenceStandby<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.yellow, type: type, message: "Standby");
+        icon: icon,
+        color: Styles.yellow,
+        type: type,
+        child: Text("Standby", style: Styles.heading2));
   }
 
   Widget onLoad(BuildContext context,
       InferenceLoading<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.inactiveGray, type: type, message: "Loading");
+      icon: icon,
+      color: Styles.inactiveGray,
+      type: type,
+      child: Text("Loading", style: Styles.heading2),
+    );
   }
 
   Widget onError(BuildContext context,
       InferenceError<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.errorRed, type: type, message: "Error");
+        icon: icon,
+        color: Styles.errorRed,
+        type: type,
+        child: Text("Error", style: Styles.heading2));
   }
 }

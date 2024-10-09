@@ -53,7 +53,7 @@ class AssessmentBloc<T extends BaseAssessment>
 
   FutureOr<void> _onCondition(
       AssessmentCondition event, Emitter<AssessmentState> emit) async {
-    emit(AssessmentLoading<T>(config, assessment.Conditions?.length ?? 0));
+    emit(AssessmentLoading<T>(assessment.Conditions?.length ?? 0, config));
     currentCondition = currentCondition?.copyWith(
         duration: getElapsedSeconds(conditionStartTime));
     // amplify.Amplify.DataStore.save(currentCondition!);
@@ -155,9 +155,9 @@ double getElapsedSeconds(DateTime start) {
   return DateTime.now().difference(start).inMilliseconds / 1000;
 }
 
-AssessmentMeta getMeta(Subject subject, BaseAssessment config,
-    int conditionIndex, int trialIndex) {
-  return AssessmentMeta(
+TrialMeta getMeta(Subject subject, BaseAssessment config, int conditionIndex,
+    int trialIndex) {
+  return TrialMeta(
       subject.dob.toString(),
       subject.gender,
       subject.fall_history,

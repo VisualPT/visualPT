@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:visualpt/features/assessment/types.dart';
 
 abstract class Repository<I, O> {
-  final AssessmentMeta meta;
+  final TrialMeta meta;
   final StreamController<I> _streamController;
   var isInitialized = false;
   var count = 0;

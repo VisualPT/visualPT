@@ -33,7 +33,7 @@ class VPTDetection {
   final int imageHeight;
   final int imageWidth;
   //Clinical Meta
-  final AssessmentMeta assessmentMeta;
+  final TrialMeta assessmentMeta;
   //Detection Meta
   final DeviceMeta deviceMeta;
   final String inferredClassification;
@@ -74,7 +74,7 @@ class VPTDetection {
     final version = int.parse(lines.removeAt(0));
     final id = lines.removeAt(0);
     final imageMeta = lines.removeAt(0).split(",");
-    final assessmentMeta = AssessmentMeta.fromCSV(lines.removeAt(0));
+    final assessmentMeta = TrialMeta.fromCSV(lines.removeAt(0));
     final deviceMeta = lines.removeAt(0).split(",");
     final inferredClassification = deviceMeta.removeLast();
     final output = PoseDetectionOutput(

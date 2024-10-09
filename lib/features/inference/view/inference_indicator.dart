@@ -7,14 +7,12 @@ class InferenceIndicator extends StatefulWidget {
       required this.icon,
       required this.color,
       required this.type,
-      required this.message,
-      this.formattedTextWidget =
+      this.child =
           const Text("...", style: TextStyle(fontWeight: FontWeight.w300))});
   final IconData icon;
   final Color color;
   final String type;
-  final String message;
-  final Text formattedTextWidget;
+  final Text child;
 
   @override
   State<InferenceIndicator> createState() => _InferenceIndicatorState();
@@ -42,7 +40,7 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
                   child: Icon(widget.icon, size: 16, color: Styles.black)),
               Text("${widget.type} ", style: Styles.heading2),
               const Spacer(),
-              widget.formattedTextWidget,
+              widget.child,
             ]),
           )),
     );

@@ -20,9 +20,9 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         VideoPresenter(
           key: UniqueKey(),
           state.storeData,
-          state.meta,
-          state.assessment.conditions,
-          state.assessment.trialDuration,
+          state.trialMeta,
+          state.meta.conditions,
+          state.meta.trialDuration,
           onRecording: showingVideo,
           onStandby: showingVideo,
           onPaused: showingVideo,
@@ -69,7 +69,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         children: [
           const Text("Video Stopped"),
           CupertinoButton(
-            onPressed: () => vid.add(const VideoPlay()),
+            onPressed: () => vid.add(const VideoInit()),
             child: const Text("Restart"),
           ),
         ],

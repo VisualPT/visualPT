@@ -14,7 +14,7 @@ import 'package:visualpt/features/inference/service/pose_detection/pose_detectio
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
   final bool storeData;
-  final AssessmentMeta meta;
+  final TrialMeta meta;
   final int address;
   final int durationSeconds;
   final Widget Function(BuildContext context, VideoRecording state) onRecording;
