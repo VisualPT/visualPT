@@ -107,8 +107,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
     emit(
       event.duration < totalDuration
-          ? VideoRecording(controller!, _start!, event.duration)
-          : VideoEnded(null, totalDuration),
+          ? VideoRecording(controller!, _start!, event.duration, false)
+          : VideoRecording(controller!, _start!, totalDuration, true),
     );
   }
 

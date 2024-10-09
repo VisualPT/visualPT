@@ -4,7 +4,8 @@ part of 'video_bloc.dart';
 abstract class VideoState extends Equatable {
   final IconData icon;
   final Duration duration;
-  const VideoState(this.icon, this.duration);
+  final bool pauseFlag;
+  const VideoState(this.icon, this.duration, [this.pauseFlag = false]);
 }
 
 class VideoLoading extends VideoState {
@@ -17,18 +18,19 @@ class VideoLoading extends VideoState {
 class VideoRecording extends VideoState {
   final CameraController controller;
   final amplify.TemporalDateTime startTime;
-  VideoRecording(this.controller, this.startTime, Duration duration)
+  VideoRecording(
+      this.controller, this.startTime, Duration duration, bool pauseFlag)
       : assert(controller.value.isInitialized),
-        super(CupertinoIcons.square, duration);
+        super(CupertinoIcons.square, duration, pauseFlag);
 
   @override
-  List<Object?> get props => [controller, duration];
+  List<Object?> get props => [controller, pauseFlag, duration];
 }
 
 class VideoStandby extends VideoState {
   final CameraController controller;
-  const VideoStandby(this.controller)
-      : super(CupertinoIcons.circle, Duration.zero);
+  const VideoStandby(this.controller, {Duration? duration})
+      : super(CupertinoIcons.circle, duration ?? Duration.zero);
 
   @override
   List<Object?> get props => [controller];
@@ -36,7 +38,7 @@ class VideoStandby extends VideoState {
 
 class VideoPaused extends VideoState {
   final CameraController controller;
-  const VideoPaused(this.controller, duration)
+  const VideoPaused(this.controller, Duration duration)
       : super(CupertinoIcons.pause, duration);
 
   @override

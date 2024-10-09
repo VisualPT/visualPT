@@ -92,10 +92,12 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
     return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
         InferenceState<DeviceCapture, PoseDetectionOutput>>(
       builder: (context, infState) {
-        if (state.duration >= Duration(seconds: asmt.config.trialDuration) ||
-            (infState is InferenceRunning<DeviceCapture, PoseDetectionOutput> &&
-                infState.response != null &&
-                asmt.config.isComplete(infState.response!))) {
+        if (state.pauseFlag ||
+            (state.duration >= Duration(seconds: asmt.config.trialDuration) ||
+                (infState is InferenceRunning<DeviceCapture,
+                        PoseDetectionOutput> &&
+                    infState.response != null &&
+                    asmt.config.isComplete(infState.response!)))) {
           //Check if the duration will trigger a completed capture
           onPause(state as VideoRecording);
         }
