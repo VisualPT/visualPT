@@ -25,5 +25,6 @@ enum AssessmentType {
   GAIT,
   BERG,
   REACH,
-  FIST
+  FIST,
+  DEV
 }
