@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'dart:convert';
 
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
@@ -108,8 +109,8 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         }
         final timestampID = searchKey.split("_").last;
         //Get the image and data from the storage
-        final imageResult = await _storage.download(key: imageID).result;
-        final dataResult = await _storage.download(key: dataID).result;
+        final imageResult = await _storage.download(path: imageID).result;
+        final dataResult = await _storage.download(path: dataID).result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
         final detection = parseVersionedDetection(timestampID, dataOutput);
 
@@ -151,10 +152,9 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
       final encodedData = utf8.encode(newDetection);
 
-      _storage.remove(
-          '$type/raw/${event.key}.csv', amplify.StorageAccessLevel.guest);
-      _storage.upload(amplify.HttpPayload.bytes(encodedData),
-          '$type/valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
+      _storage.remove('$type/raw/${event.key}.csv');
+      _storage.upload(
+          S3DataPayload.bytes(encodedData), '$type/valid/${event.key}.csv');
       _storage.move(
           path: type,
           sourceKey: 'raw/${event.key}.png',

@@ -35,7 +35,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
   final BackendRepository _backendRepository;
   final AuthRepository _authRepository;
-  late GlobalKey<ShakerState> shake; //For invalid response purposes
 
   FutureOr<void> _onAuto(AuthAuto event, Emitter<AuthState> emit) async {
     //Check if the user has been logged in on app launch

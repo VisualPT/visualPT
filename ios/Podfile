@@ -40,4 +40,47 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+  # Define bitcode_strip_path using xcrun
+  bitcode_strip_path = `xcrun -sdk iphoneos --find bitcode_strip9`.chop!
+
+  # Method to strip bitcode from the specified framework
+  def strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+    framework_path = File.join(Dir.pwd, framework_relative_path)
+    command = "#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}"
+    puts "Stripping bitcode: #{command}"
+    system(command)
+  end
+
+  # List of framework paths to strip bitcode from
+  framework_paths = [
+      "Pods/ffmpeg-kit-ios-min-gpl/ffmpegkit.xcframework/ios-arm64/ffmpegkit.framework/ffmpegkit",  
+      "Pods/ffmpeg-kit-ios-min-gpl/ffmpegkit.xcframework/ios-arm64_x86_64-simulator/ffmpegkit.framework/ffmpegkit",
+      "Pods/ffmpeg-kit-ios-min-gpl/ffmpegkit.xcframework/ios-arm64_x86_64-maccatalyst/ffmpegkit.framework/ffmpegkit",
+      "Pods/ffmpeg-kit-ops-min-gpl/libavcodec.framework/ios-arm64/libavcodec.framework/libavcodec", 
+      "Pods/ffmpeg-kit-ios-min-gpl/libavcodec.xcframework/ios-arm64_x86_64-simulator/libavcodec.framework/libavcodec",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavcodec.xcframework/ios-arm64_x86_64-maccatalyst/libavcodec.framework/libavcodec",
+      "Pods/ffmpeg-kit-ops-min-gpl/libavdevice.framework/ios-arm64/libavdevice.framework/libavdevice", 
+      "Pods/ffmpeg-kit-ios-min-gpl/libavdevice.xcframework/ios-arm64_x86_64-simulator/libavdevice.framework/libavdevice",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavdevice.xcframework/ios-arm64_x86_64-maccatalyst/libavdevice.framework/libavdevice",
+      "Pods/ffmpeg-kit-ops-min-gpl/libavfilter.framework/ios-arm64/libavfilter.framework/libavfilter",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavfilter.xcframework/ios-arm64_x86_64-simulator/libavfilter.framework/libavfilter",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavfilter.xcframework/ios-arm64_x86_64-maccatalyst/libavfilter.framework/libavfilter",
+      "Pods/ffmpeg-kit-ops-min-gpl/libavformat.framework/ios-arm64/libavformat.framework/libavformat",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavformat.xcframework/ios-arm64_x86_64-simulator/libavformat.framework/libavformat",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavformat.xcframework/ios-arm64_x86_64-maccatalyst/libavformat.framework/libavformat",
+      "Pods/ffmpeg-kit-ops-min-gpl/libavutil.framework/ios-arm64/libavutil.framework/libavutil",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavutil.xcframework/ios-arm64_x86_64-simulator/libavutil.framework/libavutil",
+      "Pods/ffmpeg-kit-ios-min-gpl/libavutil.xcframework/ios-arm64_x86_64-maccatalyst/libavutil.framework/libavutil",
+      "Pods/ffmpeg-kit-ops-min-gpl/libswresample.framework/ios-arm64/libswresample.framework/libswresample",
+      "Pods/ffmpeg-kit-ios-min-gpl/libswresample.xcframework/ios-arm64_x86_64-simulator/libswresample.framework/libswresample",
+      "Pods/ffmpeg-kit-ios-min-gpl/libswresample.xcframework/ios-arm64_x86_64-maccatalyst/libswresample.framework/libswresample",
+      "Pods/ffmpeg-kit-ops-min-gpl/libswscale.framework/ios-arm64/libswscale.framework/libswscale",
+      "Pods/ffmpeg-kit-ios-min-gpl/libswscale.xcframework/ios-arm64_x86_64-simulator/libswscale.framework/libswscale",
+      "Pods/ffmpeg-kit-ios-min-gpl/libswscale.xcframework/ios-arm64_x86_64-maccatalyst/libswscale.framework/libswscale",
+  ]
+
+  # Loop through the framework paths and strip bitcode
+  framework_paths.each do |framework_relative_path|
+    strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+  end
 end

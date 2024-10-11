@@ -26,7 +26,8 @@ class BackendService {
     try {
       await Amplify.addPlugins([
         AmplifyAuthCognito(),
-        AmplifyAPI(modelProvider: ModelProvider.instance),
+        AmplifyAPI(
+            options: APIPluginOptions(modelProvider: ModelProvider.instance)),
         AmplifyDataStore(modelProvider: ModelProvider.instance),
         AmplifyStorageS3()
       ]);
