@@ -36,7 +36,7 @@ class CtsibPDF extends PDF {
             Spacer(),
             assessmentData(subject, assessment, norms),
             Spacer(),
-            conditionRatioTable(assessment),
+            sensoryMismatchData(assessment),
             Spacer(),
             normativeData(assessment, norms),
             Spacer(),
@@ -97,7 +97,7 @@ class CtsibPDF extends PDF {
                               .inDays ~/
                           365)
                       .toString(),
-                  style: detailBold), //TODO DOB to age
+                  style: detailBold),
             ]),
           ),
           RichText(
@@ -149,7 +149,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(text: "Assessment Score", style: subHeader)),
         Container(
           padding: const EdgeInsets.only(top: 10),
-          height: 300, // Increase height for better visibility
+          height: 220, // Increase height for better visibility
           child: Stack(
             children: [
               // Background chart for norm scores (gray background)
@@ -165,7 +165,7 @@ class CtsibPDF extends PDF {
                   yAxis: FixedAxis(
                     [0, 25, 50, 75, 100],
                     format: (v) => '$v',
-                    marginStart: 5,
+                    marginStart: 1,
                   ),
                 ),
                 datasets: List.generate(
@@ -179,10 +179,6 @@ class CtsibPDF extends PDF {
                           (norms?[i].score_sum ?? 0) /
                               ((norms?[i].trial_sum ?? 1)))
                     ],
-                    buildValue: (context, point) => Text(
-                        point.y.toStringAsFixed(2),
-                        style: const TextStyle(
-                            fontSize: 10, color: PdfColor(0.4, 0.4, 0.4, 0.9))),
                     valuePosition: ValuePosition.auto,
                     width: 30,
                   );
@@ -205,7 +201,7 @@ class CtsibPDF extends PDF {
                   yAxis: FixedAxis(
                     [0, 25, 50, 75, 100],
                     format: (v) => '$v',
-                    marginStart: 5,
+                    marginStart: 1,
                     divisions: true,
                     divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
                   ),
@@ -268,62 +264,218 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget conditionRatioTable(Assessment assessment) {
-    final c1 = ctsib.calculateScores(assessment)[0];
-    final c2 = ctsib.calculateScores(assessment)[1];
-    final c3 = ctsib.calculateScores(assessment)[2];
-    final c4 = ctsib.calculateScores(assessment)[3];
-    final c5 = ctsib.calculateScores(assessment)[4];
-    final c6 = ctsib.calculateScores(assessment)[5];
+  Widget sensoryMismatchData(Assessment assessment) {
+    // Function to calculate severity score based on the equilibrium score
+    List<int> calculateSeverityScore(List<double> equilibriumScore) {
+      List<int> severityScores = List.filled(equilibriumScore.length, 0);
+      for (int i = 0; i < equilibriumScore.length; i++) {
+        if (equilibriumScore[i] >= 75) {
+          severityScores[i] = 3; // 75-100 range
+        } else if (equilibriumScore[i] >= 50) {
+          severityScores[i] = 2; // 50-74 range
+        } else if (equilibriumScore[i] >= 25) {
+          severityScores[i] = 1; // 25-49 range
+        } else {
+          severityScores[i] = 0; // 0-24 range
+        }
+      }
+      return severityScores;
+    }
 
-    // Calculating ratios safely
-    final somRatio = safeDivision(c2, c1);
-    final visRatio = safeDivision(c4, c1);
-    final vestRatio = safeDivision(c5, c1);
-    final prefRatio = safeDivision((c3 + c6), (c2 + c5));
+    // Function to calculate the sensory ratio and format it as a string
+    String calculateSensoryRatio(List<int> severityScores) {
+      String c2 = severityScores[1] == 3 ? 'S' : 'V'; // Condition 2 (SOM)
+      String c3 = severityScores[2] == 3 ? 'S' : 'V'; // Condition 3 (SOM)
+      String c4 = severityScores[3] == 3 ? 'V' : 'S'; // Condition 4 (VIS)
+      String c5 = severityScores[4] == 3
+          ? 'Vest'
+          : severityScores[4] == 2
+              ? 'S'
+              : 'V';
+      String c6 = severityScores[5] == 3
+          ? 'Vest'
+          : severityScores[5] == 2
+              ? 'S'
+              : 'V';
 
-// Now you can directly pass the string representations of ratios to determineStatus
-    final somStatus = determineStatus(somRatio);
-    final visStatus = determineStatus(visRatio);
-    final vestStatus = determineStatus(vestRatio);
-    final prefStatus = determineStatus(prefRatio);
+      String sensoryString = "$c2$c3$c4$c5$c6";
+      return sensoryString;
+    }
 
-    // Creating a table to display the results
+    // Function to determine the sensory mismatch and check for Aphysio
+    // Function to determine the sensory mismatch based on sensoryString
+    String determineSensoryMismatch(String sensoryString, int compositeScore) {
+      // Direct mapping of sensoryString patterns to sensory mismatch categories
+      Map<String, String> sensoryMappings = {
+        //TODO: have a PT review these, the color codings of these actually matter
+        "VVVVV": "VVM",
+        "VVVVS": "VVM",
+        "VVVSS": "VVM",
+        "VSVSV": "VVM",
+        "VVVSV": "VVM",
+        "SVVVV": "VSVM",
+        "SSSSS": "SVM",
+        "SVSVS": "SVM",
+        "SSSSV": "SVM",
+        "VSSSS": "SVM",
+        "SVSSS": "SVM",
+        "SSSVV": "SVVM",
+        "VVSSS": "SVVM",
+        "SSVSS": "Vh-SOM",
+        "SSVSV": "Vh-SOM",
+        "SSVVS": "Vh-SOM",
+        "SSVVV": "Vh-VIS",
+        "SSVVestV": "Vh-VIS",
+        "SSVVVest": "Vh-VIS",
+        "VVSSV": "Vh-VIS",
+        "SSSVS": "SVM",
+      };
+
+      // Check if the sensoryString matches any known mappings
+      if (sensoryMappings.containsKey(sensoryString)) {
+        return sensoryMappings[sensoryString]!;
+      }
+
+// Apply age-group thresholds based on the composite score
+      if (compositeScore >= 12) {
+        return sensoryMappings[sensoryString] ?? "Normal";
+      } else {
+        return "SVVM or Complex SM"; // Complex SM for lower scores
+      }
+    }
+
+    // Function to calculate the sensory ratio and format it as a color-coded string (Red/Blue)
+    TextSpan colorizeSensoryString(List<int> severityScores) {
+      // Colors: Red for abnormal scores (visual/somatosensory), Blue for vestibular function
+      PdfColor redColor =
+          const PdfColor.fromInt(0xFF0000); // Red for VIS/SOM abnormalities
+      PdfColor blueColor =
+          const PdfColor.fromInt(0x0000FF); // Blue for VEST normal function
+
+      // Map severity scores to sensory systems and assign appropriate colors
+      String c2 = severityScores[1] == 3 ? 'S' : 'V'; // Condition 2 (SOM)
+      String c3 = severityScores[2] == 3 ? 'S' : 'V'; // Condition 3 (SOM)
+      String c4 = severityScores[3] == 3 ? 'V' : 'S'; // Condition 4 (VIS)
+      String c5 = severityScores[4] == 3
+          ? 'Vest'
+          : severityScores[4] == 2
+              ? 'S'
+              : 'V'; // Condition 5 (VEST abnormal)
+      String c6 = severityScores[5] == 3
+          ? 'Vest'
+          : severityScores[5] == 2
+              ? 'S'
+              : 'V'; // Condition 6 (VEST abnormal)
+
+      String sensoryString = "$c2$c3$c4$c5$c6";
+
+      // Count occurrences of 'S' and 'V'
+      int sCount = sensoryString.split('S').length - 1; // Count 'S'
+      int vCount = sensoryString.split('V').length -
+          1 +
+          (c5 == "Vest" ? 1 : 0) +
+          (c6 == "Vest" ? 1 : 0); // Count 'V'
+      // Format the final sensory ratio
+      String sensoryRatio = sCount > vCount
+          ? "(${sCount}S:${vCount}V)"
+          : "(${vCount}V:${sCount}S)";
+
+      return TextSpan(
+        children: [
+          TextSpan(
+            text: c2,
+            style: TextStyle(
+                color: c2 == 'S' ? blueColor : redColor,
+                font: boldFont,
+                fontSize: 12.0,
+                lineSpacing: 2.0),
+          ),
+          TextSpan(
+            text: c3,
+            style: TextStyle(
+                color: c3 == 'S' ? blueColor : redColor,
+                font: boldFont,
+                fontSize: 12.0,
+                lineSpacing: 2.0),
+          ),
+          TextSpan(
+            text: c4,
+            style: TextStyle(
+                color: c4 == 'V' ? blueColor : redColor,
+                font: boldFont,
+                fontSize: 12.0,
+                lineSpacing: 2.0),
+          ),
+          TextSpan(
+            text: c5,
+            style: TextStyle(
+                color: c5 == 'Vest' ? blueColor : redColor,
+                font: boldFont,
+                fontSize: 12.0,
+                lineSpacing: 2.0),
+          ),
+          TextSpan(
+            text: c6,
+            style: TextStyle(
+                color: c6 == 'Vest' ? blueColor : redColor,
+                font: boldFont,
+                fontSize: 12.0,
+                lineSpacing: 2.0),
+          ),
+          const TextSpan(text: " "),
+          TextSpan(
+            text: sensoryRatio,
+            style: detailBold,
+          )
+        ],
+      );
+    }
+
+    final scores = ctsib.calculateScores(assessment);
+    final severityScores = calculateSeverityScore(scores);
+    final compositeScore =
+        severityScores.fold<int>(0, (prev, cur) => prev + cur);
+    final sensoryRatio = calculateSensoryRatio(severityScores);
+    final sensoryMismatch =
+        determineSensoryMismatch(sensoryRatio, compositeScore);
+
+    // Display the sensory ratio and mismatch in a table format
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Condition Ratios", style: subHeader)),
-      Table(
-        border: TableBorder.all(color: black),
-        children: [
-          TableRow(children: [
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child:
-                  Text('Test', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: Text('Ratio',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: Text('Status',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-            ),
-          ]),
-          _createConditionRow("Somatosensory (SOM) Test", somRatio, somStatus),
-          _createConditionRow(
-              "Visual Dependence (VIS) Test", visRatio, visStatus),
-          _createConditionRow(
-              "Vestibular Function (VEST) Test", vestRatio, vestStatus),
-          _createConditionRow(
-              "Preferred Sensory System (PREF) Test", prefRatio, prefStatus),
-        ],
-      )
+        textAlign: TextAlign.left,
+        text: TextSpan(text: "Sensory Ratios & Mismatch", style: subHeader),
+      ),
+      Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Severity Scores: ", style: detail),
+              TextSpan(text: severityScores.toString(), style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Composite Score: ", style: detail),
+              TextSpan(text: compositeScore.toString(), style: detailBold),
+            ]),
+          ),
+        ]),
+        Spacer(),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: 'Sensory Ratio: ', style: detail),
+              colorizeSensoryString(severityScores),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Sensory Mismatch: ", style: detail),
+              TextSpan(text: sensoryMismatch, style: detailBold),
+            ]),
+          ),
+        ])
+      ])
     ]);
   }
 
@@ -345,31 +497,24 @@ class CtsibPDF extends PDF {
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Interpretation", style: subHeader)),
-      if (is9xFallRisk)
-        RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(
-              text:
-                  "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
-              style: detail),
-        ),
+      // if (is9xFallRisk)
+      //   RichText(
+      //     textAlign: TextAlign.left,
+      //     text: TextSpan(
+      //         text:
+      //             "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
+      //         style: detail),
+      //   ),
       RichText(
           text: TextSpan(
-              text: generateConditionRatioText(assessment), style: detail)),
+              text: "Generative AI snippets coming soon", style: detail)),
+      //generateConditionRatioText(assessment), style: detail)),
       //             "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
       //             "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
       //             "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
       //             "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
     ]);
   }
-
-  // Widget diagnosisData() {
-  //   return Column(children: [
-  //     RichText(
-  //         text: TextSpan(text: "Diagnostic Information", style: subHeader)),
-  //     RichText(text: TextSpan(text: "Coming Soon", style: detailBold)),
-  //   ]);
-  // }
 
   Widget footerData() {
     return Footer(
@@ -389,100 +534,63 @@ class CtsibPDF extends PDF {
                     style: disclaimer,
                     text: "No Distribution without Permission")),
           ]),
-      // trailing: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   crossAxisAlignment: CrossAxisAlignment.end,
-      //   children: [
-      //     // RichText(
-      //     //     text: TextSpan(
-      //     //         style: disclaimer,
-      //     //         text: "Minimal Detectable Change: 0.1m/sec")),
-      //     // RichText(
-      //     //     text: TextSpan(
-      //     //         style: disclaimer,
-      //     //         text: "Minimum Clinically Important Difference: 0.1m/sec")),
-      //     // RichText(
-      //     //     text: TextSpan(
-      //     //         style: disclaimer,
-      //     //         text: "Test/Re-test Reliability: ICC > 0.7"))
-      //   ],
-      // ),
     );
   }
 
-  TableRow _createConditionRow(String testName, double ratio, String status) {
-    return TableRow(children: [
-      Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Text(testName, style: detail),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Text("${ratio.toStringAsFixed(2)}%",
-            style: detail, textAlign: TextAlign.center),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Text(status, style: detail, textAlign: TextAlign.center),
-      ),
-    ]);
-  }
-}
-
-String determineStatus(double ratio) {
-  if (ratio == 0.0) {
-    return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
-  } else if (ratio < 99) {
-    return "Dysfunctional"; // Patient is dysfunctional if the ratio is less than 1
-  } else {
-    return "Functional"; // Patient is considered functional otherwise
-  }
-}
-
-bool checkFallRisk(Assessment assessment) {
-  // Calculate the total duration of the assessment (only for conditions 5 and 6)
-  bool is9xFallRisk(int i) {
-    final total =
-        AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) > 30.0;
-    return total;
+  String determineStatus(double ratio) {
+    if (ratio == 0.0) {
+      return "Inconclusive"; // Ratio is 0.0, indicating an invalid or uncalculable result
+    } else if (ratio < 99) {
+      return "Dysfunctional"; // Patient is dysfunctional if the ratio is less than 1
+    } else {
+      return "Functional"; // Patient is considered functional otherwise
+    }
   }
 
-  // Determine if the patient is at risk of falling based on the total duration
-  return is9xFallRisk(4) || is9xFallRisk(5);
-}
+  //TODO: This likely needs to be based on the equlibrium score
+  bool checkFallRisk(Assessment assessment) {
+    // Calculate the total duration of the assessment (only for conditions 5 and 6)
+    bool is9xFallRisk(int i) {
+      final total =
+          AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) >
+              30.0;
+      return total;
+    }
 
-String generateConditionRatioText(Assessment assessment) {
-  final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
-  final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
-  final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
-  final c5 = AssessmentUtils.getAvgDuration(assessment.Conditions?[4].trials);
-
-  // Calculating ratios safely
-  final somRatio = safeDivision(c2, c1);
-  final visRatio = safeDivision(c4, c1);
-  final vestRatio = safeDivision(c5, c1);
-
-  final ratios = [
-    (
-      vestRatio,
-      "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
-    ),
-    (
-      visRatio,
-      "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
-    ),
-    (
-      somRatio,
-      "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
-    ),
-  ];
-
-  // Determine the worst ratio among the three
-  final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
-
-  if (lowest.$1 > 99) {
-    return "No significant findings were observed.";
+    // Determine if the patient is at risk of falling based on the total duration
+    return is9xFallRisk(4) || is9xFallRisk(5);
   }
 
-  return lowest.$2;
+  // String generateConditionRatioText(Assessment assessment) {
+  //   final scores = CTSIB().calculateScores(assessment);
+
+  //   // Calculating ratios safely
+  //   final somRatio = safeDivision(scores[1], scores[0]);
+  //   final visRatio = safeDivision(scores[3], scores[0]);
+  //   final vestRatio = safeDivision(scores[4], scores[0]);
+
+  //   final ratios = [
+  //     (
+  //       vestRatio,
+  //       "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
+  //     ),
+  //     (
+  //       visRatio,
+  //       "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
+  //     ),
+  //     (
+  //       somRatio,
+  //       "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
+  //     ),
+  //   ];
+
+  //   // Determine the worst ratio among the three
+  //   final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
+
+  //   if (lowest.$1 > 99) {
+  //     return "No significant findings were observed.";
+  //   }
+
+  //   return lowest.$2;
+  // }
 }

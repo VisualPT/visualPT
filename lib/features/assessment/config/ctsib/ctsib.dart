@@ -96,8 +96,10 @@ class CTSIB implements BaseAssessment {
 
       //Temporary solution till the DB is populated
       final norm = createNormData()
-          .where((element) => element.age_range == ageRange)
-          .toList();
+          .where((element) =>
+              element.age_range == ageRange && element.gender == gender)
+          .toList()
+        ..sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
       return norm;
       //Temporary solution till the DB is populated
 
@@ -211,17 +213,44 @@ class CTSIB implements BaseAssessment {
 
   @override
   String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
+    // Do not include the last value in the score list as it is the total score
     final globalScores = norms
-            ?.map((s) => s.trial_sum == 0 ? 0 : s.score_sum / s.trial_sum)
+            ?.map((s) => s.trial_sum == 0 || s.sequenceNumber == conditions
+                ? 0
+                : s.score_sum / s.trial_sum)
             .reduce((a, b) => (a) + (b)) ??
         0.0;
-    final localScores = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
-                (previousValue, element) => previousValue + element.duration))
-            .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
-        0.0;
+
+    // Calculate local scores for the patient
+    final localScores = calculateScores(assessment).reduce((a, b) => a + b);
+    print(norms?.map((e) => (e.score_sum) / ((e.trial_sum))));
+    print(calculateScores(assessment));
+
+    // Calculate the percentage difference between patient and norm
     final percent = ((localScores - globalScores) / globalScores) * 100;
 
-    return "Patients total score is $localScores. The global norm is $globalScores, which is ${percent.abs()}% of age gender norms";
+    // Generate a clinically relevant message
+    String performanceComparison;
+    if (localScores > globalScores) {
+      performanceComparison =
+          "${percent.abs().toStringAsFixed(2)}% higher than the normative data.";
+    } else {
+      performanceComparison =
+          "${percent.abs().toStringAsFixed(2)}% lower than the normative data.";
+    }
+
+    String riskMessage;
+    if (percent < -20) {
+      riskMessage =
+          "This score indicates a significantly increased risk for falls compared to age and gender norms.";
+    } else if (percent < 0) {
+      riskMessage =
+          "This performance is below norms but within an acceptable range, though caution is advised.";
+    } else {
+      riskMessage = "This is a healthy performance within the normative range.";
+    }
+
+    return "This patient's performance is $performanceComparison $riskMessage";
   }
 
   @override
@@ -412,3 +441,56 @@ class CTSIB implements BaseAssessment {
 
 //Anterior, Posterior, Lat
 const swayLimits = [8.0, 4.5, 8.0];
+
+Map<AgeRange, List<double>> normativeValues = {
+  AgeRange.BABY_0_5: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
+  AgeRange.CHILD_6_12: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
+  AgeRange.TEEN_13_19: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
+  AgeRange.ADULT_20_39: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
+  AgeRange.ADULT_40_64: [87.9, 85.3, 87.5, 83.4, 81.5, 78.9, 84.1],
+  AgeRange.SENIOR_65_69: [88.7, 85.5, 87.9, 80.4, 71.6, 65.5, 78.3],
+  AgeRange.SENIOR_70_79: [89.4, 85.8, 88.2, 77.6, 61.6, 53.0, 72.8],
+  AgeRange.SENIOR_80_84: [94.3, 91.1, 90.0, 77.2, 48.8, 47.7, 69.9],
+  AgeRange.SENIOR_85_89: [92.6, 89.9, 89.9, 71.2, 28.9, 33.2, 60.7],
+};
+
+List<Norm> createNormData() {
+  List<Norm> norms = [];
+
+  // AssessmentType for this data
+  AssessmentType assessmentType = AssessmentType.CTSIB;
+
+  // Create norm entries for each condition (6 conditions + total equilibrium score)
+  normativeValues.forEach((ageGroup, scores) {
+    for (int i = 0; i < scores.length; i++) {
+      double score = scores[i];
+
+      // Add the norm entry to the list
+      norms.add(Norm(
+        type: assessmentType,
+        sequenceNumber: i + 1,
+        age_range: ageGroup,
+        gender: Gender.MALE,
+        score_sum: score * 30,
+        trial_sum: 30,
+      ));
+      norms.add(Norm(
+        type: assessmentType,
+        sequenceNumber: i + 1,
+        age_range: ageGroup,
+        gender: Gender.FEMALE,
+        score_sum: score * 30,
+        trial_sum: 30,
+      ));
+    }
+
+    // And save this to the database
+    // norms.forEach((norm) {
+    //   Amplify.API.mutate(
+    //     request: ModelMutations.create(norm),
+    //   );
+    // });
+  });
+
+  return norms;
+}

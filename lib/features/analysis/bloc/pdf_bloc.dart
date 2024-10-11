@@ -56,6 +56,4 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
       emit(PdfError(exception: Exception(e.toString())));
     }
   }
-
-  bool viewCreated = false;
 }
