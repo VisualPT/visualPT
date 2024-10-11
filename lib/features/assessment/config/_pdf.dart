@@ -95,8 +95,8 @@ abstract class PDF {
     double remainingSeconds = durationInSeconds % 60;
     //If the duration is less than a minute, return only the seconds
     if (minutes == 0) {
-      return "${remainingSeconds.toStringAsFixed(2)} seconds";
+      return "${remainingSeconds.round()} seconds";
     }
-    return "$minutes minutes ${remainingSeconds.toStringAsFixed(2)} seconds";
+    return "$minutes minutes ${remainingSeconds.round()} seconds";
   }
 }

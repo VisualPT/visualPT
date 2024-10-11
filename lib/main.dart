@@ -70,7 +70,11 @@ class VisualPT extends StatelessWidget {
               return CupertinoPageRoute(
                   builder: (context) => ValidationView(type));
             }
-            return null;
+            return CupertinoPageRoute(
+              builder: (context) =>
+                  //TODO: Add a 404 page
+                  const HomeView(),
+            );
           },
         ),
       ),

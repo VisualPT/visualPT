@@ -27,28 +27,38 @@ class PoseClassificationIndicator extends StatelessWidget {
       icon: icon,
       color: Styles.green,
       type: type,
-      message: "Running",
-      formattedTextWidget: Text(state.response?.name ?? "No pose detected",
+      child: Text(state.response?.name ?? "No subject",
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: state.response?.getColor())),
+              color: state.response?.getColor() ?? Styles.red,
+              fontSize: 22,
+              fontFamily: 'monospace')),
     );
   }
 
   Widget onStandby(BuildContext context,
       InferenceStandby<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.yellow, type: type, message: "Standby");
+        icon: icon,
+        color: Styles.yellow,
+        type: type,
+        child: Text("Standby", style: Styles.heading2));
   }
 
   Widget onLoad(BuildContext context,
       InferenceLoading<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.inactiveGray, type: type, message: "Loading");
+        icon: icon,
+        color: Styles.inactiveGray,
+        type: type,
+        child: Text("Loading", style: Styles.heading2));
   }
 
   Widget onError(BuildContext context,
       InferenceError<PoseDetectionOutput, PoseClassificationOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.errorRed, type: type, message: "Error");
+        icon: icon,
+        color: Styles.errorRed,
+        type: type,
+        child: Text("Error", style: Styles.heading2));
   }
 }

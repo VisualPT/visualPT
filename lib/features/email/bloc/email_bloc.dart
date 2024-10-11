@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:http/http.dart';
+import 'package:visualpt/features/video/service/video_service.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/email/service/email_service.dart';
@@ -20,17 +21,18 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
   ///Sends a curated single template of a basic Assessment with an attached PDF
 
   FutureOr<void> _onSend(EmailSend event, Emitter<EmailState> emit) async {
+    final videos = await VideoService.getVideosInBase64(event.assessment);
     List<Map<String, String>> attachments = [];
-    for (int i = 0; i < event.videos.length; i++) {
+    for (int i = 0; i < videos.length; i++) {
       attachments.add({
         'filename':
             '${event.assessment.type.name}_condition${i + 1}_${event.subject.last_name}.mp4',
-        'content': event.videos[i],
+        'content': videos[i],
         'type': 'video/mp4',
         'disposition': 'attachment'
       });
     }
-    print(attachments);
+
     final Map<String, String> templateParams = {
       'patient_name': "${event.subject.first_name} ${event.subject.last_name}",
       'patient_dob': event.subject.dob.toString(),

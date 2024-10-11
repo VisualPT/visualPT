@@ -9,7 +9,6 @@ import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
-import 'package:visualpt/features/video/service/video_service.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/service/assessment_service.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -23,7 +22,8 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.assessment.type.name} Report",
+        pageTitle: "${asmtState.meta.type.name} Report",
+        poppable: false,
         child: AnalysisPresenter(
           onCreate: PdfInit(
               subject: asmtState.subject, assessment: asmtState.dbAssessment),
@@ -39,13 +39,20 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: PDFView(
-              key: Key(state.pdfData.hashCode.toString()),
+              // key: Key(state.pdfData.hashCode.toString()),
               pdfData: state.pdfData,
               enableSwipe: false,
               pageFling: false,
-              onError: (error) => print("PDFView Error: $error"),
-              onPageError: (page, error) =>
-                  print("PDFView Error: $page $error"),
+              onError: (error) => {
+                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                        subject: asmtState.subject,
+                        assessment: asmtState.dbAssessment))
+                  },
+              onPageError: (page, error) => {
+                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                        subject: asmtState.subject,
+                        assessment: asmtState.dbAssessment))
+                  },
               pageSnap: false),
         ),
         Padding(
@@ -57,8 +64,8 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                 color: Styles.actionSecondary,
                 onPressed: () {
                   //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context)
-                      .add(AssessmentInit(asmtState.subject, reset: true));
+                  BlocProvider.of<AssessmentBloc>(context).add(
+                      AssessmentInit(asmtState.subject, asmtState.storeData));
                 },
                 child: const Text("Redo Assessment",
                     style: TextStyle(color: Styles.black)),
@@ -91,7 +98,9 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   }
 
   Widget pdfLoading(BuildContext _, PdfState __) {
-    return const AppLoading();
+    return const AppLoading(
+      message: "Generating PDF report...",
+    );
   }
 
   Widget pdfError(BuildContext context, PdfState _, Exception e) {
@@ -110,27 +119,32 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
 
   ///The button that initates the email post
   ///Saves the PDF and stores assessment by default
-  Future<void> onSend(
+  void onSend(
     BuildContext context,
     Subject subject,
     Assessment assessment,
     Uint8List pdf,
-  ) async {
-    final videos = await VideoService.getVideosInBase64(assessment);
+  ) {
     appDialog(
         context: context,
-        title: "Save and Send",
-        content: "Email will be sent to: ${subject.provider_contact}",
+        title: asmtState.storeData ? "Save and Send" : "Home",
+        content: asmtState.storeData
+            ? "This will assume the data is valid and change the age-group norm table with the data from this assessment. Email will be sent to: ${subject.provider_contact}"
+            : "This data was indicated as a test and will not be saved. Are you sure you want to go back?",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
-          assessment = AssessmentService().addPDF(assessment, pdf);
-          BlocProvider.of<EmailBloc>(context).add(EmailSend(
-              subject: subject,
-              assessment: assessment,
-              videos: videos,
-              onSuccess: () => AppNav(context).setHome(),
-              onFail: () => log("Email failed")));
-          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
+          if (asmtState.storeData) {
+            updateNorms(asmtState.meta, assessment, subject);
+            assessment = AssessmentService().addPDF(assessment, pdf);
+            BlocProvider.of<EmailBloc>(context).add(EmailSend(
+                subject: subject,
+                assessment: assessment,
+                onSuccess: () => AppNav(context).setHome(),
+                onFail: () => log("Email failed")));
+            //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
+          } else {
+            AppNav(context).setHome();
+          }
         });
   }
 }

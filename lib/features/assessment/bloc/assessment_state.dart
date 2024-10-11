@@ -2,25 +2,25 @@ part of 'assessment_bloc.dart';
 
 @immutable
 abstract class AssessmentState<T> extends Equatable {
-  final T assessment;
-  const AssessmentState(this.assessment);
+  final T meta;
+  const AssessmentState(this.meta);
 }
 
 class AssessmentForm<T> extends AssessmentState<T> {
-  const AssessmentForm(super.assessment);
+  const AssessmentForm(super.meta);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [meta];
 }
 
 class AssessmentActive<T> extends AssessmentState<T> {
-  final AssessmentMeta meta;
+  final TrialMeta trialMeta;
   final Subject subject;
   final bool storeData;
   const AssessmentActive(
-      this.meta, this.subject, this.storeData, super.assessment);
+      this.trialMeta, this.subject, this.storeData, super.meta);
 
   @override
-  List<Object?> get props => [meta, assessment, storeData];
+  List<Object?> get props => [trialMeta, meta, storeData];
 }
 
 class AssessmentAnalysis<T> extends AssessmentState<T> {
@@ -28,25 +28,25 @@ class AssessmentAnalysis<T> extends AssessmentState<T> {
   final bool storeData;
   final Assessment dbAssessment;
   const AssessmentAnalysis(
-      this.subject, this.storeData, this.dbAssessment, super.assessment);
+      this.subject, this.storeData, this.dbAssessment, super.meta);
 
   @override
-  List<Object?> get props => [assessment];
+  List<Object?> get props => [subject, storeData, dbAssessment, meta];
 }
 
 class AssessmentLoading<T> extends AssessmentState<T> {
   final int index;
-  const AssessmentLoading(super.assessment, this.index);
+  const AssessmentLoading(this.index, super.meta);
   @override
-  List<Object?> get props => [assessment, index];
+  List<Object?> get props => [meta, index];
 }
 
 class AssessmentError<T> extends AssessmentState<T> {
   //TODO Establish VisualPT Error Codes
   final Exception? message;
 
-  const AssessmentError(this.message, super.assessment);
+  const AssessmentError(this.message, super.meta);
 
   @override
-  List<Object?> get props => [message, assessment];
+  List<Object?> get props => [message, meta];
 }

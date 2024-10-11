@@ -9,7 +9,6 @@ import 'package:visualpt/features/video/view/video_presenter.dart';
 import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/features/video/view/video_controls.dart';
 
-//TODO: Everything within this widget should be rebuilt on the native side
 class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentActive<T> state;
   const CaptureView(this.state, {super.key});
@@ -20,11 +19,14 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         const ViewBackground(),
         VideoPresenter(
           key: UniqueKey(),
-          state.meta,
-          state.assessment.conditions,
+          state.storeData,
+          state.trialMeta,
+          state.meta.conditions,
+          state.meta.trialDuration,
           onRecording: showingVideo,
           onStandby: showingVideo,
-          onStopped: stoppedVideo,
+          onPaused: showingVideo,
+          onEnded: endedVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
         ),
@@ -60,14 +62,14 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
     return const Center(child: AppLoading(message: "Video Stream Loading"));
   }
 
-  Widget stoppedVideo(BuildContext context, VideoStopped state) {
+  Widget endedVideo(BuildContext context, VideoEnded state) {
     final vid = BlocProvider.of<VideoBloc>(context);
     return Center(
       child: Column(
         children: [
           const Text("Video Stopped"),
           CupertinoButton(
-            onPressed: () => vid.add(const VideoPlay()),
+            onPressed: () => vid.add(const VideoInit()),
             child: const Text("Restart"),
           ),
         ],

@@ -22,12 +22,14 @@
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'Assessment.dart';
 import 'Condition.dart';
+import 'Norm.dart';
 import 'Subject.dart';
 import 'Trial.dart';
 import 'User.dart';
 import 'Detection.dart';
 import 'DetectionEnv.dart';
 
+export 'AgeRange.dart';
 export 'Assessment.dart';
 export 'AssessmentType.dart';
 export 'Condition.dart';
@@ -35,6 +37,7 @@ export 'Detection.dart';
 export 'DetectionEnv.dart';
 export 'FallHistory.dart';
 export 'Gender.dart';
+export 'Norm.dart';
 export 'Subject.dart';
 export 'Trial.dart';
 export 'User.dart';
@@ -42,9 +45,9 @@ export 'UserStatus.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "ce263c873b35f1bb4af8b157836700a5";
+  String version = "3bbfb3ae7bb611fb695a686ecab87a7a";
   @override
-  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Condition.schema, Subject.schema, Trial.schema, User.schema];
+  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Condition.schema, Norm.schema, Subject.schema, Trial.schema, User.schema];
   @override
   List<amplify_core.ModelSchema> customTypeSchemas = [Detection.schema, DetectionEnv.schema];
   static final ModelProvider _instance = ModelProvider();
@@ -57,6 +60,8 @@ class ModelProvider implements amplify_core.ModelProviderInterface {
         return Assessment.classType;
       case "Condition":
         return Condition.classType;
+      case "Norm":
+        return Norm.classType;
       case "Subject":
         return Subject.classType;
       case "Trial":

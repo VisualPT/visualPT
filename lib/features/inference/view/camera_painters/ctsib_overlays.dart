@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
-const double MAX_SWAY_ANGLE = 12;
+const double MAX_SWAY_ANGLE = 8;
 
 bool validateInequalities(
     double minA, double maxA, double minB, double maxB, double diff) {

@@ -28,6 +28,9 @@ class GAIT implements BaseAssessment {
   int get trials => 1;
 
   @override
+  int get trialDuration => 30;
+
+  @override
   List<String> get conditionNames => ["Walk"];
 
   @override
@@ -55,6 +58,36 @@ class GAIT implements BaseAssessment {
 
   @override
   bool get isAvailable => false;
+
+  @override
+  Future<List<Norm>?> getNorms(TemporalDate dob, Gender gender) {
+    // TODO: implement getNorm
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Norm?> setNorm(
+      TemporalDate dob, Gender gender, int seqNum, double score, int trials) {
+    // TODO: implement setNorm
+    throw UnimplementedError();
+  }
+
+  @override
+  List<double> calculateScores(Assessment assessment) {
+    // TODO: implement calculateScores
+    throw UnimplementedError();
+  }
+
+  @override
+  String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
+    // TODO: implement getNormativeMessage
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isComplete(args) {
+    return false;
+  }
 }
 
 class GaitNorms {

@@ -92,13 +92,9 @@ class PoseClassification
     }
     final List<List<double>> data = input.output;
     final processedInput =
-        data.sublist(0, 33).map((e) => e.sublist(0, 2)).toList();
+        data.sublist(0, 33).map((e) => e.sublist(0, 5)).toList();
 
-    final normalizedInput = normalizeDetection(processedInput);
-    if (normalizedInput == null) {
-      return null;
-    }
-    final inputs = [normalizedInput as Object];
+    final inputs = [processedInput as Object];
 
     TensorBuffer output = TensorBufferFloat(outputShapes[0]);
 

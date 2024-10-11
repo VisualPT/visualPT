@@ -13,15 +13,31 @@ enum Gender {
   FEMALE
 }
 
+enum AgeRange {
+  BABY_0_5
+  CHILD_6_12
+  TEEN_13_19
+  ADULT_20_39
+  ADULT_40_64
+  SENIOR_65_69
+  SENIOR_70_79
+  SENIOR_80_84
+  SENIOR_85_89
+}
+
 enum AssessmentType {
   CTSIB
+  MCTSIB
   GAIT
   BERG
   REACH
   FIST
+  DEV
 }
 
-type User @model @auth(rules: [{ allow: public }]) {
+type User
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   email: AWSEmail!
   first_name: String!
@@ -30,7 +46,9 @@ type User @model @auth(rules: [{ allow: public }]) {
   Subjects: [Subject!] @hasMany(indexName: "byUser", fields: ["id"])
 }
 
-type Subject @model @auth(rules: [{ allow: owner }]) {
+type Subject
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   userID: ID! @index(name: "byUser")
   first_name: String!
@@ -43,7 +61,9 @@ type Subject @model @auth(rules: [{ allow: owner }]) {
   Assessments: [Assessment!] @hasMany(indexName: "bySubject", fields: ["id"])
 }
 
-type Assessment @model @auth(rules: [{ allow: owner }]) {
+type Assessment
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   subjectID: ID! @index(name: "bySubject")
   type: AssessmentType!
@@ -53,7 +73,9 @@ type Assessment @model @auth(rules: [{ allow: owner }]) {
   Conditions: [Condition!] @hasMany(indexName: "byAssessment", fields: ["id"])
 }
 
-type Condition @model @auth(rules: [{ allow: owner }]) {
+type Condition
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   assessmentID: ID! @index(name: "byAssessment")
   sequenceNumber: Int!
@@ -61,12 +83,24 @@ type Condition @model @auth(rules: [{ allow: owner }]) {
   trials: [Trial!] @hasMany(indexName: "byCondition", fields: ["id"])
 }
 
-type Trial @model @auth(rules: [{ allow: owner }]) {
+type Trial
+  @model
+  @auth(rules: [{ allow: groups, groups: ["Admin"] }, { allow: owner }]) {
   id: ID!
   conditionID: ID! @index(name: "byCondition")
   start_time: AWSDateTime!
   duration: Float! #seconds
   Detections: [Detection!]
+}
+
+type Norm @model @auth(rules: [{ allow: private }]) {
+  id: ID!
+  type: AssessmentType!
+  sequenceNumber: Int!
+  age_range: AgeRange!
+  gender: Gender!
+  score_sum: Float!
+  trial_sum: Int!
 }
 
 type Detection {
