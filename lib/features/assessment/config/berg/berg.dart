@@ -1,3 +1,4 @@
+import 'package:amplify_core/src/types/temporal/temporal_date.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
@@ -25,6 +26,9 @@ class BERG implements BaseAssessment {
 
   @override
   int get trials => 1;
+
+  @override
+  int get trialDuration => 30;
 
   @override
   List<String> get conditionNames => [
@@ -63,6 +67,36 @@ class BERG implements BaseAssessment {
 
   @override
   bool get isAvailable => true;
+
+  @override
+  Future<List<Norm>?> getNorms(TemporalDate dob, Gender gender) {
+    // TODO: implement getNorm
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Norm?> setNorm(
+      TemporalDate dob, Gender gender, int seqNum, double score, int trials) {
+    // TODO: implement setNorm
+    throw UnimplementedError();
+  }
+
+  @override
+  List<double> calculateScores(Assessment assessment) {
+    // TODO: implement calculateScores
+    throw UnimplementedError();
+  }
+
+  @override
+  String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
+    // TODO: implement getNormativeMessage
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isComplete(args) {
+    return false;
+  }
 }
 
 class BERGData {

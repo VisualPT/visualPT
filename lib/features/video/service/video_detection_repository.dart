@@ -29,7 +29,7 @@ class VideoDetectionRepository
   GyroscopeEvent currentGyro = GyroscopeEvent(0, 0, 0);
   UserAccelerometerEvent currentAccel = UserAccelerometerEvent(0, 0, 0);
   final String userID;
-  final AssessmentMeta assessmentMeta;
+  final TrialMeta assessmentMeta;
 
   VideoDetectionRepository(this.assessmentMeta, this.userID)
       : super(assessmentMeta) {

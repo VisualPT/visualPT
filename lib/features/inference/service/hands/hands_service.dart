@@ -39,10 +39,10 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
 
       final outputTensors = interpreter!.getOutputTensors();
 
-      outputTensors.forEach((tensor) {
+      for (var tensor in outputTensors) {
         outputShapes.add(tensor.shape);
         outputTypes.add(tensor.type);
-      });
+      }
     } catch (e) {
       log('Error while creating interpreter: $e');
     }

@@ -5,7 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/features/backend/service/backend_repository.dart';
-import 'package:visualpt/features/timer/bloc/timer_bloc.dart';
+import 'package:visualpt/features/video/bloc/video_bloc.dart';
 
 part 'backend_event.dart';
 part 'backend_state.dart';
@@ -41,7 +41,8 @@ class BackendBloc extends Bloc<BackendEvent, BackendState> {
 
   //TOOD: put this somewhere better
   void backendLoading() {
-    StreamSubscription<Duration> timer = const Ticker().tick().listen((_) {});
+    StreamSubscription<Duration> timer =
+        const Ticker(duration: Duration(seconds: 30)).tick().listen((_) {});
     timer.onData((data) {
       if (state is BackendOnline) {
         log("Ending timeout timer");

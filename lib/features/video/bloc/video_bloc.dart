@@ -13,14 +13,21 @@ part 'video_event.dart';
 part 'video_state.dart';
 
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  VideoBloc(this.videoDetectionRepo) : super(const VideoLoading()) {
+  VideoBloc(this.videoDetectionRepo, this.totalDuration)
+      : _ticker = Ticker(duration: totalDuration),
+        super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
+    on<VideoPause>(onPause);
+    on<VideoTick>(onTick);
     on<VideoStop>(onStop);
   }
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
   late Duration videoDuration = const Duration(seconds: 0);
+  final Duration totalDuration;
+  final Ticker _ticker;
+  StreamSubscription<Duration>? _tickerSubscription;
   amplify.TemporalDateTime? _start;
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
@@ -35,6 +42,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await controller!.initialize();
+      await controller?.lockCaptureOrientation();
       emit(VideoStandby(controller!));
     } on CameraException catch (e) {
       //TODO create a popup for these error codes
@@ -85,24 +93,46 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           gyroZ: videoDetectionRepo.currentGyro.z);
       videoDetectionRepo.add(DeviceCapture(id, image, measurements));
     });
-    emit(VideoRecording(controller!, _start!));
+    _tickerSubscription?.cancel();
+    _tickerSubscription =
+        _ticker.tick().listen((duration) => add(VideoTick(duration: duration)));
+  }
+
+  FutureOr<void> onPause(VideoPause event, Emitter<VideoState> emit) async {
+    //Prevent the video from adding any more resources into the repo
+    //Pause the timer
+    _tickerSubscription?.pause();
+    emit(VideoPaused(controller!, videoDuration));
+  }
+
+  FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
+    emit(
+      event.duration < totalDuration
+          ? VideoRecording(controller!, _start!, event.duration, false)
+          : VideoRecording(controller!, _start!, totalDuration, true),
+    );
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
+    _tickerSubscription?.cancel();
     if (_start == null) {
       print("There is no start time to label the video.");
     } else {
       videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
-      if (controller != null && controller!.value.isStreamingImages) {
+      if (controller != null &&
+          (controller!.value.isStreamingImages ||
+              controller!.value.isRecordingVideo)) {
+        final file = await controller!.stopVideoRecording();
         if (event.reset) {
           emit(VideoStandby(controller!));
+          return;
         }
-        final file = await controller!.stopVideoRecording();
         videoDetectionRepo.saveVideo(
             _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(), file);
-        emit(VideoStopped(file, videoDuration));
+        emit(VideoEnded(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+        emit(VideoEnded(null, videoDuration));
       }
       emit(const VideoLoading());
       controller!.dispose();
@@ -125,6 +155,21 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   // Future<File> getData() async {
   // }
 }
+
+class Ticker {
+  static const increment = 10;
+  final Duration duration;
+  const Ticker({required this.duration});
+  Stream<Duration> tick() {
+    return Stream.periodic(
+      const Duration(milliseconds: increment),
+      (x) => Duration(milliseconds: increment * x),
+    ).takeWhile(
+      (d) => d <= duration,
+    );
+  }
+}
+
 
 //TODO create an onFocus state for this in the view file
 // void onFocus(TapDownDetails details, BoxConstraints constraints) {

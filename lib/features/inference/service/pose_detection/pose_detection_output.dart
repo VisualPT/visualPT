@@ -61,6 +61,7 @@ class PoseDetectionOutput extends AiModelOutput {
   }
 
 //Computes the latitudidal (left/right (x,y)) and longitudidal (y, z) angles of the pose
+//longitudinal angle is based on synthetic data, so it is not accurate and should not be used until further testing is done
   static (double, double) computeAngles(List<(double, double, double)> points) {
     double sumX = 0,
         sumY = 0,

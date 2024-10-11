@@ -12,8 +12,8 @@ part 'inference_state.dart';
 //TODO: Add toggleable loggers to all blocs
 class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(
-      this.inferenceRepository, this.outputRepository, this.sampleRate)
+  InferenceBloc(this.inferenceRepository, this.outputRepository,
+      this.sampleRate, this.storeData)
       : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
@@ -27,6 +27,7 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
   final Repository<I, O> inferenceRepository;
   final Repository<O, dynamic>? outputRepository;
   final int sampleRate;
+  final bool storeData;
 
   bool isReady = false;
   bool processing = false;
@@ -44,6 +45,7 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
 
   FutureOr<void> _onStart(
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
+    inferenceRepository.reset(); //Handles the reset case
     _subscription = inferenceRepository.stream.listen((data) {
       if (isReady) {
         add(InferenceInput(data.id, input: data, params: event.params));
@@ -78,7 +80,7 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     try {
       if (event.output != null) {
         outputRepository?.add(event.output!);
-        if (storageBacklog > 0) {
+        if (storeData && storageBacklog > 0) {
           //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
           //TODO: Add a path to the repository to store the data
           storageBacklog--;

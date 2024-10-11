@@ -1,8 +1,6 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
 import 'package:visualpt/core/utils/math_utils.dart';
 import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
@@ -11,10 +9,12 @@ import 'package:visualpt/features/assessment/config/_pdf.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
 class MctsibPDF extends PDF {
-  final ctsib = MCTSIB();
+  final mctsib = MCTSIB();
   @override
   Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
     await configPdfStyles();
+
+    final norms = await mctsib.getNorms(subject.dob, subject.gender);
 
     final pdf = Document(
         title: subject.last_name + subject.first_name + subject.dob.toString(),
@@ -38,7 +38,7 @@ class MctsibPDF extends PDF {
             Spacer(),
             conditionRatioTable(assessment),
             Spacer(),
-            normativeData(subject, assessment),
+            normativeData(assessment, norms),
             Spacer(),
             interpretationData(assessment),
             //diagnosisData(),
@@ -58,7 +58,7 @@ class MctsibPDF extends PDF {
           RichTextLogo,
           RichText(
               textAlign: TextAlign.center,
-              text: TextSpan(text: "${ctsib.name} Report", style: header),
+              text: TextSpan(text: "${mctsib.name} Report", style: header),
               overflow: TextOverflow.span),
         ],
       ),
@@ -216,12 +216,12 @@ class MctsibPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text(ctsib.surface[i],
+                  child: Text(mctsib.surface[i],
                       style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Text(ctsib.vision[i],
+                  child: Text(mctsib.vision[i],
                       style: detail, textAlign: TextAlign.center),
                 ),
                 Padding(
@@ -253,8 +253,8 @@ class MctsibPDF extends PDF {
                 Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Text(
-                        CTSIB
-                            .getEquilibriumScores(assessment)[i]
+                        mctsib
+                            .calculateScores(assessment)[i]
                             .toStringAsFixed(2),
                         style: detail,
                         textAlign: TextAlign.center)),
@@ -305,7 +305,7 @@ class MctsibPDF extends PDF {
                               ), (avg, sway) => (
                                 avg.$1 + sway.$1,
                                 avg.$2 + sway.$2
-                              )).$1 / ctsib.conditions).toStringAsFixed(2)}°",
+                              )).$1 / mctsib.conditions).toStringAsFixed(2)}°",
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -320,7 +320,7 @@ class MctsibPDF extends PDF {
                               ), (avg, sway) => (
                                 avg.$1 + sway.$1,
                                 avg.$2 + sway.$2
-                              )).$2 / ctsib.conditions).toStringAsFixed(2)}°",
+                              )).$2 / mctsib.conditions).toStringAsFixed(2)}°",
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -333,8 +333,8 @@ class MctsibPDF extends PDF {
               Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      CTSIB
-                          .getEquilibriumScores(assessment)
+                      mctsib
+                          .calculateScores(assessment)
                           .fold<double>(
                               0.0, (prevScore, score) => prevScore + score)
                           .toStringAsFixed(1),
@@ -343,7 +343,7 @@ class MctsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * ctsib.conditions} seconds",
+                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * mctsib.conditions} seconds",
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
@@ -403,19 +403,14 @@ class MctsibPDF extends PDF {
     ]);
   }
 
-  //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Subject subject, Assessment assessment) {
-    final totalDuration = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
-                (previousValue, element) => previousValue + element.duration))
-            .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
-        0.0;
+  Widget normativeData(Assessment assessment, List<Norm>? norms) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
           text: TextSpan(text: "Normative Comparison", style: subHeader)),
       RichText(
           text: TextSpan(
-              text: getNormativeMessage(totalDuration, subject.dob),
+              text: mctsib.getNormativeMessage(assessment, norms),
               style: detail)),
     ]);
   }
@@ -486,19 +481,6 @@ class MctsibPDF extends PDF {
         child: Text(status, style: detail, textAlign: TextAlign.center),
       ),
     ]);
-  }
-}
-
-String getNormativeMessage(double totalDuration, TemporalDate dob) {
-  int age = getAge(dob);
-  double norm = CTSIB.getAgeNorm(age);
-  int percent =
-      (((totalDuration - norm) / ((totalDuration + norm) / 2)) * 100).round();
-
-  if (percent.abs() > 10) {
-    return "Patients total time is ${totalDuration.toStringAsFixed(2)} / 180 seconds, which is ${percent.abs()}% of age norms, with a mean of $norm seconds";
-  } else {
-    return "Patient is within 10% of normative data, which has a mean of $norm seconds";
   }
 }
 

@@ -52,7 +52,7 @@ class PoseDetectionIndicator extends StatelessWidget {
             state.response!.landmarks.sublist(0, 34), const Size(256, 256))
         : null;
     final color = offsets != null
-        ? offsets.degrees.abs() < MAX_SWAY_ANGLE
+        ? offsets.degrees.abs() < MAX_SWAY_ANGLE / 2
             ? Styles.green
             : Styles.yellow
         : Styles.red;
@@ -60,28 +60,40 @@ class PoseDetectionIndicator extends StatelessWidget {
       icon: icon,
       color: Styles.green,
       type: type,
-      message: "Running",
-      formattedTextWidget: Text(
-          "${offsets?.degrees.toStringAsFixed(1) ?? "0.0"}°",
-          style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+      child: Text("${offsets?.degrees.toStringAsFixed(1) ?? "-.--"}°",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 22,
+              fontFamily: 'monospace')),
     );
   }
 
   Widget onStandby(BuildContext context,
       InferenceStandby<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.yellow, type: type, message: "Standby");
+        icon: icon,
+        color: Styles.yellow,
+        type: type,
+        child: Text("Standby", style: Styles.heading2));
   }
 
   Widget onLoad(BuildContext context,
       InferenceLoading<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.inactiveGray, type: type, message: "Loading");
+      icon: icon,
+      color: Styles.inactiveGray,
+      type: type,
+      child: Text("Loading", style: Styles.heading2),
+    );
   }
 
   Widget onError(BuildContext context,
       InferenceError<DeviceCapture, PoseDetectionOutput> state) {
     return const InferenceIndicator(
-        icon: icon, color: Styles.errorRed, type: type, message: "Error");
+        icon: icon,
+        color: Styles.errorRed,
+        type: type,
+        child: Text("Error", style: Styles.heading2));
   }
 }

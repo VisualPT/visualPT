@@ -5,11 +5,11 @@ abstract class AssessmentEvent extends Equatable {}
 
 class AssessmentInit extends AssessmentEvent {
   final Subject subject;
-  final bool reset;
-  AssessmentInit(this.subject, {this.reset = false});
+  final bool storeData;
+  AssessmentInit(this.subject, this.storeData);
 
   @override
-  List<Object?> get props => [subject, reset];
+  List<Object?> get props => [subject, storeData];
 }
 
 class AssessmentCondition extends AssessmentEvent {

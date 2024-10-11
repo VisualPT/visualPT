@@ -9,7 +9,7 @@ class DetectionClassificationRepository
     extends Repository<PoseDetectionOutput, PoseClassificationOutput> {
   final ModelInferenceService _poseClassService = ModelInferenceService();
   final IsolateUtils _classificationIsolateUtils = IsolateUtils();
-  final AssessmentMeta assessmentMeta;
+  final TrialMeta assessmentMeta;
   DetectionClassificationRepository(this.assessmentMeta)
       : super(assessmentMeta);
 
