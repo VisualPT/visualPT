@@ -23,6 +23,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle: "${asmtState.meta.type.name} Report",
+        poppable: false,
         child: AnalysisPresenter(
           onCreate: PdfInit(
               subject: asmtState.subject, assessment: asmtState.dbAssessment),

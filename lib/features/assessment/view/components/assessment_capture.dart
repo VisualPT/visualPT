@@ -15,6 +15,7 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
         pageTitle:
             "${state.meta.type.name} ${state.meta.conditionNames[state.trialMeta.condition]} \n Trial ${state.trialMeta.trial + 1}",
         instructions: AssessmentInstructions(state),
+        poppable: false,
         child: CaptureView<T>(
           state,
         ));
