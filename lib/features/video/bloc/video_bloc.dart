@@ -42,6 +42,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await controller!.initialize();
+      await controller?.lockCaptureOrientation();
       emit(VideoStandby(controller!));
     } on CameraException catch (e) {
       //TODO create a popup for these error codes
