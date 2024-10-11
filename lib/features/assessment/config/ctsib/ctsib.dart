@@ -93,6 +93,14 @@ class CTSIB implements BaseAssessment {
   Future<List<Norm>?> getNorms(TemporalDate dob, Gender gender) async {
     try {
       final AgeRange ageRange = getAgeEnumByTemporalDate(dob);
+
+      //Temporary solution till the DB is populated
+      final norm = createNormData()
+          .where((element) => element.age_range == ageRange)
+          .toList();
+      return norm;
+      //Temporary solution till the DB is populated
+
       final request = ModelQueries.list(Norm.classType,
           where: Norm.TYPE
               .eq(AssessmentType.CTSIB)

@@ -34,7 +34,7 @@ class CtsibPDF extends PDF {
             headerData(),
             subjectData(subject, assessment),
             Spacer(),
-            assessmentData(subject, assessment),
+            assessmentData(subject, assessment, norms),
             Spacer(),
             conditionRatioTable(assessment),
             Spacer(),
@@ -139,73 +139,133 @@ class CtsibPDF extends PDF {
     ]);
   }
 
-  Widget assessmentData(Subject subject, Assessment assessment) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Assessment Score", style: subHeader)),
-      Container(
-        padding: const EdgeInsets.only(top: 10),
-        height: 200,
-        child: Chart(
-          grid: CartesianGrid(
-            xAxis: FixedAxis.fromStrings(
-              List.generate(
-                ((assessment.Conditions?.length ?? 0) + 1),
-                (i) => (assessment.Conditions?.length ?? 0) != i
-                    ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
-                    : 'Cumulative',
-              ),
-              textStyle: const TextStyle(fontSize: 10),
-              marginStart: 30,
-              marginEnd: 30,
-            ),
-            yAxis: FixedAxis(
-              [0, 25, 50, 75, 100],
-              format: (v) => '$v',
-              marginStart: 5,
-              divisions: true,
-              divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
-            ),
-          ),
-          datasets:
-              List.generate(((assessment.Conditions?.length ?? 0) + 1), (i) {
-            if ((assessment.Conditions?.length ?? 0) != i) {
-              final condition = assessment.Conditions?[i];
-              return BarDataSet(
-                legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
-                color: PdfColors.blue,
-                data: List.generate(
-                  condition?.trials?.length ?? 0,
-                  (j) => PointChartValue(
-                    (i).toDouble(),
-                    ctsib.calculateScores(assessment)[i],
+  Widget assessmentData(
+      Subject subject, Assessment assessment, List<Norm>? norms) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(text: "Assessment Score", style: subHeader)),
+        Container(
+          padding: const EdgeInsets.only(top: 10),
+          height: 300, // Increase height for better visibility
+          child: Stack(
+            children: [
+              // Background chart for norm scores (gray background)
+              Chart(
+                grid: CartesianGrid(
+                  xAxis: FixedAxis.fromStrings(
+                    List.generate(((assessment.Conditions?.length ?? 0) + 1),
+                        (i) => '\n\n'),
+                    textStyle: const TextStyle(fontSize: 10),
+                    marginStart: 30,
+                    marginEnd: 30,
+                  ),
+                  yAxis: FixedAxis(
+                    [0, 25, 50, 75, 100],
+                    format: (v) => '$v',
+                    marginStart: 5,
                   ),
                 ),
-                buildValue: (context, point) => Text(point.y.toStringAsFixed(2),
-                    style: const TextStyle(fontSize: 10)),
-                valuePosition: ValuePosition.auto,
-              );
-            }
-            return BarDataSet(
-                legend: '#${i + 1}',
-                color: PdfColors.blue,
-                data: [
-                  PointChartValue(
-                    (i).toDouble(),
-                    ctsib.calculateScores(assessment).fold<double>(
-                            0.0, (prevScore, score) => prevScore + score) /
-                        i,
-                  )
-                ],
-                buildValue: (context, point) => Text(point.y.toStringAsFixed(2),
-                    style: const TextStyle(fontSize: 10)),
-                valuePosition: ValuePosition.auto);
-          }),
-          //Lne at 75% to indicate the threshold for fall risk
+                datasets: List.generate(
+                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
+                  return BarDataSet(
+                    legend: '',
+                    color: PdfColors.grey, // Normative background
+                    data: [
+                      PointChartValue(
+                          (i).toDouble(),
+                          (norms?[i].score_sum ?? 0) /
+                              ((norms?[i].trial_sum ?? 1)))
+                    ],
+                    buildValue: (context, point) => Text(
+                        point.y.toStringAsFixed(2),
+                        style: const TextStyle(
+                            fontSize: 10, color: PdfColor(0.4, 0.4, 0.4, 0.9))),
+                    valuePosition: ValuePosition.auto,
+                    width: 30,
+                  );
+                }),
+              ),
+              // Foreground chart for patient scores
+              Chart(
+                grid: CartesianGrid(
+                  xAxis: FixedAxis.fromStrings(
+                    List.generate(
+                      ((assessment.Conditions?.length ?? 0) + 1),
+                      (i) => (assessment.Conditions?.length ?? 0) != i
+                          ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
+                          : 'Cumulative',
+                    ),
+                    textStyle: const TextStyle(fontSize: 10),
+                    marginStart: 30,
+                    marginEnd: 30,
+                  ),
+                  yAxis: FixedAxis(
+                    [0, 25, 50, 75, 100],
+                    format: (v) => '$v',
+                    marginStart: 5,
+                    divisions: true,
+                    divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
+                  ),
+                ),
+                datasets: List.generate(
+                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
+                  if ((assessment.Conditions?.length ?? 0) != i) {
+                    //TODO: Add multiple trials here
+                    return BarDataSet(
+                      legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
+                      color: ctsib.calculateScores(assessment)[i] >
+                              (norms?[i].score_sum ?? 0) /
+                                  ((norms?[i].trial_sum ?? 1))
+                          ? PdfColors.green
+                          : PdfColors.red, // Patient data color
+                      width: 20,
+                      data: [
+                        PointChartValue(
+                          (i).toDouble(),
+                          ctsib.calculateScores(assessment)[i],
+                        ),
+                      ],
+                      buildValue: (context, point) => Text(
+                          //If this is flagged as a fall, write FALL
+                          point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
+                          style: const TextStyle(fontSize: 10)),
+                      valuePosition: ValuePosition.auto,
+                    );
+                  }
+                  return BarDataSet(
+                    legend: '#${i + 1}',
+                    color: (ctsib.calculateScores(assessment).fold<double>(0.0,
+                                    (prevScore, score) => prevScore + score) /
+                                i) >
+                            (norms?[i].score_sum ?? 0) /
+                                ((norms?[i].trial_sum ?? 1))
+                        ? PdfColors.green
+                        : PdfColors.red, // Patient data color
+                    width: 20,
+                    data: [
+                      PointChartValue(
+                        (i).toDouble(),
+                        ctsib.calculateScores(assessment).fold<double>(
+                                0.0, (prevScore, score) => prevScore + score) /
+                            i,
+                      ),
+                    ],
+                    buildValue: (context, point) => Text(
+                        //If this is flagged as a fall, write FALL
+                        point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
+                        style: const TextStyle(fontSize: 10)),
+                    valuePosition: ValuePosition.auto,
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Widget conditionRatioTable(Assessment assessment) {

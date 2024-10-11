@@ -97,7 +97,9 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   }
 
   Widget pdfLoading(BuildContext _, PdfState __) {
-    return const AppLoading();
+    return const AppLoading(
+      message: "Generating PDF report...",
+    );
   }
 
   Widget pdfError(BuildContext context, PdfState _, Exception e) {
