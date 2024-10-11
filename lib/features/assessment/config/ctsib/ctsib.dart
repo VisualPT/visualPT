@@ -223,8 +223,6 @@ class CTSIB implements BaseAssessment {
 
     // Calculate local scores for the patient
     final localScores = calculateScores(assessment).reduce((a, b) => a + b);
-    print(norms?.map((e) => (e.score_sum) / ((e.trial_sum))));
-    print(calculateScores(assessment));
 
     // Calculate the percentage difference between patient and norm
     final percent = ((localScores - globalScores) / globalScores) * 100;
