@@ -12,7 +12,7 @@ class VideoService {
             c.trials?.map<Future<String>>((t) async {
               final path =
                   "${assessment.type.name}/video/${t.start_time.getDateTimeInUtc().millisecondsSinceEpoch.toString()}.mp4";
-              final download = storage.download(path: path);
+              final download = storage.download(path: 'public/$path');
               final data = await download.result;
               return base64Encode(data.bytes);
             }) ??

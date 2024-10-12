@@ -114,7 +114,7 @@ class VideoDetectionRepository
     final fileBytes = await file.readAsBytes();
     final videoPayload =
         S3DataPayload.bytes(fileBytes, contentType: "video/mp4");
-    storageService.upload(videoPayload, key);
+    storageService.upload(videoPayload, 'public/$key');
   }
 }
 
