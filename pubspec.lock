@@ -817,7 +817,7 @@ packages:
     source: hosted
     version: "3.11.1"
   pdf_widget_wrapper:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pdf_widget_wrapper
       sha256: c930860d987213a3d58c7ec3b7ecf8085c3897f773e8dc23da9cae60a5d6d0f5
