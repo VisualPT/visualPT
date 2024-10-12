@@ -13,7 +13,7 @@ part 'video_event.dart';
 part 'video_state.dart';
 
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  VideoBloc(this.videoDetectionRepo, this.totalDuration)
+  VideoBloc(this.videoDetectionRepo, this.totalDuration, this.storeData)
       : _ticker = Ticker(duration: totalDuration),
         super(const VideoLoading()) {
     on<VideoInit>(onInit);
@@ -24,6 +24,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
   final VideoDetectionRepository videoDetectionRepo;
   late CameraController? controller;
+  final bool storeData;
   late Duration videoDuration = const Duration(seconds: 0);
   final Duration totalDuration;
   final Ticker _ticker;
@@ -127,8 +128,11 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           emit(VideoStandby(controller!));
           return;
         }
-        videoDetectionRepo.saveVideo(
-            _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(), file);
+        if (storeData) {
+          videoDetectionRepo.saveVideo(
+              _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(),
+              file);
+        }
         emit(VideoEnded(file, videoDuration));
       } else {
         log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");

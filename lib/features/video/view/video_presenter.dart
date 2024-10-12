@@ -59,7 +59,8 @@ class VideoPresenter extends StatelessWidget {
           BlocProvider(
             create: (context) => VideoBloc(
                 RepositoryProvider.of<VideoDetectionRepository>(context),
-                Duration(seconds: durationSeconds))
+                Duration(seconds: durationSeconds),
+                storeData)
               ..add(const VideoInit()),
           ),
           BlocProvider(

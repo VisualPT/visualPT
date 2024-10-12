@@ -3,32 +3,29 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
 class StorageService {
   StorageService();
-  void upload(HttpPayload data, String key, StorageAccessLevel accessLevel) {
+  void upload(S3DataPayload data, String path) {
     try {
       Amplify.Storage.uploadData(
-          data: data,
-          key: key,
-          options: StorageUploadDataOptions(accessLevel: accessLevel));
+        data: data,
+        path: StoragePath.fromString(path),
+      );
     } catch (e) {
       print('Error uploading file: $e');
     }
   }
 
   StorageDownloadDataOperation<StorageDownloadDataRequest,
-          StorageDownloadDataResult<StorageItem>>
-      download(
-          {required String key,
-          StorageAccessLevel accessLevel = StorageAccessLevel.guest}) {
+      StorageDownloadDataResult<StorageItem>> download({
+    required String path,
+  }) {
     return Amplify.Storage.downloadData(
-        key: key,
-        options: StorageDownloadDataOptions(accessLevel: accessLevel));
+      path: StoragePath.fromString(path),
+    );
   }
 
   StorageGetUrlOperation<StorageGetUrlRequest, StorageGetUrlResult> getUrl(
-      {required String key,
-      StorageAccessLevel accessLevel = StorageAccessLevel.guest}) {
-    return Amplify.Storage.getUrl(
-        key: key, options: StorageGetUrlOptions(accessLevel: accessLevel));
+      {required String path}) {
+    return Amplify.Storage.getUrl(path: StoragePath.fromString(path));
   }
 
   Future<List<String>> listRawData(String path) async {
@@ -38,9 +35,8 @@ class StorageService {
       bool hasNextPage;
       do {
         final result = await Amplify.Storage.list(
-          path: '$path/raw/',
+          path: StoragePath.fromString('$path/raw/'),
           options: StorageListOptions(
-            accessLevel: StorageAccessLevel.guest,
             pageSize: 1000,
             nextToken: nextToken,
             pluginOptions: const S3ListPluginOptions(
@@ -48,7 +44,7 @@ class StorageService {
             ),
           ),
         ).result;
-        fileKeys.addAll(result.items.map((e) => e.key));
+        fileKeys.addAll(result.items.map((e) => e.path));
         nextToken = result.nextToken;
         hasNextPage = result.hasNextPage;
       } while (hasNextPage);
@@ -59,30 +55,23 @@ class StorageService {
     }
   }
 
-  Future<void> move(
-      {required String path,
-      required String sourceKey,
-      required String destinationKey,
-      StorageAccessLevel sourceAccessLevel = StorageAccessLevel.guest,
-      StorageAccessLevel destinationAccessLevel =
-          StorageAccessLevel.guest}) async {
+  Future<void> move({
+    required String path,
+    required String sourceKey,
+    required String destinationKey,
+  }) async {
     try {
-      await Amplify.Storage.move(
-              source: StorageItemWithAccessLevel(
-                  storageItem: StorageItem(key: '$path/$sourceKey'),
-                  accessLevel: sourceAccessLevel),
-              destination: StorageItemWithAccessLevel(
-                  storageItem: StorageItem(key: '$path/$destinationKey'),
-                  accessLevel: destinationAccessLevel))
-          .result;
+      await Amplify.Storage.copy(
+        source: StoragePath.fromString('$path/$sourceKey'),
+        destination: StoragePath.fromString('$path/$destinationKey'),
+      ).result;
     } catch (e) {
       safePrint('Error moving file: $e with key $sourceKey');
       rethrow;
     }
   }
 
-  void remove(String key, StorageAccessLevel accessLevel) {
-    Amplify.Storage.remove(
-        key: key, options: StorageRemoveOptions(accessLevel: accessLevel));
+  void remove(String path) {
+    Amplify.Storage.remove(path: StoragePath.fromString(path));
   }
 }
