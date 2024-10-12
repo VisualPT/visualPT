@@ -36,7 +36,7 @@ dependencies:
   amplify_storage_s3: ^2.4.1
   app_tracking_transparency: ^2.0.6
   bloc_concurrency: ^0.2.4
-  camera: ^0.10.6
+  camera: ^0.11.0+2
   connectivity_plus: ^6.0.5
   cupertino_icons: ^1.0.5
   equatable: ^2.0.5
@@ -54,11 +54,11 @@ dependencies:
   printing: ^5.12.3
   scidart: ^0.0.2-dev.12
   sensors_plus: ^6.0.1
-  tflite_flutter: ^0.9.5
+  tflite_flutter: ^0.11.0
   tflite_flutter_helper:
     git:
-      url: https://github.com/pnyompen/tflite_flutter_helper.git
-      ref: 43e87d4b9627539266dc20250beb35bf36320dce
+      url: https://github.com/VisualPT/tflite_flutter_helper.git
+      ref: 54a152256bc46fad8b2749061c7dd3bc5f2b63c3
   vector_math: ^2.1.4
 
 dev_dependencies:

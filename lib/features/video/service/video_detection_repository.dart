@@ -121,7 +121,7 @@ class VideoDetectionRepository
 TensorImage preProcessData(CameraImage input) {
   final image = ImageUtils.convertCameraImage(input);
 
-  var tensorImage = TensorImage(TfLiteType.float32);
+  var tensorImage = TensorImage(TensorType.float32);
   tensorImage.loadImage(image);
   final imageProcessor = ImageProcessorBuilder()
       .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))

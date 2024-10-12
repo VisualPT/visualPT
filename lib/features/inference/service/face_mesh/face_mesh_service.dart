@@ -68,7 +68,7 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
       input = image_lib.copyRotate(input, angle: -90);
       input = image_lib.flipHorizontal(input);
     }
-    final tensorImage = TensorImage(TfLiteType.float32);
+    final tensorImage = TensorImage(TensorType.float32);
     tensorImage.loadImage(input);
     final inputImage = getProcessedImage(tensorImage);
 

@@ -7,9 +7,9 @@ abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
   AiModel({this.interpreter});
 
   final inputShapes = <List<int>>[];
-  final inputTypes = <TfLiteType>[];
+  final inputTypes = <TensorType>[];
   final outputShapes = <List<int>>[];
-  final outputTypes = <TfLiteType>[];
+  final outputTypes = <TensorType>[];
 
   Interpreter? interpreter;
 
