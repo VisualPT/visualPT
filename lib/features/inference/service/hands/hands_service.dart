@@ -7,7 +7,6 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 import '../../constants/model_file.dart';
-import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
@@ -59,12 +58,13 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
   }
 
   @override
-  HandsOutput? predict(
-      String id, image_lib.Image input, Map<String, dynamic>? params) {
+  HandsOutput? predict(Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
+    final String id = params['id'];
+    image_lib.Image input = params['input'];
 
     if (Platform.isAndroid) {
       input = image_lib.copyRotate(input, angle: -90);
@@ -104,15 +104,6 @@ class Hands extends AiModel<image_lib.Image, HandsOutput> {
 
     return HandsOutput(id, landmarkPoints);
   }
-}
-
-HandsOutput? runHandDetector(Map<String, dynamic> params) {
-  final hands =
-      Hands(interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['input']);
-  final result = hands.predict(params["id"], image, {});
-
-  return result;
 }
 
 class HandsOutput extends AiModelOutput {

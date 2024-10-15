@@ -20,30 +20,25 @@ enum Models {
 
 class ModelInferenceService<I, O> {
   late AiModel model;
-  late Function handler;
+  late AiModelOutput? Function(
+    Map<String, dynamic> params,
+  ) handler;
 
   Future<AiModelOutput?> inference({
-    required String id,
     required IsolateUtils isolateUtils,
-    required I input,
-    required Map<String, dynamic>? params,
+    required Map<String, dynamic> params,
   }) async {
     final responsePort = ReceivePort();
-
+    // print("Sending $handler, with params: $params");
     isolateUtils.sendMessage(
       handler: handler,
-      params: {
-        'id': id,
-        'input': input,
-        'detectorAddress': model.getAddress,
-        'params': params,
-      },
+      params: params,
       sendPort: isolateUtils.sendPort,
       responsePort: responsePort,
     );
 
     final results = await responsePort.first;
-    responsePort.close();
+    //responsePort.close();
     return results;
   }
 
@@ -52,27 +47,23 @@ class ModelInferenceService<I, O> {
       case Models.FaceDetection:
         log("Face Detection model configured");
         model = locator<FaceDetection>();
-        handler = runFaceDetector;
         break;
       case Models.FaceMesh:
         log("Face Mesh model configured");
         model = locator<FaceMesh>();
-        handler = runFaceMesh;
         break;
       case Models.Hands:
         log("Hands model configured");
         model = locator<Hands>();
-        handler = runHandDetector;
         break;
       case Models.PoseDetect:
         log("Pose detection model configured");
         model = locator<PoseDetection>();
-        handler = runPoseDetector;
         break;
       case Models.PoseClass:
         log("Pose classification model configured");
         model = locator<PoseClassification>();
-        handler = runPoseClassifier;
     }
+    handler = model.predict;
   }
 }

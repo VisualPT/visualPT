@@ -17,7 +17,7 @@ class InferenceInit<I, O> extends InferenceEvent<I, O> {
 }
 
 class InferenceStart<I, O> extends InferenceEvent<I, O> {
-  final Map<String, dynamic>? params;
+  final Map<String, dynamic> params;
   const InferenceStart(super.id, this.params);
 
   @override
@@ -26,11 +26,11 @@ class InferenceStart<I, O> extends InferenceEvent<I, O> {
 
 class InferenceInput<I, O> extends InferenceEvent<I, O> {
   final I input;
-  final Map<String, dynamic>? params;
+  final Map<String, dynamic> params;
   const InferenceInput(
     super.id, {
     required this.input,
-    this.params,
+    required this.params,
   });
 
   @override

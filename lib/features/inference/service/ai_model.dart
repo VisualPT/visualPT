@@ -4,7 +4,7 @@ import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 
 // ignore: must_be_immutable
 abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
-  AiModel({this.interpreter});
+  AiModel();
 
   final inputShapes = <List<int>>[];
   final inputTypes = <TensorType>[];
@@ -19,7 +19,7 @@ abstract class AiModel<I, O extends AiModelOutput> extends Equatable {
   int get getAddress;
 
   Future<void> loadModel();
-  O? predict(String id, I input, Map<String, dynamic>? params);
+  O? predict(Map<String, dynamic> params);
 }
 
 abstract class AiModelOutput extends Identifiable {

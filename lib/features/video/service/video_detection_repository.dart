@@ -20,7 +20,6 @@ class VideoDetectionRepository
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
-  final IsolateUtils _convertIsolateUtils = IsolateUtils();
   final accelStream = userAccelerometerEventStream();
   final gyroStream = gyroscopeEventStream();
   StreamSubscription<GyroscopeEvent>? _gyroSubscription;
@@ -45,24 +44,27 @@ class VideoDetectionRepository
   @override
   Future<void> initialize() async {
     await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
-    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
     _poseDetectionService.setModelConfig(3);
     isInitialized = true;
   }
 
   @override
-  Future<PoseDetectionOutput?> runPredict(
-      String id, DeviceCapture input, Map<String, dynamic>? params) async {
+  Future<PoseDetectionOutput?> runPredict(Map<String, dynamic> params) async {
     if (!isInitialized) {
       throw Exception(
           "runPredict: Detection Inference Service not initialized");
     }
+    final id = params['id'] as String;
+    final input = params['input'] as DeviceCapture;
     final data = preProcessData(input.input);
+    final newParams = {
+      'id': id,
+      'input': data,
+      'params': params['params'],
+    };
     final output = await _poseDetectionService.inference(
-      id: id,
       isolateUtils: _detectionIsolateUtils,
-      input: data,
-      params: params,
+      params: newParams,
     ) as PoseDetectionOutput?;
     if (output != null) localStorage[input] = output;
     return output;
@@ -77,7 +79,7 @@ class VideoDetectionRepository
     StorageService storageService = StorageService();
 
     final png = await ImageUtils.convert(
-      isolateUtils: _convertIsolateUtils,
+      // isolateUtils: _convertIsolateUtils,
       image: input.input,
     );
     final data = VPTDetection(
@@ -103,7 +105,6 @@ class VideoDetectionRepository
   @override
   void dispose() {
     _detectionIsolateUtils.dispose();
-    _convertIsolateUtils.dispose();
     _gyroSubscription?.cancel();
     _accelSubscription?.cancel();
   }
@@ -118,15 +119,19 @@ class VideoDetectionRepository
   }
 }
 
+//TODO: FIGURE OUT WHY THIS SHIT IS BROKEN
 TensorImage preProcessData(CameraImage input) {
   final image = ImageUtils.convertCameraImage(input);
 
   var tensorImage = TensorImage(TensorType.float32);
   tensorImage.loadImage(image);
-  final imageProcessor = ImageProcessorBuilder()
-      .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))
-      .add(NormalizeOp(0, 255))
-      .build();
 
-  return imageProcessor.process(tensorImage);
+  // final imageProcessor = ImageProcessorBuilder()
+  //     .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))
+  //     .add(NormalizeOp(0, 255))
+  //     .build();
+
+  // final output = imageProcessor.process(tensorImage);
+
+  return tensorImage;
 }
