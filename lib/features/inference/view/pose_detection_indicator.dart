@@ -27,7 +27,7 @@ class DeviceCapture extends Identifiable {
   String toString() => "DeviceCapture{id: $id}";
 
   @override //the props
-  List<Object> get props => [id];
+  List<Object> get props => [id, input, measurements];
 }
 
 class PoseDetectionIndicator extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'dart:isolate';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as image_lib;
-import 'isolate_utils.dart';
 
 // ignore: constant_identifier_names
 const IOS_BYTES_OFFSET = 28;
@@ -9,6 +9,7 @@ const IOS_BYTES_OFFSET = 28;
 /// ImageUtils
 class ImageUtils {
   /// Converts a [CameraImage] in YUV420 or BGRA8888 format to [Image] in RGB format
+  /// Ref: https://gist.github.com/Alby-o/fe87e35bc21d534c8220aed7df028e03?permalink_comment_id=4574528#gistcomment-4574528
   static image_lib.Image convertCameraImage(CameraImage cameraImage) {
     return switch (cameraImage.format.group) {
       ImageFormatGroup.yuv420 => convertYUV420ToImage(cameraImage),
@@ -23,14 +24,34 @@ class ImageUtils {
   static image_lib.Image convertBGRA8888ToImage(CameraImage cameraImage) {
     final plane = cameraImage.planes[0];
 
-    return image_lib.Image.fromBytes(
+    // Calculate the number of pixels
+    int numPixels = cameraImage.width * cameraImage.height;
+
+    // Create a Float32List for the RGB image without the alpha channel
+    Float32List floatList = Float32List(numPixels * 3); // 3 channels (RGB)
+
+    // Populate the floatList by ignoring the alpha channel
+    for (int i = 0, j = 0; i < plane.bytes.length; i += 4) {
+      floatList[j++] = plane.bytes[i] / 255.0; // Red
+      floatList[j++] = plane.bytes[i + 1] / 255.0; // Green
+      floatList[j++] = plane.bytes[i + 2] / 255.0; // Blue
+      // Skip alpha (i + 3)
+    }
+
+    // Determine the rowStride for the float32 image
+    int floatRowStride = plane.bytesPerRow * 3; // Adjust for float32 bytes
+
+    final img = image_lib.Image.fromBytes(
       width: cameraImage.width,
       height: cameraImage.height,
-      bytes: plane.bytes.buffer,
-      rowStride: plane.bytesPerRow,
-      bytesOffset: IOS_BYTES_OFFSET,
-      order: image_lib.ChannelOrder.bgra,
+      bytes: floatList.buffer,
+      rowStride: floatRowStride,
+      // bytesOffset: IOS_BYTES_OFFSET,
+      order: image_lib.ChannelOrder.rgb,
+      format: image_lib.Format.float32,
     );
+    return image_lib.copyResize(img,
+        width: 256, height: 256, interpolation: image_lib.Interpolation.linear);
   }
 
   /// Converts a [CameraImage] in YUV420 format to [image_lib.Image] in RGB format
@@ -106,22 +127,20 @@ class ImageUtils {
   // }
 
   /// Convert a [Image] to PNG
-  static Future<List<int>> convert(
-      {required IsolateUtils isolateUtils, required CameraImage image}) async {
-    final responsePort = ReceivePort();
+  static Future<List<int>> convert({required CameraImage image}) async {
+    //final responsePort = ReceivePort();
 
-    toPng(Map<String, dynamic> params) =>
-        image_lib.encodePng(ImageUtils.convertCameraImage(params['image']));
+    final encodedImage = Isolate.run(
+        () => image_lib.encodePng(ImageUtils.convertCameraImage(image)));
+    // isolateUtils.sendMessage(
+    //   handler: toPng,
+    //   params: {
+    //     'image': image,
+    //   },
+    //   sendPort: isolateUtils.sendPort,
+    //   responsePort: responsePort,
+    // );
 
-    isolateUtils.sendMessage(
-      handler: toPng,
-      params: {
-        'image': image,
-      },
-      sendPort: isolateUtils.sendPort,
-      responsePort: responsePort,
-    );
-
-    return await responsePort.first;
+    return await encodedImage;
   }
 }

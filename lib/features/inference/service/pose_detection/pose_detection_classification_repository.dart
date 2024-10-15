@@ -22,15 +22,14 @@ class DetectionClassificationRepository
   }
 
   @override
-  Future<PoseClassificationOutput?> runPredict(String id,
-      PoseDetectionOutput input, Map<String, dynamic>? params) async {
+  Future<PoseClassificationOutput?> runPredict(
+      Map<String, dynamic> params) async {
     if (!isInitialized) {
       throw Exception("Classification Inference Service not initialized");
     }
+    final input = params['input'] as PoseDetectionOutput;
     final output = await _poseClassService.inference(
-      id: id,
       isolateUtils: _classificationIsolateUtils,
-      input: input,
       params: params,
     ) as PoseClassificationOutput?;
     if (output != null) localStorage[input] = output;

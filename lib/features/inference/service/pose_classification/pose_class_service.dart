@@ -47,7 +47,7 @@ class NormConst {
 
 class PoseClassification
     extends AiModel<PoseDetectionOutput, PoseClassificationOutput> {
-  PoseClassification({super.interpreter}) {
+  PoseClassification() {
     loadModel();
   }
   // static const int inputSize = 256;
@@ -84,12 +84,12 @@ class PoseClassification
   }
 
   @override
-  PoseClassificationOutput? predict(
-      String id, PoseDetectionOutput input, Map<String, dynamic>? params) {
+  PoseClassificationOutput? predict(Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
+    final PoseDetectionOutput input = params['input'];
     final List<List<double>> data = input.output;
     final processedInput =
         data.sublist(0, 33).map((e) => e.sublist(0, 5)).toList();
@@ -107,12 +107,6 @@ class PoseClassification
     final prediction = output.getDoubleList();
     return PoseClassificationOutput(input.id, prediction);
   }
-}
-
-PoseClassificationOutput? runPoseClassifier(Map<String, dynamic> params) {
-  final pose = PoseClassification(
-      interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  return pose.predict(params['id'], params['input'], params['params']);
 }
 
 List<List<double>>? normalizeDetection(List<List<double>> dataPoint) {

@@ -62,8 +62,13 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     }
     if (processing) return null;
     processing = true;
-    final data = await inferenceRepository.runPredict(
-        event.id, event.input, event.params);
+    final params = {
+      "id": event.id,
+      "input": event.input,
+      "params": event.params,
+    };
+
+    final data = await inferenceRepository.runPredict(params);
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
@@ -121,6 +126,6 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
   void onError(Object error, StackTrace stackTrace) {
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    log('InferenceBloc Error: $stackTrace $error');
+    log('InferenceBloc Error: $error $stackTrace');
   }
 }

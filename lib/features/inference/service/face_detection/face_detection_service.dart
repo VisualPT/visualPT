@@ -7,7 +7,6 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 import '../../constants/model_file.dart';
-import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 import 'anchors.dart';
 import 'generate_anchors.dart';
@@ -85,12 +84,14 @@ class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
   }
 
   @override
-  FaceBboxOutput? predict(
-      String id, image_lib.Image input, Map<String, dynamic>? params) {
+  FaceBboxOutput? predict(Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
+
+    final String id = params['id'];
+    image_lib.Image input = params['input'];
 
     final options = OptionsFace(
         numClasses: 1,
@@ -165,16 +166,6 @@ class FaceDetection extends AiModel<image_lib.Image, FaceBboxOutput> {
     //return rectFaces[0]
     return FaceBboxOutput(id, rectFaces);
   }
-}
-
-FaceBboxOutput? runFaceDetector(Map<String, dynamic> params) {
-  final faceDetection = FaceDetection(
-      interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final id = params['id'] as String;
-  final input = ImageUtils.convertCameraImage(params['input']);
-  final result = faceDetection.predict(id, input, {});
-
-  return result;
 }
 
 class FaceBboxOutput extends AiModelOutput {

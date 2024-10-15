@@ -7,7 +7,6 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 import '../../constants/model_file.dart';
-import '../../../../core/utils/image_utils.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
@@ -57,12 +56,13 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
   }
 
   @override
-  FaceOutput? predict(
-      String id, image_lib.Image input, Map<String, dynamic>? params) {
+  FaceOutput? predict(Map<String, dynamic> params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
     }
+    final String id = params['id'];
+    image_lib.Image input = params['input'];
 
     if (Platform.isAndroid) {
       input = image_lib.copyRotate(input, angle: -90);
@@ -98,15 +98,6 @@ class FaceMesh extends AiModel<image_lib.Image, FaceOutput> {
     }
     return FaceOutput(id, landmarkResults);
   }
-}
-
-FaceOutput? runFaceMesh(Map<String, dynamic> params) {
-  final faceMesh =
-      FaceMesh(interpreter: Interpreter.fromAddress(params['detectorAddress']));
-  final image = ImageUtils.convertCameraImage(params['input']);
-  final result = faceMesh.predict(params["id"], image, {});
-
-  return result;
 }
 
 class FaceOutput extends AiModelOutput {
