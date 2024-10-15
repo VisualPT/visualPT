@@ -7,8 +7,8 @@ class AssessmentCard extends StatelessWidget {
   final BaseAssessment assessment;
   const AssessmentCard(
     this.assessment, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

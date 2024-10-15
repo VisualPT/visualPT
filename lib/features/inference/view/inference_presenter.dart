@@ -11,8 +11,8 @@ class InferencePresenter<I extends Identifiable, O extends AiModelOutput>
     required this.onStandby,
     required this.onLoad,
     required this.onError,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final Widget Function(BuildContext context, InferenceRunning<I, O> state)
       onRunning;
   final Widget Function(BuildContext context, InferenceStandby<I, O> state)

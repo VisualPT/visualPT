@@ -12,7 +12,7 @@ import 'package:visualpt/core/views/components/_components.dart';
 class AssessmentForm<T extends BaseAssessment> extends StatefulWidget {
   final T assessment;
 
-  const AssessmentForm({Key? key, required this.assessment}) : super(key: key);
+  const AssessmentForm({super.key, required this.assessment});
 
   @override
   State<AssessmentForm> createState() => _AssessmentFormState();

@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/math_utils.dart';
 import 'package:visualpt/core/views/styles.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/models/ModelProvider.dart';
@@ -492,7 +491,7 @@ class CtsibPDF extends PDF {
   }
 
   Widget interpretationData(Assessment assessment) {
-    final is9xFallRisk = checkFallRisk(assessment);
+    // final is9xFallRisk = checkFallRisk(assessment);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
