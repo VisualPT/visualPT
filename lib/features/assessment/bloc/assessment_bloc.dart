@@ -30,6 +30,7 @@ class AssessmentBloc<T extends BaseAssessment>
 
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
+    storeData = event.storeData;
     assessmentStartTime = DateTime.now();
     subject = event.subject;
     // amplify.Amplify.DataStore.save(subject);

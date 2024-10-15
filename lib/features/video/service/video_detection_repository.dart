@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -26,8 +25,9 @@ class VideoDetectionRepository
   final gyroStream = gyroscopeEventStream();
   StreamSubscription<GyroscopeEvent>? _gyroSubscription;
   StreamSubscription<UserAccelerometerEvent>? _accelSubscription;
-  GyroscopeEvent currentGyro = GyroscopeEvent(0, 0, 0);
-  UserAccelerometerEvent currentAccel = UserAccelerometerEvent(0, 0, 0);
+  GyroscopeEvent currentGyro = GyroscopeEvent(0, 0, 0, DateTime.now());
+  UserAccelerometerEvent currentAccel =
+      UserAccelerometerEvent(0, 0, 0, DateTime.now());
   final String userID;
   final TrialMeta assessmentMeta;
 
@@ -96,8 +96,8 @@ class VideoDetectionRepository
 
     final idPath = "${userID}_$id";
     final key = "${meta.assessment.name}/raw/$idPath";
-    storageService.upload(imagePayload, '$key.png', StorageAccessLevel.guest);
-    storageService.upload(dataPayload, '$key.csv', StorageAccessLevel.guest);
+    storageService.upload(imagePayload, 'public/$key.png');
+    storageService.upload(dataPayload, 'public/$key.csv');
   }
 
   @override
@@ -114,7 +114,7 @@ class VideoDetectionRepository
     final fileBytes = await file.readAsBytes();
     final videoPayload =
         S3DataPayload.bytes(fileBytes, contentType: "video/mp4");
-    storageService.upload(videoPayload, key, StorageAccessLevel.guest);
+    storageService.upload(videoPayload, 'public/$key');
   }
 }
 

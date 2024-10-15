@@ -11,7 +11,7 @@ class BackendRepository {
   final BackendService _backendService = BackendService();
 
   //Possible future bug when backend is actually used, instead of emitting [BackendConnected] when the device is reconnected to a network, we need to check if the backend is configured and if it isnt, configure it.
-  Stream<ConnectivityResult> get connectivityEvents =>
+  Stream<List<ConnectivityResult>> get connectivityEvents =>
       Connectivity().onConnectivityChanged.asBroadcastStream();
   StreamSubscription<DataStoreHubEvent> get datastoreEvents =>
       _backendService.dataStoreSubscription;

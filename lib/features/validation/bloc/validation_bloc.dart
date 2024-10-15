@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 import 'dart:convert';
 
-import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
@@ -31,7 +31,7 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
   FutureOr<void> _onFetch(
       ValidationFetch event, Emitter<ValidationState> emit) async {
     try {
-      final storedKeys = await _storage.listRawData(type);
+      final storedKeys = await _storage.listRawData('public/$type');
       add(ValidationNext(keys: storedKeys));
     } catch (e) {
       log(e.toString());
@@ -56,21 +56,21 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
     if (label == 1) {
       await _storage.move(
           path: type,
-          sourceKey: 'valid/$id.csv',
-          destinationKey: 'raw/$id.csv');
+          sourceKey: 'public/valid/$id.csv',
+          destinationKey: 'public/raw/$id.csv');
       await _storage.move(
           path: type,
-          sourceKey: 'valid/$id.png',
-          destinationKey: 'raw/$id.png');
+          sourceKey: 'public/valid/$id.png',
+          destinationKey: 'public/raw/$id.png');
     } else {
       await _storage.move(
           path: type,
-          sourceKey: 'invalid/$id.csv',
-          destinationKey: 'raw/$id.csv');
+          sourceKey: 'public/invalid/$id.csv',
+          destinationKey: 'public/raw/$id.csv');
       await _storage.move(
           path: type,
-          sourceKey: 'invalid/$id.png',
-          destinationKey: 'raw/$id.png');
+          sourceKey: 'public/invalid/$id.png',
+          destinationKey: 'public/raw/$id.png');
     }
     add(ValidationNext(keys: newKeys));
   }
@@ -108,8 +108,10 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
         }
         final timestampID = searchKey.split("_").last;
         //Get the image and data from the storage
-        final imageResult = await _storage.download(key: imageID).result;
-        final dataResult = await _storage.download(key: dataID).result;
+        final imageResult =
+            await _storage.download(path: 'public/$imageID').result;
+        final dataResult =
+            await _storage.download(path: 'public/$dataID').result;
         final dataOutput = String.fromCharCodes(dataResult.bytes);
         final detection = parseVersionedDetection(timestampID, dataOutput);
 
@@ -151,22 +153,21 @@ class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
 
       final encodedData = utf8.encode(newDetection);
 
-      _storage.remove(
-          '$type/raw/${event.key}.csv', amplify.StorageAccessLevel.guest);
-      _storage.upload(amplify.HttpPayload.bytes(encodedData),
-          '$type/valid/${event.key}.csv', amplify.StorageAccessLevel.guest);
+      _storage.remove('public/$type/raw/${event.key}.csv');
+      _storage.upload(S3DataPayload.bytes(encodedData),
+          'public/$type/valid/${event.key}.csv');
       _storage.move(
           path: type,
-          sourceKey: 'raw/${event.key}.png',
+          sourceKey: 'public/raw/${event.key}.png',
           destinationKey: 'valid/${event.key}.png');
     } else {
       _storage.move(
           path: type,
-          sourceKey: 'raw/${event.key}.csv',
+          sourceKey: 'public/raw/${event.key}.csv',
           destinationKey: 'invalid/${event.key}.csv');
       _storage.move(
           path: type,
-          sourceKey: 'raw/${event.key}.png',
+          sourceKey: 'public/raw/${event.key}.png',
           destinationKey: 'invalid/${event.key}.png');
     }
     //Start the next validation
