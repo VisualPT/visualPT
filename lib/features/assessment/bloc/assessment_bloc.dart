@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 part 'assessment_event.dart';
 part 'assessment_state.dart';
@@ -23,6 +24,7 @@ class AssessmentBloc<T extends BaseAssessment>
   bool storeData = true;
 
   AssessmentBloc(this.config) : super(AssessmentForm<T>(config)) {
+    WakelockPlus.enable(); //Keep the screen on during the assessment
     on<AssessmentInit>(_onInit);
     on<AssessmentCondition>(_onCondition);
     on<AssessmentTrial>(_onTrial);
@@ -149,6 +151,13 @@ class AssessmentBloc<T extends BaseAssessment>
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
     debugPrint('AssessmentBloc: $stackTrace, $error');
+  }
+
+  @override
+  Future<void> close() async {
+    WakelockPlus.disable();
+    super.close();
+    return;
   }
 }
 

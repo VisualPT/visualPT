@@ -50,7 +50,6 @@ dependencies:
   intl: ^0.19.0
   path_provider: ^2.1.4
   pdf: ^3.11.1
-  # pdf_widget_wrapper: ^1.0.4 # This is for a build error on 1.0.3, when the dependent package has an available update, this can be removed
   printing: ^5.12.3
   scidart: ^0.0.2-dev.12
   sensors_plus: ^6.0.1
@@ -60,6 +59,7 @@ dependencies:
       url: https://github.com/pnyompen/tflite_flutter_helper.git
       ref: 43e87d4b9627539266dc20250beb35bf36320dce
   vector_math: ^2.1.4
+  wakelock_plus: ^1.2.8
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +73,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+
+dependency_overrides: #Fix for Error (Xcode): ../../../.pub-cache/hosted/pub.dev/win32-5.5.0/lib/src/guid.dart:32:9: Error: Type 'UnmodifiableUint8ListView' not found.
+  win32: ^5.5.4 # Can be removed when dependent package has an available update
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
