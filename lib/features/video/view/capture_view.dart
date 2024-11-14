@@ -16,7 +16,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const ViewBackground(),
         VideoPresenter(
           key: UniqueKey(),
           state.storeData,
