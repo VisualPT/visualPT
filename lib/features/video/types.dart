@@ -8,21 +8,15 @@ class DeviceMeta {
   final num deviceAcceleroX;
   final num deviceAcceleroY;
   final num deviceAcceleroZ;
-  final num deviceGyroX;
-  final num deviceGyroY;
-  final num deviceGyroZ;
 
   const DeviceMeta(
     this.deviceAcceleroX,
     this.deviceAcceleroY,
     this.deviceAcceleroZ,
-    this.deviceGyroX,
-    this.deviceGyroY,
-    this.deviceGyroZ,
   );
 
   String csv() {
-    return "$deviceAcceleroX,$deviceAcceleroY,$deviceAcceleroZ,$deviceGyroX,$deviceGyroY,$deviceGyroZ";
+    return "$deviceAcceleroX,$deviceAcceleroY,$deviceAcceleroZ";
   }
 }
 
@@ -93,9 +87,6 @@ class VPTDetection {
         double.parse(deviceMeta[0]),
         double.parse(deviceMeta[1]),
         double.parse(deviceMeta[2]),
-        double.parse(deviceMeta[3]),
-        double.parse(deviceMeta[4]),
-        double.parse(deviceMeta[5]),
       ),
       inferredClassification,
       output,

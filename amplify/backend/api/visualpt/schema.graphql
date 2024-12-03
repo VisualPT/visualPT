@@ -122,6 +122,7 @@ type DetectionEnv {
   gyroX: Float
   gyroY: Float
   gyroZ: Float
+  timestamp: AWSDateTime
 }
 
 # type Keypoints {
