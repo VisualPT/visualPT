@@ -67,8 +67,8 @@ abstract class PDF {
     detailBold = TextStyle(font: boldFont, fontSize: 12.0, lineSpacing: 2.0);
     subHeader = TextStyle(font: boldFont, fontSize: 18.0, lineSpacing: 2.0);
     disclaimer = TextStyle(font: baseFont, fontSize: 10.0, lineSpacing: 2.0);
-    invisible =
-        TextStyle(fontSize: 10.0, lineSpacing: 20.0, color: transparent);
+    invisible = TextStyle(
+        font: baseFont, fontSize: 10.0, lineSpacing: 20.0, color: transparent);
 
     RichTextLogo = RichText(
         text: TextSpan(children: [

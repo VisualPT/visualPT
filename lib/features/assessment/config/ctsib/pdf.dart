@@ -40,7 +40,6 @@ class CtsibPDF extends PDF {
             normativeData(assessment, norms),
             Spacer(),
             interpretationData(assessment),
-            //diagnosisData(),
             Spacer(),
             footerData(),
           ]),
