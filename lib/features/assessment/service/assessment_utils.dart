@@ -34,6 +34,23 @@ class AssessmentUtils {
     }
   }
 
+  static formatOutput(Map<DeviceCapture, PoseDetectionOutput> detections,
+      Map<String, dynamic> params) {
+    final linked = <Detection>[];
+    detections.forEach((key, value) {
+      linked.add(Detection(
+        version: 1,
+        id: key.id,
+        obtrustion: params["obtrustion"],
+        instability: params["instability"],
+        env: key.measurements,
+        keypoints: value.toString(),
+        prediction: null,
+      ));
+    });
+    return linked.isNotEmpty ? linked : null;
+  }
+
   static linkOutput(
       Map<DeviceCapture, PoseDetectionOutput> detections,
       Map<PoseDetectionOutput, PoseClassificationOutput> classifications,

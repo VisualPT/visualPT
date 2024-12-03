@@ -5,7 +5,6 @@ import 'package:visualpt/features/video/types.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/service/video_detection_repository.dart';
@@ -75,19 +74,6 @@ class VideoPresenter extends StatelessWidget {
                 ..add(InferenceInit("init", address));
             },
           ),
-          BlocProvider(
-            lazy: false,
-            create: (context) {
-              return InferenceBloc<PoseDetectionOutput,
-                      PoseClassificationOutput>(
-                  RepositoryProvider.of<DetectionClassificationRepository>(
-                      context),
-                  null,
-                  VPTClassificationRate,
-                  storeData)
-                ..add(InferenceInit("init", address));
-            },
-          )
         ],
         child: BlocBuilder<VideoBloc, VideoState>(
           builder: (context, state) {
