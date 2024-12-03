@@ -11,6 +11,10 @@ class EmailNull extends EmailState {
   const EmailNull();
 }
 
+class EmailSending extends EmailState {
+  const EmailSending();
+}
+
 class EmailSent extends EmailState {
   const EmailSent();
 }

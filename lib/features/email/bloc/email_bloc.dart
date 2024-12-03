@@ -21,16 +21,19 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
   ///Sends a curated single template of a basic Assessment with an attached PDF
 
   FutureOr<void> _onSend(EmailSend event, Emitter<EmailState> emit) async {
-    final videos = await VideoService.getVideosInBase64(event.assessment);
-    List<Map<String, String>> attachments = [];
-    for (int i = 0; i < videos.length; i++) {
-      attachments.add({
-        'filename':
-            '${event.assessment.type.name}_condition${i + 1}_${event.subject.last_name}.mp4',
-        'content': videos[i],
-        'type': 'video/mp4',
-        'disposition': 'attachment'
-      });
+    emit(const EmailSending());
+    if (event.storeData) {
+      final videos = await VideoService.getVideosInBase64(event.assessment);
+      List<Map<String, String>> attachments = [];
+      for (int i = 0; i < videos.length; i++) {
+        attachments.add({
+          'filename':
+              '${event.assessment.type.name}_condition${i + 1}_${event.subject.last_name}.mp4',
+          'content': videos[i],
+          'type': 'video/mp4',
+          'disposition': 'attachment'
+        });
+      }
     }
 
     final Map<String, String> templateParams = {
@@ -40,10 +43,10 @@ class EmailBloc extends Bloc<EmailEvent, EmailState> {
       'patient_pdf': event.assessment.pdf!,
       //TODO: #56 'attachments': attachments
     };
+
     Response response = await EmailService().sendAssessmentPDF(templateParams);
     if (response.statusCode == 200) {
       emit(const EmailSent());
-
       event.onSuccess();
     } else {
       event.onFail();

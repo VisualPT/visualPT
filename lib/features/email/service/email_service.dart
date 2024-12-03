@@ -32,6 +32,6 @@ class EmailService {
   }
 
   void _logEmail(String message) {
-    log(name: "Email Logger:", message);
+    log(name: "Email Logger", message);
   }
 }
