@@ -7,7 +7,7 @@ import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
+import 'package:visualpt/features/video/view/capture_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -114,22 +114,28 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                   right: 0,
                   child: Container(
                     color: Styles.white,
-                    child: const Padding(
-                      padding: EdgeInsets.all(1.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          PoseDetectionIndicator(),
-                          PoseClassificationIndicator(),
+                          CaptureIndicator(
+                            icon: CupertinoIcons.time,
+                            color: Styles.black,
+                            type: "Duration",
+                            child: Text(formatter(state.duration),
+                                style: Styles.timerTextStyle),
+                          ),
+                          const PoseDetectionIndicator(),
                         ],
                       ),
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: 0,
+                  bottom: 10,
                   left: 0,
                   right: 0,
                   child: Row(
@@ -158,28 +164,20 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                             detection.add(InferenceStart("Start", params));
                             classification.add(InferenceStart("Start", params));
                           },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Styles.actionSecondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              CupertinoIcons.circle_fill,
-                              color: Styles.actionPrimary,
-                              size: 100,
-                            ),
+                          child: const Icon(
+                            CupertinoIcons.circle,
+                            color: Styles.actionPrimary,
+                            size: 80,
                           ),
                         )
                       ] else ...[
-                        const Spacer(flex: 2),
+                        const Spacer(),
                         GestureDetector(
                           onTap: () => onPause(state as VideoRecording),
                           child: const Icon(CupertinoIcons.stop,
-                              color: Styles.actionPrimary, size: 100),
+                              color: Styles.actionPrimary, size: 80),
                         ),
                         const Spacer(),
-                        Text(formatter(state.duration),
-                            style: Styles.timerTextStyle),
                       ],
                       const Spacer(),
                     ],

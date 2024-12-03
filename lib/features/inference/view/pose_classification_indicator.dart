@@ -3,7 +3,7 @@ import 'package:visualpt/core/views/_views.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/inference_indicator.dart';
+import 'package:visualpt/features/video/view/capture_indicator.dart';
 import 'package:visualpt/features/inference/view/inference_presenter.dart';
 
 class PoseClassificationIndicator extends StatelessWidget {
@@ -23,7 +23,7 @@ class PoseClassificationIndicator extends StatelessWidget {
 
   Widget onRunning(BuildContext context,
       InferenceRunning<PoseDetectionOutput, PoseClassificationOutput> state) {
-    return InferenceIndicator(
+    return CaptureIndicator(
       icon: icon,
       color: Styles.green,
       type: type,
@@ -37,7 +37,7 @@ class PoseClassificationIndicator extends StatelessWidget {
 
   Widget onStandby(BuildContext context,
       InferenceStandby<PoseDetectionOutput, PoseClassificationOutput> state) {
-    return const InferenceIndicator(
+    return const CaptureIndicator(
         icon: icon,
         color: Styles.yellow,
         type: type,
@@ -46,7 +46,7 @@ class PoseClassificationIndicator extends StatelessWidget {
 
   Widget onLoad(BuildContext context,
       InferenceLoading<PoseDetectionOutput, PoseClassificationOutput> state) {
-    return const InferenceIndicator(
+    return const CaptureIndicator(
         icon: icon,
         color: Styles.inactiveGray,
         type: type,
@@ -55,7 +55,7 @@ class PoseClassificationIndicator extends StatelessWidget {
 
   Widget onError(BuildContext context,
       InferenceError<PoseDetectionOutput, PoseClassificationOutput> state) {
-    return const InferenceIndicator(
+    return const CaptureIndicator(
         icon: icon,
         color: Styles.errorRed,
         type: type,

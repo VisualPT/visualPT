@@ -1,24 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/core/views/_views.dart';
 
-class InferenceIndicator extends StatefulWidget {
-  const InferenceIndicator(
+class CaptureIndicator extends StatefulWidget {
+  const CaptureIndicator(
       {super.key,
       required this.icon,
-      required this.color,
       required this.type,
+      this.color = Styles.black,
       this.child =
           const Text("...", style: TextStyle(fontWeight: FontWeight.w300))});
   final IconData icon;
-  final Color color;
   final String type;
+  final Color color;
   final Text child;
 
   @override
-  State<InferenceIndicator> createState() => _InferenceIndicatorState();
+  State<CaptureIndicator> createState() => _CaptureIndicatorState();
 }
 
-class _InferenceIndicatorState extends State<InferenceIndicator> {
+class _CaptureIndicatorState extends State<CaptureIndicator> {
   bool showMessage = false;
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,9 @@ class _InferenceIndicatorState extends State<InferenceIndicator> {
                   margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.color.withAlpha(128),
+                      color: widget.color == Styles.black
+                          ? Styles.white
+                          : widget.color.withAlpha(128),
                       border: Border.all()),
                   child: Icon(widget.icon, size: 16, color: Styles.black)),
               Text("${widget.type} ", style: Styles.heading2),

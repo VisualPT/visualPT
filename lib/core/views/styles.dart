@@ -87,7 +87,7 @@ class Styles {
       TextStyle(color: comingSoonColor, fontSize: 18);
 
   static TextStyle timerTextStyle = GoogleFonts.robotoMono(
-      fontWeight: FontWeight.bold, fontSize: 24, color: white.withOpacity(0.8));
+      fontWeight: FontWeight.bold, fontSize: 24, color: black.withOpacity(0.8));
   static const error = TextStyle(color: Styles.errorRed);
 
   //Borders

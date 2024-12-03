@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 const double MAX_SWAY_ANGLE = 8;
@@ -123,28 +124,28 @@ class BoxPainter extends CustomPainter {
     final Offset tl = Offset(boxOffset + -xOffset, 0);
     final Offset tr = Offset(boxOffset + boxWidth + xOffset, 0);
     // Center of top and bottom points
-    final Offset tc = Offset(boxOffset + (boxWidth / 2), 0);
-    final Offset bc = Offset(boxOffset + (boxWidth / 2), size.height);
+    // final Offset tc = Offset(boxOffset + (boxWidth / 2), 0);
+    // final Offset bc = Offset(boxOffset + (boxWidth / 2), size.height);
 
     final Paint xPaint = Paint()
       ..color = xColor.withAlpha(200)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 0.5;
     final Paint yPaint = Paint()
       ..color = yColor.withAlpha(200)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 0.5;
 
-    final Paint paint = Paint()
-      ..color = Colors.blue.withAlpha(200)
-      ..style = PaintingStyle.stroke;
+    // final Paint paint = Paint()
+    //   ..color = Colors.blue.withAlpha(200)
+    //   ..style = PaintingStyle.stroke;
 
     // Draw the box
     canvas.drawLine(tl, tr, yPaint); // top horizontal line
     canvas.drawLine(bl, br, yPaint); // bottom horizontal line
     canvas.drawLine(bl, tl, xPaint); // left angled line
     canvas.drawLine(br, tr, xPaint); // right angled line
-    canvas.drawLine(bc, tc, paint); // center bisecting line
+    // canvas.drawLine(bc, tc, paint); // center bisecting line
   }
 
   @override
@@ -153,24 +154,27 @@ class BoxPainter extends CustomPainter {
 
 class PoseSway extends StatelessWidget {
   final List<Offset>? points;
-  const PoseSway({this.points, super.key});
+  final AccelerometerEvent? accelData;
+  const PoseSway({this.points, this.accelData, super.key});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      return CustomPaint(painter: PoseSwayPainter(points));
+      return CustomPaint(painter: PoseSwayPainter(points, accelData));
     });
   }
 }
 
 class PoseSwayPainter extends CustomPainter {
   final List<Offset>? points;
-  const PoseSwayPainter(this.points);
+  final AccelerometerEvent? accelData;
+  const PoseSwayPainter(this.points, this.accelData);
 
   @override
   void paint(Canvas canvas, Size size) {
     final offsets = points != null
-        ? PoseDetectionOutput.computeLineOfBestFit(points!.sublist(0, 34), size)
+        ? PoseDetectionOutput.computeLineOfBestFit(points!, size,
+            accelData ?? AccelerometerEvent(0, 0, 0, DateTime.now()))
         : null;
     final color = offsets != null
         ? offsets.degrees.abs() < MAX_SWAY_ANGLE

@@ -41,7 +41,7 @@ class AuthView extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Speed things up, just a few fields first"),
+              child: Text("Lets get you started", style: Styles.heading1),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
@@ -74,7 +74,7 @@ class AuthView extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Accelerate assessments"),
+              child: Text("Welcome back", style: Styles.heading1),
             ),
             const FormInput("email",
                 authType: AuthDataType.email,
@@ -242,54 +242,58 @@ class AuthView extends StatelessWidget {
 
   Widget authButtons(BuildContext context, bool isLogin) {
     String login = "Log In", signup = "Sign up";
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CupertinoButton(
-              color: Styles.actionPrimary,
-              child: Text(
-                isLogin ? login : signup,
-                style: Styles.actionText,
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  log("Auth Data Validated");
-                  BlocProvider.of<AuthBloc>(context).add(isLogin
-                      ? const AuthAttemptLogIn()
-                      : const AuthAttemptSignUp());
-                }
-              }),
-        ),
-        Text(isLogin ? "Don't have an account?" : "Already have an account?"),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CupertinoButton(
-              color: Styles.actionPrimary,
-              child: Text(
-                isLogin ? signup : login,
-                style: Styles.subactionText,
-              ),
-              onPressed: () {
-                _formKey.currentState!.reset();
-                BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
-              }),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CupertinoButton(
-              color: Styles.actionSecondary,
-              child: const Text(
-                "Forgot Password",
-                style: Styles.subactionText,
-              ),
-              onPressed: () {
-                BlocProvider.of<AuthBloc>(context)
-                    .add(const AuthForgotClicked());
-              }),
-        ),
-      ],
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.4,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoButton(
+                color: Styles.actionPrimary,
+                child: Text(
+                  isLogin ? login : signup,
+                  style: Styles.actionText,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    log("Auth Data Validated");
+                    BlocProvider.of<AuthBloc>(context).add(isLogin
+                        ? const AuthAttemptLogIn()
+                        : const AuthAttemptSignUp());
+                  }
+                }),
+          ),
+          const Spacer(),
+          Text(isLogin ? "Don't have an account?" : "Already have an account?"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoButton(
+                color: Styles.actionSecondary,
+                child: Text(
+                  isLogin ? signup : login,
+                  style: Styles.subactionText,
+                ),
+                onPressed: () {
+                  _formKey.currentState!.reset();
+                  BlocProvider.of<AuthBloc>(context).add(const AuthToggle());
+                }),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoButton(
+                color: Styles.actionSecondary,
+                child: const Text(
+                  "Forgot Password",
+                  style: Styles.subactionText,
+                ),
+                onPressed: () {
+                  BlocProvider.of<AuthBloc>(context)
+                      .add(const AuthForgotClicked());
+                }),
+          ),
+        ],
+      ),
     );
   }
 }
