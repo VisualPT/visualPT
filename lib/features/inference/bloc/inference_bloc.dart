@@ -98,6 +98,7 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
 
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
     isReady = false;
+    processing = false;
     nullResponsePort.close();
     if (_subscription != null) {
       _subscription?.cancel();
