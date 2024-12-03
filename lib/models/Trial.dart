@@ -177,7 +177,7 @@ class Trial extends amplify_core.Model {
       _Detections = json['Detections'] is List
         ? (json['Detections'] as List)
           .where((e) => e != null)
-          .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e)))
+          .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e['serializedData'] ?? e)))
           .toList()
         : null,
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,

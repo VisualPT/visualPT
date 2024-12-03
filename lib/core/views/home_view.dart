@@ -35,9 +35,6 @@ class HomeView extends StatelessWidget {
                     AssessmentCard(MCTSIB()),
                     AssessmentCard(BERG()),
                     kDebugMode ? AssessmentCard(DEV()) : Container(),
-                    //TODO: AssessmentCard(GAIT()),
-                    // AssessmentCard(REACH()),
-                    // AssessmentCard(FIST())
                   ],
                 ),
               ),

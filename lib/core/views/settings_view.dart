@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/components/_components.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -13,7 +12,6 @@ class SettingsView extends StatelessWidget {
       pageTitle: "Settings",
       child: Stack(
         children: [
-          const ViewBackground(),
           Center(
             child: Column(
               children: [

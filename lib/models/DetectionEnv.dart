@@ -33,6 +33,7 @@ class DetectionEnv {
   final double? _gyroX;
   final double? _gyroY;
   final double? _gyroZ;
+  final amplify_core.TemporalDateTime? _timestamp;
 
   int? get imageHeight {
     return _imageHeight;
@@ -66,9 +67,13 @@ class DetectionEnv {
     return _gyroZ;
   }
   
-  const DetectionEnv._internal({imageHeight, imageWidth, accX, accY, accZ, gyroX, gyroY, gyroZ}): _imageHeight = imageHeight, _imageWidth = imageWidth, _accX = accX, _accY = accY, _accZ = accZ, _gyroX = gyroX, _gyroY = gyroY, _gyroZ = gyroZ;
+  amplify_core.TemporalDateTime? get timestamp {
+    return _timestamp;
+  }
   
-  factory DetectionEnv({int? imageHeight, int? imageWidth, double? accX, double? accY, double? accZ, double? gyroX, double? gyroY, double? gyroZ}) {
+  const DetectionEnv._internal({imageHeight, imageWidth, accX, accY, accZ, gyroX, gyroY, gyroZ, timestamp}): _imageHeight = imageHeight, _imageWidth = imageWidth, _accX = accX, _accY = accY, _accZ = accZ, _gyroX = gyroX, _gyroY = gyroY, _gyroZ = gyroZ, _timestamp = timestamp;
+  
+  factory DetectionEnv({int? imageHeight, int? imageWidth, double? accX, double? accY, double? accZ, double? gyroX, double? gyroY, double? gyroZ, amplify_core.TemporalDateTime? timestamp}) {
     return DetectionEnv._internal(
       imageHeight: imageHeight,
       imageWidth: imageWidth,
@@ -77,7 +82,8 @@ class DetectionEnv {
       accZ: accZ,
       gyroX: gyroX,
       gyroY: gyroY,
-      gyroZ: gyroZ);
+      gyroZ: gyroZ,
+      timestamp: timestamp);
   }
   
   bool equals(Object other) {
@@ -95,7 +101,8 @@ class DetectionEnv {
       _accZ == other._accZ &&
       _gyroX == other._gyroX &&
       _gyroY == other._gyroY &&
-      _gyroZ == other._gyroZ;
+      _gyroZ == other._gyroZ &&
+      _timestamp == other._timestamp;
   }
   
   @override
@@ -113,13 +120,14 @@ class DetectionEnv {
     buffer.write("accZ=" + (_accZ != null ? _accZ!.toString() : "null") + ", ");
     buffer.write("gyroX=" + (_gyroX != null ? _gyroX!.toString() : "null") + ", ");
     buffer.write("gyroY=" + (_gyroY != null ? _gyroY!.toString() : "null") + ", ");
-    buffer.write("gyroZ=" + (_gyroZ != null ? _gyroZ!.toString() : "null"));
+    buffer.write("gyroZ=" + (_gyroZ != null ? _gyroZ!.toString() : "null") + ", ");
+    buffer.write("timestamp=" + (_timestamp != null ? _timestamp!.format() : "null"));
     buffer.write("}");
     
     return buffer.toString();
   }
   
-  DetectionEnv copyWith({int? imageHeight, int? imageWidth, double? accX, double? accY, double? accZ, double? gyroX, double? gyroY, double? gyroZ}) {
+  DetectionEnv copyWith({int? imageHeight, int? imageWidth, double? accX, double? accY, double? accZ, double? gyroX, double? gyroY, double? gyroZ, amplify_core.TemporalDateTime? timestamp}) {
     return DetectionEnv._internal(
       imageHeight: imageHeight ?? this.imageHeight,
       imageWidth: imageWidth ?? this.imageWidth,
@@ -128,7 +136,8 @@ class DetectionEnv {
       accZ: accZ ?? this.accZ,
       gyroX: gyroX ?? this.gyroX,
       gyroY: gyroY ?? this.gyroY,
-      gyroZ: gyroZ ?? this.gyroZ);
+      gyroZ: gyroZ ?? this.gyroZ,
+      timestamp: timestamp ?? this.timestamp);
   }
   
   DetectionEnv copyWithModelFieldValues({
@@ -139,7 +148,8 @@ class DetectionEnv {
     ModelFieldValue<double?>? accZ,
     ModelFieldValue<double?>? gyroX,
     ModelFieldValue<double?>? gyroY,
-    ModelFieldValue<double?>? gyroZ
+    ModelFieldValue<double?>? gyroZ,
+    ModelFieldValue<amplify_core.TemporalDateTime?>? timestamp
   }) {
     return DetectionEnv._internal(
       imageHeight: imageHeight == null ? this.imageHeight : imageHeight.value,
@@ -149,7 +159,8 @@ class DetectionEnv {
       accZ: accZ == null ? this.accZ : accZ.value,
       gyroX: gyroX == null ? this.gyroX : gyroX.value,
       gyroY: gyroY == null ? this.gyroY : gyroY.value,
-      gyroZ: gyroZ == null ? this.gyroZ : gyroZ.value
+      gyroZ: gyroZ == null ? this.gyroZ : gyroZ.value,
+      timestamp: timestamp == null ? this.timestamp : timestamp.value
     );
   }
   
@@ -161,10 +172,11 @@ class DetectionEnv {
       _accZ = (json['accZ'] as num?)?.toDouble(),
       _gyroX = (json['gyroX'] as num?)?.toDouble(),
       _gyroY = (json['gyroY'] as num?)?.toDouble(),
-      _gyroZ = (json['gyroZ'] as num?)?.toDouble();
+      _gyroZ = (json['gyroZ'] as num?)?.toDouble(),
+      _timestamp = json['timestamp'] != null ? amplify_core.TemporalDateTime.fromString(json['timestamp']) : null;
   
   Map<String, dynamic> toJson() => {
-    'imageHeight': _imageHeight, 'imageWidth': _imageWidth, 'accX': _accX, 'accY': _accY, 'accZ': _accZ, 'gyroX': _gyroX, 'gyroY': _gyroY, 'gyroZ': _gyroZ
+    'imageHeight': _imageHeight, 'imageWidth': _imageWidth, 'accX': _accX, 'accY': _accY, 'accZ': _accZ, 'gyroX': _gyroX, 'gyroY': _gyroY, 'gyroZ': _gyroZ, 'timestamp': _timestamp?.format()
   };
   
   Map<String, Object?> toMap() => {
@@ -175,7 +187,8 @@ class DetectionEnv {
     'accZ': _accZ,
     'gyroX': _gyroX,
     'gyroY': _gyroY,
-    'gyroZ': _gyroZ
+    'gyroZ': _gyroZ,
+    'timestamp': _timestamp
   };
 
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
@@ -228,6 +241,12 @@ class DetectionEnv {
       fieldName: 'gyroZ',
       isRequired: false,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
+      fieldName: 'timestamp',
+      isRequired: false,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });
 }

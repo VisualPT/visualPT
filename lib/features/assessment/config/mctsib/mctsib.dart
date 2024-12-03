@@ -1,5 +1,6 @@
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
@@ -63,8 +64,8 @@ class MCTSIB implements BaseAssessment {
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference => List.filled(conditions,
-      [InferenceType.poseDetection, InferenceType.poseClassification]);
+  List<List<InferenceType>> get conditionInference =>
+      List.filled(conditions, [InferenceType.poseDetection]);
 
   @override
   List<bool> get conditionObtrusion => [false, false, true, true];
@@ -234,8 +235,14 @@ class MCTSIB implements BaseAssessment {
                   (detectionCountAndScoreIterator, detection) {
             final poseOutput =
                 PoseDetectionOutput.fromString(detection.keypoints);
-            final (xSway, zSway) = PoseDetectionOutput.computeAngles(
-                poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+            final (xSway, _) = PoseDetectionOutput.computeAngles(
+                poseOutput.map((e) => (e[0], e[1], e[2])).toList(),
+                AccelerometerEvent(
+                    detection.env.accX ?? 0,
+                    detection.env.accY ?? 0,
+                    detection.env.accZ ?? 0,
+                    detection.env.timestamp?.getDateTimeInUtc().toLocal() ??
+                        DateTime.now()));
             final latProportion = xSway / swayLimits[2];
             //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
             // final lonProportion =
@@ -292,7 +299,9 @@ class MCTSIB implements BaseAssessment {
 
   @override
   bool isComplete(args) {
-    final (isFall, __) = CTSIB.poseToCtsibData(args.toString());
+    args as PoseDetectionOutput;
+    final (isFall, __) = CTSIB.poseToCtsibData(args.toString(),
+        args.accelData ?? AccelerometerEvent(0, 0, 0, DateTime.now()));
     return isFall;
   }
 }

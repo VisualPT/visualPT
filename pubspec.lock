@@ -1086,6 +1086,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.2.1"
+  wakelock_plus:
+    dependency: "direct main"
+    description:
+      name: wakelock_plus
+      sha256: bf4ee6f17a2fa373ed3753ad0e602b7603f8c75af006d5b9bdade263928c0484
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.8"
+  wakelock_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: wakelock_plus_platform_interface
+      sha256: "422d1cdbb448079a8a62a5a770b69baa489f8f7ca21aef47800c726d404f9d16"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   watcher:
     dependency: transitive
     description:
@@ -1111,13 +1127,13 @@ packages:
     source: hosted
     version: "2.4.5"
   win32:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: win32
-      sha256: "0eaf06e3446824099858367950a813472af675116bf63f008a4c2a75ae13e9cb"
+      sha256: "68d1e89a91ed61ad9c370f9f8b6effed9ae5e0ede22a270bdfa6daf79fc2290a"
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.0"
+    version: "5.5.4"
   win32_registry:
     dependency: transitive
     description:

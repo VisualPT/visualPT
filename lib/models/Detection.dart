@@ -189,7 +189,9 @@ class Detection {
       _obtrustion = json['obtrustion'],
       _instability = json['instability'],
       _env = json['env'] != null
-        ? DetectionEnv.fromJson(new Map<String, dynamic>.from(json['env']))
+          ? json['env']['serializedData'] != null
+              ? DetectionEnv.fromJson(new Map<String, dynamic>.from(json['env']['serializedData']))
+              : DetectionEnv.fromJson(new Map<String, dynamic>.from(json['env']))
         : null,
       _keypoints = json['keypoints'],
       _prediction = json['prediction'];

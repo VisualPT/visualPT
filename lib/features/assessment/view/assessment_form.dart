@@ -1,5 +1,6 @@
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/service/form_helper.dart';
@@ -12,7 +13,7 @@ import 'package:visualpt/core/views/components/_components.dart';
 class AssessmentForm<T extends BaseAssessment> extends StatefulWidget {
   final T assessment;
 
-  const AssessmentForm({Key? key, required this.assessment}) : super(key: key);
+  const AssessmentForm({super.key, required this.assessment});
 
   @override
   State<AssessmentForm> createState() => _AssessmentFormState();
@@ -138,30 +139,34 @@ class _AssessmentFormState extends State<AssessmentForm> {
                     controller: fallHistoryController,
                     inputPopup: fallHistoryPopup,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        storeData = !storeData;
-                      });
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 20.0),
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                          color: storeData ? Styles.blue : Styles.gray,
-                          borderRadius: Styles.borderRadiusM),
-                      child: const Text(
-                        "Store Data",
-                        style: Styles.placeholderStyle,
-                      ),
-                    ),
-                  ),
-                  CupertinoButton(
-                      onPressed: handleAutofill,
-                      child: const Text("Autofill",
-                          style: TextStyle(color: Styles.black))),
+                  kDebugMode
+                      ? GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              storeData = !storeData;
+                            });
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 20.0),
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                                color: storeData ? Styles.blue : Styles.gray,
+                                borderRadius: Styles.borderRadiusM),
+                            child: const Text(
+                              "Store Data",
+                              style: Styles.placeholderStyle,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  kDebugMode
+                      ? CupertinoButton(
+                          onPressed: handleAutofill,
+                          child: const Text("Autofill",
+                              style: TextStyle(color: Styles.black)))
+                      : Container(),
                   Container(
                       padding: const EdgeInsets.all(16.0),
                       child: CupertinoButton(

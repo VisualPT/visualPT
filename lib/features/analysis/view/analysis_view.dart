@@ -59,6 +59,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
           child: Row(
             children: [
+              const Spacer(),
               CupertinoButton(
                 padding: const EdgeInsets.all(13.0),
                 color: Styles.actionSecondary,
@@ -71,18 +72,29 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
                     style: TextStyle(color: Styles.black)),
               ),
               const Spacer(),
+              EmailPresenter(asmtState.storeData, asmtState.meta,
+                  asmtState.subject, asmtState.dbAssessment, state.pdfData),
+              // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
+              // CupertinoButton(
+              //   padding: const EdgeInsets.all(13.0),
+              //   color: Styles.actionPrimary,
+              //   onPressed: () async => {
+              //     BlocProvider.of<PdfBloc>(context).add(PdfPrint(
+              //         subject: asmtState.subject,
+              //         assessment: asmtState.dbAssessment))
+              //   },
+              //   child: const Text("Print PDF",
+              //       style: TextStyle(color: Styles.black)),
+              // ),
+              const Spacer(),
               CupertinoButton(
                 padding: const EdgeInsets.all(13.0),
                 color: Styles.actionPrimary,
-                onPressed: () => onSend(
-                  context,
-                  asmtState.subject,
-                  asmtState.dbAssessment,
-                  state.pdfData,
-                ),
-                child: const Text("Save to email",
+                onPressed: () => AppNav(context).setHome(),
+                child: const Text("Go home",
                     style: TextStyle(color: Styles.black)),
               ),
+              const Spacer(),
             ],
           ),
         ),
@@ -116,6 +128,49 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               ))
     ]));
   }
+}
+
+class EmailPresenter<T extends BaseAssessment> extends StatelessWidget {
+  final bool storeData;
+  final T meta;
+  final Subject subject;
+  final Assessment assessment;
+  final Uint8List pdf;
+  const EmailPresenter(
+      this.storeData, this.meta, this.subject, this.assessment, this.pdf,
+      {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<EmailBloc, EmailState>(
+      builder: (context, state) {
+        if (state is EmailSending) {
+          return const CupertinoButton(
+            padding: EdgeInsets.all(13.0),
+            color: Styles.actionPrimary,
+            onPressed: null,
+            child:
+                Text("Sending Email...", style: TextStyle(color: Styles.black)),
+          );
+        } else if (state is EmailSent) {
+          return const CupertinoButton(
+            padding: EdgeInsets.all(13.0),
+            color: Styles.actionPrimary,
+            onPressed: null,
+            child: Text("Email Sent", style: TextStyle(color: Styles.black)),
+          );
+        } else {
+          return CupertinoButton(
+            padding: const EdgeInsets.all(13.0),
+            color: Styles.actionPrimary,
+            onPressed: () => onSend(context, subject, assessment, pdf),
+            child:
+                const Text("Send Email", style: TextStyle(color: Styles.black)),
+          );
+        }
+      },
+    );
+  }
 
   ///The button that initates the email post
   ///Saves the PDF and stores assessment by default
@@ -127,24 +182,26 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   ) {
     appDialog(
         context: context,
-        title: asmtState.storeData ? "Save and Send" : "Home",
-        content: asmtState.storeData
+        title: storeData ? "Save and Send" : "Home",
+        content: storeData
             ? "This will assume the data is valid and change the age-group norm table with the data from this assessment. Email will be sent to: ${subject.provider_contact}"
-            : "This data was indicated as a test and will not be saved. Are you sure you want to go back?",
+            : "This data was indicated as a test and will ONLY be sent to your email. Are you sure you want to return home?",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
-          if (asmtState.storeData) {
-            updateNorms(asmtState.meta, assessment, subject);
-            assessment = AssessmentService().addPDF(assessment, pdf);
-            BlocProvider.of<EmailBloc>(context).add(EmailSend(
-                subject: subject,
-                assessment: assessment,
-                onSuccess: () => AppNav(context).setHome(),
-                onFail: () => log("Email failed")));
-            //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
-          } else {
-            AppNav(context).setHome();
+          if (storeData) {
+            updateNorms(meta, assessment, subject);
           }
+          assessment = AssessmentService().addPDF(assessment, pdf);
+          BlocProvider.of<EmailBloc>(context).add(EmailSend(
+              storeData: storeData,
+              subject: subject,
+              assessment: assessment,
+              onSuccess: () => {
+                    //AppNav(context).setHome()
+                  },
+              onFail: () => log("Email failed")));
+          Navigator.pop(context);
+          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
         });
   }
 }

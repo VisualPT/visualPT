@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/components/_components.dart';
 import 'package:visualpt/core/views/styles.dart';
 import 'package:visualpt/features/assessment/view/components/assessment_instructions.dart';
 
@@ -53,7 +52,7 @@ class _BaseViewState extends State<BaseView> {
         CupertinoPageScaffold(
             navigationBar: CupertinoNavigationBar(
               automaticallyImplyLeading: _canPop() ? true : false,
-              backgroundColor: Styles.backgroundAccent,
+              backgroundColor: Styles.ceruleanBlue,
               middle: ConstrainedBox(
                   constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.75),
@@ -87,7 +86,6 @@ class _BaseViewState extends State<BaseView> {
               height: screenSize.height,
               width: screenSize.width,
               child: Stack(alignment: Alignment.center, children: [
-                const ViewBackground(),
                 SafeArea(
                   child: widget.child,
                 )
@@ -105,8 +103,9 @@ class _BaseViewState extends State<BaseView> {
                         height: screenSize.height * 0.9,
                         width: screenSize.width * 0.9,
                         decoration: const BoxDecoration(
-                            borderRadius: Styles.borderRadiusM,
-                            color: Styles.ceruleanBlue),
+                          borderRadius: Styles.borderRadiusM,
+                          color: Styles.white,
+                        ),
                         child: widget.instructions),
                     onTap: () => setState(() => showInstructions = false)))
             : Container()

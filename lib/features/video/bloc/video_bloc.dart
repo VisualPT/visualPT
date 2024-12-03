@@ -12,6 +12,8 @@ import 'package:visualpt/models/ModelProvider.dart';
 part 'video_event.dart';
 part 'video_state.dart';
 
+//TODO: Prevent the user from stopping the camera too soon, add a delay
+// Ref: https://github.com/flutter/flutter/issues/121659
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
   VideoBloc(this.videoDetectionRepo, this.totalDuration, this.storeData)
       : _ticker = Ticker(duration: totalDuration),
@@ -89,9 +91,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
           accX: videoDetectionRepo.currentAccel.x,
           accY: videoDetectionRepo.currentAccel.y,
           accZ: videoDetectionRepo.currentAccel.z,
-          gyroX: videoDetectionRepo.currentGyro.x,
-          gyroY: videoDetectionRepo.currentGyro.y,
-          gyroZ: videoDetectionRepo.currentGyro.z);
+          timestamp: amplify.TemporalDateTime(
+              videoDetectionRepo.currentAccel.timestamp));
       videoDetectionRepo.add(DeviceCapture(id, image, measurements));
     });
     _tickerSubscription?.cancel();
@@ -115,31 +116,35 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
-    _tickerSubscription?.cancel();
-    if (_start == null) {
-      print("There is no start time to label the video.");
-    } else {
-      videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
-      if (controller != null &&
-          (controller!.value.isStreamingImages ||
-              controller!.value.isRecordingVideo)) {
-        final file = await controller!.stopVideoRecording();
-        if (event.reset) {
-          emit(VideoStandby(controller!));
-          return;
-        }
-        if (storeData) {
-          videoDetectionRepo.saveVideo(
-              _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(),
-              file);
-        }
-        emit(VideoEnded(file, videoDuration));
+    try {
+      _tickerSubscription?.cancel();
+      if (_start == null) {
+        print("There is no start time to label the video.");
       } else {
-        log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
-        emit(VideoEnded(null, videoDuration));
+        videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
+        if (controller != null &&
+            (controller!.value.isStreamingImages ||
+                controller!.value.isRecordingVideo)) {
+          final file = await controller!.stopVideoRecording();
+          if (event.reset) {
+            emit(VideoStandby(controller!));
+            return;
+          }
+          if (storeData) {
+            videoDetectionRepo.saveVideo(
+                _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(),
+                file);
+          }
+          emit(VideoEnded(file, videoDuration));
+        } else {
+          log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+          emit(VideoEnded(null, videoDuration));
+        }
+        emit(const VideoLoading());
+        controller!.dispose();
       }
-      emit(const VideoLoading());
-      controller!.dispose();
+    } catch (e) {
+      emit(VideoError(exception: Exception(e)));
     }
   }
 

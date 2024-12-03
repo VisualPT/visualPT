@@ -29,7 +29,7 @@ class PoseDetectionOverlay extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         PoseBbox(response?.landmarks),
-        PoseSway(points: response?.landmarks),
+        PoseSway(points: response?.landmarks, accelData: response?.accelData),
         response != null
             ? response
                     .exceedsHeightThreshold(controller.value.previewSize!.width)

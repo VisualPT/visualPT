@@ -8,7 +8,6 @@ import 'package:visualpt/features/auth/service/auth_repository.dart';
 import 'package:visualpt/features/backend/service/backend_repository.dart';
 import 'package:visualpt/models/User.dart';
 import 'package:visualpt/features/auth/service/auth_service.dart';
-import 'package:visualpt/core/views/components/_components.dart';
 import 'package:equatable/equatable.dart';
 
 part 'auth_event.dart';
@@ -66,9 +65,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       //       if (!isClosed && !emit.isDone) emit(const AuthSignUp());
       //   }
       // });
+    } on NetworkException catch (_) {
+      if (!isClosed && !emit.isDone) {
+        emit(AuthError(error: Exception("Check your internet connection")));
+      }
+    } on SignedOutException catch (_) {
+      if (!isClosed && !emit.isDone) {
+        emit(const AuthSignUp());
+      }
     } catch (e) {
       if (!isClosed && !emit.isDone) {
-        emit(AuthError(error: Exception("Failed to auto auth $e")));
+        emit(AuthError(error: Exception("Failed to auto login")));
       }
     }
   }

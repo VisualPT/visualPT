@@ -4,10 +4,8 @@ import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
-import 'package:visualpt/features/inference/view/pose_classification_indicator.dart';
+import 'package:visualpt/features/video/view/capture_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
@@ -24,25 +22,18 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
     final detection =
             BlocProvider.of<InferenceBloc<DeviceCapture, PoseDetectionOutput>>(
                 context),
-        classification = BlocProvider.of<
-                InferenceBloc<PoseDetectionOutput, PoseClassificationOutput>>(
-            context),
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
-    final vidDecRep = RepositoryProvider.of<VideoDetectionRepository>(context),
-        detClsRep =
-            RepositoryProvider.of<DetectionClassificationRepository>(context);
+    final vidDecRep = RepositoryProvider.of<VideoDetectionRepository>(context);
 
     void onComplete(VideoRecording state) {
       final index = asmt.currentCondition?.sequenceNumber ?? 0;
 
       detection.add(const InferenceEnd("End"));
-      classification.add(const InferenceEnd("End"));
       vid.add(const VideoStop(reset: false));
       asmt.add(AssessmentTrial(
-          AssessmentUtils.linkOutput(
-              vidDecRep.localStorage, detClsRep.localStorage, {
+          AssessmentUtils.formatOutput(vidDecRep.localStorage, {
             "index": index,
             "obtrustion": asmt.config.conditionObtrusion[index],
             "instability": asmt.config.conditionInstability[index]
@@ -54,7 +45,6 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
     void onPause(VideoRecording state) {
       vid.add(const VideoPause());
       detection.add(const InferenceEnd("End"));
-      classification.add(const InferenceEnd("End"));
 
       //Show a dialog to confirm the user's next steps
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,8 +60,8 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                   child: const Text("Reset"),
                   onPressed: () {
                     vid.add(const VideoStop(reset: true));
+                    detection.add(const InferenceEnd("End"));
                     detection.add(const InferenceInit("Start", 1));
-                    classification.add(const InferenceInit("Start", 1));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -114,22 +104,28 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                   right: 0,
                   child: Container(
                     color: Styles.white,
-                    child: const Padding(
-                      padding: EdgeInsets.all(1.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          PoseDetectionIndicator(),
-                          PoseClassificationIndicator(),
+                          CaptureIndicator(
+                            icon: CupertinoIcons.time,
+                            color: Styles.black,
+                            type: "Duration",
+                            child: Text(formatter(state.duration),
+                                style: Styles.timerTextStyle),
+                          ),
+                          const PoseDetectionIndicator(),
                         ],
                       ),
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: 0,
+                  bottom: 10,
                   left: 0,
                   right: 0,
                   child: Row(
@@ -156,30 +152,21 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                             };
                             vid.add(const VideoPlay());
                             detection.add(InferenceStart("Start", params));
-                            classification.add(InferenceStart("Start", params));
                           },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Styles.actionSecondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              CupertinoIcons.circle_fill,
-                              color: Styles.actionPrimary,
-                              size: 100,
-                            ),
+                          child: const Icon(
+                            CupertinoIcons.circle,
+                            color: Styles.actionPrimary,
+                            size: 80,
                           ),
                         )
                       ] else ...[
-                        const Spacer(flex: 2),
+                        const Spacer(),
                         GestureDetector(
                           onTap: () => onPause(state as VideoRecording),
                           child: const Icon(CupertinoIcons.stop,
-                              color: Styles.actionPrimary, size: 100),
+                              color: Styles.actionPrimary, size: 80),
                         ),
                         const Spacer(),
-                        Text(formatter(state.duration),
-                            style: Styles.timerTextStyle),
                       ],
                       const Spacer(),
                     ],

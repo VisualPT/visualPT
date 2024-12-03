@@ -40,7 +40,6 @@ class ValidationView extends StatelessWidget {
       pageTitle: "Validate",
       child: Stack(
         children: [
-          const ViewBackground(),
           ValidationPresenter(
             type,
             onDisplay: (context, state) => onDisplay(context, state),

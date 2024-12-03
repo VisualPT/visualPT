@@ -1,4 +1,6 @@
 ///Barrel File for ALL views. Use this when importing more than 1 view into a file.
+library;
+
 export 'app_nav.dart';
 export 'base_view.dart';
 export 'home_view.dart';

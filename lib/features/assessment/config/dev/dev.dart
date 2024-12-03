@@ -48,8 +48,8 @@ class DEV implements BaseAssessment {
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference => List.filled(conditions,
-      [InferenceType.poseDetection, InferenceType.poseClassification]);
+  List<List<InferenceType>> get conditionInference =>
+      List.filled(conditions, [InferenceType.poseDetection]);
 
   @override
   List<bool> get conditionObtrusion => [false];

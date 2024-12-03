@@ -8,7 +8,6 @@ import 'package:visualpt/features/backend/service/backend_repository.dart';
 import 'package:visualpt/features/inference/service/service_locator.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/validation/view/validation_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,11 +63,6 @@ class VisualPT extends StatelessWidget {
               final type = route.arguments as AssessmentType;
               return CupertinoPageRoute(
                   builder: (context) => AssessmentUtils.getView(type));
-            }
-            if (route.name == "/validate") {
-              final type = route.arguments as AssessmentType;
-              return CupertinoPageRoute(
-                  builder: (context) => ValidationView(type));
             }
             return CupertinoPageRoute(
               builder: (context) =>

@@ -33,19 +33,19 @@ class PosePainter extends CustomPainter {
     if (points.isNotEmpty) {
       var pointPaint = Paint()
         ..color = Styles.blue
-        ..strokeWidth = 8;
+        ..strokeWidth = 2;
       var headPaint = Paint()
         ..color = Styles.yellow
-        ..strokeWidth = 2;
+        ..strokeWidth = 1;
       var leftPaint = Paint()
         ..color = Styles.mint
-        ..strokeWidth = 2;
+        ..strokeWidth = 1;
       var rightPaint = Paint()
         ..color = Styles.mint
-        ..strokeWidth = 2;
+        ..strokeWidth = 1;
       var bodyPaint = Paint()
         ..color = Styles.mint
-        ..strokeWidth = 2;
+        ..strokeWidth = 1;
 
       canvas.drawPoints(
         PointMode.points,

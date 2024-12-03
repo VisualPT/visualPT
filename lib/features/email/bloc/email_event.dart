@@ -8,12 +8,14 @@ abstract class EmailEvent extends Equatable {
 }
 
 class EmailSend extends EmailEvent {
+  final bool storeData;
   final Subject subject;
   final Assessment assessment;
   final Function() onSuccess;
   final Function() onFail;
   const EmailSend(
-      {required this.subject,
+      {required this.storeData,
+      required this.subject,
       required this.assessment,
       required this.onSuccess,
       required this.onFail});
