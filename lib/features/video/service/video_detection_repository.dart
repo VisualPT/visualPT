@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -21,24 +20,17 @@ class VideoDetectionRepository
       _poseDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final accelStream = userAccelerometerEventStream();
   final gyroStream = gyroscopeEventStream();
-  StreamSubscription<GyroscopeEvent>? _gyroSubscription;
-  StreamSubscription<UserAccelerometerEvent>? _accelSubscription;
-  GyroscopeEvent currentGyro = GyroscopeEvent(0, 0, 0, DateTime.now());
-  UserAccelerometerEvent currentAccel =
-      UserAccelerometerEvent(0, 0, 0, DateTime.now());
+  final accelStream = accelerometerEventStream();
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  AccelerometerEvent currentAccel = AccelerometerEvent(0, 0, 0, DateTime.now());
   final String userID;
   final TrialMeta assessmentMeta;
 
   VideoDetectionRepository(this.assessmentMeta, this.userID)
       : super(assessmentMeta) {
-    _gyroSubscription = gyroStream.listen((gyroData) {
-      currentGyro = gyroData;
-    });
-
-    _accelSubscription = accelStream.listen((accelData) {
-      currentAccel = accelData;
+    _accelSubscription = accelStream.listen((event) {
+      currentAccel = event;
     });
   }
 
@@ -64,7 +56,10 @@ class VideoDetectionRepository
       input: data,
       params: params,
     ) as PoseDetectionOutput?;
-    if (output != null) localStorage[input] = output;
+    if (output != null) {
+      output.accelData = currentAccel;
+      localStorage[input] = output;
+    }
     return output;
   }
 
@@ -86,8 +81,11 @@ class VideoDetectionRepository
         input.input.height,
         input.input.width,
         assessmentMeta,
-        DeviceMeta(currentAccel.x, currentAccel.y, currentAccel.z,
-            currentGyro.x, currentGyro.y, currentGyro.z),
+        DeviceMeta(
+          currentAccel.x,
+          currentAccel.y,
+          currentAccel.z,
+        ),
         "-1", //detectionMeta.estimate,
         output);
 
@@ -104,7 +102,6 @@ class VideoDetectionRepository
   void dispose() {
     _detectionIsolateUtils.dispose();
     _convertIsolateUtils.dispose();
-    _gyroSubscription?.cancel();
     _accelSubscription?.cancel();
   }
 

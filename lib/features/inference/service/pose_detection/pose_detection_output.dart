@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
 
+// ignore: must_be_immutable
 class PoseDetectionOutput extends AiModelOutput {
   PoseDetectionOutput(super.id, super.output) {
     for (var point in output) {
@@ -21,6 +23,7 @@ class PoseDetectionOutput extends AiModelOutput {
   final List<double> depthPoints = [];
   final List<double> visibilityPoints = [];
   final List<double> presencePoints = [];
+  late AccelerometerEvent? accelData;
 
   bool exceedsHeightThreshold(height) {
     return landmarks.fold(0.0, (prev, o) => max(prev, o.dy)) -
@@ -62,7 +65,10 @@ class PoseDetectionOutput extends AiModelOutput {
 
 //Computes the latitudidal (left/right (x,y)) and longitudidal (y, z) angles of the pose
 //longitudinal angle is based on synthetic data, so it is not accurate and should not be used until further testing is done
-  static (double, double) computeAngles(List<(double, double, double)> points) {
+  static (double, double) computeAngles(
+      List<(double, double, double)> points, AccelerometerEvent accelData) {
+    // It should ignore the head landmarks and only consider the body landmarks (10-34)
+    points = points.sublist(10, 34);
     double sumX = 0,
         sumY = 0,
         sumZ = 0,
@@ -112,12 +118,25 @@ class PoseDetectionOutput extends AiModelOutput {
     double degreesXY = (atan(slopeXY) * 180 / pi).abs();
     double degreesYZ = (atan(slopeYZ) * 180 / pi).abs();
 
+    //Factor the roll and pitch into the angles
+    final roll =
+        (atan2(accelData.y, accelData.z) * (180 / pi)).abs(); // Roll in degrees
+    final pitch = (atan2(-accelData.x,
+                sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
+            (180 / pi))
+        .abs(); // Pitch in degrees
+    degreesXY = (degreesXY - pitch).abs();
+    degreesYZ = (degreesYZ - roll).abs(); //TODO: this has not been tested
+
     return (degreesXY, degreesYZ);
   }
 
-// Function to compute the line of best fit
-// Returns a tuple where item1 is the slope (m) and item2 is the y-intercept (b) of the line y = mx + b
-  static LineOfBestFit computeLineOfBestFit(List<Offset> points, Size size) {
+  // Function to compute the line of best fit
+  // Returns a tuple where item1 is the slope (m) and item2 is the y-intercept (b) of the line y = mx + b
+  static LineOfBestFit computeLineOfBestFit(
+      List<Offset> points, Size size, AccelerometerEvent accelData) {
+    // It should ignore the head landmarks and only consider the body landmarks (10-34)
+    points = points.sublist(10, 34);
     double sumX = 0,
         sumY = 0,
         sumY2 = 0,
@@ -149,6 +168,17 @@ class PoseDetectionOutput extends AiModelOutput {
     Offset top = Offset(smallestY * slope + xIntercept, smallestY);
     Offset bottom = Offset(largestY * slope + xIntercept, largestY);
     double degrees = (atan(slope) * 180 / pi).abs();
+
+    //Factor the pitch into the angles
+    final pitch = (atan2(-accelData.x,
+                sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
+            (180 / pi))
+        .abs(); // Pitch in degrees
+
+    //Find the difference between the pitch and the angle of the line of best fit.
+    // Addition is used to account for the fact that the pitch is negative
+    degrees = (degrees - pitch).abs();
+
     return LineOfBestFit(top, bottom, degrees);
   }
 

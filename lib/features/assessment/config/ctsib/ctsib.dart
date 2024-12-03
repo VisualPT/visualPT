@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
@@ -180,8 +181,14 @@ class CTSIB implements BaseAssessment {
               //The score remains 0
               return detectionCountAndScore;
             }
-            final (isFall, detectionScore) =
-                poseToCtsibData(detection.keypoints);
+            final (isFall, detectionScore) = poseToCtsibData(
+                detection.keypoints,
+                AccelerometerEvent(
+                    detection.env.accX ?? 0,
+                    detection.env.accY ?? 0,
+                    detection.env.accZ ?? 0,
+                    detection.env.timestamp?.getDateTimeInUtc().toLocal() ??
+                        DateTime.now()));
 
             if (isFall) {
               return (detectionCountAndScore.$1 + 1, 0.0);
@@ -253,7 +260,9 @@ class CTSIB implements BaseAssessment {
 
   @override
   bool isComplete(args) {
-    final (isFall, __) = CTSIB.poseToCtsibData(args.toString());
+    args as PoseDetectionOutput;
+    final (isFall, __) = CTSIB.poseToCtsibData(args.toString(),
+        args.accelData ?? AccelerometerEvent(0, 0, 0, DateTime.now()));
     return isFall;
   }
 
@@ -281,7 +290,13 @@ class CTSIB implements BaseAssessment {
           final poseOutput =
               PoseDetectionOutput.fromString(detection.keypoints);
           final angle = PoseDetectionOutput.computeAngles(
-              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+              poseOutput.map((e) => (e[0], e[1], e[2])).toList(),
+              AccelerometerEvent(
+                  detection.env.accX ?? 0,
+                  detection.env.accY ?? 0,
+                  detection.env.accZ ?? 0,
+                  detection.env.timestamp?.getDateTimeInUtc().toLocal() ??
+                      DateTime.now()));
 
           return (
             averageAngle.$1 + 1,
@@ -327,7 +342,13 @@ class CTSIB implements BaseAssessment {
           final poseOutput =
               PoseDetectionOutput.fromString(detection.keypoints);
           final (lat, lng) = PoseDetectionOutput.computeAngles(
-              poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+              poseOutput.map((e) => (e[0], e[1], e[2])).toList(),
+              AccelerometerEvent(
+                  detection.env.accX ?? 0,
+                  detection.env.accY ?? 0,
+                  detection.env.accZ ?? 0,
+                  detection.env.timestamp?.getDateTimeInUtc().toLocal() ??
+                      DateTime.now()));
 
           return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
         });
@@ -412,11 +433,12 @@ class CTSIB implements BaseAssessment {
   }
 
   //Returns isFall, equlibrium score
-  static (bool, double) poseToCtsibData(String keypoints) {
+  static (bool, double) poseToCtsibData(
+      String keypoints, AccelerometerEvent accelData) {
     final poseOutput = PoseDetectionOutput.fromString(keypoints);
 
     final (xSway, zSway) = PoseDetectionOutput.computeAngles(
-        poseOutput.map((e) => (e[0], e[1], e[2])).toList());
+        poseOutput.map((e) => (e[0], e[1], e[2])).toList(), accelData);
     final latProportion = xSway / swayLimits[2];
     //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
     // final lonProportion =
