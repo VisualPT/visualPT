@@ -156,7 +156,7 @@ class CtsibPDF extends PDF {
                   xAxis: FixedAxis.fromStrings(
                     List.generate(((assessment.Conditions?.length ?? 0) + 1),
                         (i) => '\n\n'),
-                    textStyle: const TextStyle(fontSize: 10),
+                    textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
                     marginEnd: 30,
                   ),
@@ -192,7 +192,7 @@ class CtsibPDF extends PDF {
                           ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
                           : 'Cumulative',
                     ),
-                    textStyle: const TextStyle(fontSize: 10),
+                    textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
                     marginEnd: 30,
                   ),
@@ -225,7 +225,10 @@ class CtsibPDF extends PDF {
                       buildValue: (context, point) => Text(
                           //If this is flagged as a fall, write FALL
                           point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
-                          style: const TextStyle(fontSize: 10)),
+                          style: TextStyle(
+                            fontSize: 10,
+                            font: baseFont,
+                          )),
                       valuePosition: ValuePosition.auto,
                     );
                   }
@@ -334,7 +337,7 @@ class CtsibPDF extends PDF {
         return sensoryMappings[sensoryString]!;
       }
 
-// Apply age-group thresholds based on the composite score
+      // Apply age-group thresholds based on the composite score
       if (compositeScore >= 12) {
         return sensoryMappings[sensoryString] ?? "Normal";
       } else {
@@ -369,10 +372,7 @@ class CtsibPDF extends PDF {
 
       // Count occurrences of 'S' and 'V'
       int sCount = sensoryString.split('S').length - 1; // Count 'S'
-      int vCount = sensoryString.split('V').length -
-          1 +
-          (c5 == "Vest" ? 1 : 0) +
-          (c6 == "Vest" ? 1 : 0); // Count 'V'
+      int vCount = sensoryString.split('V').length - 1; // Count 'V'
       // Format the final sensory ratio
       String sensoryRatio = sCount > vCount
           ? "(${sCount}S:${vCount}V)"
@@ -420,7 +420,7 @@ class CtsibPDF extends PDF {
                 fontSize: 12.0,
                 lineSpacing: 2.0),
           ),
-          const TextSpan(text: " "),
+          TextSpan(text: " ", style: detail),
           TextSpan(
             text: sensoryRatio,
             style: detailBold,
