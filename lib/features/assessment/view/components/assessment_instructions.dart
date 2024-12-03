@@ -68,17 +68,38 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
           const Spacer(),
           ...formattedInstructionList,
           const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: const BoxDecoration(
-                  color: Styles.actionPrimary,
-                  borderRadius: Styles.borderRadiusM),
-              child: const Text("Start",
-                  style: Styles.actionText, textAlign: TextAlign.center),
+          Row(children: [
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: const BoxDecoration(
+                    color: Styles.errorRed, borderRadius: Styles.borderRadiusM),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Abort",
+                      style: Styles.actionText, textAlign: TextAlign.center),
+                ),
+              ),
             ),
-          ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: const BoxDecoration(
+                    color: Styles.actionSecondary,
+                    borderRadius: Styles.borderRadiusM),
+                child: const Text("Start",
+                    style: Styles.actionText, textAlign: TextAlign.center),
+              ),
+            ),
+            const Spacer(),
+          ])
         ],
       ),
     );
