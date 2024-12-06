@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class EmailService {
-  final serviceId = "service_1j62fhe";
+  final serviceId = "service_4pt0zgl";
   final templateId = "template_95smzbm";
   final userId = "_SUuxjVW52hmODTRs";
   final Map<String, String> headers = {
