@@ -2,7 +2,7 @@
 
 # VisualPT
 
-Collecting Data for VisualPT
+VisualPT Mobile App
 
 ## Getting Started
 
