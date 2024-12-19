@@ -9,6 +9,7 @@ import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
+import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
@@ -18,7 +19,10 @@ class VideoDetectionRepository
     extends Repository<DeviceCapture, PoseDetectionOutput> {
   final ModelInferenceService<TensorImage, PoseDetectionOutput>
       _poseDetectionService = ModelInferenceService();
+  final ModelInferenceService<TensorImage, DepthDetectionOutput>
+      _depthDetectionService = ModelInferenceService();
   final IsolateUtils _detectionIsolateUtils = IsolateUtils();
+  final IsolateUtils _depthIsolateUtils = IsolateUtils();
   final IsolateUtils _convertIsolateUtils = IsolateUtils();
   final gyroStream = gyroscopeEventStream();
   final accelStream = accelerometerEventStream();
@@ -37,8 +41,10 @@ class VideoDetectionRepository
   @override
   Future<void> initialize() async {
     await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
+    await _depthIsolateUtils.initIsolate("Depth Detection Isolate");
     await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
     _poseDetectionService.setModelConfig(3);
+    _depthDetectionService.setModelConfig(5);
     isInitialized = true;
   }
 
@@ -49,18 +55,30 @@ class VideoDetectionRepository
       throw Exception(
           "runPredict: Detection Inference Service not initialized");
     }
-    final data = preProcessData(input.input);
-    final output = await _poseDetectionService.inference(
+    final image = preProcessData(input.input);
+    final detection = await _poseDetectionService.inference(
       id: id,
       isolateUtils: _detectionIsolateUtils,
-      input: data,
+      input: image,
       params: params,
     ) as PoseDetectionOutput?;
-    if (output != null) {
-      output.accelData = currentAccel;
-      localStorage[input] = output;
+    final depth = await _depthDetectionService.inference(
+      id: id,
+      isolateUtils: _depthIsolateUtils,
+      input: image,
+      params: params,
+    ) as DepthDetectionOutput?;
+
+    //Take the PoseDetectionOutput and DepthDetectionOutput and combine them into a single object
+    if (detection != null && depth != null) {
+      detection.updateDepth(depth);
     }
-    return output;
+
+    if (detection != null) {
+      detection.accelData = currentAccel;
+      localStorage[input] = detection;
+    }
+    return detection;
   }
 
   @override

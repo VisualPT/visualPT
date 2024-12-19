@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
+import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
 
 // ignore: must_be_immutable
 class PoseDetectionOutput extends AiModelOutput {
@@ -20,7 +21,7 @@ class PoseDetectionOutput extends AiModelOutput {
 
   static const length = 33;
   final List<Offset> landmarks = [];
-  final List<double> depthPoints = [];
+  late List<double> depthPoints = [];
   final List<double> visibilityPoints = [];
   final List<double> presencePoints = [];
   late AccelerometerEvent? accelData;
@@ -42,6 +43,18 @@ class PoseDetectionOutput extends AiModelOutput {
 
   toRaw() {
     return output;
+  }
+
+  //Updates the depth points with the new depth points
+  updateDepth(DepthDetectionOutput depthOutput) {
+    //For each landmark, find the closest depth point and update the depth point
+    for (int i = 0; i < landmarks.length; i++) {
+      final landmark = landmarks[i];
+      final depthPoint = depthOutput.output[landmark.dx.round().clamp(0, 255)]
+          [landmark.dy.round().clamp(0, 255)];
+      depthPoints[i] = depthPoint;
+      output[i][2] = depthPoint;
+    }
   }
 
   @override
@@ -119,14 +132,14 @@ class PoseDetectionOutput extends AiModelOutput {
     double degreesYZ = (atan(slopeYZ) * 180 / pi).abs();
 
     //Factor the roll and pitch into the angles
-    final roll =
-        (atan2(accelData.y, accelData.z) * (180 / pi)).abs(); // Roll in degrees
+    // final roll =
+    //     (atan2(accelData.y, accelData.z) * (180 / pi)).abs(); // Roll in degrees
     final pitch = (atan2(-accelData.x,
                 sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
             (180 / pi))
         .abs(); // Pitch in degrees
     degreesXY = (degreesXY - pitch).abs();
-    degreesYZ = (degreesYZ - roll).abs(); //TODO: this has not been tested
+    // degreesYZ = (degreesYZ - roll).abs(); //TODO: this has not been tested
 
     return (degreesXY, degreesYZ);
   }

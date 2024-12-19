@@ -34,7 +34,7 @@ class DeviceCapture extends Identifiable {
 class PoseDetectionIndicator extends StatelessWidget {
   const PoseDetectionIndicator({super.key});
   static const icon = CupertinoIcons.person;
-  static const type = "Pose Detection (Sway Angle)";
+  static const type = "Pose Detection (Lateral/AP Sway)";
 
   @override
   Widget build(BuildContext context) {
@@ -48,26 +48,27 @@ class PoseDetectionIndicator extends StatelessWidget {
 
   Widget onRunning(BuildContext context,
       InferenceRunning<DeviceCapture, PoseDetectionOutput> state) {
-    final offsets = state.response != null
-        ? PoseDetectionOutput.computeLineOfBestFit(
-            state.response!.landmarks,
-            const Size(256, 256),
-            state.response?.accelData ??
-                AccelerometerEvent(0, 0, 0, DateTime.now()))
-        : null;
-    final color = offsets != null
-        ? offsets.degrees.abs() < MAX_SWAY_ANGLE / 2
-            ? Styles.green
-            : Styles.yellow
-        : Styles.red;
+    final points = (state.response?.output as List<List<double>>)
+        .map<(double, double, double)>((e) => (e[0], e[1], e[2]))
+        .toList();
+    final angles = PoseDetectionOutput.computeAngles(
+        points,
+        state.response?.accelData ??
+            AccelerometerEvent(0, 0, 0, DateTime.now()));
+
+    final latColor =
+        angles.$1.abs() < MAX_SWAY_ANGLE / 2 ? Styles.green : Styles.yellow;
+    // final apColor =
+    //     angles.$2.abs() < MAX_SWAY_ANGLE / 2 ? Styles.green : Styles.yellow;
     return CaptureIndicator(
       icon: icon,
       color: Styles.green,
       type: type,
-      child: Text("${offsets?.degrees.toStringAsFixed(1) ?? "-.--"}°",
+      child: Text(
+          "${angles.$1.toStringAsFixed(1)}° / ${angles.$2.toStringAsFixed(1)}°",
           style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: color,
+              color: latColor,
               fontSize: 22,
               fontFamily: 'monospace')),
     );

@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:isolate';
 
 import 'package:visualpt/core/utils/isolate_utils.dart';
+import 'package:visualpt/features/inference/constants/model_file.dart';
+import 'package:visualpt/features/inference/service/depth_detection/depth_detection_service.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_service.dart';
 import 'package:visualpt/features/inference/service/service_locator.dart';
 import 'ai_model.dart';
@@ -9,14 +11,6 @@ import 'face_detection/face_detection_service.dart';
 import 'face_mesh/face_mesh_service.dart';
 import 'hands/hands_service.dart';
 import 'pose_detection/pose_detection_service.dart';
-
-enum Models {
-  FaceDetection,
-  FaceMesh,
-  Hands,
-  PoseDetect,
-  PoseClass,
-}
 
 class ModelInferenceService<I, O> {
   late AiModel model;
@@ -48,31 +42,35 @@ class ModelInferenceService<I, O> {
   }
 
   void setModelConfig(int index) {
-    switch (Models.values[index]) {
-      case Models.FaceDetection:
+    switch (InferenceType.values[index]) {
+      case InferenceType.faceDetection:
         log("Face Detection model configured");
         model = locator<FaceDetection>();
         handler = runFaceDetector;
         break;
-      case Models.FaceMesh:
+      case InferenceType.faceMesh:
         log("Face Mesh model configured");
         model = locator<FaceMesh>();
         handler = runFaceMesh;
         break;
-      case Models.Hands:
+      case InferenceType.hands:
         log("Hands model configured");
         model = locator<Hands>();
         handler = runHandDetector;
         break;
-      case Models.PoseDetect:
+      case InferenceType.poseDetection:
         log("Pose detection model configured");
         model = locator<PoseDetection>();
         handler = runPoseDetector;
         break;
-      case Models.PoseClass:
+      case InferenceType.poseClassification:
         log("Pose classification model configured");
         model = locator<PoseClassification>();
         handler = runPoseClassifier;
+      case InferenceType.depthDetection:
+        log("Pose classification model configured");
+        model = locator<DepthDetection>();
+        handler = runDepthDetector;
     }
   }
 }
