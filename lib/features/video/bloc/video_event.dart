@@ -26,13 +26,9 @@ class VideoTick extends VideoEvent {
   final Duration duration;
 }
 
-class VideoRestart extends VideoEvent {
-  //Resets the video stream, repository and view
-  const VideoRestart();
-}
-
 class VideoStop extends VideoEvent {
   //Stops the video stream, repository and view
+  final XFile? file;
   final bool reset;
-  const VideoStop({required this.reset});
+  const VideoStop({required this.file, required this.reset});
 }

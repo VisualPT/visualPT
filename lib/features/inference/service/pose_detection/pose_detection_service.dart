@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:camera/camera.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
@@ -8,7 +9,7 @@ import '../../constants/model_file.dart';
 import '../ai_model.dart';
 
 // ignore: must_be_immutable
-class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
+class PoseDetection extends AiModel<CameraImage, PoseDetectionOutput> {
   PoseDetection({super.interpreter}) {
     loadModel();
   }
@@ -42,7 +43,7 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
 
   @override
   PoseDetectionOutput? predict(
-      String id, TensorImage input, Map<String, dynamic>? params) {
+      String id, CameraImage input, Map<String, dynamic>? params) {
     if (interpreter == null) {
       log('Interpreter not initialized');
       return null;
@@ -59,7 +60,9 @@ class PoseDetection extends AiModel<TensorImage, PoseDetectionOutput> {
     TensorBuffer outputIdentity3 = TensorBufferFloat(outputShapes[3]);
     TensorBuffer outputIdentity4 = TensorBufferFloat(outputShapes[4]);
 
-    final inputs = <Object>[input.buffer];
+    final tensor = toTensorImage(input);
+
+    final inputs = <Object>[tensor.buffer];
 
     final outputs = <int, Object>{
       0: outputLandmarks.buffer,
@@ -90,7 +93,7 @@ PoseDetectionOutput? runPoseDetector(Map<String, dynamic> params) {
       interpreter: Interpreter.fromAddress(params['detectorAddress']));
 
   final id = params['id'] as String;
-  final input = params['input'] as TensorImage;
+  final input = params['input'] as CameraImage;
 
   final result = pose.predict(id, input, params['params']);
 

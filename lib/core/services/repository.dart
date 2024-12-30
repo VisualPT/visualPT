@@ -4,16 +4,16 @@ import 'package:visualpt/features/assessment/types.dart';
 
 abstract class Repository<I, O> {
   final TrialMeta meta;
-  final StreamController<I> _streamController;
+  final StreamController<O> _streamController;
   var isInitialized = false;
   var count = 0;
   var localStorage = <I, O>{};
 
   Repository(this.meta) : _streamController = StreamController.broadcast();
 
-  Stream<I> get stream => _streamController.stream;
+  Stream<O> get stream => _streamController.stream;
 
-  void add(I data) {
+  void add(O data) {
     if (!_streamController.isClosed) {
       _streamController.add(data);
       count++;
@@ -30,6 +30,9 @@ abstract class Repository<I, O> {
   }
 
   void dispose() {
-    _streamController.close();
+    reset();
+    if (!_streamController.isClosed) {
+      _streamController.close();
+    }
   }
 }

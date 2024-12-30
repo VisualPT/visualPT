@@ -1,7 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
+import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_repository.dart';
+import 'package:visualpt/features/inference/view/camera_painters/depth_overlay.dart';
+import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/video/view/camera.dart';
@@ -24,7 +31,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
           state.meta.trialDuration,
           onRecording: showingVideo,
           onStandby: showingVideo,
-          onPaused: showingVideo,
+          onPaused: pausedVideo,
           onEnded: endedVideo,
           onLoading: loadingVideo,
           onError: errorVideo,
@@ -39,8 +46,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 
   Widget showingVideo(BuildContext context, VideoState state) {
     final vid = BlocProvider.of<VideoBloc>(context);
-
-    //TODO: Be more detailed about this component and try ot make it generic enough to be used by standbyVideo as well
     return SafeArea(
         child: Stack(
       alignment: Alignment.topCenter,
@@ -49,12 +54,96 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
             ? VideoControls<T>(
                 state: state,
                 videoView: Camera(controller: vid.controller!, children: [
+                  const DepthOverlay(),
                   if (vid.controller != null)
                     PoseDetectionOverlay(controller: vid.controller!),
                 ]))
             : Container(),
       ],
     ));
+  }
+
+  Widget pausedVideo(BuildContext context, VideoPaused state) {
+    final detection =
+            BlocProvider.of<InferenceBloc<DeviceCapture, PoseDetectionOutput>>(
+                context),
+        depth =
+            BlocProvider.of<InferenceBloc<DeviceCapture, DepthDetectionOutput>>(
+                context),
+        vid = BlocProvider.of<VideoBloc>(context),
+        asmt = BlocProvider.of<AssessmentBloc<T>>(context),
+        poseRep = RepositoryProvider.of<PoseDetectionRepository>(context);
+
+    void onReset() {
+      // End video, end inference, re-init
+      vid.add(VideoStop(file: state.file, reset: true));
+      detection.add(const InferenceInit("Start", 1));
+      depth.add(const InferenceInit("Start", 1));
+    }
+
+    void onComplete() {
+      // Mark the trial as complete, store results
+      final index = asmt.currentCondition?.sequenceNumber ?? 0;
+      vid.add(VideoStop(file: state.file, reset: false));
+
+      asmt.add(
+        AssessmentTrial(
+          AssessmentUtils.formatOutput(
+            poseRep.localStorage,
+            {
+              "index": index,
+              "obtrustion": asmt.config.conditionObtrusion[index],
+              "instability": asmt.config.conditionInstability[index],
+            },
+          ),
+          state.startTime,
+          state.duration,
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: Container(
+        color: CupertinoColors.systemBackground, // or any other background
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Video Paused",
+              style: CupertinoTheme.of(context)
+                  .textTheme
+                  .navTitleTextStyle
+                  .copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Would you like to reset this trial or proceed to the next?",
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Reset
+                CupertinoButton(
+                  onPressed: onReset,
+                  child: const Text("Reset"),
+                ),
+                // Next
+                CupertinoButton(
+                  onPressed: onComplete,
+                  child: const Text("Next"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget loadingVideo(BuildContext _, VideoState __) {
@@ -83,7 +172,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         children: [
           Text(e.toString()),
           CupertinoButton(
-            onPressed: () => vid.add(const VideoStop(reset: true)),
+            onPressed: () => vid.add(const VideoStop(file: null, reset: true)),
             child: const Text("Restart"),
           ),
         ],

@@ -1,23 +1,22 @@
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
 import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
-class DetectionClassificationRepository
+class PoseClassificationRepository
     extends Repository<PoseDetectionOutput, PoseClassificationOutput> {
-  final ModelInferenceService _poseClassService = ModelInferenceService();
-  final IsolateUtils _classificationIsolateUtils = IsolateUtils();
+  final ModelInferenceService _poseClassService =
+      ModelInferenceService(InferenceType.poseClassification);
+  final IsolateUtils _classificationIsolateUtils =
+      IsolateUtils("Pose Classification Isolate");
   final TrialMeta assessmentMeta;
-  DetectionClassificationRepository(this.assessmentMeta)
-      : super(assessmentMeta);
+  PoseClassificationRepository(this.assessmentMeta) : super(assessmentMeta);
 
   @override
   Future<void> initialize() async {
-    await _classificationIsolateUtils
-        .initIsolate("Pose Classification Isolate");
-    _poseClassService.setModelConfig(4);
     isInitialized = true;
   }
 
@@ -56,5 +55,6 @@ class DetectionClassificationRepository
   @override
   void dispose() {
     _classificationIsolateUtils.dispose();
+    _poseClassService.dispose();
   }
 }

@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
-import 'package:visualpt/features/video/service/video_detection_repository.dart';
+import 'package:visualpt/features/video/service/capture_repository.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 part 'video_event.dart';
@@ -15,7 +15,7 @@ part 'video_state.dart';
 //TODO: Prevent the user from stopping the camera too soon, add a delay
 // Ref: https://github.com/flutter/flutter/issues/121659
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
-  VideoBloc(this.videoDetectionRepo, this.totalDuration, this.storeData)
+  VideoBloc(this.repo, this.totalDuration, this.storeData)
       : _ticker = Ticker(duration: totalDuration),
         super(const VideoLoading()) {
     on<VideoInit>(onInit);
@@ -24,7 +24,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     on<VideoTick>(onTick);
     on<VideoStop>(onStop);
   }
-  final VideoDetectionRepository videoDetectionRepo;
+  final CaptureRepository repo;
   late CameraController? controller;
   final bool storeData;
   late Duration videoDuration = const Duration(seconds: 0);
@@ -88,23 +88,18 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       final measurements = DetectionEnv(
           imageHeight: image.height,
           imageWidth: image.width,
-          accX: videoDetectionRepo.currentAccel.x,
-          accY: videoDetectionRepo.currentAccel.y,
-          accZ: videoDetectionRepo.currentAccel.z,
-          timestamp: amplify.TemporalDateTime(
-              videoDetectionRepo.currentAccel.timestamp));
-      videoDetectionRepo.add(DeviceCapture(id, image, measurements));
+          accX: repo.currentAccel.x,
+          accY: repo.currentAccel.y,
+          accZ: repo.currentAccel.z,
+          timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp));
+      !isClosed ? repo.add(DeviceCapture(id, image, measurements)) : null;
     });
     _tickerSubscription?.cancel();
-    _tickerSubscription =
-        _ticker.tick().listen((duration) => add(VideoTick(duration: duration)));
-  }
-
-  FutureOr<void> onPause(VideoPause event, Emitter<VideoState> emit) async {
-    //Prevent the video from adding any more resources into the repo
-    //Pause the timer
-    _tickerSubscription?.pause();
-    emit(VideoPaused(controller!, videoDuration));
+    _tickerSubscription = _ticker.tick().listen((duration) =>
+        //if the bloc is closed, cancel the subscription
+        !isClosed
+            ? add(VideoTick(duration: duration))
+            : _tickerSubscription?.cancel());
   }
 
   FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
@@ -115,45 +110,46 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     );
   }
 
+  FutureOr<void> onPause(VideoPause event, Emitter<VideoState> emit) async {
+    try {
+      _tickerSubscription?.cancel();
+      videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
+      if (controller != null &&
+          (controller!.value.isStreamingImages ||
+              controller!.value.isRecordingVideo)) {
+        final file = await controller!.stopVideoRecording();
+        emit(VideoPaused(controller!, file, _start!, videoDuration));
+        return;
+      }
+      throw Exception(
+          "Video was already stopped $controller ${controller!.value.isRecordingVideo}");
+    } on Exception catch (e) {
+      emit(VideoError(exception: e));
+    }
+  }
+
   FutureOr<void> onStop(VideoStop event, Emitter<VideoState> emit) async {
     try {
       _tickerSubscription?.cancel();
       if (_start == null) {
         print("There is no start time to label the video.");
       } else {
-        videoDuration = DateTime.now().difference(_start!.getDateTimeInUtc());
-        if (controller != null &&
-            (controller!.value.isStreamingImages ||
-                controller!.value.isRecordingVideo)) {
-          final file = await controller!.stopVideoRecording();
-          if (event.reset) {
-            emit(VideoStandby(controller!));
-            return;
-          }
-          if (storeData) {
-            videoDetectionRepo.saveVideo(
-                _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(),
-                file);
-          }
-          emit(VideoEnded(file, videoDuration));
-        } else {
-          log("Video was already stopped $controller ${controller!.value.isRecordingVideo}");
-          emit(VideoEnded(null, videoDuration));
+        if (event.reset) {
+          return emit(VideoStandby(controller!));
         }
-        emit(const VideoLoading());
+        if (storeData && event.file != null) {
+          repo.saveVideo(
+              _start!.getDateTimeInUtc().millisecondsSinceEpoch.toString(),
+              event.file!);
+        }
+        emit(const VideoEnded(Duration.zero));
         controller!.dispose();
+        repo.dispose();
       }
     } catch (e) {
       emit(VideoError(exception: Exception(e)));
     }
   }
-
-  // @override
-  // void onTransition(Transition<VideoEvent, VideoState> transition) {
-  //   // Always call super.onTransition with the current transition
-  //   super.onTransition(transition);
-  //   log('VideoBloc: $transition');
-  // }
 
   @override
   void onError(Object error, StackTrace stackTrace) {

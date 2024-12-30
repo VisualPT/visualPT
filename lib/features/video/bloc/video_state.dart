@@ -38,7 +38,11 @@ class VideoStandby extends VideoState {
 
 class VideoPaused extends VideoState {
   final CameraController controller;
-  const VideoPaused(this.controller, Duration duration)
+  final amplify.TemporalDateTime startTime;
+  final XFile file;
+
+  const VideoPaused(
+      this.controller, this.file, this.startTime, Duration duration)
       : super(CupertinoIcons.pause, duration);
 
   @override
@@ -46,12 +50,10 @@ class VideoPaused extends VideoState {
 }
 
 class VideoEnded extends VideoState {
-  final XFile? file;
-  const VideoEnded(this.file, Duration duration)
-      : super(CupertinoIcons.stop, duration);
+  const VideoEnded(Duration duration) : super(CupertinoIcons.stop, duration);
 
   @override
-  List<Object?> get props => [file, duration];
+  List<Object?> get props => [duration];
 }
 
 class VideoError extends VideoState {

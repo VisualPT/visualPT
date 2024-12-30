@@ -27,7 +27,7 @@ class DEV implements BaseAssessment {
   int get trials => 1;
 
   @override
-  int get trialDuration => 5;
+  int get trialDuration => 6000000;
 
   @override
   List<String> get conditionNames => [

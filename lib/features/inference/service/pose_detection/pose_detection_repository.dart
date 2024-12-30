@@ -2,36 +2,32 @@ import 'dart:async';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:camera/camera.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
-import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/core/utils/image_utils.dart';
 import 'package:visualpt/core/utils/isolate_utils.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/backend/service/storage_service.dart';
-import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
+import 'package:visualpt/features/inference/constants/model_file.dart';
 import 'package:visualpt/features/inference/service/model_inference_service.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/types.dart';
 
-class VideoDetectionRepository
+class PoseDetectionRepository
     extends Repository<DeviceCapture, PoseDetectionOutput> {
-  final ModelInferenceService<TensorImage, PoseDetectionOutput>
-      _poseDetectionService = ModelInferenceService();
-  final ModelInferenceService<TensorImage, DepthDetectionOutput>
-      _depthDetectionService = ModelInferenceService();
-  final IsolateUtils _detectionIsolateUtils = IsolateUtils();
-  final IsolateUtils _depthIsolateUtils = IsolateUtils();
-  final IsolateUtils _convertIsolateUtils = IsolateUtils();
-  final gyroStream = gyroscopeEventStream();
+  final ModelInferenceService<CameraImage, PoseDetectionOutput>
+      _poseDetectionService =
+      ModelInferenceService(InferenceType.poseDetection);
+  final IsolateUtils _inferenceIsolateUtils = IsolateUtils("Inference Isolate");
+  final IsolateUtils _convertIsolateUtils =
+      IsolateUtils("Image Conversion Isolate");
   final accelStream = accelerometerEventStream();
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
   AccelerometerEvent currentAccel = AccelerometerEvent(0, 0, 0, DateTime.now());
   final String userID;
   final TrialMeta assessmentMeta;
 
-  VideoDetectionRepository(this.assessmentMeta, this.userID)
+  PoseDetectionRepository(this.assessmentMeta, this.userID)
       : super(assessmentMeta) {
     _accelSubscription = accelStream.listen((event) {
       currentAccel = event;
@@ -40,11 +36,6 @@ class VideoDetectionRepository
 
   @override
   Future<void> initialize() async {
-    await _detectionIsolateUtils.initIsolate("Pose Detection Isolate");
-    await _depthIsolateUtils.initIsolate("Depth Detection Isolate");
-    await _convertIsolateUtils.initIsolate("Image Conversion Isolate");
-    _poseDetectionService.setModelConfig(3);
-    _depthDetectionService.setModelConfig(5);
     isInitialized = true;
   }
 
@@ -55,24 +46,17 @@ class VideoDetectionRepository
       throw Exception(
           "runPredict: Detection Inference Service not initialized");
     }
-    final image = preProcessData(input.input);
     final detection = await _poseDetectionService.inference(
       id: id,
-      isolateUtils: _detectionIsolateUtils,
-      input: image,
+      isolateUtils: _inferenceIsolateUtils,
+      input: input.input,
       params: params,
-    ) as PoseDetectionOutput?;
-    final depth = await _depthDetectionService.inference(
-      id: id,
-      isolateUtils: _depthIsolateUtils,
-      input: image,
-      params: params,
-    ) as DepthDetectionOutput?;
+    );
 
-    //Take the PoseDetectionOutput and DepthDetectionOutput and combine them into a single object
-    if (detection != null && depth != null) {
-      detection.updateDepth(depth);
-    }
+    //FIXME: Take the PoseDetectionOutput and DepthDetectionOutput and combine them into a single object
+    // if (detection != null && depth != null) {
+    //   detection.updateDepth(depth);
+    // }
 
     if (detection != null) {
       detection.accelData = currentAccel;
@@ -118,9 +102,12 @@ class VideoDetectionRepository
 
   @override
   void dispose() {
-    _detectionIsolateUtils.dispose();
-    _convertIsolateUtils.dispose();
     _accelSubscription?.cancel();
+    _accelSubscription = null;
+    _poseDetectionService.dispose();
+    _inferenceIsolateUtils.dispose();
+    _convertIsolateUtils.dispose();
+    super.dispose();
   }
 
   Future<void> saveVideo(String id, XFile file) async {
@@ -131,17 +118,4 @@ class VideoDetectionRepository
         S3DataPayload.bytes(fileBytes, contentType: "video/mp4");
     storageService.upload(videoPayload, 'public/$key');
   }
-}
-
-TensorImage preProcessData(CameraImage input) {
-  final image = ImageUtils.convertCameraImage(input);
-
-  var tensorImage = TensorImage(TfLiteType.float32);
-  tensorImage.loadImage(image);
-  final imageProcessor = ImageProcessorBuilder()
-      .add(ResizeOp(256, 256, ResizeMethod.BILINEAR))
-      .add(NormalizeOp(0, 255))
-      .build();
-
-  return imageProcessor.process(tensorImage);
 }

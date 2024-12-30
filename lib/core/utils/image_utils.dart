@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:isolate';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as image_lib;
 import 'isolate_utils.dart';
@@ -118,10 +121,28 @@ class ImageUtils {
       params: {
         'image': image,
       },
-      sendPort: isolateUtils.sendPort,
+      // sendPort: isolateUtils.sendPort,
       responsePort: responsePort,
     );
 
     return await responsePort.first;
   }
+}
+
+Future<ui.Image> bytesToUiImage(
+  Uint8List bytes,
+  int width,
+  int height,
+) async {
+  final completer = Completer<ui.Image>();
+  ui.decodeImageFromPixels(
+    bytes,
+    width,
+    height,
+    ui.PixelFormat.rgba8888,
+    (ui.Image img) {
+      completer.complete(img);
+    },
+  );
+  return completer.future;
 }

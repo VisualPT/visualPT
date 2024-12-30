@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:isolate';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:visualpt/core/services/repository.dart';
@@ -12,8 +11,8 @@ part 'inference_state.dart';
 //TODO: Add toggleable loggers to all blocs
 class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     extends Bloc<InferenceEvent<I, O>, InferenceState<I, O>> {
-  InferenceBloc(this.inferenceRepository, this.outputRepository,
-      this.sampleRate, this.storeData)
+  InferenceBloc(this.inputRepository, this.outputRepository, this.sampleRate,
+      this.storeData)
       : super(InferenceLoading<I, O>()) {
     on<InferenceInit<I, O>>(_onInit);
     on<InferenceStart<I, O>>(_onStart);
@@ -24,30 +23,31 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
     storageBacklog = 0;
   }
 
-  final Repository<I, O> inferenceRepository;
-  final Repository<O, dynamic>? outputRepository;
+  final Repository<I, I> inputRepository;
+  final Repository<I, O> outputRepository;
   final int sampleRate;
   final bool storeData;
 
   bool isReady = false;
   bool processing = false;
   late int storageBacklog;
-  late StreamSubscription<I>? _subscription;
-  final nullResponsePort = ReceivePort();
+  StreamSubscription<I>? _subscription;
 
-//TODO: Figure out what this is doing here
   FutureOr<void> _onInit(
       InferenceInit event, Emitter<InferenceState> emit) async {
-    await inferenceRepository.initialize();
+    await outputRepository.initialize();
     isReady = true;
     emit(InferenceStandby<I, O>());
   }
 
   FutureOr<void> _onStart(
       InferenceStart<I, O> event, Emitter<InferenceState> emit) async {
-    inferenceRepository.reset(); //Handles the reset case
-    _subscription = inferenceRepository.stream.listen((data) {
-      if (isReady) {
+    outputRepository.reset(); //Handles the reset case
+    _subscription = inputRepository.stream.listen((data) {
+      if (isClosed) {
+        _subscription?.cancel();
+      }
+      if (!isClosed && isReady) {
         add(InferenceInput(data.id, input: data, params: event.params));
       }
     });
@@ -57,13 +57,13 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
 
   FutureOr<void> _onInput(
       InferenceInput<I, O> event, Emitter<InferenceState> emit) async {
-    if (inferenceRepository.count % sampleRate == 0) {
+    if (inputRepository.count % sampleRate == 0) {
       storageBacklog++;
     }
     if (processing) return null;
     processing = true;
-    final data = await inferenceRepository.runPredict(
-        event.id, event.input, event.params);
+    final data =
+        await outputRepository.runPredict(event.id, event.input, event.params);
     processing = false;
     if (isReady && !isClosed && !emit.isDone) {
       add(InferenceOutput(
@@ -78,13 +78,13 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
   FutureOr<void> _onOutput(
       InferenceOutput<I, O> event, Emitter<InferenceState> emit) {
     try {
-      if (event.output != null) {
-        outputRepository?.add(event.output!);
+      if (event.output != null && !isClosed) {
+        outputRepository.add(event.output!);
         if (storeData && storageBacklog > 0) {
           //TODO: Delegate to InferenceRepository to check if all conditions are being met and store data
           //TODO: Add a path to the repository to store the data
           storageBacklog--;
-          inferenceRepository.store(
+          outputRepository.store(
               event.id, event.input, event.output!, event.params);
         }
       }
@@ -97,26 +97,17 @@ class InferenceBloc<I extends Identifiable, O extends AiModelOutput>
   }
 
   FutureOr<void> _onEnd(InferenceEnd event, Emitter<InferenceState> emit) {
-    isReady = false;
-    processing = false;
-    nullResponsePort.close();
-    if (_subscription != null) {
+    try {
+      isReady = false;
+      processing = false;
       _subscription?.cancel();
+      //FIXME: When the outputRepository is disposed, the app hangs, so we need to find a way to figure out what is going on and dispose it properly
+      //outputRepository.dispose();
+      emit(InferenceStandby<I, O>());
+    } on Exception catch (e) {
+      log("Inference End Error: $e");
     }
-    inferenceRepository.dispose();
-    emit(InferenceStandby<I, O>());
   }
-
-  // @override
-  // void onTransition(
-  //     Transition<InferenceEvent<I, O>, InferenceState<I, O>> transition) {
-  //   // Always call super.onTransition with the current transition
-  //   super.onTransition(transition);
-  //   if (transition.currentState is InferenceOutput) {
-  //     log('InferenceBloc Change Current State: InferenceOutput, next state: ${transition.event}, next state: ${transition.nextState}');
-  //   }
-  //   log('InferenceBloc Transition: $transition');
-  // }
 
   @override
   void onError(Object error, StackTrace stackTrace) {
