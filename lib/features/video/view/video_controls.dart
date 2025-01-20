@@ -27,6 +27,10 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
 
     final vidDecRep = RepositoryProvider.of<VideoDetectionRepository>(context);
 
+    void onSwitch() {
+      vid.add(const VideoSwitch());
+    }
+
     void onComplete(VideoRecording state) {
       final index = asmt.currentCondition?.sequenceNumber ?? 0;
 
@@ -126,8 +130,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                 ),
                 Positioned(
                   bottom: 10,
-                  left: 0,
-                  right: 0,
+                  width: MediaQuery.of(context).size.width,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
@@ -141,6 +144,13 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                       ] else if (infState is InferenceStandby<DeviceCapture,
                               PoseDetectionOutput> &&
                           state is VideoStandby) ...[
+                        //Space filling icon to align the others in the row
+                        const Icon(
+                          CupertinoIcons.nosign,
+                          color: Styles.transparent,
+                          size: 80,
+                        ),
+                        const Spacer(),
                         GestureDetector(
                           onTap: () {
                             final controller =
@@ -157,6 +167,15 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                             CupertinoIcons.circle,
                             color: Styles.actionPrimary,
                             size: 80,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: onSwitch,
+                          child: const Icon(
+                            CupertinoIcons.switch_camera,
+                            color: Styles.actionPrimary,
+                            size: 40,
                           ),
                         )
                       ] else ...[

@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:visualpt/features/video/bloc/video_bloc.dart';
 
 class Camera extends StatelessWidget {
   const Camera({super.key, required this.controller, required this.children});
@@ -8,6 +10,7 @@ class Camera extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vid = BlocProvider.of<VideoBloc>(context);
     return ClipRect(
       child: FittedBox(
         fit: BoxFit.cover,
@@ -18,7 +21,13 @@ class Camera extends StatelessWidget {
             aspectRatio: 1 / controller.value.aspectRatio,
             child: CameraPreview(
               controller,
-              child: Stack(fit: StackFit.expand, children: children),
+              child: LayoutBuilder(builder: (context, constraints) {
+                return GestureDetector(
+                    onTapDown: (details) => vid.add(VideoFocus(
+                        localPosition: details.localPosition,
+                        constraints: constraints)),
+                    child: Stack(fit: StackFit.expand, children: children));
+              }),
             ),
           ),
         ),

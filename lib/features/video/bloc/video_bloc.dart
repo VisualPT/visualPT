@@ -20,11 +20,15 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         super(const VideoLoading()) {
     on<VideoInit>(onInit);
     on<VideoPlay>(onPlay);
+    on<VideoFocus>(onFocus);
+    on<VideoSwitch>(onSwitch);
     on<VideoPause>(onPause);
     on<VideoTick>(onTick);
     on<VideoStop>(onStop);
   }
+
   final CaptureRepository repo;
+  late List<CameraDescription>? cameras;
   late CameraController? controller;
   final bool storeData;
   late Duration videoDuration = const Duration(seconds: 0);
@@ -35,17 +39,11 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
 
   FutureOr<void> onInit(VideoInit event, Emitter<VideoState> emit) async {
     try {
-      final cameras = await availableCameras();
       //TODO: Add a check for the camera capabilities (are we on simulator?)
-      controller = CameraController(
-        cameras.firstWhere(
-            (camera) => camera.lensDirection == CameraLensDirection.back),
-        ResolutionPreset.low,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.bgra8888,
-      );
-      await controller!.initialize();
-      await controller?.lockCaptureOrientation();
+      cameras = await availableCameras();
+      final description = cameras!.firstWhere(
+          (camera) => camera.lensDirection == CameraLensDirection.back);
+      controller = await _initializeCameraController(description);
       emit(VideoStandby(controller!));
     } on CameraException catch (e) {
       //TODO create a popup for these error codes
@@ -100,6 +98,35 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         !isClosed
             ? add(VideoTick(duration: duration))
             : _tickerSubscription?.cancel());
+  }
+
+  FutureOr<void> onFocus(VideoFocus event, Emitter<VideoState> emit) async {
+    if (controller == null) {
+      return;
+    }
+
+    final CameraController cameraController = controller!;
+
+    final Offset offset = Offset(
+      event.localPosition.dx / event.constraints.maxWidth,
+      event.localPosition.dy / event.constraints.maxHeight,
+    );
+
+    cameraController.setExposurePoint(offset);
+    cameraController.setFocusPoint(offset);
+  }
+
+  FutureOr<void> onSwitch(VideoSwitch event, Emitter<VideoState> emit) async {
+    if (controller == null) {
+      return;
+    }
+
+    cameras = cameras ??= await availableCameras();
+    final description = cameras!.firstWhere((camera) =>
+        camera.lensDirection != controller!.description.lensDirection);
+    controller = await _initializeCameraController(description);
+
+    emit(VideoStandby(controller!));
   }
 
   FutureOr<void> onTick(VideoTick event, Emitter<VideoState> emit) async {
@@ -157,8 +184,15 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     super.onError(error, stackTrace);
     debugPrint('VideoBloc Error: $error, $stackTrace');
   }
-  // Future<File> getData() async {
-  // }
+
+  Future<CameraController> _initializeCameraController(
+      CameraDescription description) async {
+    final controller = CameraController(description, ResolutionPreset.low,
+        enableAudio: false, imageFormatGroup: ImageFormatGroup.bgra8888);
+    await controller.initialize();
+    await controller.lockCaptureOrientation();
+    return controller;
+  }
 }
 
 class Ticker {
@@ -176,7 +210,7 @@ class Ticker {
 }
 
 
-//TODO create an onFocus state for this in the view file
+
 // void onFocus(TapDownDetails details, BoxConstraints constraints) {
 //   if (cameraController == null) {
 //     return;

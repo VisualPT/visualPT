@@ -89,7 +89,7 @@ class VideoPresenter extends StatelessWidget {
               } else if (state is VideoLoading) {
                 return onLoading(context, state);
               } else {
-                throw Exception("Invalid Video State");
+                throw Exception("Invalid Video State, $state");
               }
             } catch (e) {
               return onError(context, state, e as Exception);
