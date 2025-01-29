@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
@@ -9,7 +8,6 @@ import 'package:visualpt/features/video/view/capture_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/video/service/video_detection_repository.dart';
 
 class VideoControls<T extends BaseAssessment> extends StatelessWidget {
   final VideoState state;
@@ -25,62 +23,24 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context);
 
-    final vidDecRep = RepositoryProvider.of<VideoDetectionRepository>(context);
+    void onPlay() {
+      final controller = (state as VideoStandby).controller;
+      //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
+      final params = {
+        "height": controller.value.previewSize!.width,
+        "width": controller.value.previewSize!.height,
+      };
+      vid.add(const VideoPlay());
+      detection.add(InferenceStart("Start", params));
+    }
 
     void onSwitch() {
       vid.add(const VideoSwitch());
     }
 
-    void onComplete(VideoRecording state) {
-      final index = asmt.currentCondition?.sequenceNumber ?? 0;
-
-      detection.add(const InferenceEnd("End"));
-      vid.add(const VideoStop(reset: false));
-      asmt.add(AssessmentTrial(
-          AssessmentUtils.formatOutput(vidDecRep.localStorage, {
-            "index": index,
-            "obtrustion": asmt.config.conditionObtrusion[index],
-            "instability": asmt.config.conditionInstability[index]
-          }),
-          state.startTime,
-          state.duration));
-    }
-
-    void onPause(VideoRecording state) {
+    void onPause() {
       vid.add(const VideoPause());
       detection.add(const InferenceEnd("End"));
-
-      //Show a dialog to confirm the user's next steps
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return CupertinoAlertDialog(
-              title: const Text("Trial Complete"),
-              content: const Text(
-                  "Would you like to continue with the next trial or review the current trial?"),
-              actions: [
-                CupertinoDialogAction(
-                  child: const Text("Reset"),
-                  onPressed: () {
-                    vid.add(const VideoStop(reset: true));
-                    detection.add(const InferenceEnd("End"));
-                    detection.add(const InferenceInit("Start", 1));
-                    Navigator.of(context).pop();
-                  },
-                ),
-                CupertinoDialogAction(
-                  child: const Text("Next"),
-                  onPressed: () {
-                    onComplete(state);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      });
     }
 
     return BlocBuilder<InferenceBloc<DeviceCapture, PoseDetectionOutput>,
@@ -92,8 +52,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                         PoseDetectionOutput> &&
                     infState.response != null &&
                     asmt.config.isComplete(infState.response!)))) {
-          //Check if the duration will trigger a completed capture
-          onPause(state as VideoRecording);
+          onPause();
         }
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -152,17 +111,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                         ),
                         const Spacer(),
                         GestureDetector(
-                          onTap: () {
-                            final controller =
-                                (state as VideoStandby).controller;
-                            //TODO: Why is the width equal to the height? This seems to be incorrect but yields the correct result
-                            final params = {
-                              "height": controller.value.previewSize!.width,
-                              "width": controller.value.previewSize!.height,
-                            };
-                            vid.add(const VideoPlay());
-                            detection.add(InferenceStart("Start", params));
-                          },
+                          onTap: onPlay,
                           child: const Icon(
                             CupertinoIcons.circle,
                             color: Styles.actionPrimary,
@@ -181,7 +130,7 @@ class VideoControls<T extends BaseAssessment> extends StatelessWidget {
                       ] else ...[
                         const Spacer(),
                         GestureDetector(
-                          onTap: () => onPause(state as VideoRecording),
+                          onTap: onPause,
                           child: const Icon(CupertinoIcons.stop,
                               color: Styles.actionPrimary, size: 80),
                         ),

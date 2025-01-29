@@ -4,10 +4,8 @@ import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/service/assessment_utils.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
-import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_repository.dart';
-import 'package:visualpt/features/inference/view/camera_painters/depth_overlay.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/features/inference/view/pose_detection_overlay.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
@@ -54,7 +52,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
             ? VideoControls<T>(
                 state: state,
                 videoView: Camera(controller: vid.controller!, children: [
-                  const DepthOverlay(),
                   if (vid.controller != null)
                     PoseDetectionOverlay(controller: vid.controller!),
                 ]))
@@ -67,9 +64,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
     final detection =
             BlocProvider.of<InferenceBloc<DeviceCapture, PoseDetectionOutput>>(
                 context),
-        depth =
-            BlocProvider.of<InferenceBloc<DeviceCapture, DepthDetectionOutput>>(
-                context),
         vid = BlocProvider.of<VideoBloc>(context),
         asmt = BlocProvider.of<AssessmentBloc<T>>(context),
         poseRep = RepositoryProvider.of<PoseDetectionRepository>(context);
@@ -78,7 +72,6 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       // End video, end inference, re-init
       vid.add(VideoStop(file: state.file, reset: true));
       detection.add(const InferenceInit("Start", 1));
-      depth.add(const InferenceInit("Start", 1));
     }
 
     void onComplete() {

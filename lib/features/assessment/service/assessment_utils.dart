@@ -6,7 +6,6 @@ import 'package:visualpt/features/assessment/config/gait/gait.dart';
 import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
 import 'package:visualpt/features/assessment/config/reach/reach.dart';
 import 'package:visualpt/features/assessment/view/assessment_view.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
 import 'package:visualpt/models/Assessment.dart';
@@ -47,28 +46,6 @@ class AssessmentUtils {
         keypoints: value.toString(),
         prediction: null,
       ));
-    });
-    return linked.isNotEmpty ? linked : null;
-  }
-
-  static linkOutput(
-      Map<DeviceCapture, PoseDetectionOutput> detections,
-      Map<PoseDetectionOutput, PoseClassificationOutput> classifications,
-      Map<String, dynamic> params) {
-    final linked = <Detection>[];
-    detections.forEach((key, value) {
-      final classification = classifications[value];
-      if (classification != null) {
-        linked.add(Detection(
-          version: 1,
-          id: key.id,
-          obtrustion: params["obtrustion"],
-          instability: params["instability"],
-          env: key.measurements,
-          keypoints: value.toString(),
-          prediction: classification.getIndex().toString(),
-        ));
-      }
     });
     return linked.isNotEmpty ? linked : null;
   }

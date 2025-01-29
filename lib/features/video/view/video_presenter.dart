@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/video/service/capture_repository.dart';
 import 'package:visualpt/features/video/types.dart';
 import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
 import 'package:visualpt/features/video/bloc/video_bloc.dart';
 import 'package:visualpt/features/inference/bloc/inference_bloc.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 import 'package:visualpt/features/inference/view/pose_detection_indicator.dart';
-import 'package:visualpt/features/video/service/video_detection_repository.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_classification_repository.dart';
+import 'package:visualpt/features/inference/service/pose_detection/pose_detection_repository.dart';
 
 ///Provided by VideoBloc, TimerBloc, & InferenceBloc
 class VideoPresenter extends StatelessWidget {
@@ -41,23 +41,21 @@ class VideoPresenter extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
+        RepositoryProvider(create: (context) => CaptureRepository(meta)),
         RepositoryProvider(
-          create: (context) => VideoDetectionRepository(
+          create: (context) => PoseDetectionRepository(
             meta,
             (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
                 .user
                 .email,
           ),
         ),
-        RepositoryProvider(
-          create: (context) => DetectionClassificationRepository(meta),
-        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => VideoBloc(
-                RepositoryProvider.of<VideoDetectionRepository>(context),
+                RepositoryProvider.of<CaptureRepository>(context),
                 Duration(seconds: durationSeconds),
                 storeData)
               ..add(const VideoInit()),
@@ -66,9 +64,8 @@ class VideoPresenter extends StatelessWidget {
             lazy: false,
             create: (context) {
               return InferenceBloc<DeviceCapture, PoseDetectionOutput>(
-                  RepositoryProvider.of<VideoDetectionRepository>(context),
-                  RepositoryProvider.of<DetectionClassificationRepository>(
-                      context),
+                  RepositoryProvider.of<CaptureRepository>(context),
+                  RepositoryProvider.of<PoseDetectionRepository>(context),
                   VPTDetectionRate,
                   storeData)
                 ..add(InferenceInit("init", address));

@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/inference/service/ai_model.dart';
-import 'package:visualpt/features/inference/service/depth_detection/depth_detection_output.dart';
 
 // ignore: must_be_immutable
 class PoseDetectionOutput extends AiModelOutput {
@@ -43,18 +42,6 @@ class PoseDetectionOutput extends AiModelOutput {
 
   toRaw() {
     return output;
-  }
-
-  //Updates the depth points with the new depth points
-  updateDepth(DepthDetectionOutput depthOutput) {
-    //For each landmark, find the closest depth point and update the depth point
-    for (int i = 0; i < landmarks.length; i++) {
-      final landmark = landmarks[i];
-      final depthPoint = depthOutput.output[landmark.dx.round().clamp(0, 255)]
-          [landmark.dy.round().clamp(0, 255)];
-      depthPoints[i] = depthPoint;
-      output[i][2] = depthPoint;
-    }
   }
 
   @override

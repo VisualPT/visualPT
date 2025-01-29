@@ -4,7 +4,6 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/features/assessment/view/_assessments.dart';
 import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
 import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
@@ -392,44 +391,6 @@ class CTSIB implements BaseAssessment {
       }
       return totalPredictions;
     }).toList();
-  }
-
-  static getMostFrequentClassification(Assessment assessment, int i) {
-    return classifications[CTSIB.getPredictionTotals(assessment)[i].indexWhere(
-        (value) =>
-            value ==
-            CTSIB
-                .getPredictionTotals(assessment)[i]
-                .reduce((a, b) => a > b ? a : b))];
-  }
-
-  static String getMostFrequentIndexAcrossAllEntries(
-      List<List<int>> predictionTotals) {
-    // Initialize a map to count the frequency of each index
-    Map<int, int> indexFrequency = {};
-
-    // Iterate over each sublist
-    for (var sublist in predictionTotals) {
-      for (int i = 0; i < sublist.length; i++) {
-        if (!indexFrequency.containsKey(i)) {
-          indexFrequency[i] = 0;
-        }
-        indexFrequency[i] = indexFrequency[i]! + sublist[i];
-      }
-    }
-
-    // Find the index with the highest frequency
-    int mostFrequentIndex = -1;
-    int highestFrequency = -1;
-
-    indexFrequency.forEach((index, frequency) {
-      if (frequency > highestFrequency) {
-        highestFrequency = frequency;
-        mostFrequentIndex = index;
-      }
-    });
-
-    return classifications[mostFrequentIndex]?.toString() ?? "invalid";
   }
 
   //Returns isFall, equlibrium score
