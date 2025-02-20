@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 
 class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentActive<T> state;
@@ -10,7 +9,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var formattedInstructionList = state
-        .meta.conditionInstructions[state.trialMeta.condition]
+        .meta.conditionInstructions[state.trialMeta.stage]
         .map((instruction) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -27,10 +26,10 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
           const Spacer(),
           Text(state.trialMeta.assessment.name, style: Styles.title),
           Text(
-              "Condition ${(state.trialMeta.condition + 1).toString()} of ${state.meta.conditions.toString()}",
+              "Stage ${(state.trialMeta.stage + 1).toString()} of ${state.meta.stages.toString()}",
               style: Styles.heading1),
           Text(
-            state.meta.conditionNames[state.trialMeta.condition],
+            state.meta.conditionNames[state.trialMeta.stage],
             style: Styles.heading1,
             textAlign: TextAlign.center,
           ),

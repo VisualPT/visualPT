@@ -6,32 +6,32 @@ abstract class AssessmentState<T> extends Equatable {
   const AssessmentState(this.meta);
 }
 
-class AssessmentForm<T> extends AssessmentState<T> {
-  const AssessmentForm(super.meta);
+class AssessmentInputs<T> extends AssessmentState<T> {
+  const AssessmentInputs(super.meta);
   @override
   List<Object?> get props => [meta];
 }
 
 class AssessmentActive<T> extends AssessmentState<T> {
   final TrialMeta trialMeta;
-  final Subject subject;
+  final Profile profile;
   final bool storeData;
   const AssessmentActive(
-      this.trialMeta, this.subject, this.storeData, super.meta);
+      this.trialMeta, this.profile, this.storeData, super.meta);
 
   @override
   List<Object?> get props => [trialMeta, meta, storeData];
 }
 
 class AssessmentAnalysis<T> extends AssessmentState<T> {
-  final Subject subject;
+  final Profile profile;
   final bool storeData;
   final Assessment dbAssessment;
   const AssessmentAnalysis(
-      this.subject, this.storeData, this.dbAssessment, super.meta);
+      this.profile, this.storeData, this.dbAssessment, super.meta);
 
   @override
-  List<Object?> get props => [subject, storeData, dbAssessment, meta];
+  List<Object?> get props => [profile, storeData, dbAssessment, meta];
 }
 
 class AssessmentLoading<T> extends AssessmentState<T> {

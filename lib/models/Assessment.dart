@@ -28,12 +28,13 @@ import 'package:collection/collection.dart';
 class Assessment extends amplify_core.Model {
   static const classType = const _AssessmentModelType();
   final String id;
-  final String? _subjectID;
   final AssessmentType? _type;
   final amplify_core.TemporalDateTime? _datetime;
   final double? _duration;
   final String? _pdf;
-  final List<Condition>? _Conditions;
+  final String? _extra;
+  final Profile? _profile;
+  final List<Stage>? _stages;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -48,19 +49,6 @@ class Assessment extends amplify_core.Model {
       return AssessmentModelIdentifier(
         id: id
       );
-  }
-  
-  String get subjectID {
-    try {
-      return _subjectID!;
-    } catch(e) {
-      throw amplify_core.AmplifyCodeGenModelException(
-          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
   }
   
   AssessmentType get type {
@@ -106,8 +94,25 @@ class Assessment extends amplify_core.Model {
     return _pdf;
   }
   
-  List<Condition>? get Conditions {
-    return _Conditions;
+  String get extra {
+    try {
+      return _extra!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  Profile? get profile {
+    return _profile;
+  }
+  
+  List<Stage>? get stages {
+    return _stages;
   }
   
   amplify_core.TemporalDateTime? get createdAt {
@@ -118,17 +123,18 @@ class Assessment extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required subjectID, required type, required datetime, required duration, pdf, Conditions, createdAt, updatedAt}): _subjectID = subjectID, _type = type, _datetime = datetime, _duration = duration, _pdf = pdf, _Conditions = Conditions, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required type, required datetime, required duration, pdf, required extra, profile, stages, createdAt, updatedAt}): _type = type, _datetime = datetime, _duration = duration, _pdf = pdf, _extra = extra, _profile = profile, _stages = stages, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required String subjectID, required AssessmentType type, required amplify_core.TemporalDateTime datetime, required double duration, String? pdf, List<Condition>? Conditions}) {
+  factory Assessment({String? id, required AssessmentType type, required amplify_core.TemporalDateTime datetime, required double duration, String? pdf, required String extra, Profile? profile, List<Stage>? stages}) {
     return Assessment._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
-      subjectID: subjectID,
       type: type,
       datetime: datetime,
       duration: duration,
       pdf: pdf,
-      Conditions: Conditions != null ? List<Condition>.unmodifiable(Conditions) : Conditions);
+      extra: extra,
+      profile: profile,
+      stages: stages != null ? List<Stage>.unmodifiable(stages) : stages);
   }
   
   bool equals(Object other) {
@@ -140,12 +146,13 @@ class Assessment extends amplify_core.Model {
     if (identical(other, this)) return true;
     return other is Assessment &&
       id == other.id &&
-      _subjectID == other._subjectID &&
       _type == other._type &&
       _datetime == other._datetime &&
       _duration == other._duration &&
       _pdf == other._pdf &&
-      DeepCollectionEquality().equals(_Conditions, other._Conditions);
+      _extra == other._extra &&
+      _profile == other._profile &&
+      DeepCollectionEquality().equals(_stages, other._stages);
   }
   
   @override
@@ -157,11 +164,12 @@ class Assessment extends amplify_core.Model {
     
     buffer.write("Assessment {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("subjectID=" + "$_subjectID" + ", ");
     buffer.write("type=" + (_type != null ? amplify_core.enumToString(_type)! : "null") + ", ");
     buffer.write("datetime=" + (_datetime != null ? _datetime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("pdf=" + "$_pdf" + ", ");
+    buffer.write("extra=" + "$_extra" + ", ");
+    buffer.write("profile=" + (_profile != null ? _profile!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -169,101 +177,102 @@ class Assessment extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Assessment copyWith({String? subjectID, AssessmentType? type, amplify_core.TemporalDateTime? datetime, double? duration, String? pdf, List<Condition>? Conditions}) {
+  Assessment copyWith({AssessmentType? type, amplify_core.TemporalDateTime? datetime, double? duration, String? pdf, String? extra, Profile? profile, List<Stage>? stages}) {
     return Assessment._internal(
       id: id,
-      subjectID: subjectID ?? this.subjectID,
       type: type ?? this.type,
       datetime: datetime ?? this.datetime,
       duration: duration ?? this.duration,
       pdf: pdf ?? this.pdf,
-      Conditions: Conditions ?? this.Conditions);
+      extra: extra ?? this.extra,
+      profile: profile ?? this.profile,
+      stages: stages ?? this.stages);
   }
   
   Assessment copyWithModelFieldValues({
-    ModelFieldValue<String>? subjectID,
     ModelFieldValue<AssessmentType>? type,
     ModelFieldValue<amplify_core.TemporalDateTime>? datetime,
     ModelFieldValue<double>? duration,
     ModelFieldValue<String?>? pdf,
-    ModelFieldValue<List<Condition>>? Conditions
+    ModelFieldValue<String>? extra,
+    ModelFieldValue<Profile?>? profile,
+    ModelFieldValue<List<Stage>?>? stages
   }) {
     return Assessment._internal(
       id: id,
-      subjectID: subjectID == null ? this.subjectID : subjectID.value,
       type: type == null ? this.type : type.value,
       datetime: datetime == null ? this.datetime : datetime.value,
       duration: duration == null ? this.duration : duration.value,
       pdf: pdf == null ? this.pdf : pdf.value,
-      Conditions: Conditions == null ? this.Conditions : Conditions.value
+      extra: extra == null ? this.extra : extra.value,
+      profile: profile == null ? this.profile : profile.value,
+      stages: stages == null ? this.stages : stages.value
     );
   }
   
   Assessment.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _subjectID = json['subjectID'],
       _type = amplify_core.enumFromString<AssessmentType>(json['type'], AssessmentType.values),
       _datetime = json['datetime'] != null ? amplify_core.TemporalDateTime.fromString(json['datetime']) : null,
       _duration = (json['duration'] as num?)?.toDouble(),
       _pdf = json['pdf'],
-      _Conditions = json['Conditions']  is Map
-        ? (json['Conditions']['items'] is List
-          ? (json['Conditions']['items'] as List)
+      _extra = json['extra'],
+      _profile = json['profile'] != null
+        ? json['profile']['serializedData'] != null
+          ? Profile.fromJson(new Map<String, dynamic>.from(json['profile']['serializedData']))
+          : Profile.fromJson(new Map<String, dynamic>.from(json['profile']))
+        : null,
+      _stages = json['stages']  is Map
+        ? (json['stages']['items'] is List
+          ? (json['stages']['items'] as List)
               .where((e) => e != null)
-              .map((e) => Condition.fromJson(new Map<String, dynamic>.from(e)))
+              .map((e) => Stage.fromJson(new Map<String, dynamic>.from(e)))
               .toList()
           : null)
-        : (json['Conditions'] is List
-          ? (json['Conditions'] as List)
+        : (json['stages'] is List
+          ? (json['stages'] as List)
               .where((e) => e?['serializedData'] != null)
-              .map((e) => Condition.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
+              .map((e) => Stage.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
               .toList()
           : null),
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'subjectID': _subjectID, 'type': amplify_core.enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'Conditions': _Conditions?.map((Condition? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'type': amplify_core.enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'extra': _extra, 'profile': _profile?.toJson(), 'stages': _stages?.map((Stage? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
-    'subjectID': _subjectID,
     'type': _type,
     'datetime': _datetime,
     'duration': _duration,
     'pdf': _pdf,
-    'Conditions': _Conditions,
+    'extra': _extra,
+    'profile': _profile,
+    'stages': _stages,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
 
   static final amplify_core.QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<AssessmentModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
-  static final SUBJECTID = amplify_core.QueryField(fieldName: "subjectID");
   static final TYPE = amplify_core.QueryField(fieldName: "type");
   static final DATETIME = amplify_core.QueryField(fieldName: "datetime");
   static final DURATION = amplify_core.QueryField(fieldName: "duration");
   static final PDF = amplify_core.QueryField(fieldName: "pdf");
-  static final CONDITIONS = amplify_core.QueryField(
-    fieldName: "Conditions",
-    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Condition'));
+  static final EXTRA = amplify_core.QueryField(fieldName: "extra");
+  static final PROFILE = amplify_core.QueryField(
+    fieldName: "profile",
+    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Profile'));
+  static final STAGES = amplify_core.QueryField(
+    fieldName: "stages",
+    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Stage'));
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Assessment";
     modelSchemaDefinition.pluralName = "Assessments";
     
     modelSchemaDefinition.authRules = [
-      amplify_core.AuthRule(
-        authStrategy: amplify_core.AuthStrategy.GROUPS,
-        groupClaim: "cognito:groups",
-        groups: [ "Admin" ],
-        provider: amplify_core.AuthRuleProvider.USERPOOLS,
-        operations: const [
-          amplify_core.ModelOperation.CREATE,
-          amplify_core.ModelOperation.UPDATE,
-          amplify_core.ModelOperation.DELETE,
-          amplify_core.ModelOperation.READ
-        ]),
       amplify_core.AuthRule(
         authStrategy: amplify_core.AuthStrategy.OWNER,
         ownerField: "owner",
@@ -274,20 +283,25 @@ class Assessment extends amplify_core.Model {
           amplify_core.ModelOperation.UPDATE,
           amplify_core.ModelOperation.DELETE,
           amplify_core.ModelOperation.READ
+        ]),
+      amplify_core.AuthRule(
+        authStrategy: amplify_core.AuthStrategy.GROUPS,
+        groupClaim: "cognito:groups",
+        groups: [ "admin" ],
+        provider: amplify_core.AuthRuleProvider.USERPOOLS,
+        operations: const [
+          amplify_core.ModelOperation.CREATE,
+          amplify_core.ModelOperation.UPDATE,
+          amplify_core.ModelOperation.DELETE,
+          amplify_core.ModelOperation.READ
         ])
     ];
     
     modelSchemaDefinition.indexes = [
-      amplify_core.ModelIndex(fields: const ["subjectID"], name: "bySubject")
+      amplify_core.ModelIndex(fields: const ["profileId"], name: "assessmentsByProfileId")
     ];
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.id());
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Assessment.SUBJECTID,
-      isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
-    ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.TYPE,
@@ -313,11 +327,24 @@ class Assessment extends amplify_core.Model {
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
-      key: Assessment.CONDITIONS,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Assessment.EXTRA,
       isRequired: true,
-      ofModelName: 'Condition',
-      associatedKey: Condition.ASSESSMENTID
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.belongsTo(
+      key: Assessment.PROFILE,
+      isRequired: false,
+      targetNames: ['profileId'],
+      ofModelName: 'Profile'
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
+      key: Assessment.STAGES,
+      isRequired: false,
+      ofModelName: 'Stage',
+      associatedKey: Stage.ASSESSMENT
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(

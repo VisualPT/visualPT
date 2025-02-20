@@ -28,10 +28,10 @@ import 'package:collection/collection.dart';
 class Trial extends amplify_core.Model {
   static const classType = const _TrialModelType();
   final String id;
-  final String? _conditionID;
-  final amplify_core.TemporalDateTime? _start_time;
+  final amplify_core.TemporalDateTime? _startTime;
   final double? _duration;
-  final List<Detection>? _Detections;
+  final Stage? _stage;
+  final List<Detection>? _detections;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -48,22 +48,9 @@ class Trial extends amplify_core.Model {
       );
   }
   
-  String get conditionID {
+  amplify_core.TemporalDateTime get startTime {
     try {
-      return _conditionID!;
-    } catch(e) {
-      throw amplify_core.AmplifyCodeGenModelException(
-          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
-  }
-  
-  amplify_core.TemporalDateTime get start_time {
-    try {
-      return _start_time!;
+      return _startTime!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -87,8 +74,12 @@ class Trial extends amplify_core.Model {
     }
   }
   
-  List<Detection>? get Detections {
-    return _Detections;
+  Stage? get stage {
+    return _stage;
+  }
+  
+  List<Detection>? get detections {
+    return _detections;
   }
   
   amplify_core.TemporalDateTime? get createdAt {
@@ -99,15 +90,15 @@ class Trial extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const Trial._internal({required this.id, required conditionID, required start_time, required duration, Detections, createdAt, updatedAt}): _conditionID = conditionID, _start_time = start_time, _duration = duration, _Detections = Detections, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Trial._internal({required this.id, required startTime, required duration, stage, detections, createdAt, updatedAt}): _startTime = startTime, _duration = duration, _stage = stage, _detections = detections, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Trial({String? id, required String conditionID, required amplify_core.TemporalDateTime start_time, required double duration, List<Detection>? Detections}) {
+  factory Trial({String? id, required amplify_core.TemporalDateTime startTime, required double duration, Stage? stage, List<Detection>? detections}) {
     return Trial._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
-      conditionID: conditionID,
-      start_time: start_time,
+      startTime: startTime,
       duration: duration,
-      Detections: Detections != null ? List<Detection>.unmodifiable(Detections) : Detections);
+      stage: stage,
+      detections: detections != null ? List<Detection>.unmodifiable(detections) : detections);
   }
   
   bool equals(Object other) {
@@ -119,10 +110,10 @@ class Trial extends amplify_core.Model {
     if (identical(other, this)) return true;
     return other is Trial &&
       id == other.id &&
-      _conditionID == other._conditionID &&
-      _start_time == other._start_time &&
+      _startTime == other._startTime &&
       _duration == other._duration &&
-      DeepCollectionEquality().equals(_Detections, other._Detections);
+      _stage == other._stage &&
+      DeepCollectionEquality().equals(_detections, other._detections);
   }
   
   @override
@@ -134,10 +125,9 @@ class Trial extends amplify_core.Model {
     
     buffer.write("Trial {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("conditionID=" + "$_conditionID" + ", ");
-    buffer.write("start_time=" + (_start_time != null ? _start_time!.format() : "null") + ", ");
+    buffer.write("startTime=" + (_startTime != null ? _startTime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
-    buffer.write("Detections=" + (_Detections != null ? _Detections!.toString() : "null") + ", ");
+    buffer.write("stage=" + (_stage != null ? _stage!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -145,80 +135,84 @@ class Trial extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Trial copyWith({String? conditionID, amplify_core.TemporalDateTime? start_time, double? duration, List<Detection>? Detections}) {
+  Trial copyWith({amplify_core.TemporalDateTime? startTime, double? duration, Stage? stage, List<Detection>? detections}) {
     return Trial._internal(
       id: id,
-      conditionID: conditionID ?? this.conditionID,
-      start_time: start_time ?? this.start_time,
+      startTime: startTime ?? this.startTime,
       duration: duration ?? this.duration,
-      Detections: Detections ?? this.Detections);
+      stage: stage ?? this.stage,
+      detections: detections ?? this.detections);
   }
   
   Trial copyWithModelFieldValues({
-    ModelFieldValue<String>? conditionID,
-    ModelFieldValue<amplify_core.TemporalDateTime>? start_time,
+    ModelFieldValue<amplify_core.TemporalDateTime>? startTime,
     ModelFieldValue<double>? duration,
-    ModelFieldValue<List<Detection>>? Detections
+    ModelFieldValue<Stage?>? stage,
+    ModelFieldValue<List<Detection>?>? detections
   }) {
     return Trial._internal(
       id: id,
-      conditionID: conditionID == null ? this.conditionID : conditionID.value,
-      start_time: start_time == null ? this.start_time : start_time.value,
+      startTime: startTime == null ? this.startTime : startTime.value,
       duration: duration == null ? this.duration : duration.value,
-      Detections: Detections == null ? this.Detections : Detections.value
+      stage: stage == null ? this.stage : stage.value,
+      detections: detections == null ? this.detections : detections.value
     );
   }
   
   Trial.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _conditionID = json['conditionID'],
-      _start_time = json['start_time'] != null ? amplify_core.TemporalDateTime.fromString(json['start_time']) : null,
+      _startTime = json['startTime'] != null ? amplify_core.TemporalDateTime.fromString(json['startTime']) : null,
       _duration = (json['duration'] as num?)?.toDouble(),
-      _Detections = json['Detections'] is List
-        ? (json['Detections'] as List)
-          .where((e) => e != null)
-          .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e['serializedData'] ?? e)))
-          .toList()
+      _stage = json['stage'] != null
+        ? json['stage']['serializedData'] != null
+          ? Stage.fromJson(new Map<String, dynamic>.from(json['stage']['serializedData']))
+          : Stage.fromJson(new Map<String, dynamic>.from(json['stage']))
         : null,
+      _detections = json['detections']  is Map
+        ? (json['detections']['items'] is List
+          ? (json['detections']['items'] as List)
+              .where((e) => e != null)
+              .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e)))
+              .toList()
+          : null)
+        : (json['detections'] is List
+          ? (json['detections'] as List)
+              .where((e) => e?['serializedData'] != null)
+              .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
+              .toList()
+          : null),
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'conditionID': _conditionID, 'start_time': _start_time?.format(), 'duration': _duration, 'Detections': _Detections?.map((Detection? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'startTime': _startTime?.format(), 'duration': _duration, 'stage': _stage?.toJson(), 'detections': _detections?.map((Detection? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
-    'conditionID': _conditionID,
-    'start_time': _start_time,
+    'startTime': _startTime,
     'duration': _duration,
-    'Detections': _Detections,
+    'stage': _stage,
+    'detections': _detections,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
 
   static final amplify_core.QueryModelIdentifier<TrialModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<TrialModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
-  static final CONDITIONID = amplify_core.QueryField(fieldName: "conditionID");
-  static final START_TIME = amplify_core.QueryField(fieldName: "start_time");
+  static final STARTTIME = amplify_core.QueryField(fieldName: "startTime");
   static final DURATION = amplify_core.QueryField(fieldName: "duration");
-  static final DETECTIONS = amplify_core.QueryField(fieldName: "Detections");
+  static final STAGE = amplify_core.QueryField(
+    fieldName: "stage",
+    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Stage'));
+  static final DETECTIONS = amplify_core.QueryField(
+    fieldName: "detections",
+    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Detection'));
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Trial";
     modelSchemaDefinition.pluralName = "Trials";
     
     modelSchemaDefinition.authRules = [
-      amplify_core.AuthRule(
-        authStrategy: amplify_core.AuthStrategy.GROUPS,
-        groupClaim: "cognito:groups",
-        groups: [ "Admin" ],
-        provider: amplify_core.AuthRuleProvider.USERPOOLS,
-        operations: const [
-          amplify_core.ModelOperation.CREATE,
-          amplify_core.ModelOperation.UPDATE,
-          amplify_core.ModelOperation.DELETE,
-          amplify_core.ModelOperation.READ
-        ]),
       amplify_core.AuthRule(
         authStrategy: amplify_core.AuthStrategy.OWNER,
         ownerField: "owner",
@@ -229,23 +223,28 @@ class Trial extends amplify_core.Model {
           amplify_core.ModelOperation.UPDATE,
           amplify_core.ModelOperation.DELETE,
           amplify_core.ModelOperation.READ
+        ]),
+      amplify_core.AuthRule(
+        authStrategy: amplify_core.AuthStrategy.GROUPS,
+        groupClaim: "cognito:groups",
+        groups: [ "admin" ],
+        provider: amplify_core.AuthRuleProvider.USERPOOLS,
+        operations: const [
+          amplify_core.ModelOperation.CREATE,
+          amplify_core.ModelOperation.UPDATE,
+          amplify_core.ModelOperation.DELETE,
+          amplify_core.ModelOperation.READ
         ])
     ];
     
     modelSchemaDefinition.indexes = [
-      amplify_core.ModelIndex(fields: const ["conditionID"], name: "byCondition")
+      amplify_core.ModelIndex(fields: const ["stageId"], name: "trialsByStageId")
     ];
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Trial.CONDITIONID,
-      isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Trial.START_TIME,
+      key: Trial.STARTTIME,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
@@ -256,11 +255,18 @@ class Trial extends amplify_core.Model {
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.embedded(
-      fieldName: 'Detections',
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.belongsTo(
+      key: Trial.STAGE,
       isRequired: false,
-      isArray: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.embeddedCollection, ofCustomTypeName: 'Detection')
+      targetNames: ['stageId'],
+      ofModelName: 'Stage'
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
+      key: Trial.DETECTIONS,
+      isRequired: false,
+      ofModelName: 'Detection',
+      associatedKey: Detection.TRIAL
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(

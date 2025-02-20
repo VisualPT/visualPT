@@ -1,27 +1,25 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/views/styles.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/core/view/styles.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
-class CtsibPDF extends PDF {
+class CtsibPDF extends BasePDF {
   final ctsib = CTSIB();
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
     await configPdfStyles();
 
-    final norms = await ctsib.getNorms(subject.dob, subject.gender);
+    final norms = await ctsib.getNorms(profile.dob, profile.gender);
 
     final pdf = Document(
-        title: subject.last_name + subject.first_name + subject.dob.toString(),
+        title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -31,9 +29,9 @@ class CtsibPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            subjectData(subject, assessment),
+            subjectData(profile, assessment),
             Spacer(),
-            assessmentData(subject, assessment, norms),
+            assessmentData(profile, assessment, norms),
             Spacer(),
             sensoryMismatchData(assessment),
             Spacer(),
@@ -63,7 +61,7 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget subjectData(Subject subject, Assessment assessment) {
+  Widget subjectData(Profile profile, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -74,7 +72,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "Name: ", style: detail),
               TextSpan(
-                  text: "${subject.first_name} ${subject.last_name}",
+                  text: "${profile.firstName} ${profile.lastName}",
                   style: detailBold),
             ]),
           ),
@@ -82,7 +80,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
               TextSpan(
-                  text: formatDate(subject.dob.getDateTime()),
+                  text: formatDate(profile.dob.getDateTime()),
                   style: detailBold),
             ]),
           ),
@@ -91,7 +89,7 @@ class CtsibPDF extends PDF {
               TextSpan(text: "Age: ", style: detail),
               TextSpan(
                   text: (DateTime.now()
-                              .difference(subject.dob.getDateTime())
+                              .difference(profile.dob.getDateTime())
                               .inDays ~/
                           365)
                       .toString(),
@@ -101,7 +99,7 @@ class CtsibPDF extends PDF {
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Gender: ", style: detail),
-              TextSpan(text: subject.gender.name, style: detailBold),
+              TextSpan(text: profile.gender.name, style: detailBold),
             ]),
           ),
         ]),
@@ -138,7 +136,7 @@ class CtsibPDF extends PDF {
   }
 
   Widget assessmentData(
-      Subject subject, Assessment assessment, List<Norm>? norms) {
+      Profile profile, Assessment assessment, List<Norm>? norms) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -154,8 +152,10 @@ class CtsibPDF extends PDF {
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
-                    List.generate(((assessment.Conditions?.length ?? 0) + 1),
-                        (i) => '\n\n'),
+                    List.generate(
+                      (assessment.stages?.length ?? 0) + 1,
+                      (i) => '\n\n',
+                    ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
                     marginEnd: 30,
@@ -166,16 +166,16 @@ class CtsibPDF extends PDF {
                     marginStart: 1,
                   ),
                 ),
-                datasets: List.generate(
-                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
+                datasets:
+                    List.generate(((assessment.stages?.length ?? 0) + 1), (i) {
                   return BarDataSet(
                     legend: '',
                     color: PdfColors.grey, // Normative background
                     data: [
                       PointChartValue(
                           (i).toDouble(),
-                          (norms?[i].score_sum ?? 0) /
-                              ((norms?[i].trial_sum ?? 1)))
+                          (norms?[i].scoreSum ?? 0) /
+                              ((norms?[i].trialSum ?? 1)))
                     ],
                     valuePosition: ValuePosition.auto,
                     width: 30,
@@ -187,8 +187,8 @@ class CtsibPDF extends PDF {
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
-                      ((assessment.Conditions?.length ?? 0) + 1),
-                      (i) => (assessment.Conditions?.length ?? 0) != i
+                      ((assessment.stages?.length ?? 0) + 1),
+                      (i) => (assessment.stages?.length ?? 0) != i
                           ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
                           : 'Cumulative',
                     ),
@@ -204,15 +204,15 @@ class CtsibPDF extends PDF {
                     divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
                   ),
                 ),
-                datasets: List.generate(
-                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
-                  if ((assessment.Conditions?.length ?? 0) != i) {
+                datasets:
+                    List.generate(((assessment.stages?.length ?? 0) + 1), (i) {
+                  if ((assessment.stages?.length ?? 0) != i) {
                     //TODO: Add multiple trials here
                     return BarDataSet(
                       legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
                       color: ctsib.calculateScores(assessment)[i] >
-                              (norms?[i].score_sum ?? 0) /
-                                  ((norms?[i].trial_sum ?? 1))
+                              (norms?[i].scoreSum ?? 0) /
+                                  ((norms?[i].trialSum ?? 1))
                           ? PdfColors.green
                           : PdfColors.red, // Patient data color
                       width: 20,
@@ -237,8 +237,8 @@ class CtsibPDF extends PDF {
                     color: (ctsib.calculateScores(assessment).fold<double>(0.0,
                                     (prevScore, score) => prevScore + score) /
                                 i) >
-                            (norms?[i].score_sum ?? 0) /
-                                ((norms?[i].trial_sum ?? 1))
+                            (norms?[i].scoreSum ?? 0) /
+                                ((norms?[i].trialSum ?? 1))
                         ? PdfColors.green
                         : PdfColors.red, // Patient data color
                     width: 20,
@@ -507,10 +507,10 @@ class CtsibPDF extends PDF {
           text: TextSpan(
               text: "Generative AI snippets coming soon", style: detail)),
       //generateConditionRatioText(assessment), style: detail)),
-      //             "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
-      //             "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
-      //             "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-      //             "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
+      //             "1)	Vision Dependence: Patients become unstable in stages 2, 3, 5 & 6 with eyes closed.",
+      //             "2) Surface/somatosensory dependence: Patient becomes unstable in stages 4, 5 & 6 because they stand on a soft surface (foam).",
+      //             "3)	Vestibular loss: Patient becomes unstable in stages 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+      //             "4)	Patients with sensory selection problems become unstable in stages 3-6.",
     ]);
   }
 
@@ -547,11 +547,10 @@ class CtsibPDF extends PDF {
 
   //TODO: This likely needs to be based on the equlibrium score
   bool checkFallRisk(Assessment assessment) {
-    // Calculate the total duration of the assessment (only for conditions 5 and 6)
+    // Calculate the total duration of the assessment (only for stages 5 and 6)
     bool is9xFallRisk(int i) {
       final total =
-          AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) >
-              30.0;
+          AssessmentUtils.getAvgDuration(assessment.stages?[i].trials) > 30.0;
       return total;
     }
 

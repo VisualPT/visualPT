@@ -22,5 +22,5 @@
 enum FallHistory {
   NONE,
   FEW,
-  RECURRENT
+  RECURRING
 }

@@ -26,7 +26,7 @@ class AnalysisPresenter extends StatelessWidget {
           create: (context) => PdfBloc()..add(onCreate),
         ),
         BlocProvider(
-          create: (context) => EmailBloc(),
+          create: (context) => EmailBloc()..add(const EmailFetch()),
         ),
       ],
       child: BlocBuilder<PdfBloc, PdfState>(

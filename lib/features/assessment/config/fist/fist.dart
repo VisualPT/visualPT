@@ -1,10 +1,6 @@
-import 'package:amplify_core/src/types/temporal/temporal_date.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/models/Assessment.dart';
-import 'package:visualpt/models/AssessmentType.dart';
-import 'package:visualpt/models/Gender.dart';
-import 'package:visualpt/models/Norm.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class FIST implements BaseAssessment {
   @override
@@ -24,7 +20,7 @@ class FIST implements BaseAssessment {
   String get imagePath => "assets/images/fist_mainlogo.png";
 
   @override
-  int get conditions => 1;
+  int get stages => 1;
 
   @override
   int get trials => 1;
@@ -39,12 +35,8 @@ class FIST implements BaseAssessment {
   List<List<String>> get conditionInstructions => List.filled(1, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+        "Lighting must be sufficient to clearly see the profile",
       ]);
-
-  @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(1, [InferenceType.poseDetection]);
 
   @override
   List<bool> get conditionObtrusion => [false];
@@ -53,7 +45,7 @@ class FIST implements BaseAssessment {
   List<bool> get conditionInstability => [false];
 
   @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -87,7 +79,10 @@ class FIST implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
     return false;
   }
 }

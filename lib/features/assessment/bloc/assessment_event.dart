@@ -4,16 +4,16 @@ part of 'assessment_bloc.dart';
 abstract class AssessmentEvent extends Equatable {}
 
 class AssessmentInit extends AssessmentEvent {
-  final Subject subject;
+  AssessmentInit(this.formFields, this.storeData);
+  final Map<String, FormFieldItem> formFields;
   final bool storeData;
-  AssessmentInit(this.subject, this.storeData);
 
   @override
-  List<Object?> get props => [subject, storeData];
+  List<Object?> get props => [formFields, storeData];
 }
 
-class AssessmentCondition extends AssessmentEvent {
-  AssessmentCondition();
+class AssessmentStage extends AssessmentEvent {
+  AssessmentStage();
 
   @override
   List<Object?> get props => [];

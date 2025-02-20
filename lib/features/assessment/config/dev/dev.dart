@@ -1,7 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 
 class DEV implements BaseAssessment {
   @override
@@ -21,7 +20,7 @@ class DEV implements BaseAssessment {
   String get imagePath => "assets/images/vpt_appicon.png";
 
   @override
-  int get conditions => 1;
+  int get stages => 1;
 
   @override
   int get trials => 1;
@@ -43,13 +42,9 @@ class DEV implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(conditions, [
+  List<List<String>> get conditionInstructions => List.filled(stages, [
         "Make this app work!",
       ]);
-
-  @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(conditions, [InferenceType.poseDetection]);
 
   @override
   List<bool> get conditionObtrusion => [false];
@@ -58,7 +53,7 @@ class DEV implements BaseAssessment {
   List<bool> get conditionInstability => [false];
 
   @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -88,7 +83,7 @@ class DEV implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
     return false;
   }
 }

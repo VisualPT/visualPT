@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/analysis/view/analysis_view.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/assessment/view/assessment_form.dart';
-import 'package:visualpt/features/assessment/view/components/assessment_capture.dart';
-import 'package:visualpt/features/assessment/view/assessment_presenter.dart';
-import 'package:visualpt/core/views/_views.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
   final T assessment;
+  final Profile profile;
 
   const AssessmentView(
-    this.assessment, {
+    this.assessment,
+    this.profile, {
     super.key,
   });
 
@@ -18,12 +18,12 @@ class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return AssessmentPresenter(
       assessment: assessment,
-      onForm: (context, state) => AssessmentForm<T>(assessment: assessment),
+      profile: profile,
+      onForm: (context, state) => AssessmentForm<T>(state),
       onActive: (context, state) => AssessmentCapture<T>(state),
       onAnalysis: (context, state) => AnalysisView(state),
       onError: (context, state) => BaseView(
-        pageTitle: "Assessment State Error",
-        //Create a child view that has the error message and a button to go back
+        pageTitle: "Assessment Error",
         child: Column(
           children: [
             Text(state.message.toString()),

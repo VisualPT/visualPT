@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 const halfinch = 36.0;
@@ -9,9 +9,9 @@ const inch = 72.0;
 const height = 11 * inch;
 const width = 8.5 * inch;
 
-class DevPDF extends PDF {
+class DevPDF extends BasePDF {
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
     try {
       final pdf = Document(title: "Test", creator: "VisualPT Systems");
 

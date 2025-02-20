@@ -2,27 +2,24 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/utils/math_utils.dart';
-import 'package:visualpt/features/assessment/config/mctsib/mctsib.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
-class MctsibPDF extends PDF {
+class MctsibPDF extends BasePDF {
   final mctsib = MCTSIB();
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
     await configPdfStyles();
 
-    final norms = await mctsib.getNorms(subject.dob, subject.gender);
+    final norms = await mctsib.getNorms(profile.dob, profile.gender);
 
     final pdf = Document(
-        title: subject.last_name + subject.first_name + subject.dob.toString(),
+        title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -32,9 +29,9 @@ class MctsibPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            subjectData(subject, assessment),
+            subjectData(profile, assessment),
             Spacer(),
-            assessmentData(subject, assessment),
+            assessmentData(profile, assessment),
             Spacer(),
             conditionRatioTable(assessment),
             Spacer(),
@@ -65,7 +62,7 @@ class MctsibPDF extends PDF {
     );
   }
 
-  Widget subjectData(Subject subject, Assessment assessment) {
+  Widget subjectData(Profile profile, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -76,7 +73,7 @@ class MctsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "Name: ", style: detail),
               TextSpan(
-                  text: "${subject.first_name} ${subject.last_name}",
+                  text: "${profile.firstName} ${profile.lastName}",
                   style: detailBold),
             ]),
           ),
@@ -84,7 +81,7 @@ class MctsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
               TextSpan(
-                  text: formatDate(subject.dob.getDateTime()),
+                  text: formatDate(profile.dob.getDateTime()),
                   style: detailBold),
             ]),
           ),
@@ -93,7 +90,7 @@ class MctsibPDF extends PDF {
               TextSpan(text: "Age: ", style: detail),
               TextSpan(
                   text: (DateTime.now()
-                              .difference(subject.dob.getDateTime())
+                              .difference(profile.dob.getDateTime())
                               .inDays ~/
                           365)
                       .toString(),
@@ -103,7 +100,7 @@ class MctsibPDF extends PDF {
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Gender: ", style: detail),
-              TextSpan(text: subject.gender.name, style: detailBold),
+              TextSpan(text: profile.gender.name, style: detailBold),
             ]),
           ),
         ]),
@@ -138,7 +135,7 @@ class MctsibPDF extends PDF {
     ]);
   }
 
-  Widget assessmentData(Subject subject, Assessment assessment) {
+  Widget assessmentData(Profile profile, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -201,7 +198,7 @@ class MctsibPDF extends PDF {
               ),
             ],
           ),
-          for (int i = 0; i < (assessment.Conditions?.length ?? 1); i++)
+          for (int i = 0; i < (assessment.stages?.length ?? 1); i++)
             TableRow(
               children: [
                 Padding(
@@ -222,8 +219,7 @@ class MctsibPDF extends PDF {
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      assessment.Conditions?[i].trials?.length.toString() ??
-                          "0",
+                      assessment.stages?[i].trials?.length.toString() ?? "0",
                       style: detail,
                       textAlign: TextAlign.center),
                 ),
@@ -250,7 +246,7 @@ class MctsibPDF extends PDF {
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      "${AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials).toStringAsFixed(1)} / 30",
+                      "${AssessmentUtils.getAvgDuration(assessment.stages?[i].trials).toStringAsFixed(1)} / 30",
                       style: detail,
                       textAlign: TextAlign.center),
                 ),
@@ -276,7 +272,8 @@ class MctsibPDF extends PDF {
               Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
-                      assessment.Conditions?.fold(0,
+                      assessment.stages
+                              ?.fold(0,
                                   (curr, c) => curr + (c.trials?.length ?? 0))
                               .toString() ??
                           '',
@@ -294,7 +291,7 @@ class MctsibPDF extends PDF {
                               ), (avg, sway) => (
                                 avg.$1 + sway.$1,
                                 avg.$2 + sway.$2
-                              )).$1 / mctsib.conditions).toStringAsFixed(2)}°",
+                              )).$1 / mctsib.stages).toStringAsFixed(2)}°",
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -309,7 +306,7 @@ class MctsibPDF extends PDF {
                               ), (avg, sway) => (
                                 avg.$1 + sway.$1,
                                 avg.$2 + sway.$2
-                              )).$2 / mctsib.conditions).toStringAsFixed(2)}°",
+                              )).$2 / mctsib.stages).toStringAsFixed(2)}°",
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center)),
               Padding(
@@ -325,7 +322,7 @@ class MctsibPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * mctsib.conditions} seconds",
+                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * mctsib.stages} seconds",
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
               ),
@@ -337,9 +334,9 @@ class MctsibPDF extends PDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
-    final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
-    final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+    final c1 = AssessmentUtils.getAvgDuration(assessment.stages?[0].trials);
+    final c2 = AssessmentUtils.getAvgDuration(assessment.stages?[1].trials);
+    final c4 = AssessmentUtils.getAvgDuration(assessment.stages?[3].trials);
 
     // Calculating ratios safely
     final somRatio = safeDivision(c2, c1);
@@ -477,9 +474,9 @@ String determineStatus(double ratio) {
 }
 
 String generateConditionRatioText(Assessment assessment) {
-  final c1 = AssessmentUtils.getAvgDuration(assessment.Conditions?[0].trials);
-  final c2 = AssessmentUtils.getAvgDuration(assessment.Conditions?[1].trials);
-  final c4 = AssessmentUtils.getAvgDuration(assessment.Conditions?[3].trials);
+  final c1 = AssessmentUtils.getAvgDuration(assessment.stages?[0].trials);
+  final c2 = AssessmentUtils.getAvgDuration(assessment.stages?[1].trials);
+  final c4 = AssessmentUtils.getAvgDuration(assessment.stages?[3].trials);
 
   // Calculating ratios safely
   final somRatio = safeDivision(c2, c1);

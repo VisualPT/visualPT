@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 part 'assessment_event.dart';
@@ -14,128 +16,169 @@ part 'assessment_state.dart';
 //Clean this up with a repository layer
 class AssessmentBloc<T extends BaseAssessment>
     extends Bloc<AssessmentEvent, AssessmentState<T>> {
-  final T config;
-  late Subject subject;
+  final T meta;
+  final Profile profile;
   late Assessment assessment;
-  Condition? currentCondition;
+  Stage? currentStage;
   DateTime assessmentStartTime = DateTime.now();
   DateTime conditionStartTime = DateTime.now();
 
   bool storeData = true;
 
-  AssessmentBloc(this.config) : super(AssessmentForm<T>(config)) {
+  AssessmentBloc(this.meta, this.profile) : super(AssessmentInputs<T>(meta)) {
     WakelockPlus.enable(); //Keep the screen on during the assessment
     on<AssessmentInit>(_onInit);
-    on<AssessmentCondition>(_onCondition);
+    on<AssessmentStage>(_onStage);
     on<AssessmentTrial>(_onTrial);
   }
 
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
-    storeData = event.storeData;
     assessmentStartTime = DateTime.now();
-    subject = event.subject;
-    // amplify.Amplify.DataStore.save(subject);
     assessment = Assessment(
-        subjectID: subject.id,
-        type: config.type,
+        profile: profile,
+        type: meta.type,
         duration: 0,
         datetime: amplify.TemporalDateTime(DateTime.now()),
-        Conditions: null);
-    // amplify.Amplify.DataStore.save(assessment);
+        extra: jsonEncode(event.formFields
+            .map((key, value) => MapEntry(key, value.controller.text))));
+
+    final response = await amplify.Amplify.API
+        .mutate(request: ModelMutations.create(assessment))
+        .response;
+
+    if (response.hasErrors || response.data == null) {
+      emit(AssessmentError<T>(
+          Exception("Error while saving the assessment: ${response.errors}"),
+          meta));
+      return;
+    }
+
+    assessment = response.data!;
+
     conditionStartTime = DateTime.now();
-    currentCondition = Condition(
-        assessmentID: assessment.id,
-        duration: 0,
-        sequenceNumber: 0,
-        trials: null);
-    // amplify.Amplify.DataStore.save(currentCondition!);
+
     emit(AssessmentActive<T>(
-        getMeta(subject, config, 0, 0), subject, event.storeData, this.config));
+        getMeta(profile, meta, 0, 0), profile, event.storeData, this.meta));
   }
 
-  FutureOr<void> _onCondition(
-      AssessmentCondition event, Emitter<AssessmentState> emit) async {
-    emit(AssessmentLoading<T>(assessment.Conditions?.length ?? 0, config));
-    currentCondition = currentCondition?.copyWith(
-        duration: getElapsedSeconds(conditionStartTime));
-    // amplify.Amplify.DataStore.save(currentCondition!);
-    await Future.delayed(const Duration(
-        seconds:
-            1)); //In order to get the InferenceBloc to rebuild, we have to do this for now so the state does not go from AssessmentActive->AssessmentActive with nothing intermediate
-    final newConditions = List<Condition>.from(
-        [...(assessment.Conditions ?? []), currentCondition]);
-    //Reset the current condition object
-    currentCondition = Condition(
-        assessmentID: assessment.id,
-        duration: 0,
-        sequenceNumber: newConditions.length - 1,
-        trials: null);
-    // amplify.Amplify.DataStore.save(currentCondition!);
-    if (assessment.Conditions?.length == config.conditions) {
+  FutureOr<void> _onStage(
+      AssessmentStage event, Emitter<AssessmentState> emit) async {
+    emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
+    //FIXME: EEEEEE
+    currentStage ??= Stage(
+      assessment: assessment,
+      duration: 0,
+      stageNumber: assessment.stages?.length ?? 0,
+    );
+    assessment = assessment
+        .copyWith(stages: [...assessment.stages ?? [], currentStage!]);
+    currentStage = (await amplify.Amplify.API
+            .mutate(
+                request: ModelMutations.update(currentStage!
+                    .copyWith(duration: getElapsedSeconds(conditionStartTime))))
+            .response)
+        .data;
+
+    final newStages =
+        List<Stage>.from([...(assessment.stages ?? []), currentStage]);
+    //Reset the current stage object
+    currentStage = (await amplify.Amplify.API
+            .mutate(
+                request: ModelMutations.create(Stage(
+              assessment: assessment,
+              duration: 0,
+              stageNumber: newStages.length - 1,
+            )))
+            .response)
+        .data;
+
+    if (assessment.stages?.length == meta.stages) {
       final double assessmentDurationSeconds =
           getElapsedSeconds(assessmentStartTime);
-      assessment = assessment.copyWith(duration: assessmentDurationSeconds);
-      // amplify.Amplify.DataStore.save(assessment);
-      emit(AssessmentAnalysis<T>(subject, storeData, assessment, config));
+      assessment = (await amplify.Amplify.API
+              .mutate(
+                  request: ModelMutations.update(assessment.copyWith(
+                duration: assessmentDurationSeconds,
+                datetime: amplify.TemporalDateTime(DateTime.now()),
+              )))
+              .response)
+          .data!;
+
+      emit(AssessmentAnalysis<T>(profile, storeData, assessment, meta));
     } else {
       conditionStartTime = DateTime.now();
       emit(AssessmentActive<T>(
-          getMeta(subject, config, assessment.Conditions?.length ?? 0, 0),
-          subject,
+          getMeta(profile, meta, assessment.stages?.length ?? 0, 0),
+          profile,
           storeData,
-          config));
+          meta));
     }
   }
 
   FutureOr<void> _onTrial(
       AssessmentTrial event, Emitter<AssessmentState> emit) async {
-    // Update the latest condition with the new trial
-    final trial = Trial(
-        conditionID: currentCondition?.id ?? "Error ID",
-        start_time: event.startTime,
-        duration: event.duration.inMilliseconds / 1000, //seconds
-        Detections: event.detections);
-    // try {
-    //   amplify.Amplify.DataStore.save(trial);
-    // } on Exception catch (e) {
-    //   print("Error saving trial: $e");
-    // }
-    currentCondition = currentCondition == null
-        ? Condition(
-            assessmentID: assessment.id,
-            duration: 0,
-            sequenceNumber: assessment.Conditions?.length ?? 0,
-            trials: [trial])
-        : currentCondition
-            ?.copyWith(trials: [...currentCondition?.trials ?? [], trial]);
-
-    //Check if its the last trial
-    if (currentCondition?.trials?.length == config.trials) {
-      currentCondition = currentCondition?.copyWith(
-          duration: getElapsedSeconds(conditionStartTime));
-      final List<Condition> allConditions = [
-        ...(assessment.Conditions ?? []),
-        currentCondition!
-      ];
-      assessment = assessment.copyWith(Conditions: allConditions);
-      add(AssessmentCondition());
+    if (currentStage == null) {
+      //TODO: Implement retryability and error handling
+      emit(AssessmentError<T>(Exception("No current stage found"), meta));
       return;
     }
 
-    //If it is not, then we need to update the state to show the next trial
+    // Update the latest stage with the new trial
+    final response = await amplify.Amplify.API
+        .mutate(
+            request: ModelMutations.create(Trial(
+                id: amplify.UUID().toString(),
+                startTime: event.startTime,
+                duration: event.duration.inMilliseconds / 1000, //seconds
+                detections: event.detections,
+                stage: currentStage)))
+        .response;
 
-    //
+    if (response.hasErrors || response.data == null) {
+      print(response.errors);
+      emit(AssessmentError<T>(
+          Exception("Error while saving the trial: ${response.errors}"), meta));
+      return;
+    }
+
+    final trial = response.data!;
+
+    currentStage = currentStage == null
+        ? Stage(
+            assessment: assessment,
+            duration: 0,
+            stageNumber: assessment.stages?.length ?? 0,
+            trials: [trial])
+        : currentStage
+            ?.copyWith(trials: [...currentStage?.trials ?? [], trial]);
+
+    //Check if its the last trial
+    if (currentStage?.trials?.length == meta.trials) {
+      currentStage = currentStage?.copyWith(
+          duration: getElapsedSeconds(conditionStartTime));
+      final List<Stage> allStages = [
+        ...(assessment.stages ?? []),
+        currentStage!
+      ];
+      assessment = assessment.copyWith(stages: allStages);
+      add(AssessmentStage());
+      return;
+    }
+
+    //If it is not, then we need to proceed to the next trial
+
+    // Prepare the next trial state here
     emit(AssessmentActive<T>(
         getMeta(
-          subject,
-          config,
-          assessment.Conditions?.length ?? 0,
-          currentCondition?.trials?.length ?? 0,
+          profile,
+          meta,
+          assessment.stages?.length ?? 0,
+          currentStage?.trials?.length ?? 0,
         ),
-        subject,
+        profile,
         storeData,
-        config));
+        meta));
   }
 
   // @override
@@ -165,12 +208,11 @@ double getElapsedSeconds(DateTime start) {
   return DateTime.now().difference(start).inMilliseconds / 1000;
 }
 
-TrialMeta getMeta(Subject subject, BaseAssessment config, int conditionIndex,
+TrialMeta getMeta(Profile profile, BaseAssessment config, int conditionIndex,
     int trialIndex) {
   return TrialMeta(
-      subject.dob.toString(),
-      subject.gender,
-      subject.fall_history,
+      profile.dob.toString(),
+      profile.gender,
       config.type,
       config.conditionObtrusion[conditionIndex],
       config.conditionInstability[conditionIndex],

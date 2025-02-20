@@ -1,7 +1,6 @@
-import 'package:amplify_core/src/types/temporal/temporal_date.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/capture/service/pose_detection_output.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class BERG implements BaseAssessment {
@@ -16,13 +15,13 @@ class BERG implements BaseAssessment {
 
   @override
   String get details =>
-      """Test of a person's static and dynamic balance abilities.\n\nThe test is used to identify balance deficits in the elderly and in patients with neurological conditions.""";
+      """Test of a person's static and dynamic balance abilities.\n\nThe test is used to identify balance deficits in the elderly and in patients with neurological stages.""";
 
   @override
   String get imagePath => "assets/images/berg_mainlogo.png";
 
   @override
-  int get conditions => 6;
+  int get stages => 6;
 
   @override
   int get trials => 1;
@@ -44,12 +43,8 @@ class BERG implements BaseAssessment {
   List<List<String>> get conditionInstructions => List.filled(6, [
         "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
         "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+        "Lighting must be sufficient to clearly see the profile",
       ]);
-
-  @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(6, [InferenceType.poseDetection]);
 
   @override
   List<bool> get conditionObtrusion =>
@@ -60,7 +55,7 @@ class BERG implements BaseAssessment {
       [false, false, false, false, false, false];
 
   @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -94,7 +89,10 @@ class BERG implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
     return false;
   }
 }
@@ -105,7 +103,7 @@ class BERGData {
   final int classIndex;
   final int conditionNumber;
   final int trialNumber;
-  final PoseDetectionOutput output;
+  final PoseDetection output;
   const BERGData(
     this.imageHeight,
     this.imageWidth,
