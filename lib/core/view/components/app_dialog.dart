@@ -18,18 +18,16 @@ Future<void> appDialog(
       actions: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: CupertinoButton(
-            color: Styles.blue,
+          child: Button(
             onPressed: secondaryCallback,
-            child: Text(secondaryAction),
+            text: secondaryAction,
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: CupertinoButton(
-            color: Styles.link,
+          child: Button(
             onPressed: primaryCallback,
-            child: Text(primaryAction),
+            text: primaryAction,
           ),
         ),
       ],

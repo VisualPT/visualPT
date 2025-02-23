@@ -1,6 +1,5 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
-import 'package:visualpt/features/capture/service/pose_detection_output.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class BERG implements BaseAssessment {
@@ -94,34 +93,5 @@ class BERG implements BaseAssessment {
       return true; // Person MUST be detected during the full assessment for it to be complete
     }
     return false;
-  }
-}
-
-class BERGData {
-  final num imageHeight;
-  final num imageWidth;
-  final int classIndex;
-  final int conditionNumber;
-  final int trialNumber;
-  final PoseDetection output;
-  const BERGData(
-    this.imageHeight,
-    this.imageWidth,
-    this.classIndex,
-    this.conditionNumber,
-    this.trialNumber,
-    this.output,
-  );
-
-  toCSV() {
-    final lines = output.output.map((line) => line.join(",")).join("\n");
-    final metadata = [
-      imageHeight,
-      imageWidth,
-      classIndex,
-      conditionNumber,
-      trialNumber
-    ].join(",");
-    return "$metadata\n$lines";
   }
 }

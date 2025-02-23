@@ -59,21 +59,14 @@ amplify/backend/.temp
 build/
 dist/
 node_modules/
-aws-exports.js
-awsconfiguration.json
-amplifyconfiguration.json
-# amplifyconfiguration.dart commeneted out to allow for xcode actions
-amplify-build-config.json
-amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
+.amplify
+amplify_outputs*
+amplifyconfiguration*
 #amplify-do-not-edit-end
 
 # FVM Version Cache
 .fvm/
 
-# amplify
-.amplify
-amplify_outputs*
-amplifyconfiguration*

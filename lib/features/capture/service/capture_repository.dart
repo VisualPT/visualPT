@@ -3,14 +3,15 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:visualpt/core/services/repository.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-class CaptureRepository extends Repository<DetectionEnv, Detection> {
-  final accelStream = accelerometerEventStream();
+class CaptureRepository extends Repository<Detection> {
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
   AccelerometerEvent currentAccel = AccelerometerEvent(0, 0, 0, DateTime.now());
   final bool storeData;
 
   CaptureRepository(this.storeData) : super() {
+    final accelStream = accelerometerEventStream();
     _accelSubscription = accelStream.listen((event) {
+      // print(event.z);
       currentAccel = event;
     });
   }
@@ -21,8 +22,8 @@ class CaptureRepository extends Repository<DetectionEnv, Detection> {
   }
 
   @override
-  Future<void> store(String id, DetectionEnv input, Detection output,
-      Map<String, dynamic>? params) async {
+  Future<void> store(
+      int id, Detection output, Map<String, dynamic>? params) async {
     if (!isInitialized) {
       throw Exception("store: Detection Inference Service not initialized");
     }

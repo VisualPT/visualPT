@@ -1,9 +1,9 @@
 export 'services/amplify.dart';
-export 'services/repository.dart';
+export 'services/api.dart';
 export 'services/storage.dart';
+export 'services/repository.dart';
 
-export 'utils/amplify_utils.dart';
-export 'utils/math_utils.dart';
+export 'utils/format.dart';
 
 export 'view/components/app_dialog.dart';
 export 'view/components/app_loading.dart';

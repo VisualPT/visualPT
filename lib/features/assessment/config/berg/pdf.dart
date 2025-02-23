@@ -124,7 +124,8 @@ class BergPDF extends BasePDF {
                 text: TextSpan(children: [
               TextSpan(text: "Date: ", style: detail),
               TextSpan(
-                  text: DateTime.parse(assessment.datetime.toString())
+                  text: assessment.createdAt
+                      .getDateTimeInUtc()
                       .toLocal()
                       .toIso8601String()
                       .substring(0, 10),
@@ -134,7 +135,8 @@ class BergPDF extends BasePDF {
               text: TextSpan(children: [
                 TextSpan(text: "Time: ", style: detail),
                 TextSpan(
-                    text: DateTime.parse(assessment.datetime.toString())
+                    text: assessment.createdAt
+                        .getDateTimeInUtc()
                         .toLocal()
                         .toIso8601String()
                         .substring(11)

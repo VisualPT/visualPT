@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/profile/_profile.dart';
+import 'package:visualpt/features/profile/view/profile_card.dart';
 import 'package:visualpt/features/profile/view/profile_form.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -22,6 +23,7 @@ class ProfilesList extends StatelessWidget {
 
   Widget _onLoaded(BuildContext context, ProfileLoaded state) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Button(
@@ -43,7 +45,6 @@ class ProfilesList extends StatelessWidget {
                                       listen: false)
                                   .add(ProfileCreate(profile));
                               AppNav(context).pop();
-                              onSelected(profile);
                             }),
                           ),
                         ),
@@ -60,21 +61,7 @@ class ProfilesList extends StatelessWidget {
               itemCount: state.profiles.length,
               itemBuilder: (context, index) {
                 final profile = state.profiles[index];
-                return Card(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            profile?.firstName ?? "Unnamed User",
-                            style: Styles.heading2,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      onSelected(profile!);
-                    });
+                return ProfileCard(profile, onSelected);
               },
             ),
           ),

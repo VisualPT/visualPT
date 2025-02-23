@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
@@ -6,7 +7,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_cupertino_fields/form_builder_cupertino_fields.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
-import 'package:visualpt/features/capture/service/pose_detection_output.dart';
+import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -81,14 +82,25 @@ class CTSIB implements BaseAssessment {
   @override
   Map<String, FormFieldItem> get formFields => {
         "fall history": FormFieldItem(
+          //TODO: Build a FormBuilder Cupertino Dialog selection for this
           form: FormBuilderCupertinoSegmentedControl(
               name: "Fall History",
-              prefix: const Text("Fall History", style: Styles.prefixStyle),
+              helper: const Text("Fall History", style: Styles.prefixStyle),
+              shouldExpandedField: true,
               options: FallHistory.values
                   .map((e) => FormBuilderFieldOption(
-                      value: e, child: Text(e.name, style: Styles.inputStyle)))
-                  .toList()),
-          controller: TextEditingController(),
+                      value: e,
+                      child: Text(
+                        e.name,
+                        style: Styles.inputStyle,
+                        softWrap: false,
+                      )))
+                  .toList(),
+              valueTransformer: (value) {
+                value as FallHistory;
+                return value.name.toString();
+              }),
+          value: "NONE",
         ),
       };
 
@@ -288,7 +300,7 @@ class CTSIB implements BaseAssessment {
         final trialTotalAndCount = trial.detections!
             .fold<(int, (double, double))>((0, (0.0, 0.0)),
                 (averageAngle, detection) {
-          final angle = PoseDetection.computeAngles(detection);
+          final angle = PoseLandmarks.computeAngles(detection);
 
           return (
             averageAngle.$1 + 1,
@@ -331,7 +343,7 @@ class CTSIB implements BaseAssessment {
         }
         final trialMaxSway = trial.detections!
             .fold<(double, double)>((0.0, 0.0), (maxAngle, detection) {
-          final (lat, lng) = PoseDetection.computeAngles(detection);
+          final (lat, lng) = PoseLandmarks.computeAngles(detection);
 
           return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
         });
@@ -379,7 +391,7 @@ class CTSIB implements BaseAssessment {
 
   //Returns isFall, equlibrium score
   static (bool, double) poseToCtsibData(Detection detection) {
-    final (xSway, zSway) = PoseDetection.computeAngles(detection);
+    final (xSway, zSway) = PoseLandmarks.computeAngles(detection);
     final latProportion = xSway / swayLimits[2];
     //If the profile is leaning forward, the angle will be negative, so use the anterior sway limit
     // final lonProportion =

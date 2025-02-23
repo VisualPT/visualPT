@@ -8,11 +8,8 @@ class AppNav {
   void back() => WidgetsBinding.instance
       .addPostFrameCallback((_) => Navigator.of(context).pop());
 
-  void pop() => Navigator.of(context).pop();
-
-  void setHome() {
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-  }
+  void pop() => WidgetsBinding.instance
+      .addPostFrameCallback((_) => Navigator.of(context).pop());
 
   void toPath({required String path, Object? args}) {
     Navigator.of(context).pushNamed(path, arguments: args);

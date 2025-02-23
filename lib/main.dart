@@ -1,15 +1,19 @@
 import 'package:amplify_authenticator/amplify_authenticator.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:visualpt/amplify_outputs.dart';
 import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/core/view/auth_view.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/profile/_profile.dart';
 import 'package:visualpt/features/profile/view/profile_view.dart';
 import 'package:visualpt/features/trend/_trend.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
+//Sync sandbox changes: npx ampx sandbox --outputs-format dart --outputs-out-dir lib
+//Generate new models: npx ampx generate graphql-client-code --format modelgen --model-target dart --out lib/models
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configure();
+  await configure(amplifyConfig);
   runApp(const VisualPT());
 }
 
@@ -29,8 +33,9 @@ class _VisualPTState extends State<VisualPT> {
 
   @override
   Widget build(BuildContext context) {
-    return Authenticator(
-      child: CupertinoApp(
+    return AuthView(
+      CupertinoApp(
+          builder: Authenticator.builder(),
           debugShowCheckedModeBanner: false,
           theme: const CupertinoThemeData(
               brightness: Brightness.light,
@@ -96,11 +101,9 @@ class _VisualPTState extends State<VisualPT> {
           content: const Text(
               "Camera access is required for this app to function properly. Please enable camera access in your device settings."),
           actions: <Widget>[
-            CupertinoButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Button(
+              text: "OK",
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );

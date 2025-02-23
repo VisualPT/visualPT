@@ -1,97 +1,102 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
-const schema = a
-  .schema({
-    Gender: a.enum(["MALE", "FEMALE"]),
-    AgeRange: a.enum([
-      "BABY_0_5",
-      "CHILD_6_12",
-      "TEEN_13_19",
-      "ADULT_20_39",
-      "ADULT_40_64",
-      "SENIOR_65_69",
-      "SENIOR_70_79",
-      "SENIOR_80_84",
-      "SENIOR_85_PLUS",
-    ]),
-    AssessmentType: a.enum([
-      "CTSIB",
-      "MCTSIB",
-      "GAIT",
-      "BERG",
-      "REACH",
-      "FIST",
-      "DEV",
-    ]),
-    FallHistory: a.enum(["NONE", "FEW", "RECURRING"]),
-    DetectionEnv: a.customType({
-      timestamp: a.datetime().required(),
-      accX: a.float().required(),
-      accY: a.float().required(),
-      accZ: a.float().required(),
-    }),
-    Norm: a.model({
+const schema = a.schema({
+  Gender: a.enum(["MALE", "FEMALE"]),
+  AgeRange: a.enum([
+    "BABY_0_5",
+    "CHILD_6_12",
+    "TEEN_13_19",
+    "ADULT_20_39",
+    "ADULT_40_64",
+    "SENIOR_65_69",
+    "SENIOR_70_79",
+    "SENIOR_80_84",
+    "SENIOR_85_PLUS",
+  ]),
+  AssessmentType: a.enum([
+    "CTSIB",
+    "MCTSIB",
+    "GAIT",
+    "BERG",
+    "REACH",
+    "FIST",
+    "DEV",
+  ]),
+  FallHistory: a.enum(["NONE", "FEW", "RECURRING"]),
+  DetectionEnv: a.customType({
+    timestamp: a.datetime().required(),
+    accX: a.float().required(),
+    accY: a.float().required(),
+    accZ: a.float().required(),
+  }),
+  Norm: a
+    .model({
       type: a.ref("AssessmentType").required(),
       stageNumber: a.integer().required(),
       ageRange: a.ref("AgeRange").required(),
       gender: a.ref("Gender").required(),
       scoreSum: a.float().required(),
       trialSum: a.integer().required(),
-    }),
-    Profile: a
-      .model({
-        email: a.email().required(),
-        firstName: a.string().required(),
-        lastName: a.string().required(),
-        dob: a.date().required(),
-        gender: a.ref("Gender").required(),
-        height: a.float().required(), // in inches
-        assessments: a.hasMany("Assessment", "profileId"),
-      })
-      .secondaryIndexes((index) => [index("email")]),
-    Assessment: a
-      .model({
-        type: a.ref("AssessmentType").required(),
-        datetime: a.datetime().required(),
-        duration: a.float().required(),
-        pdf: a.string(),
-        extra: a.string().required(), // a string parsable into a JSON object defined by the BaseAssessment.formField schema
-        profileId: a.id().required(),
-        profile: a.belongsTo("Profile", "profileId"),
-        stages: a.hasMany("Stage", "assessmentId"),
-      })
-      .secondaryIndexes((index) => [index("profileId")]),
-    Stage: a
-      .model({
-        stageNumber: a.integer().required(),
-        duration: a.float().required(),
-        assessmentId: a.id().required(),
-        assessment: a.belongsTo("Assessment", "assessmentId"),
-        trials: a.hasMany("Trial", "stageId"),
-      })
-      .secondaryIndexes((index) => [index("assessmentId")]),
-    Trial: a
-      .model({
-        startTime: a.datetime().required(),
-        duration: a.float().required(),
-        stageId: a.id().required(),
-        stage: a.belongsTo("Stage", "stageId"),
-        detections: a.hasMany("Detection", "trialId"),
-      })
-      .secondaryIndexes((index) => [index("stageId")]),
-    Detection: a
-      .model({
-        obtrustion: a.boolean().required(),
-        instability: a.boolean().required(),
-        env: a.ref("DetectionEnv").required(),
-        keypoints: a.string().required(),
-        prediction: a.string(),
-        trialId: a.id().required(),
-        trial: a.belongsTo("Trial", "trialId"),
-      })
-      .secondaryIndexes((index) => [index("trialId")]),
-  })
-  .authorization((allow) => [allow.owner(), allow.group("admin")]);
+    })
+    .authorization((allow) => [allow.authenticated()]),
+  Profile: a
+    .model({
+      email: a.email().required(),
+      firstName: a.string().required(),
+      lastName: a.string().required(),
+      dob: a.date().required(),
+      gender: a.ref("Gender").required(),
+      height: a.float().required(), // in inches
+      assessments: a.hasMany("Assessment", "profileId"),
+    })
+    .secondaryIndexes((index) => [index("email")])
+    .authorization((allow) => [allow.owner(), allow.group("admin")]),
+  Assessment: a
+    .model({
+      type: a.ref("AssessmentType").required(),
+      duration: a.float().required(),
+      pdf: a.string(),
+      extra: a.string().required(), // a string parsable into a JSON object defined by the BaseAssessment.formField schema
+      createdAt: a.datetime().required(),
+      profileId: a.id().required(),
+      profile: a.belongsTo("Profile", "profileId"),
+      stages: a.hasMany("Stage", "assessmentId"),
+    })
+    .secondaryIndexes((index) => [index("profileId")])
+    .authorization((allow) => [allow.owner(), allow.group("admin")]),
+  Stage: a
+    .model({
+      stageNumber: a.integer().required(),
+      duration: a.float().required(),
+      assessmentId: a.id().required(),
+      assessment: a.belongsTo("Assessment", "assessmentId"),
+      trials: a.hasMany("Trial", "stageId"),
+    })
+    .secondaryIndexes((index) => [index("assessmentId")])
+    .authorization((allow) => [allow.owner(), allow.group("admin")]),
+  Trial: a
+    .model({
+      startTime: a.datetime().required(),
+      duration: a.float().required(),
+      stageId: a.id().required(),
+      stage: a.belongsTo("Stage", "stageId"),
+      detections: a.hasMany("Detection", "trialId"),
+    })
+    .secondaryIndexes((index) => [index("stageId")])
+    .authorization((allow) => [allow.owner(), allow.group("admin")]),
+  Detection: a
+    .model({
+      obtrustion: a.boolean().required(),
+      instability: a.boolean().required(),
+      env: a.ref("DetectionEnv").required(),
+      keypoints: a.string().required(),
+      prediction: a.string(),
+      trialId: a.id().required(),
+      trial: a.belongsTo("Trial", "trialId"),
+    })
+    .secondaryIndexes((index) => [index("trialId")])
+    .authorization((allow) => [allow.owner(), allow.group("admin")]),
+});
 
 export type Schema = ClientSchema<typeof schema>;
 

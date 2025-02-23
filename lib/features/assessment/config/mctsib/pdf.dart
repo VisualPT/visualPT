@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/math_utils.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -81,7 +81,7 @@ class MctsibPDF extends BasePDF {
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
               TextSpan(
-                  text: formatDate(profile.dob.getDateTime()),
+                  text: FormatUtil.date(profile.dob.getDateTime()),
                   style: detailBold),
             ]),
           ),
@@ -110,16 +110,16 @@ class MctsibPDF extends BasePDF {
               text: TextSpan(children: [
             TextSpan(text: "Date: ", style: detail),
             TextSpan(
-                text:
-                    formatDate(DateTime.parse(assessment.datetime.toString())),
+                text: FormatUtil.date(
+                    assessment.createdAt.getDateTimeInUtc().toLocal()),
                 style: detailBold),
           ])),
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Time: ", style: detail),
               TextSpan(
-                  text: formatTime(
-                      DateTime.parse(assessment.datetime.toString()).toLocal()),
+                  text: FormatUtil.time(
+                      assessment.createdAt.getDateTimeInUtc().toLocal()),
                   style: detailBold),
             ]),
           ),
@@ -127,7 +127,8 @@ class MctsibPDF extends BasePDF {
             text: TextSpan(children: [
               TextSpan(text: "Total Duration: ", style: detail),
               TextSpan(
-                  text: formatDuration(assessment.duration), style: detailBold),
+                  text: FormatUtil.duration(assessment.duration),
+                  style: detailBold),
             ]),
           ),
         ]),
@@ -334,13 +335,9 @@ class MctsibPDF extends BasePDF {
   }
 
   Widget conditionRatioTable(Assessment assessment) {
-    final c1 = AssessmentUtils.getAvgDuration(assessment.stages?[0].trials);
-    final c2 = AssessmentUtils.getAvgDuration(assessment.stages?[1].trials);
-    final c4 = AssessmentUtils.getAvgDuration(assessment.stages?[3].trials);
-
     // Calculating ratios safely
-    final somRatio = safeDivision(c2, c1);
-    final visRatio = safeDivision(c4, c1);
+    const somRatio = 0.0; //FIXME:
+    const visRatio = 0.0; //FIXME:
 
 // Now you can directly pass the string representations of ratios to determineStatus
     final somStatus = determineStatus(somRatio);
@@ -474,13 +471,9 @@ String determineStatus(double ratio) {
 }
 
 String generateConditionRatioText(Assessment assessment) {
-  final c1 = AssessmentUtils.getAvgDuration(assessment.stages?[0].trials);
-  final c2 = AssessmentUtils.getAvgDuration(assessment.stages?[1].trials);
-  final c4 = AssessmentUtils.getAvgDuration(assessment.stages?[3].trials);
-
   // Calculating ratios safely
-  final somRatio = safeDivision(c2, c1);
-  final visRatio = safeDivision(c4, c1);
+  const somRatio = 0.0; //FIXME
+  const visRatio = 0.0; //FIXME;
 
   final ratios = [
     (

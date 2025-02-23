@@ -54,25 +54,20 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
-          child: Row(
+          child: Column(
             children: [
-              const Spacer(),
-              CupertinoButton(
-                padding: const EdgeInsets.all(13.0),
-                color: Styles.actionSecondary,
-                onPressed: () {
-                  //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-                      asmtState.meta.formFields, asmtState.storeData));
-                },
-                child: const Text("Redo Assessment",
-                    style: TextStyle(color: Styles.black)),
-              ),
-              const Spacer(),
+              Button(
+                  onPressed: () {
+                    //TODO Add an are you sure popup
+                    BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
+                        asmtState.meta.formFields, asmtState.storeData));
+                  },
+                  text: "Redo"),
               EmailPresenter(asmtState.storeData, asmtState.meta,
                   asmtState.profile, asmtState.dbAssessment, state.pdfData),
+              Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
               // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
-              // CupertinoButton(
+              // Button(
               //   padding: const EdgeInsets.all(13.0),
               //   color: Styles.actionPrimary,
               //   onPressed: () async => {
@@ -83,19 +78,10 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               //   child: const Text("Print PDF",
               //       style: TextStyle(color: Styles.black)),
               // ),
-              const Spacer(),
-              CupertinoButton(
-                padding: const EdgeInsets.all(13.0),
-                color: Styles.actionPrimary,
-                onPressed: () => AppNav(context).setHome(),
-                child: const Text("Go home",
-                    style: TextStyle(color: Styles.black)),
-              ),
-              const Spacer(),
             ],
           ),
         ),
-        // CupertinoButton(
+        // Button(
         //     color: Styles.actionSecondary,
         //     child: const Text("Refresh PDF",
         //         style: TextStyle(color: Styles.black)),
@@ -116,8 +102,8 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Text(e.toString()),
-      CupertinoButton(
-          child: const Text("Retry"),
+      Button(
+          text: "Retry",
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(
                 PdfInit(
                     profile: asmtState.profile,
@@ -142,35 +128,25 @@ class EmailPresenter<T extends BaseAssessment> extends StatelessWidget {
     return BlocBuilder<EmailBloc, EmailState>(builder: (context, state) {
       return switch (state) {
         EmailInit() =>
-          //Email address is not accessable yet
+          //Email address is not accessible yet
           Container(),
-        EmailSending() => const CupertinoButton(
-            padding: EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
-            onPressed: null,
-            child:
-                Text("Sending Email...", style: TextStyle(color: Styles.black)),
+        EmailSending() => const Button(
+            disabled: true,
+            text: "Sending Email...",
           ),
-        EmailFetched() => CupertinoButton(
-            padding: const EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
+        EmailFetched() => Button(
             onPressed: () =>
                 onSend(context, state.email, profile, assessment, pdf),
-            child:
-                const Text("Send Email", style: TextStyle(color: Styles.black)),
+            text: "Save",
           ),
-        EmailSent() => const CupertinoButton(
-            padding: EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
-            onPressed: null,
-            child: Text("Email Sent", style: TextStyle(color: Styles.black)),
+        EmailSent() => Button(
+            onPressed: () => AppNav(context).reset(),
+            text: "Exit",
           ),
-        EmailError() => CupertinoButton(
-            padding: const EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
+        EmailError() => Button(
             onPressed: () =>
                 BlocProvider.of<EmailBloc>(context).add(const EmailFetch()),
-            child: Text(state.message),
+            text: 'Error ${state.message}',
           )
       };
     });
@@ -187,26 +163,23 @@ class EmailPresenter<T extends BaseAssessment> extends StatelessWidget {
   ) {
     appDialog(
         context: context,
-        title: storeData ? "Save and Send" : "Home",
+        title: storeData ? "Save and Send" : "Exit",
         content: storeData
-            ? "This will assume the data is valid and change the age-group norm table with the data from this assessment. Email will be sent to: ${email}"
+            ? "The data will be used to update the age-group norm table and the PDF will then be emailed to $email."
             : "This data was indicated as a test and will ONLY be sent to your email. Are you sure you want to return home?",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
           if (storeData) {
             updateNorms(meta, assessment, profile);
           }
-          assessment = AssessmentService().addPDF(assessment, pdf);
+          assessment = AssessmentService().updateAssessmentPdf(assessment, pdf);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               storeData: storeData,
               profile: profile,
               assessment: assessment,
-              onSuccess: () => {
-                    //AppNav(context).setHome()
-                  },
+              onSuccess: () => AppNav(context).reset(),
               onFail: () => log("Email failed")));
           Navigator.pop(context);
-          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
         });
   }
 }

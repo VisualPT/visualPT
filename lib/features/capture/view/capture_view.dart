@@ -15,18 +15,13 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   const CaptureView(this.state, {super.key});
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CapturePresenter(
-          key: UniqueKey(),
-          state.storeData,
-          state.trialMeta,
-          state.meta.trialDuration,
-          onDelegated: delegatedCapture,
-          onEnded: endedCapture,
-          onError: errorCapture,
-        ),
-      ],
+    return CapturePresenter(
+      state.storeData,
+      state.trialMeta,
+      state.meta.trialDuration,
+      onDelegated: delegatedCapture,
+      onEnded: endedCapture,
+      onError: errorCapture,
     );
   }
 
@@ -40,16 +35,16 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
     final capRep = RepositoryProvider.of<CaptureRepository>(context);
 
     void onPlay() {
-      capture.add(const CapturePlay());
+      capture.add(CapturePlay());
     }
 
     void onReset() {
       // End Capture
-      capture.add(const CaptureStop(reset: true));
+      capture.add(CaptureStop(reset: true));
     }
 
     void onComplete() {
-      capture.add(const CaptureStop(reset: false));
+      capture.add(CaptureStop(reset: false));
 
       asmt.add(
         AssessmentTrial(
@@ -65,59 +60,57 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return CupertinoPopupSurface(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Capture Paused",
-                    style: CupertinoTheme.of(context)
-                        .textTheme
-                        .navTitleTextStyle
-                        .copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Capture Paused",
+                      style: CupertinoTheme.of(context)
+                          .textTheme
+                          .navTitleTextStyle
+                          .copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Would you like to reset this trial or proceed to the next?",
+                      style: Styles.body,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Reset
+                        Button(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onReset();
+                          },
+                          text: "Reset",
                         ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    "Would you like to reset this trial or proceed to the next?",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Reset
-                      CupertinoButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          onReset();
-                        },
-                        child: const Text("Reset"),
-                      ),
-                      // Next
-                      CupertinoButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          onComplete();
-                        },
-                        child: const Text("Next"),
-                      ),
-                    ],
-                  ),
-                ],
+                        // Next
+                        Button(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onComplete();
+                          },
+                          text: "Next",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
         },
       );
-    }
-
-    if (state.shouldEnd ||
-        (state.duration >= Duration(seconds: asmt.meta.trialDuration) ||
-            asmt.meta.isComplete(state.detection))) {
-      onPause();
     }
 
     void handleWebViewMessage(WebViewMessage message) {
@@ -131,103 +124,101 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       // } else if (message is ReturnedCameraFrame) {
       //   capture.add(CaptureClearWarn(message.data));
       // } else
-      if (message.data['type'] == 'raw_landmarks') {
-        capture.add(CaptureLandmark(message.data));
+      if (message.data['type'] == 'raw_landmarks' && state.playing) {
+        capture.add(CaptureLandmark(message.data, state.playing));
+      }
+      if (state.playing &&
+          (state.shouldEnd ||
+              (state.duration >= Duration(seconds: asmt.meta.trialDuration) ||
+                  asmt.meta.isComplete(state.detection)))) {
+        onPause();
       }
     }
 
-    return SafeArea(
-        child: Stack(
-      alignment: Alignment.topCenter,
+    return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
+        Container(
+          color: Styles.white,
+          child: Padding(
+            padding: const EdgeInsets.all(1.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    color: Styles.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CaptureIndicator(
-                            icon: CupertinoIcons.time,
-                            color: Styles.black,
-                            type: "Duration",
-                            child: Text(formatter(state.duration),
-                                style: Styles.timerTextStyle),
-                          ),
-                          PoseDetectionIndicator(state.detection),
-                        ],
-                      ),
-                    ),
-                  ),
+                CaptureIndicator(
+                  icon: CupertinoIcons.time,
+                  color: Styles.black,
+                  type: "Duration",
+                  child: Text(formatter(state.duration),
+                      style: Styles.timerTextStyle),
                 ),
-                dotenv.env["KINESTEX_KEY"] != null
-                    ? KinesteXAIFramework.createCameraComponent(
-                        apiKey: dotenv.env["KINESTEX_KEY"]!,
-                        companyName: "VisualPT",
-                        userId:
-                            'b8f8e10a-4677-4c6c-aa80-0c328a8fd9aa', //TODO: Replace with user ID
-                        isShowKinestex: ValueNotifier<bool>(false),
-                        exercises: ['Balance'],
-                        currentExercise: 'Balance',
-                        isLoading: ValueNotifier<bool>(false), // Loading state
-                        customParams: {"includeRawData": true},
-                        onMessageReceived: handleWebViewMessage,
-                      )
-                    : const Center(
-                        child: Text(
-                            "Key not found, please report this issue to us"),
-                      ),
-                Positioned(
-                  bottom: 10,
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
+                PoseLandmarksIndicator(state.detection,
+                    message: !state.playing ? "Start the trial" : null),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Stack(
+            alignment: Alignment.center,
+            fit: StackFit.expand,
+            children: [
+              dotenv.env["KINESTEX_KEY"] != null
+                  ? KinesteXAIFramework.createCameraComponent(
+                      apiKey: dotenv.env["KINESTEX_KEY"]!,
+                      companyName: "VisualPT",
+                      userId:
+                          'b8f8e10a-4677-4c6c-aa80-0c328a8fd9aa', //TODO: Replace with user ID
+                      isShowKinestex: ValueNotifier<bool>(false),
+                      exercises: ['Balance'],
+                      currentExercise: 'Balance',
+                      isLoading: ValueNotifier<bool>(false), // Loading state
+                      customParams: {"includeRawData": true},
+                      onMessageReceived: handleWebViewMessage,
+                    )
+                  : const Center(
+                      child:
+                          Text("Key not found, please report this issue to us"),
+                    ),
+              Positioned(
+                bottom: 0,
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const Spacer(),
+                    if (!state.playing) ...[
+                      //Space filling icon to align the others in the row
                       const Spacer(),
-                      if (!state.playing) ...[
-                        //Space filling icon to align the others in the row
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: onPlay,
-                          child: const Icon(
-                            CupertinoIcons.circle,
-                            color: Styles.actionPrimary,
-                            size: 80,
-                          ),
+                      GestureDetector(
+                        onTap: onPlay,
+                        child: const Icon(
+                          CupertinoIcons.circle,
+                          color: Styles.actionPrimary,
+                          size: 80,
                         ),
-                        const Spacer(),
-                      ] else ...[
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: onPause,
-                          child: const Icon(CupertinoIcons.stop,
-                              color: Styles.actionPrimary, size: 80),
-                        ),
-                        const Spacer(),
-                      ],
+                      ),
+                      const Spacer(),
+                    ] else ...[
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: onPause,
+                        child: const Icon(CupertinoIcons.stop,
+                            color: Styles.actionPrimary, size: 80),
+                      ),
                       const Spacer(),
                     ],
-                  ),
+                    const Spacer(),
+                  ],
                 ),
-              ],
-            );
-          },
-        )
+              ),
+            ],
+          ),
+        ),
       ],
-    ));
+    );
   }
 
   Widget endedCapture(BuildContext context, CaptureEnded state) {
@@ -236,9 +227,9 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       child: Column(
         children: [
           const Text("Capture Stopped"),
-          CupertinoButton(
-            onPressed: () => vid.add(const CaptureStop(reset: true)),
-            child: const Text("Restart"),
+          Button(
+            onPressed: () => vid.add(CaptureStop(reset: true)),
+            text: "Restart",
           ),
         ],
       ),
@@ -251,9 +242,9 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       child: Column(
         children: [
           Text(e.toString()),
-          CupertinoButton(
-            onPressed: () => vid.add(const CaptureStop(reset: true)),
-            child: const Text("Restart"),
+          Button(
+            onPressed: () => vid.add(CaptureStop(reset: true)),
+            text: "Restart",
           ),
         ],
       ),
@@ -262,6 +253,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 }
 
 String formatter(Duration duration) => [
+      duration.inMinutes.toString().padLeft(2, '0'),
       duration.inSeconds.remainder(60).toString().padLeft(2, '0'),
       duration.inMilliseconds.remainder(1000).toString().padLeft(3, '0')[0]
-    ].join(".");
+    ].join(":");

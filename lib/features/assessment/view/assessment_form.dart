@@ -18,15 +18,21 @@ class _AssessmentFormState<T extends BaseAssessment>
     extends State<AssessmentForm<T>> {
   late final AssessmentBloc<T> bloc =
       BlocProvider.of<AssessmentBloc<T>>(context);
-  bool storeData = false;
+  bool storeData = true;
   late Map<String, FormFieldItem> formFields = widget.state.meta.formFields;
+  late Map<String, dynamic> formValues = {};
   final _formKey = GlobalKey<FormBuilderState>();
 
   void handleFormSubmit() {
     try {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
-        bloc.add(AssessmentInit(formFields, storeData));
+        bloc.add(AssessmentInit(formValues.map((k, v) {
+          final key = k.toLowerCase();
+          final oldItem = formFields[key]!;
+          final item = FormFieldItem(form: oldItem.form, value: v);
+          return MapEntry(key, item);
+        }), storeData));
       }
     } catch (e) {
       print('Error occurred during form submission: $e');
@@ -42,6 +48,11 @@ class _AssessmentFormState<T extends BaseAssessment>
         child: SingleChildScrollView(
           child: FormBuilder(
             key: _formKey,
+            onChanged: () {
+              _formKey.currentState!.save();
+              setState(() => formValues = _formKey.currentState!.value
+                  .map((k, v) => MapEntry(k.toLowerCase(), v.toString())));
+            },
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.9,
@@ -58,15 +69,20 @@ class _AssessmentFormState<T extends BaseAssessment>
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(),
-                  ...formFields.entries
-                      .map((formFieldItem) => formFieldItem.value.form),
+                  ...formFields.entries.map((formFieldItem) {
+                    return FormBuilderField(
+                      name: formFieldItem.key,
+                      builder: (FormFieldState field) {
+                        return formFieldItem.value.form;
+                      },
+                    );
+                  }),
                   kDebugMode
                       ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              storeData = !storeData;
-                            });
-                          },
+                          onTap: () => setState(() {
+                            print(formValues);
+                            storeData = !storeData;
+                          }),
                           child: Container(
                             alignment: Alignment.center,
                             margin: const EdgeInsets.symmetric(
@@ -85,11 +101,7 @@ class _AssessmentFormState<T extends BaseAssessment>
                   const Spacer(),
                   Container(
                       padding: const EdgeInsets.all(16.0),
-                      child: CupertinoButton(
-                        color: Styles.actionPrimary,
-                        onPressed: handleFormSubmit,
-                        child: const Text("Next", style: Styles.actionText),
-                      )),
+                      child: Button(onPressed: handleFormSubmit, text: "Next")),
                   const Spacer(),
                 ],
               ),
@@ -103,9 +115,7 @@ class _AssessmentFormState<T extends BaseAssessment>
           child: Column(
             children: [
               Text(e.toString()),
-              CupertinoButton(
-                  onPressed: () => nav.back(),
-                  child: const Text("Restart Assessment"))
+              Button(onPressed: () => nav.back(), text: "Restart Assessment")
             ],
           ));
     }

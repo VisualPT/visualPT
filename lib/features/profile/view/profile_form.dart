@@ -166,13 +166,15 @@ class _ProfileFormState extends State<ProfileForm> {
                     },
                     validator: (value) {
                       //if its within the last 10 years its probably a mistake
-                      final min = DateTime.now().year - value!.year < 10;
+                      if (value == null) {
+                        return 'Please select a date';
+                      }
+                      final min = DateTime.now().year - value.year < 10;
                       final max = DateTime.now().year - value.year > 120;
 
-                      if (value == null || min || max) {
-                        return 'Please select a valid birth date';
-                      }
-                      return null;
+                      return min || max
+                          ? 'Please select a valid birth date, between 10 and 120 years old'
+                          : null;
                     },
                   ),
                 ),
@@ -188,7 +190,10 @@ class _ProfileFormState extends State<ProfileForm> {
                     options: Gender.values
                         .map((e) => FormBuilderFieldOption(
                             value: e,
-                            child: Text(e.name, style: Styles.inputStyle)))
+                            child: Text(
+                              e.name,
+                              style: Styles.inputStyle,
+                            )))
                         .toList(),
                     onChanged: (value) => setState(
                         () => genderController.text = value.toString()),
@@ -221,28 +226,22 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
                 FormItemContainer(
                   child: FormBuilderCupertinoSlider(
-                    name: "Weight",
-                    min: 60,
-                    max: 260,
-                    divisions: 200,
-                    initialValue: double.tryParse(weightController.text) ?? 100,
-                    prefix: const Text(
-                      "Weight ",
-                      style: Styles.prefixStyle,
-                    ),
-                    onChanged: (value) => setState(
-                        () => weightController.text = value.toString()),
-                    minValueWidget: (string) => Container(),
-                    maxValueWidget: (string) => Container(),
-                    valueWidget: (value) {
-                      final v = int.parse(value);
-                      // Since this is now for weight, we'll convert to kg instead of height calculations
-                      final kg = v * 0.453592;
-                      // Show weight in lbs and kg
-                      return Text("$v lbs / ${kg.toStringAsFixed(2)} kg",
-                          style: Styles.inputNumberText);
-                    },
-                  ),
+                      name: "Weight",
+                      min: 60,
+                      max: 260,
+                      divisions: 200,
+                      initialValue:
+                          double.tryParse(weightController.text) ?? 100,
+                      prefix: const Text(
+                        "Weight ",
+                        style: Styles.prefixStyle,
+                      ),
+                      onChanged: (value) => setState(
+                          () => weightController.text = value.toString()),
+                      minValueWidget: (string) => Container(),
+                      maxValueWidget: (string) => Container(),
+                      valueWidget: (value) => Text(FormatUtil.weight(value),
+                          style: Styles.inputNumberText)),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -250,17 +249,9 @@ class _ProfileFormState extends State<ProfileForm> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       kDebugMode
-                          ? CupertinoButton(
-                              color: Styles.actionPrimary,
-                              onPressed: handleAutofill,
-                              child: const Text("Autofill",
-                                  style: Styles.actionText))
+                          ? Button(onPressed: handleAutofill, text: "Autofill")
                           : Container(),
-                      CupertinoButton(
-                        color: Styles.actionPrimary,
-                        onPressed: handleFormSubmit,
-                        child: const Text("Next", style: Styles.actionText),
-                      ),
+                      Button(onPressed: handleFormSubmit, text: "Next"),
                     ],
                   ),
                 )
@@ -275,9 +266,7 @@ class _ProfileFormState extends State<ProfileForm> {
           child: Column(
             children: [
               Text(e.toString()),
-              CupertinoButton(
-                  onPressed: () => nav.back(),
-                  child: const Text("Restart Assessment"))
+              Button(onPressed: () => nav.back(), text: "Restart Assessment")
             ],
           ));
     }

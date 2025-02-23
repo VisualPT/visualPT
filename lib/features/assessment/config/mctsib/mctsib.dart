@@ -3,8 +3,9 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_cupertino_fields/form_builder_cupertino_fields.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
-import 'package:visualpt/features/capture/service/pose_detection_output.dart';
+import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class MCTSIB implements BaseAssessment {
@@ -72,12 +73,14 @@ class MCTSIB implements BaseAssessment {
   Map<String, FormFieldItem> get formFields => {
         "fall history": FormFieldItem(
           form: FormBuilderCupertinoSegmentedControl(
-              name: "Fall History",
-              options: FallHistory.values
-                  .map((e) =>
-                      FormBuilderFieldOption(value: e, child: Text(e.name)))
-                  .toList()),
-          controller: TextEditingController(),
+            name: "fall history",
+            helper: const Text("Fall History", style: Styles.prefixStyle),
+            options: FallHistory.values
+                .map((e) =>
+                    FormBuilderFieldOption(value: e, child: Text(e.name)))
+                .toList(),
+          ),
+          value: "NONE",
         )
       };
 
@@ -200,7 +203,7 @@ class MCTSIB implements BaseAssessment {
           final detectionCountAndScoreSum = trial.detections!
               .fold<(int, double)>((0, 0.0),
                   (detectionCountAndScoreIterator, detection) {
-            final (xSway, _) = PoseDetection.computeAngles(detection);
+            final (xSway, _) = PoseLandmarks.computeAngles(detection);
             final latProportion = xSway / swayLimits[2];
             //If the profile is leaning forward, the angle will be negative, so use the anterior sway limit
             // final lonProportion =

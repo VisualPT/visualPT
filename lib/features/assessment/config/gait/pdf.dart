@@ -2,7 +2,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -18,7 +18,7 @@ class GaitPDF extends BasePDF {
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -90,18 +90,22 @@ class GaitPDF extends BasePDF {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Date: ", style: detail),
                                   TextSpan(
-                                      text: assessment.datetime
-                                          .toString(), //TODO timestamp=>datetime
+                                      text: FormatUtil.date(assessment.createdAt
+                                          .getDateTimeInUtc()
+                                          .toLocal()),
                                       style: detailBold),
                                 ])),
-                                Spacer(),
                                 RichText(
-                                    text: TextSpan(children: [
-                                  TextSpan(text: "Time: ", style: detail),
-                                  TextSpan(
-                                      text: assessment.datetime.toString(),
-                                      style: detailBold),
-                                ])),
+                                  text: TextSpan(children: [
+                                    TextSpan(text: "Time: ", style: detail),
+                                    TextSpan(
+                                        text: FormatUtil.time(assessment
+                                            .createdAt
+                                            .getDateTimeInUtc()
+                                            .toLocal()),
+                                        style: detailBold),
+                                  ]),
+                                ),
                               ]),
                         ])),
                     Spacer(),
@@ -136,7 +140,7 @@ class GaitPDF extends BasePDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Measurement Duration: ", style: detail),
                         TextSpan(
-                            text: assessment.datetime
+                            text: assessment.duration
                                 .toString(), //TODO add duration type to
                             style: detailBold),
                         TextSpan(text: " seconds", style: detail),
@@ -346,7 +350,7 @@ class GaitPDF extends BasePDF {
 String getComparisonMessage(double velocity, Gender gender, TemporalDate dob) {
   double percent =
       GaitNorms.getPercentDifferenceFromNorm(velocity, gender, dob);
-  int age = getAge(dob);
+  int age = FormatUtil.getAge(dob);
   int index = (age / 10).round();
   String speedComparison = percent > 0 ? "faster" : "slower";
   String ageRange = index > 8 ? "80+" : "${index}0 - ${index}9";

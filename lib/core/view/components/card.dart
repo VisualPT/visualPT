@@ -15,23 +15,26 @@ class Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        color: onTap != null
-            ? Styles.actionSecondary
-            : disabled
-                ? Styles.disabled
-                : Styles.white,
-        border: Border.all(
-          color: Styles.black,
-          width: 1,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: onTap != null
+              ? Styles.actionSecondary
+              : disabled
+                  ? Styles.disabled
+                  : Styles.white,
+          border: Border.all(
+            color: Styles.black,
+            width: 1,
+          ),
+          borderRadius: Styles.borderRadiusM,
         ),
-        borderRadius: Styles.borderRadiusM,
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+        margin: const EdgeInsets.symmetric(vertical: 2.0),
+        child: child,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-      margin: const EdgeInsets.symmetric(vertical: 2.0),
-      child: child,
     );
   }
 }

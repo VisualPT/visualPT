@@ -46,22 +46,23 @@ class AssessmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         assessment.isAvailable
-                            ? SizedBox(
-                                height: MediaQuery.of(context).size.height / 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Styles.black,
-                                      width: 1,
-                                    ),
-                                    borderRadius: Styles.borderRadiusM,
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Styles.black,
+                                    width: 1,
                                   ),
-                                  child: ProfilesList((profile) {
-                                    nav.toPath(
+                                  borderRadius: Styles.borderRadiusM,
+                                ),
+                                child: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height / 4,
+                                  child: ProfilesList(
+                                    (profile) => nav.toPath(
                                         path: "/assessment",
                                         args: AssessmentPathProps(
-                                            assessment.type, profile));
-                                  }),
+                                            assessment.type, profile)),
+                                  ),
                                 ),
                               )
                             : const Text("Coming Soon",

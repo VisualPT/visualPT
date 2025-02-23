@@ -1,6 +1,5 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
-import 'package:visualpt/features/capture/service/pose_detection_output.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class AssessmentUtils {

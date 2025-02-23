@@ -7,7 +7,7 @@ import 'package:visualpt/features/capture/service/capture_repository.dart';
 class CapturePresenter extends StatelessWidget {
   final bool storeData;
   final TrialMeta meta;
-  final int durationSeconds;
+  final int duration;
   final Widget Function(BuildContext context, CaptureDelegated state)
       onDelegated;
   final Widget Function(BuildContext context, CaptureEnded state) onEnded;
@@ -16,7 +16,7 @@ class CapturePresenter extends StatelessWidget {
   const CapturePresenter(
     this.storeData,
     this.meta,
-    this.durationSeconds, {
+    this.duration, {
     super.key,
     required this.onDelegated,
     required this.onEnded,
@@ -25,20 +25,14 @@ class CapturePresenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(create: (context) => CaptureRepository(storeData)),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => CaptureBloc(
-              RepositoryProvider.of<CaptureRepository>(context),
-              meta,
-              Duration(seconds: durationSeconds),
-            ),
-          ),
-        ],
+    return RepositoryProvider(
+      create: (context) => CaptureRepository(storeData),
+      child: BlocProvider(
+        create: (context) => CaptureBloc(
+          RepositoryProvider.of<CaptureRepository>(context),
+          meta,
+          Duration(seconds: duration),
+        ),
         child: BlocBuilder<CaptureBloc, CaptureState>(
           builder: (context, state) {
             try {
@@ -48,7 +42,7 @@ class CapturePresenter extends StatelessWidget {
                 _ => throw Exception("Undefined State $state"),
               };
             } catch (e) {
-              return onError(context, state, e as Exception);
+              return onError(context, state, Exception(e));
             }
           },
         ),

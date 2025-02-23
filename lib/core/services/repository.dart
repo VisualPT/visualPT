@@ -1,10 +1,10 @@
 import 'dart:async';
 
-abstract class Repository<I, O> {
+abstract class Repository<O> {
   final StreamController<O> _streamController;
   var isInitialized = false;
   var count = 0;
-  var localStorage = <I, O>{};
+  var localStorage = <int, O>{};
 
   Repository() : _streamController = StreamController.broadcast();
 
@@ -13,13 +13,14 @@ abstract class Repository<I, O> {
   void add(O data) {
     if (!_streamController.isClosed) {
       _streamController.add(data);
+      localStorage[DateTime.now().microsecondsSinceEpoch] =
+          data; // updated line to store data correctly
       count++;
     }
   }
 
   Future<void> initialize();
-  Future<void> store(
-      String id, I input, O output, Map<String, dynamic>? params);
+  Future<void> store(int id, O output, Map<String, dynamic>? params);
   void reset() {
     localStorage.clear();
     count = 0;

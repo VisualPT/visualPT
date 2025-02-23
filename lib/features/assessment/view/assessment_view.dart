@@ -24,13 +24,15 @@ class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
       onAnalysis: (context, state) => AnalysisView(state),
       onError: (context, state) => BaseView(
         pageTitle: "Assessment Error",
-        child: Column(
-          children: [
-            Text(state.message.toString()),
-            CupertinoButton(
-                onPressed: () => AppNav(context).back(),
-                child: const Text("Restart Assessment"))
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(state.message.toString()),
+              Button(
+                  onPressed: () => AppNav(context).back(),
+                  text: "Restart Assessment")
+            ],
+          ),
         ),
       ),
     );

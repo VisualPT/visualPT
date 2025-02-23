@@ -8,10 +8,12 @@ class BaseView extends StatefulWidget {
       required this.child,
       this.instructions,
       this.pageTitle,
+      this.backgroundColor = Styles.white,
       this.poppable = true});
   final Widget child;
   final AssessmentInstructions? instructions;
   final String? pageTitle;
+  final Color? backgroundColor;
   final bool poppable;
 
   @override
@@ -24,15 +26,8 @@ class _BaseViewState extends State<BaseView> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      showInstructions = widget.instructions == null ? false : true;
-    });
-  }
-
-  @override
-  void didUpdateWidget(BaseView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    setState(() => showInstructions = true);
+    setState(
+        () => showInstructions = widget.instructions == null ? false : true);
   }
 
   bool _canPop() {
@@ -75,22 +70,20 @@ class _BaseViewState extends State<BaseView> {
                       ))
                   : null,
             ),
-            child: SizedBox(
-              height: screenSize.height,
-              width: screenSize.width,
-              child: Stack(alignment: Alignment.center, children: [
-                SafeArea(
+            child: Container(
+                height: screenSize.height,
+                width: screenSize.width,
+                color: widget.backgroundColor ?? Styles.white,
+                child: SafeArea(
                   child: widget.child,
-                )
-              ]),
-            )),
+                ))),
         // InstructionModal below
         showInstructions && widget.instructions != null
             ? Container(
                 alignment: Alignment.center,
                 height: screenSize.height,
                 width: screenSize.width,
-                color: Styles.black.withOpacity(0.5),
+                color: Styles.black.withValues(alpha: 0.5),
                 child: GestureDetector(
                     child: Container(
                         height: screenSize.height * 0.9,

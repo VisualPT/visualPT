@@ -25,6 +25,7 @@ class TrendsView extends StatelessWidget {
                       child: Text("Trends",
                           style: Styles.title, textAlign: TextAlign.left),
                     ),
+                    Text("Coming Soon...", style: Styles.disabledTitle),
                     //TODO: Add Profiles Here
                   ],
                 ),

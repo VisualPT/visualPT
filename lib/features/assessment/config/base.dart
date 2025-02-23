@@ -1,10 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:flutter/cupertino.dart' show TextEditingController;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
@@ -26,6 +24,10 @@ abstract class BaseAssessment {
   List<List<String>> get conditionInstructions;
   List<bool> get conditionObtrusion;
   List<bool> get conditionInstability;
+
+  /// key must equal the key in the formFields and in the expected extra metadata
+  /// value in the form field may need to be transformed with valueTransform in the form field
+  /// ex. enumerations, dates, etc. so they can be properly parsed and stored
   Map<String, FormFieldItem> get formFields;
   bool get isTrainingData;
   bool get isAvailable;
@@ -127,38 +129,14 @@ abstract class BasePDF {
   }
 
   Future<Uint8List> generatePdf(Profile profile, Assessment assessment);
-
-  String formatTime(DateTime dateTime) {
-    final DateFormat formatter = DateFormat('hh:mm a');
-    return formatter.format(dateTime);
-  }
-
-  String formatDate(DateTime dateTime) {
-    final DateFormat formatter = DateFormat('MMMM dd, yyyy');
-    return formatter.format(dateTime);
-  }
-
-  String formatDuration(double durationInSeconds) {
-    int minutes = durationInSeconds ~/ 60;
-    double remainingSeconds = durationInSeconds % 60;
-    //If the duration is less than a minute, return only the seconds
-    if (minutes == 0) {
-      return "${remainingSeconds.round()} seconds";
-    }
-    return "$minutes minutes ${remainingSeconds.round()} seconds";
-  }
 }
 
 class FormFieldItem {
   final FormBuilderField form;
-  final TextEditingController controller;
+  final String value;
 
   FormFieldItem({
     required this.form,
-    required this.controller,
+    required this.value,
   });
-
-  void clear() {
-    controller.clear();
-  }
 }

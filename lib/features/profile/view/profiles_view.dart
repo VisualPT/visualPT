@@ -9,10 +9,33 @@ class ProfilesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: BaseView(
-        child: ProfilesList(
-          (profile) => {
-            AppNav(context).toPath(path: "/profile", args: profile),
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.loose,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: ListView(
+                  padding: const EdgeInsets.all(8.0),
+                  shrinkWrap: false,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Text("Profiles",
+                          style: Styles.title, textAlign: TextAlign.left),
+                    ),
+                    ProfilesList(
+                      (profile) => {
+                        AppNav(context).toPath(path: "/profile", args: profile),
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

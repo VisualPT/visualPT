@@ -1,4 +1,4 @@
-export "service/profiles_service.dart";
+export 'service/profile_service.dart';
 
 export "bloc/profile_bloc.dart";
 

@@ -53,6 +53,7 @@ class Styles {
 
   //Asset Paths
   static const mainLogoPath = "assets/images/vpt_mainlogo.png";
+  static const mainIconpath = "assets/images/vpt_appicon.png";
   //Text Styles
   static const title = TextStyle(
     fontFamily: "Unbounded",
@@ -69,7 +70,7 @@ class Styles {
   static const placeholderStyle =
       TextStyle(color: Styles.inactiveGray, fontSize: 20);
   static const prefixStyle = TextStyle(color: Styles.black, fontSize: 18);
-  static const inputStyle = TextStyle(color: Styles.black, fontSize: 24);
+  static const inputStyle = TextStyle(color: Styles.black, fontSize: 20);
   static const actionText =
       TextStyle(color: Styles.black, fontSize: 28, fontWeight: FontWeight.bold);
   static const subactionText =

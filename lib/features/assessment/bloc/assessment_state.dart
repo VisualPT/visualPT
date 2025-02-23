@@ -1,18 +1,18 @@
 part of 'assessment_bloc.dart';
 
 @immutable
-abstract class AssessmentState<T> extends Equatable {
+abstract class AssessmentState<T extends BaseAssessment> extends Equatable {
   final T meta;
   const AssessmentState(this.meta);
 }
 
-class AssessmentInputs<T> extends AssessmentState<T> {
+class AssessmentInputs<T extends BaseAssessment> extends AssessmentState<T> {
   const AssessmentInputs(super.meta);
   @override
   List<Object?> get props => [meta];
 }
 
-class AssessmentActive<T> extends AssessmentState<T> {
+class AssessmentActive<T extends BaseAssessment> extends AssessmentState<T> {
   final TrialMeta trialMeta;
   final Profile profile;
   final bool storeData;
@@ -20,10 +20,10 @@ class AssessmentActive<T> extends AssessmentState<T> {
       this.trialMeta, this.profile, this.storeData, super.meta);
 
   @override
-  List<Object?> get props => [trialMeta, meta, storeData];
+  List<Object?> get props => [trialMeta, profile, storeData, meta];
 }
 
-class AssessmentAnalysis<T> extends AssessmentState<T> {
+class AssessmentAnalysis<T extends BaseAssessment> extends AssessmentState<T> {
   final Profile profile;
   final bool storeData;
   final Assessment dbAssessment;
@@ -34,14 +34,14 @@ class AssessmentAnalysis<T> extends AssessmentState<T> {
   List<Object?> get props => [profile, storeData, dbAssessment, meta];
 }
 
-class AssessmentLoading<T> extends AssessmentState<T> {
+class AssessmentLoading<T extends BaseAssessment> extends AssessmentState<T> {
   final int index;
   const AssessmentLoading(this.index, super.meta);
   @override
   List<Object?> get props => [meta, index];
 }
 
-class AssessmentError<T> extends AssessmentState<T> {
+class AssessmentError<T extends BaseAssessment> extends AssessmentState<T> {
   //TODO Establish VisualPT Error Codes
   final Exception? message;
 

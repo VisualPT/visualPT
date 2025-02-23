@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/capture/service/capture_repository.dart';
-import 'package:visualpt/features/capture/service/pose_detection_output.dart';
+import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 part 'capture_event.dart';
@@ -42,11 +42,23 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     videoDuration = event.duration;
     final shouldEnd = videoDuration >= totalDuration;
     emit(CaptureDelegated(
-        playing: true, duration: videoDuration, shouldEnd: shouldEnd));
+        playing: true,
+        detection: (repo.localStorage.entries.isNotEmpty &&
+                repo.localStorage.entries.last.value.env.timestamp
+                        .getDateTimeInUtc()
+                        .difference(DateTime.now().toUtc())
+                        .abs()
+                        .inMilliseconds <=
+                    500)
+            ? repo.localStorage.entries.last.value
+            : null,
+        duration: videoDuration,
+        shouldEnd: shouldEnd));
   }
 
   FutureOr<void> _onLandmark(
       CaptureLandmark event, Emitter<CaptureState> emit) async {
+    // print(repo.currentAccel);
     final detection = Detection(
       obtrustion: meta.obtrustion,
       instability: meta.instability,
@@ -56,12 +68,12 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
         accY: repo.currentAccel.y,
         accZ: repo.currentAccel.z,
       ),
-      keypoints: PoseDetection.encodeKeypoints(event.landmarks),
+      keypoints: PoseLandmarks(event.landmarks).encode(),
     );
 
     repo.add(detection);
     //FIXME: Make sure this doesn't interfere with the ticker
-    emit(CaptureDelegated(playing: true, detection: detection));
+    emit(CaptureDelegated(playing: event.playing, detection: detection));
   }
 
   FutureOr<void> _onStop(CaptureStop event, Emitter<CaptureState> emit) async {

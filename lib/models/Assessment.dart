@@ -29,13 +29,12 @@ class Assessment extends amplify_core.Model {
   static const classType = const _AssessmentModelType();
   final String id;
   final AssessmentType? _type;
-  final amplify_core.TemporalDateTime? _datetime;
   final double? _duration;
   final String? _pdf;
   final String? _extra;
+  final amplify_core.TemporalDateTime? _createdAt;
   final Profile? _profile;
   final List<Stage>? _stages;
-  final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
   @override
@@ -54,19 +53,6 @@ class Assessment extends amplify_core.Model {
   AssessmentType get type {
     try {
       return _type!;
-    } catch(e) {
-      throw amplify_core.AmplifyCodeGenModelException(
-          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
-  }
-  
-  amplify_core.TemporalDateTime get datetime {
-    try {
-      return _datetime!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -107,6 +93,19 @@ class Assessment extends amplify_core.Model {
     }
   }
   
+  amplify_core.TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
   Profile? get profile {
     return _profile;
   }
@@ -115,24 +114,20 @@ class Assessment extends amplify_core.Model {
     return _stages;
   }
   
-  amplify_core.TemporalDateTime? get createdAt {
-    return _createdAt;
-  }
-  
   amplify_core.TemporalDateTime? get updatedAt {
     return _updatedAt;
   }
   
-  const Assessment._internal({required this.id, required type, required datetime, required duration, pdf, required extra, profile, stages, createdAt, updatedAt}): _type = type, _datetime = datetime, _duration = duration, _pdf = pdf, _extra = extra, _profile = profile, _stages = stages, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Assessment._internal({required this.id, required type, required duration, pdf, required extra, required createdAt, profile, stages, updatedAt}): _type = type, _duration = duration, _pdf = pdf, _extra = extra, _createdAt = createdAt, _profile = profile, _stages = stages, _updatedAt = updatedAt;
   
-  factory Assessment({String? id, required AssessmentType type, required amplify_core.TemporalDateTime datetime, required double duration, String? pdf, required String extra, Profile? profile, List<Stage>? stages}) {
+  factory Assessment({String? id, required AssessmentType type, required double duration, String? pdf, required String extra, required amplify_core.TemporalDateTime createdAt, Profile? profile, List<Stage>? stages}) {
     return Assessment._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       type: type,
-      datetime: datetime,
       duration: duration,
       pdf: pdf,
       extra: extra,
+      createdAt: createdAt,
       profile: profile,
       stages: stages != null ? List<Stage>.unmodifiable(stages) : stages);
   }
@@ -147,10 +142,10 @@ class Assessment extends amplify_core.Model {
     return other is Assessment &&
       id == other.id &&
       _type == other._type &&
-      _datetime == other._datetime &&
       _duration == other._duration &&
       _pdf == other._pdf &&
       _extra == other._extra &&
+      _createdAt == other._createdAt &&
       _profile == other._profile &&
       DeepCollectionEquality().equals(_stages, other._stages);
   }
@@ -165,46 +160,45 @@ class Assessment extends amplify_core.Model {
     buffer.write("Assessment {");
     buffer.write("id=" + "$id" + ", ");
     buffer.write("type=" + (_type != null ? amplify_core.enumToString(_type)! : "null") + ", ");
-    buffer.write("datetime=" + (_datetime != null ? _datetime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("pdf=" + "$_pdf" + ", ");
     buffer.write("extra=" + "$_extra" + ", ");
-    buffer.write("profile=" + (_profile != null ? _profile!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
+    buffer.write("profile=" + (_profile != null ? _profile!.toString() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
     
     return buffer.toString();
   }
   
-  Assessment copyWith({AssessmentType? type, amplify_core.TemporalDateTime? datetime, double? duration, String? pdf, String? extra, Profile? profile, List<Stage>? stages}) {
+  Assessment copyWith({AssessmentType? type, double? duration, String? pdf, String? extra, amplify_core.TemporalDateTime? createdAt, Profile? profile, List<Stage>? stages}) {
     return Assessment._internal(
       id: id,
       type: type ?? this.type,
-      datetime: datetime ?? this.datetime,
       duration: duration ?? this.duration,
       pdf: pdf ?? this.pdf,
       extra: extra ?? this.extra,
+      createdAt: createdAt ?? this.createdAt,
       profile: profile ?? this.profile,
       stages: stages ?? this.stages);
   }
   
   Assessment copyWithModelFieldValues({
     ModelFieldValue<AssessmentType>? type,
-    ModelFieldValue<amplify_core.TemporalDateTime>? datetime,
     ModelFieldValue<double>? duration,
     ModelFieldValue<String?>? pdf,
     ModelFieldValue<String>? extra,
+    ModelFieldValue<amplify_core.TemporalDateTime>? createdAt,
     ModelFieldValue<Profile?>? profile,
     ModelFieldValue<List<Stage>?>? stages
   }) {
     return Assessment._internal(
       id: id,
       type: type == null ? this.type : type.value,
-      datetime: datetime == null ? this.datetime : datetime.value,
       duration: duration == null ? this.duration : duration.value,
       pdf: pdf == null ? this.pdf : pdf.value,
       extra: extra == null ? this.extra : extra.value,
+      createdAt: createdAt == null ? this.createdAt : createdAt.value,
       profile: profile == null ? this.profile : profile.value,
       stages: stages == null ? this.stages : stages.value
     );
@@ -213,10 +207,10 @@ class Assessment extends amplify_core.Model {
   Assessment.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
       _type = amplify_core.enumFromString<AssessmentType>(json['type'], AssessmentType.values),
-      _datetime = json['datetime'] != null ? amplify_core.TemporalDateTime.fromString(json['datetime']) : null,
       _duration = (json['duration'] as num?)?.toDouble(),
       _pdf = json['pdf'],
       _extra = json['extra'],
+      _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _profile = json['profile'] != null
         ? json['profile']['serializedData'] != null
           ? Profile.fromJson(new Map<String, dynamic>.from(json['profile']['serializedData']))
@@ -235,33 +229,31 @@ class Assessment extends amplify_core.Model {
               .map((e) => Stage.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
               .toList()
           : null),
-      _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'type': amplify_core.enumToString(_type), 'datetime': _datetime?.format(), 'duration': _duration, 'pdf': _pdf, 'extra': _extra, 'profile': _profile?.toJson(), 'stages': _stages?.map((Stage? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'type': amplify_core.enumToString(_type), 'duration': _duration, 'pdf': _pdf, 'extra': _extra, 'createdAt': _createdAt?.format(), 'profile': _profile?.toJson(), 'stages': _stages?.map((Stage? e) => e?.toJson()).toList(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
     'type': _type,
-    'datetime': _datetime,
     'duration': _duration,
     'pdf': _pdf,
     'extra': _extra,
+    'createdAt': _createdAt,
     'profile': _profile,
     'stages': _stages,
-    'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
 
   static final amplify_core.QueryModelIdentifier<AssessmentModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<AssessmentModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
   static final TYPE = amplify_core.QueryField(fieldName: "type");
-  static final DATETIME = amplify_core.QueryField(fieldName: "datetime");
   static final DURATION = amplify_core.QueryField(fieldName: "duration");
   static final PDF = amplify_core.QueryField(fieldName: "pdf");
   static final EXTRA = amplify_core.QueryField(fieldName: "extra");
+  static final CREATEDAT = amplify_core.QueryField(fieldName: "createdAt");
   static final PROFILE = amplify_core.QueryField(
     fieldName: "profile",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Profile'));
@@ -310,12 +302,6 @@ class Assessment extends amplify_core.Model {
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Assessment.DATETIME,
-      isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
       key: Assessment.DURATION,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
@@ -333,6 +319,12 @@ class Assessment extends amplify_core.Model {
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Assessment.CREATEDAT,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
+    ));
+    
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.belongsTo(
       key: Assessment.PROFILE,
       isRequired: false,
@@ -345,13 +337,6 @@ class Assessment extends amplify_core.Model {
       isRequired: false,
       ofModelName: 'Stage',
       associatedKey: Stage.ASSESSMENT
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(

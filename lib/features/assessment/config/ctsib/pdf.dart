@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/view/styles.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -80,7 +80,7 @@ class CtsibPDF extends BasePDF {
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
               TextSpan(
-                  text: formatDate(profile.dob.getDateTime()),
+                  text: FormatUtil.date(profile.dob.getDateTime()),
                   style: detailBold),
             ]),
           ),
@@ -110,16 +110,16 @@ class CtsibPDF extends BasePDF {
               text: TextSpan(children: [
             TextSpan(text: "Date: ", style: detail),
             TextSpan(
-                text:
-                    formatDate(DateTime.parse(assessment.datetime.toString())),
+                text: FormatUtil.date(
+                    assessment.createdAt.getDateTimeInUtc().toLocal()),
                 style: detailBold),
           ])),
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Time: ", style: detail),
               TextSpan(
-                  text: formatTime(
-                      DateTime.parse(assessment.datetime.toString()).toLocal()),
+                  text: FormatUtil.time(
+                      assessment.createdAt.getDateTimeInUtc().toLocal()),
                   style: detailBold),
             ]),
           ),
@@ -127,7 +127,8 @@ class CtsibPDF extends BasePDF {
             text: TextSpan(children: [
               TextSpan(text: "Total Duration: ", style: detail),
               TextSpan(
-                  text: formatDuration(assessment.duration), style: detailBold),
+                  text: FormatUtil.duration(assessment.duration),
+                  style: detailBold),
             ]),
           ),
         ]),
@@ -557,37 +558,4 @@ class CtsibPDF extends BasePDF {
     // Determine if the patient is at risk of falling based on the total duration
     return is9xFallRisk(4) || is9xFallRisk(5);
   }
-
-  // String generateConditionRatioText(Assessment assessment) {
-  //   final scores = CTSIB().calculateScores(assessment);
-
-  //   // Calculating ratios safely
-  //   final somRatio = safeDivision(scores[1], scores[0]);
-  //   final visRatio = safeDivision(scores[3], scores[0]);
-  //   final vestRatio = safeDivision(scores[4], scores[0]);
-
-  //   final ratios = [
-  //     (
-  //       vestRatio,
-  //       "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
-  //     ),
-  //     (
-  //       visRatio,
-  //       "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
-  //     ),
-  //     (
-  //       somRatio,
-  //       "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
-  //     ),
-  //   ];
-
-  //   // Determine the worst ratio among the three
-  //   final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
-
-  //   if (lowest.$1 > 99) {
-  //     return "No significant findings were observed.";
-  //   }
-
-  //   return lowest.$2;
-  // }
 }

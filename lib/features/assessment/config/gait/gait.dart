@@ -1,5 +1,5 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -95,7 +95,7 @@ class GaitNorms {
   static const femaleNorm = [1.14, 1.2, 1.4, 1.4, 1.4, 1.39, 1.22, 1.19, 1.0];
 
   static double getVelocityFromAge(Gender gender, TemporalDate dob) {
-    int age = getAge(dob);
+    int age = FormatUtil.getAge(dob);
     final int index = (age / 10).round().clamp(0, 8);
     return gender == Gender.MALE ? maleNorm[index] : femaleNorm[index];
   }

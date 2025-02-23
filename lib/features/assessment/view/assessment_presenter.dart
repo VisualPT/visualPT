@@ -5,7 +5,6 @@ import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/config/base.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-///Provided PatientBloc & AssessmentBloc
 class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
   final T assessment;
   final Profile profile;
@@ -28,11 +27,8 @@ class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-            create: (context) => AssessmentBloc<T>(assessment, profile)),
-      ],
+    return BlocProvider(
+      create: (context) => AssessmentBloc<T>(assessment, profile),
       child: BlocBuilder<AssessmentBloc<T>, AssessmentState<T>>(
         builder: (context, state) {
           try {
