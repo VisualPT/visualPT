@@ -35,7 +35,8 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     try {
-      print(event.formFields);
+      emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
+
       assessmentStartTime = DateTime.now();
       assessment = Assessment(
         profile: profile,
@@ -66,6 +67,7 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onTrial(
       AssessmentTrial event, Emitter<AssessmentState> emit) async {
     try {
+      emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
       // Update the latest stage with the new trial
       final response = await ApiService.create(Trial(
           startTime: event.startTime,

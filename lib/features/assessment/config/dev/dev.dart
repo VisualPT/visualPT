@@ -20,6 +20,9 @@ class DEV implements BaseAssessment {
   String get imagePath => "assets/images/vpt_appicon.png";
 
   @override
+  String get stageGifPath => ""; //TODO
+
+  @override
   int get stages => 1;
 
   @override

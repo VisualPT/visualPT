@@ -23,7 +23,10 @@ class MCTSIB implements BaseAssessment {
       """Modified Clinical Test of Sensory Integration & Balance is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the profile standing on a firm surface with eyes open, eyes closed.\n\nThe test is then repeated with the profile standing on a foam surface. It is considered modified since it does not test the visual conflict dome stages""";
 
   @override
-  String get imagePath => "assets/images/ctsib_mainlogo.png";
+  String get imagePath => ""; //TODO
+
+  @override
+  String get stageGifPath => ""; //TODO
 
   @override
   int get stages => 4;
@@ -58,9 +61,8 @@ class MCTSIB implements BaseAssessment {
 
   @override
   List<List<String>> get conditionInstructions => List.filled(stages, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the profile",
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override

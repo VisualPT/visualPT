@@ -21,6 +21,9 @@ class GAIT implements BaseAssessment {
   String get imagePath => "assets/images/gv_mainlogo.png";
 
   @override
+  String get stageGifPath => ""; //TODO
+
+  @override
   int get stages => 1;
 
   @override
@@ -34,9 +37,8 @@ class GAIT implements BaseAssessment {
 
   @override
   List<List<String>> get conditionInstructions => List.filled(1, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the profile",
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override

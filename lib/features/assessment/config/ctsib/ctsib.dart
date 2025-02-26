@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
@@ -27,6 +26,9 @@ class CTSIB implements BaseAssessment {
 
   @override
   String get imagePath => "assets/images/ctsib_mainlogo.png";
+
+  @override
+  String get stageGifPath => "assets/videos/CTSIB/CTSIB";
 
   @override
   int get stages => 6;
@@ -67,9 +69,8 @@ class CTSIB implements BaseAssessment {
 
   @override
   List<List<String>> get conditionInstructions => List.filled(stages, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the profile",
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override

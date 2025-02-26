@@ -21,7 +21,10 @@ class REACH implements BaseAssessment {
       """The Functional Reach Test is a quick and easy way to assess a profile's balance and stability.\n The test is performed by having the profile stand with their feet shoulder-width apart and reaching forward as far as they can without taking a step.""";
 
   @override
-  String get imagePath => "assets/images/reach_mainlogo.png";
+  String get imagePath => ""; //TODO
+
+  @override
+  String get stageGifPath => ""; //TODO
 
   @override
   int get stages => 1;
@@ -37,9 +40,8 @@ class REACH implements BaseAssessment {
 
   @override
   List<List<String>> get conditionInstructions => List.filled(1, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the profile",
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override

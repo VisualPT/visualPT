@@ -16,6 +16,7 @@ abstract class BaseAssessment {
   String get normalDuration;
   String get details;
   String get imagePath;
+  String? get stageGifPath;
 
   int get stages;
   int get trials;

@@ -20,6 +20,9 @@ class BERG implements BaseAssessment {
   String get imagePath => "assets/images/berg_mainlogo.png";
 
   @override
+  String get stageGifPath => ""; //TODO
+
+  @override
   int get stages => 6;
 
   @override
@@ -40,9 +43,8 @@ class BERG implements BaseAssessment {
 
   @override
   List<List<String>> get conditionInstructions => List.filled(6, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the profile",
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override

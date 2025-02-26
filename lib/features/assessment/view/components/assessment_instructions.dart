@@ -1,18 +1,42 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gif/gif.dart';
+
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 
-class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
+class AssessmentInstructions<T extends BaseAssessment> extends StatefulWidget {
   final AssessmentActive<T> state;
   const AssessmentInstructions(this.state, {super.key});
 
   @override
+  State<AssessmentInstructions<T>> createState() =>
+      _AssessmentInstructionsState<T>();
+}
+
+class _AssessmentInstructionsState<T extends BaseAssessment>
+    extends State<AssessmentInstructions<T>> with TickerProviderStateMixin {
+  GifController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = GifController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller?.stop();
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var formattedInstructionList = state
-        .meta.conditionInstructions[state.trialMeta.stage]
+    var formattedInstructionList = widget
+        .state.meta.conditionInstructions[widget.state.trialMeta.stage]
         .map((instruction) {
       return Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(2.0),
         child: Text(instruction, textAlign: TextAlign.center),
       );
     });
@@ -24,12 +48,12 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Spacer(),
-          Text(state.trialMeta.assessment.name, style: Styles.title),
+          Text(widget.state.trialMeta.assessment.name, style: Styles.title),
           Text(
-              "Stage ${(state.trialMeta.stage + 1).toString()} of ${state.meta.stages.toString()}",
+              "Stage ${(widget.state.trialMeta.stage + 1).toString()} of ${widget.state.meta.stages.toString()}",
               style: Styles.heading1),
           Text(
-            state.meta.conditionNames[state.trialMeta.stage],
+            widget.state.meta.conditionNames[widget.state.trialMeta.stage],
             style: Styles.heading1,
             textAlign: TextAlign.center,
           ),
@@ -40,19 +64,38 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
             color: Styles.black,
           ),
           const Spacer(),
-          const Text("Patient Instructions: ",
+          const Text("Patient",
               style: Styles.heading2, textAlign: TextAlign.center),
           const Spacer(),
-          Text("TODO: Add patient instructions"),
-          const Spacer(),
-          Container(
-            height: 300,
-            width: MediaQuery.of(context).size.width * 0.3,
-            color: Styles.gray.withOpacity(0.4), // Placeholder color
-            child: const Center(
-              child: Text(
-                'Patient Image Placeholder',
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: FutureBuilder(
+              future: precacheImage(
+                AssetImage(
+                    "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif"),
+                context,
               ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Gif(
+                    image: AssetImage(
+                        "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif"),
+                    controller: _controller,
+                    duration: const Duration(seconds: 3),
+                    autostart: Autostart.loop,
+                    placeholder: (context) => const Text('Loading...'),
+                    onFetchCompleted: () {
+                      _controller?.reset();
+                      _controller?.forward();
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return const Text('Stage Image Here',
+                      textAlign: TextAlign.center);
+                } else {
+                  return const Text('Loading...', textAlign: TextAlign.center);
+                }
+              },
             ),
           ),
           const Spacer(),
@@ -79,6 +122,7 @@ class AssessmentInstructions<T extends BaseAssessment> extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
+                    //TODO: mark the assessment as aborted
                   },
                   child: const Text("Abort",
                       style: Styles.actionText, textAlign: TextAlign.center),
