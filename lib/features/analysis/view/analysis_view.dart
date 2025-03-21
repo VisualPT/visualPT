@@ -36,7 +36,6 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: PDFView(
-              // key: Key(state.pdfData.hashCode.toString()),
               pdfData: state.pdfData,
               enableSwipe: false,
               pageFling: false,
@@ -78,16 +77,15 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               //   child: const Text("Print PDF",
               //       style: TextStyle(color: Styles.black)),
               // ),
+              // Button(
+              //     text: "Refresh PDF",
+              //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(
+              //         PdfInit(
+              //             profile: asmtState.profile,
+              //             assessment: asmtState.dbAssessment)))
             ],
           ),
         ),
-        // Button(
-        //     color: Styles.actionSecondary,
-        //     child: const Text("Refresh PDF",
-        //         style: TextStyle(color: Styles.black)),
-        //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
-        //         profile: asmtState.profile,
-        //         assessment: asmtState.dbAssessment)))
       ]),
     );
   }

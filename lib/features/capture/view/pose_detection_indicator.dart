@@ -21,7 +21,7 @@ class PoseLandmarksIndicator extends StatelessWidget {
     if (detection == null) {
       return CaptureIndicator(
           icon: icon,
-          color: Styles.red,
+          color: Styles.yellow,
           type: type,
           child: Text(message ?? "No Detection",
               style: TextStyle(

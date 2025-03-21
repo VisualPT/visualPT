@@ -11,7 +11,6 @@ class CaptureRepository extends Repository<Detection> {
   CaptureRepository(this.storeData) : super() {
     final accelStream = accelerometerEventStream();
     _accelSubscription = accelStream.listen((event) {
-      // print(event.z);
       currentAccel = event;
     });
   }

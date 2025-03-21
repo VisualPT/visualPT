@@ -80,7 +80,6 @@ class _AssessmentFormState<T extends BaseAssessment>
                   kDebugMode
                       ? GestureDetector(
                           onTap: () => setState(() {
-                            print(formValues);
                             storeData = !storeData;
                           }),
                           child: Container(
@@ -111,11 +110,11 @@ class _AssessmentFormState<T extends BaseAssessment>
       );
     } catch (e) {
       return BaseView(
-          pageTitle: "Patient View Error",
+          pageTitle: "Assessment Form Error",
           child: Column(
             children: [
               Text(e.toString()),
-              Button(onPressed: () => nav.back(), text: "Restart Assessment")
+              Button(onPressed: () => nav.back(), text: "Restart")
             ],
           ));
     }
