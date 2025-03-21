@@ -29,6 +29,13 @@ const schema = a.schema({
     accY: a.float().required(),
     accZ: a.float().required(),
   }),
+  Detection: a.customType({
+    obtrustion: a.boolean().required(),
+    instability: a.boolean().required(),
+    env: a.ref("DetectionEnv").required(),
+    keypoints: a.string().required(),
+    prediction: a.string(),
+  }),
   Norm: a
     .model({
       type: a.ref("AssessmentType").required(),
@@ -80,21 +87,9 @@ const schema = a.schema({
       duration: a.float().required(),
       stageId: a.id().required(),
       stage: a.belongsTo("Stage", "stageId"),
-      detections: a.hasMany("Detection", "trialId"),
+      compressedKeypoints: a.string().required(), // a base 64 gzip of detection data
     })
     .secondaryIndexes((index) => [index("stageId")])
-    .authorization((allow) => [allow.owner(), allow.group("admin")]),
-  Detection: a
-    .model({
-      obtrustion: a.boolean().required(),
-      instability: a.boolean().required(),
-      env: a.ref("DetectionEnv").required(),
-      keypoints: a.string().required(),
-      prediction: a.string(),
-      trialId: a.id().required(),
-      trial: a.belongsTo("Trial", "trialId"),
-    })
-    .secondaryIndexes((index) => [index("trialId")])
     .authorization((allow) => [allow.owner(), allow.group("admin")]),
 });
 

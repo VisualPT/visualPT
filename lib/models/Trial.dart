@@ -21,7 +21,6 @@
 
 import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
-import 'package:collection/collection.dart';
 
 
 /** This is an auto generated class representing the Trial type in your schema. */
@@ -31,7 +30,7 @@ class Trial extends amplify_core.Model {
   final amplify_core.TemporalDateTime? _startTime;
   final double? _duration;
   final Stage? _stage;
-  final List<Detection>? _detections;
+  final String? _compressedKeypoints;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -78,8 +77,17 @@ class Trial extends amplify_core.Model {
     return _stage;
   }
   
-  List<Detection>? get detections {
-    return _detections;
+  String get compressedKeypoints {
+    try {
+      return _compressedKeypoints!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
   amplify_core.TemporalDateTime? get createdAt {
@@ -90,15 +98,15 @@ class Trial extends amplify_core.Model {
     return _updatedAt;
   }
   
-  const Trial._internal({required this.id, required startTime, required duration, stage, detections, createdAt, updatedAt}): _startTime = startTime, _duration = duration, _stage = stage, _detections = detections, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Trial._internal({required this.id, required startTime, required duration, stage, required compressedKeypoints, createdAt, updatedAt}): _startTime = startTime, _duration = duration, _stage = stage, _compressedKeypoints = compressedKeypoints, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Trial({String? id, required amplify_core.TemporalDateTime startTime, required double duration, Stage? stage, List<Detection>? detections}) {
+  factory Trial({String? id, required amplify_core.TemporalDateTime startTime, required double duration, Stage? stage, required String compressedKeypoints}) {
     return Trial._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       startTime: startTime,
       duration: duration,
       stage: stage,
-      detections: detections != null ? List<Detection>.unmodifiable(detections) : detections);
+      compressedKeypoints: compressedKeypoints);
   }
   
   bool equals(Object other) {
@@ -113,7 +121,7 @@ class Trial extends amplify_core.Model {
       _startTime == other._startTime &&
       _duration == other._duration &&
       _stage == other._stage &&
-      DeepCollectionEquality().equals(_detections, other._detections);
+      _compressedKeypoints == other._compressedKeypoints;
   }
   
   @override
@@ -128,6 +136,7 @@ class Trial extends amplify_core.Model {
     buffer.write("startTime=" + (_startTime != null ? _startTime!.format() : "null") + ", ");
     buffer.write("duration=" + (_duration != null ? _duration!.toString() : "null") + ", ");
     buffer.write("stage=" + (_stage != null ? _stage!.toString() : "null") + ", ");
+    buffer.write("compressedKeypoints=" + "$_compressedKeypoints" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -135,27 +144,27 @@ class Trial extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Trial copyWith({amplify_core.TemporalDateTime? startTime, double? duration, Stage? stage, List<Detection>? detections}) {
+  Trial copyWith({amplify_core.TemporalDateTime? startTime, double? duration, Stage? stage, String? compressedKeypoints}) {
     return Trial._internal(
       id: id,
       startTime: startTime ?? this.startTime,
       duration: duration ?? this.duration,
       stage: stage ?? this.stage,
-      detections: detections ?? this.detections);
+      compressedKeypoints: compressedKeypoints ?? this.compressedKeypoints);
   }
   
   Trial copyWithModelFieldValues({
     ModelFieldValue<amplify_core.TemporalDateTime>? startTime,
     ModelFieldValue<double>? duration,
     ModelFieldValue<Stage?>? stage,
-    ModelFieldValue<List<Detection>?>? detections
+    ModelFieldValue<String>? compressedKeypoints
   }) {
     return Trial._internal(
       id: id,
       startTime: startTime == null ? this.startTime : startTime.value,
       duration: duration == null ? this.duration : duration.value,
       stage: stage == null ? this.stage : stage.value,
-      detections: detections == null ? this.detections : detections.value
+      compressedKeypoints: compressedKeypoints == null ? this.compressedKeypoints : compressedKeypoints.value
     );
   }
   
@@ -168,24 +177,12 @@ class Trial extends amplify_core.Model {
           ? Stage.fromJson(new Map<String, dynamic>.from(json['stage']['serializedData']))
           : Stage.fromJson(new Map<String, dynamic>.from(json['stage']))
         : null,
-      _detections = json['detections']  is Map
-        ? (json['detections']['items'] is List
-          ? (json['detections']['items'] as List)
-              .where((e) => e != null)
-              .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e)))
-              .toList()
-          : null)
-        : (json['detections'] is List
-          ? (json['detections'] as List)
-              .where((e) => e?['serializedData'] != null)
-              .map((e) => Detection.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
-              .toList()
-          : null),
+      _compressedKeypoints = json['compressedKeypoints'],
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'startTime': _startTime?.format(), 'duration': _duration, 'stage': _stage?.toJson(), 'detections': _detections?.map((Detection? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'startTime': _startTime?.format(), 'duration': _duration, 'stage': _stage?.toJson(), 'compressedKeypoints': _compressedKeypoints, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
@@ -193,7 +190,7 @@ class Trial extends amplify_core.Model {
     'startTime': _startTime,
     'duration': _duration,
     'stage': _stage,
-    'detections': _detections,
+    'compressedKeypoints': _compressedKeypoints,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
@@ -205,9 +202,7 @@ class Trial extends amplify_core.Model {
   static final STAGE = amplify_core.QueryField(
     fieldName: "stage",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Stage'));
-  static final DETECTIONS = amplify_core.QueryField(
-    fieldName: "detections",
-    fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Detection'));
+  static final COMPRESSEDKEYPOINTS = amplify_core.QueryField(fieldName: "compressedKeypoints");
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Trial";
     modelSchemaDefinition.pluralName = "Trials";
@@ -262,11 +257,10 @@ class Trial extends amplify_core.Model {
       ofModelName: 'Stage'
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
-      key: Trial.DETECTIONS,
-      isRequired: false,
-      ofModelName: 'Detection',
-      associatedKey: Detection.TRIAL
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Trial.COMPRESSEDKEYPOINTS,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(

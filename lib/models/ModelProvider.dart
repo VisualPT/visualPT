@@ -21,11 +21,11 @@
 
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'Assessment.dart';
-import 'Detection.dart';
 import 'Norm.dart';
 import 'Profile.dart';
 import 'Stage.dart';
 import 'Trial.dart';
+import 'Detection.dart';
 import 'DetectionEnv.dart';
 
 export 'AgeRange.dart';
@@ -42,11 +42,11 @@ export 'Trial.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "bd213601196d9ec078bc53972ddd821b";
+  String version = "589e7b0716b69ac8707ce7d392a076c9";
   @override
-  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Detection.schema, Norm.schema, Profile.schema, Stage.schema, Trial.schema];
+  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Norm.schema, Profile.schema, Stage.schema, Trial.schema];
   @override
-  List<amplify_core.ModelSchema> customTypeSchemas = [DetectionEnv.schema];
+  List<amplify_core.ModelSchema> customTypeSchemas = [Detection.schema, DetectionEnv.schema];
   static final ModelProvider _instance = ModelProvider();
 
   static ModelProvider get instance => _instance;
@@ -55,8 +55,6 @@ class ModelProvider implements amplify_core.ModelProviderInterface {
     switch(modelName) {
       case "Assessment":
         return Assessment.classType;
-      case "Detection":
-        return Detection.classType;
       case "Norm":
         return Norm.classType;
       case "Profile":
