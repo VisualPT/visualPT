@@ -4,12 +4,12 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
 import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import '../../../core/_core.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   final AssessmentAnalysis<T> asmtState;
@@ -67,15 +67,11 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
               // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
               // Button(
-              //   padding: const EdgeInsets.all(13.0),
-              //   color: Styles.actionPrimary,
+              //   text: "Print PDF",
               //   onPressed: () async => {
-              //     BlocProvider.of<PdfBloc>(context).add(PdfPrint(
-              //         profile: asmtState.profile,
-              //         assessment: asmtState.dbAssessment))
+              //     await Printing.layoutPdf(
+              //         onLayout: (onLayout) => state.pdfData)
               //   },
-              //   child: const Text("Print PDF",
-              //       style: TextStyle(color: Styles.black)),
               // ),
               // Button(
               //     text: "Refresh PDF",
