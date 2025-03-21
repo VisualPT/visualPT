@@ -13,7 +13,7 @@ class AssessmentCapture<T extends BaseAssessment> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle:
-            "${state.meta.type.name} Stage ${state.trialMeta.stage + 1} Trial ${state.trialMeta.trial + 1} \n ${state.meta.conditionNames[state.trialMeta.stage]}",
+            "${state.config.type.name} Stage ${state.meta.stage + 1} Trial ${state.meta.trial + 1} \n ${state.config.stageNames[state.meta.stage]}",
         instructions: AssessmentInstructions(state),
         poppable: false,
         backgroundColor: Styles.black,

@@ -5,18 +5,14 @@ import 'package:visualpt/features/capture/bloc/capture_bloc.dart';
 import 'package:visualpt/features/capture/service/capture_repository.dart';
 
 class CapturePresenter extends StatelessWidget {
-  final bool storeData;
   final TrialMeta meta;
-  final int duration;
   final Widget Function(BuildContext context, CaptureDelegated state)
       onDelegated;
   final Widget Function(BuildContext context, CaptureEnded state) onEnded;
   final Widget Function(BuildContext context, CaptureState state, Exception e)
       onError;
   const CapturePresenter(
-    this.storeData,
-    this.meta,
-    this.duration, {
+    this.meta, {
     super.key,
     required this.onDelegated,
     required this.onEnded,
@@ -26,12 +22,12 @@ class CapturePresenter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(
-      create: (context) => CaptureRepository(storeData),
+      create: (context) => CaptureRepository(meta.store),
       child: BlocProvider(
         create: (context) => CaptureBloc(
           RepositoryProvider.of<CaptureRepository>(context),
           meta,
-          Duration(seconds: duration),
+          Duration(seconds: meta.duration),
         ),
         child: BlocBuilder<CaptureBloc, CaptureState>(
           builder: (context, state) {

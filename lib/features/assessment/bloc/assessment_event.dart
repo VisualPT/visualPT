@@ -1,30 +1,34 @@
 part of 'assessment_bloc.dart';
 
 @immutable
-abstract class AssessmentEvent extends Equatable {}
+abstract class AssessmentEvent extends Equatable {
+  final Map<String, FormFieldItem> formFields;
+  const AssessmentEvent(this.formFields);
+  @override
+  List<Object?> get props => [formFields];
+}
 
 class AssessmentInit extends AssessmentEvent {
-  AssessmentInit(this.formFields, this.storeData);
-  final Map<String, FormFieldItem> formFields;
-  final bool storeData;
+  const AssessmentInit(super.formFields);
 
   @override
-  List<Object?> get props => [formFields, storeData];
+  List<Object?> get props => [formFields];
 }
 
 class AssessmentStage extends AssessmentEvent {
-  AssessmentStage();
+  const AssessmentStage(super.formFields);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [formFields];
 }
 
 class AssessmentTrial extends AssessmentEvent {
   final Duration duration;
   final TemporalDateTime startTime;
   final List<Detection>? detections;
-  AssessmentTrial(this.detections, this.startTime, this.duration);
+  const AssessmentTrial(
+      this.detections, this.startTime, this.duration, super.formFields);
 
   @override
-  List<Object?> get props => [duration, detections];
+  List<Object?> get props => [duration, detections, startTime];
 }

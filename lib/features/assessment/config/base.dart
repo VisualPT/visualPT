@@ -6,6 +6,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
+import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 /// The parameters that start with [seq] are used to define the individual sequences
@@ -21,10 +23,10 @@ abstract class BaseAssessment {
   int get stages;
   int get trials;
   int get trialDuration;
-  List<String> get conditionNames;
-  List<List<String>> get conditionInstructions;
-  List<bool> get conditionObtrusion;
-  List<bool> get conditionInstability;
+  List<String> get stageNames;
+  List<List<String>> get stageInstructions;
+  List<bool> get stageObtrusion;
+  List<bool> get stageInstability;
 
   /// key must equal the key in the formFields and in the expected extra metadata
   /// value in the form field may need to be transformed with valueTransform in the form field
@@ -54,6 +56,33 @@ abstract class BaseAssessment {
   bool isComplete(Detection? detection) {
     return false;
   }
+}
+
+TrialMeta getMeta(
+  BaseAssessment config,
+  Profile profile,
+  AssessmentEvent event,
+  int stageIndex,
+  int trialIndex,
+) {
+  final trials =
+      int.tryParse(event.formFields['trial count']?.value) ?? config.trials;
+  final trialDuration =
+      int.tryParse(event.formFields['trial duration']?.value) ??
+          config.trialDuration;
+  final store = bool.tryParse(event.formFields['store data']?.value) ?? true;
+
+  return TrialMeta(
+      profile.dob.toString(),
+      profile.gender,
+      config.type,
+      config.stageObtrusion[stageIndex],
+      config.stageInstability[stageIndex],
+      stageIndex,
+      trialIndex,
+      trials,
+      trialDuration,
+      store);
 }
 
 abstract class BasePDF {
@@ -132,9 +161,9 @@ abstract class BasePDF {
   Future<Uint8List> generatePdf(Profile profile, Assessment assessment);
 }
 
-class FormFieldItem {
-  final FormBuilderField form;
-  final String value;
+class FormFieldItem<T> {
+  final FormBuilderField<T> form;
+  final T value;
 
   FormFieldItem({
     required this.form,

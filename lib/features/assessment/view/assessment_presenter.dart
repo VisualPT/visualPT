@@ -42,7 +42,10 @@ class AssessmentPresenter<T extends BaseAssessment> extends StatelessWidget {
               _ => throw Exception("Undefined State $state"),
             };
           } catch (e) {
-            return onError(context, AssessmentError(Exception(e), assessment));
+            return onError(
+                context,
+                AssessmentError(
+                    Exception(e), assessment, assessment.formFields));
           }
         },
       ),

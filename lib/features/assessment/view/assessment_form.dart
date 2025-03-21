@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:visualpt/core/_core.dart';
@@ -18,21 +17,33 @@ class _AssessmentFormState<T extends BaseAssessment>
     extends State<AssessmentForm<T>> {
   late final AssessmentBloc<T> bloc =
       BlocProvider.of<AssessmentBloc<T>>(context);
-  bool storeData = true;
-  late Map<String, FormFieldItem> formFields = widget.state.meta.formFields;
+  late Map<String, FormFieldItem> formFields;
   late Map<String, dynamic> formValues = {};
   final _formKey = GlobalKey<FormBuilderState>();
+
+  @override
+  void initState() {
+    super.initState();
+    formFields = widget.state.config.formFields;
+  }
+
+  @override
+  void dispose() {
+    _formKey.currentState?.dispose();
+    super.dispose();
+  }
 
   void handleFormSubmit() {
     try {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
-        bloc.add(AssessmentInit(formValues.map((k, v) {
+        final fields = formValues.map((k, v) {
           final key = k.toLowerCase();
           final oldItem = formFields[key]!;
           final item = FormFieldItem(form: oldItem.form, value: v);
           return MapEntry(key, item);
-        }), storeData));
+        });
+        bloc.add(AssessmentInit(fields));
       }
     } catch (e) {
       print('Error occurred during form submission: $e');
@@ -48,6 +59,7 @@ class _AssessmentFormState<T extends BaseAssessment>
         child: SingleChildScrollView(
           child: FormBuilder(
             key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             onChanged: () {
               _formKey.currentState!.save();
               setState(() => formValues = _formKey.currentState!.value
@@ -64,39 +76,26 @@ class _AssessmentFormState<T extends BaseAssessment>
                 children: [
                   const Spacer(),
                   Text(
-                    "${widget.state.meta.name} Questions",
+                    "${widget.state.config.name} Questions",
                     style: Styles.heading3,
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(),
-                  ...formFields.entries.map((formFieldItem) {
-                    return FormBuilderField(
-                      name: formFieldItem.key,
-                      builder: (FormFieldState field) {
-                        return formFieldItem.value.form;
-                      },
-                    );
-                  }),
-                  kDebugMode
-                      ? GestureDetector(
-                          onTap: () => setState(() {
-                            storeData = !storeData;
-                          }),
-                          child: Container(
-                            alignment: Alignment.center,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 20.0),
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                                color: storeData ? Styles.blue : Styles.gray,
-                                borderRadius: Styles.borderRadiusM),
-                            child: const Text(
-                              "Store Data",
-                              style: Styles.placeholderStyle,
-                            ),
-                          ),
-                        )
-                      : Container(),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: formFields.length,
+                    itemBuilder: (context, index) {
+                      final formFieldItem = formFields.entries.elementAt(index);
+                      return FormBuilderField(
+                        key: Key(formFieldItem.key),
+                        name: formFieldItem.key,
+                        builder: (FormFieldState field) {
+                          return formFieldItem.value.form;
+                        },
+                      );
+                    },
+                  ),
                   const Spacer(),
                   Container(
                       padding: const EdgeInsets.all(16.0),

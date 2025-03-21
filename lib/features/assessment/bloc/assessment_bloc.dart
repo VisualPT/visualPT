@@ -17,7 +17,7 @@ part 'assessment_state.dart';
 //Clean this up with a repository layer
 class AssessmentBloc<T extends BaseAssessment>
     extends Bloc<AssessmentEvent, AssessmentState<T>> {
-  final T meta;
+  final T config;
   final Profile profile;
   late Assessment assessment;
   late Stage currentStage;
@@ -26,7 +26,8 @@ class AssessmentBloc<T extends BaseAssessment>
 
   bool storeData = true;
 
-  AssessmentBloc(this.meta, this.profile) : super(AssessmentInputs<T>(meta)) {
+  AssessmentBloc(this.config, this.profile)
+      : super(AssessmentInputs<T>(config, config.formFields)) {
     WakelockPlus.enable(); //Keep the screen on during the assessment
     on<AssessmentInit>(_onInit);
     on<AssessmentStage>(_onStage);
@@ -36,31 +37,43 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     try {
-      emit(AssessmentLoading<T>(0, meta));
-
+      emit(AssessmentLoading<T>(0, config, event.formFields));
+      storeData = bool.tryParse(event.formFields['store data']?.value) ?? true;
       assessmentStartTime = DateTime.now();
+      final extra = jsonEncode(Map.fromEntries(event.formFields.entries
+          .map((entry) => MapEntry(entry.key, entry.value.value.toString()))));
       assessment = Assessment(
         profile: profile,
-        type: meta.type,
+        type: config.type,
         duration: 0,
-        extra: jsonEncode(event.formFields.map((k, v) => MapEntry(k, v.value))),
+        extra: extra,
         createdAt: TemporalDateTime(DateTime.now()),
       );
-      final asmtResponse = await ApiService.create(assessment);
-      assessment = asmtResponse.data!;
+      //TODO: dont save this till the end of the assessment to ensure we have some data in it?
+      if (storeData) {
+        final asmtResponse = await ApiService.create(assessment);
+        assessment = asmtResponse.data!;
+      }
       stageStartTime = DateTime.now();
       currentStage = Stage(
         assessment: assessment,
         duration: 0,
         stageNumber: assessment.stages?.length ?? 0,
       );
-      final stageResponse = await ApiService.create(currentStage);
-      currentStage = stageResponse.data!;
-      emit(AssessmentActive<T>(
-          getMeta(profile, meta, 0, 0), profile, event.storeData, this.meta));
+      if (storeData) {
+        final stageResponse = await ApiService.create(currentStage);
+        currentStage = stageResponse.data!;
+      }
+
+//Set the meta based on fields and possible overrides
+      final defaultMeta = getMeta(config, profile, event, 0, 0);
+      emit(AssessmentActive<T>(defaultMeta, profile, config, event.formFields));
     } catch (e) {
       emit(AssessmentError<T>(
-          Exception("Error during initialization: $e"), meta));
+          Exception(
+              "Error during initialization: $e on assessment ${config.name} with form fields ${event.formFields}"),
+          config,
+          event.formFields));
       return;
     }
   }
@@ -68,63 +81,77 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onTrial(
       AssessmentTrial event, Emitter<AssessmentState> emit) async {
     try {
-      emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
+      emit(AssessmentLoading<T>(
+          assessment.stages?.length ?? 0, config, event.formFields));
       // Update the latest stage with the new trial
 
-      final response = await ApiService.create(Trial(
+      var trial = Trial(
           startTime: event.startTime,
           duration: event.duration.inMilliseconds / 1000, //seconds
           compressedKeypoints:
               PoseLandmarks.encodeCompressed(event.detections ?? []),
-          stage: currentStage));
-      final trial = response.data!;
+          stage: currentStage);
+
+      if (storeData) {
+        final response = await ApiService.create(trial);
+        trial = response.data!;
+      }
       //Add the trial into the stage
       currentStage =
           currentStage.copyWith(trials: [...currentStage.trials ?? [], trial]);
 
+      final meta = getMeta(
+        config,
+        profile,
+        event,
+        assessment.stages?.length ?? 0,
+        currentStage.trials?.length ?? 0,
+      );
+
       //If it's the last trial, we need to proceed to the next stage
       if (currentStage.trials?.length == meta.trials) {
-        add(AssessmentStage());
+        add(AssessmentStage(event.formFields));
       } else {
         //Otherwise, we just need to proceed to the next trial
-        emit(AssessmentActive<T>(
-            getMeta(
-              profile,
-              meta,
-              assessment.stages!.length,
-              currentStage.trials!.length,
-            ),
-            profile,
-            storeData,
-            meta));
+        emit(
+          AssessmentActive<T>(meta, profile, config, event.formFields),
+        );
       }
-    } catch (e) {
+    } catch (e, stack) {
       emit(AssessmentError<T>(
-          Exception("Error while processing trial: $e"), meta));
+          Exception("Error while processing trial: $e, $stack"),
+          config,
+          event.formFields));
       return;
     }
   }
 
   FutureOr<void> _onStage(
       AssessmentStage event, Emitter<AssessmentState> emit) async {
-    emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
+    emit(AssessmentLoading<T>(
+        assessment.stages?.length ?? 0, config, event.formFields));
     try {
       // the stage is done, lets update it
       currentStage =
           currentStage.copyWith(duration: getElapsedSeconds(stageStartTime));
       assessment = assessment
           .copyWith(stages: [...(assessment.stages ?? []), currentStage]);
-      await ApiService.update(currentStage);
+      if (storeData) {
+        await ApiService.update(currentStage);
+      }
 
       //If it's the last stage, we need to end the assessment
-      if (assessment.stages?.length == meta.stages) {
+      if (assessment.stages?.length == config.stages) {
         final double assessmentDurationSeconds =
             getElapsedSeconds(assessmentStartTime);
         assessment = assessment.copyWith(
           duration: assessmentDurationSeconds,
         );
-        await ApiService.update(assessment);
-        emit(AssessmentAnalysis<T>(profile, storeData, assessment, meta));
+        if (storeData) {
+          await ApiService.update(assessment);
+        }
+        emit(AssessmentAnalysis<T>(
+            profile, assessment, config, event.formFields));
       } else {
         //Otherwise, we need to proceed to the next stage
         stageStartTime = DateTime.now();
@@ -133,16 +160,18 @@ class AssessmentBloc<T extends BaseAssessment>
           duration: 0,
           stageNumber: assessment.stages?.length ?? 0,
         );
-        await ApiService.create(currentStage);
+        if (storeData) {
+          await ApiService.create(currentStage);
+        }
         emit(AssessmentActive<T>(
-            getMeta(profile, meta, assessment.stages?.length ?? 0, 0),
+            getMeta(config, profile, event, assessment.stages?.length ?? 0, 0),
             profile,
-            storeData,
-            meta));
+            config,
+            event.formFields));
       }
     } catch (e) {
-      emit(AssessmentError<T>(
-          Exception("Error while processing stage: $e"), meta));
+      emit(AssessmentError<T>(Exception("Error while processing stage: $e"),
+          config, event.formFields));
       return;
     }
   }
@@ -157,16 +186,4 @@ class AssessmentBloc<T extends BaseAssessment>
 
 double getElapsedSeconds(DateTime start) {
   return DateTime.now().difference(start).inMilliseconds / 1000;
-}
-
-TrialMeta getMeta(Profile profile, BaseAssessment config, int conditionIndex,
-    int trialIndex) {
-  return TrialMeta(
-      profile.dob.toString(),
-      profile.gender,
-      config.type,
-      config.conditionObtrusion[conditionIndex],
-      config.conditionInstability[conditionIndex],
-      conditionIndex,
-      trialIndex);
 }

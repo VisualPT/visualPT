@@ -33,7 +33,7 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
   @override
   Widget build(BuildContext context) {
     var formattedInstructionList = widget
-        .state.meta.conditionInstructions[widget.state.trialMeta.stage]
+        .state.config.stageInstructions[widget.state.meta.stage]
         .map((instruction) {
       return Padding(
         padding: const EdgeInsets.all(2.0),
@@ -48,12 +48,12 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
         mainAxisSize: MainAxisSize.min,
         children: [
           const Spacer(),
-          Text(widget.state.trialMeta.assessment.name, style: Styles.title),
+          Text(widget.state.meta.assessment.name, style: Styles.title),
           Text(
-              "Stage ${(widget.state.trialMeta.stage + 1).toString()} of ${widget.state.meta.stages.toString()}",
+              "Stage ${(widget.state.meta.stage + 1).toString()} of ${widget.state.config.stages.toString()}",
               style: Styles.heading1),
           Text(
-            widget.state.meta.conditionNames[widget.state.trialMeta.stage],
+            widget.state.config.stageNames[widget.state.meta.stage],
             style: Styles.heading1,
             textAlign: TextAlign.center,
           ),
@@ -70,7 +70,7 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.4,
             child: GifView.asset(
-              "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif",
+              "assets/images/${widget.state.config.type.name}/${widget.state.meta.stage + 1}.gif",
               controller: _controller,
               frameRate: 60,
               progressBuilder: (context) =>

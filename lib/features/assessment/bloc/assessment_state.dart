@@ -2,51 +2,50 @@ part of 'assessment_bloc.dart';
 
 @immutable
 abstract class AssessmentState<T extends BaseAssessment> extends Equatable {
-  final T meta;
-  const AssessmentState(this.meta);
+  final T config;
+  final Map<String, FormFieldItem> formFields;
+  const AssessmentState(this.config, this.formFields);
 }
 
 class AssessmentInputs<T extends BaseAssessment> extends AssessmentState<T> {
-  const AssessmentInputs(super.meta);
+  const AssessmentInputs(super.config, super.formFields);
   @override
-  List<Object?> get props => [meta];
+  List<Object?> get props => [config, formFields];
 }
 
 class AssessmentActive<T extends BaseAssessment> extends AssessmentState<T> {
-  final TrialMeta trialMeta;
+  final TrialMeta meta;
   final Profile profile;
-  final bool storeData;
   const AssessmentActive(
-      this.trialMeta, this.profile, this.storeData, super.meta);
+      this.meta, this.profile, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [trialMeta, profile, storeData, meta];
+  List<Object?> get props => [meta, profile, config, formFields];
 }
 
 class AssessmentAnalysis<T extends BaseAssessment> extends AssessmentState<T> {
   final Profile profile;
-  final bool storeData;
   final Assessment dbAssessment;
   const AssessmentAnalysis(
-      this.profile, this.storeData, this.dbAssessment, super.meta);
+      this.profile, this.dbAssessment, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [profile, storeData, dbAssessment, meta];
+  List<Object?> get props => [profile, dbAssessment, config];
 }
 
 class AssessmentLoading<T extends BaseAssessment> extends AssessmentState<T> {
   final int index;
-  const AssessmentLoading(this.index, super.meta);
+  const AssessmentLoading(this.index, super.config, super.formFields);
   @override
-  List<Object?> get props => [meta, index];
+  List<Object?> get props => [index, config, formFields];
 }
 
 class AssessmentError<T extends BaseAssessment> extends AssessmentState<T> {
   //TODO Establish VisualPT Error Codes
   final Exception? message;
 
-  const AssessmentError(this.message, super.meta);
+  const AssessmentError(this.message, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [message, meta];
+  List<Object?> get props => [message, config];
 }

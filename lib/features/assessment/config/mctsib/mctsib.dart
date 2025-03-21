@@ -38,7 +38,7 @@ class MCTSIB implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => [
+  List<String> get stageNames => [
         "Eyes Open, Firm Surface",
         "Eyes Closed, Firm Surface",
         "Eyes Open, Foam Surface",
@@ -60,16 +60,16 @@ class MCTSIB implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(stages, [
+  List<List<String>> get stageInstructions => List.filled(stages, [
         "Hold the camera steady and level",
         "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<bool> get conditionObtrusion => [false, false, true, true];
+  List<bool> get stageObtrusion => [false, false, true, true];
 
   @override
-  List<bool> get conditionInstability => List.filled(4, false);
+  List<bool> get stageInstability => List.filled(4, false);
 
   @override
   Map<String, FormFieldItem> get formFields => {

@@ -99,7 +99,8 @@ class Styles {
       fontSize: 22,
       color: black.withValues(alpha: 0.8));
 
-  static const error = TextStyle(color: Styles.errorRed);
+  static const error = TextStyle(
+      color: Styles.errorRed, fontSize: 16, fontWeight: FontWeight.bold);
 
   //Borders
   static const borderRadiusS = BorderRadius.all(Radius.circular(4));

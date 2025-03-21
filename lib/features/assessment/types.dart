@@ -9,19 +9,24 @@ class TrialMeta {
   final bool instability;
   final int stage;
   final int trial;
+  final int trials;
+  final int duration;
+  final bool store;
 
   const TrialMeta(
-    this.dateOfBirth,
-    this.gender,
-    this.assessment,
-    this.obtrustion,
-    this.instability,
-    this.stage,
-    this.trial,
-  );
+      this.dateOfBirth,
+      this.gender,
+      this.assessment,
+      this.obtrustion,
+      this.instability,
+      this.stage,
+      this.trial,
+      this.trials,
+      this.duration,
+      this.store);
 
   String csv() {
-    return "$dateOfBirth,${gender.name},${assessment.name},$obtrustion,$instability,$stage,$trial";
+    return "$dateOfBirth,${gender.name},${assessment.name},$obtrustion,$instability,$stage,$trial,$trials,$duration,$store";
   }
 
   static fromCSV(String removeAt) {
@@ -34,6 +39,9 @@ class TrialMeta {
       parts[5] == "true",
       int.parse(parts[6]),
       int.tryParse(parts[7]) ?? 1,
+      int.tryParse(parts[8]) ?? 1,
+      int.tryParse(parts[9]) ?? 0,
+      bool.tryParse(parts[10]) ?? true,
     );
   }
 }
