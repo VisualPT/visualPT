@@ -29,11 +29,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  amplify_api: ^2.6.0
-  amplify_auth_cognito: ^2.6.0
+  amplify_api: ^2.6.1
+  amplify_auth_cognito: ^2.6.1
   amplify_authenticator: ^2.3.2
-  amplify_flutter: ^2.6.0
-  amplify_storage_s3: ^2.6.0
+  amplify_flutter: ^2.6.1
+  amplify_storage_s3: ^2.6.1
   app_tracking_transparency: ^2.0.6
   archive: ^4.0.4
   cupertino_icons: ^1.0.5
@@ -52,7 +52,7 @@ dependencies:
   kinestex_sdk_flutter: ^1.2.6
   pdf: ^3.11.3
   permission_handler: ^11.3.1
-  printing: ^5.12.3 # This can be bumped once https://github.com/aws-amplify/amplify-flutter/issues/5323 is resolved
+  printing: ^5.14.2
   sensors_plus: ^6.1.1
   wakelock_plus: ^1.2.10
   flutter_dotenv: ^5.2.1
