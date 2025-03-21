@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:gif/gif.dart';
+import 'package:gif_view/gif_view.dart';
 
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
@@ -20,7 +20,7 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
   @override
   void initState() {
     super.initState();
-    _controller = GifController(vsync: this);
+    _controller = GifController();
   }
 
   @override
@@ -69,33 +69,12 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
           const Spacer(),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.4,
-            child: FutureBuilder(
-              future: precacheImage(
-                AssetImage(
-                    "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif"),
-                context,
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Gif(
-                    image: AssetImage(
-                        "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif"),
-                    controller: _controller,
-                    duration: const Duration(seconds: 3),
-                    autostart: Autostart.loop,
-                    placeholder: (context) => const Text('Loading...'),
-                    onFetchCompleted: () {
-                      _controller?.reset();
-                      _controller?.forward();
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return const Text('Stage Image Here',
-                      textAlign: TextAlign.center);
-                } else {
-                  return const Text('Loading...', textAlign: TextAlign.center);
-                }
-              },
+            child: GifView.asset(
+              "assets/images/${widget.state.meta.type.name}/${widget.state.trialMeta.stage + 1}.gif",
+              controller: _controller,
+              frameRate: 60,
+              progressBuilder: (context) =>
+                  const Text('Loading...', textAlign: TextAlign.center),
             ),
           ),
           const Spacer(),

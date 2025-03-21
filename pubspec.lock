@@ -611,14 +611,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  gif:
+  gif_view:
     dependency: "direct main"
     description:
-      name: gif
-      sha256: ade95694f1471da737922806818ffade2814d1d7f8d10af38ebcf36ace012bc0
+      name: gif_view
+      sha256: "7665fe9ba03ffcad823c13564baed36513143403dc9b68f89adc9f8d7cbdb384"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "1.0.1"
   glob:
     dependency: transitive
     description:
@@ -679,10 +679,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "2237616a36c0d69aef7549ab439b833fb7f9fb9fc861af2cc9ac3eedddd69ca8"
+      sha256: "13d3349ace88f12f4a0d175eb5c12dcdd39d35c4c109a8a13dfeb6d0bd9e31c3"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.5.3"
   intl:
     dependency: "direct main"
     description:
@@ -1043,6 +1043,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  posix:
+    dependency: transitive
+    description:
+      name: posix
+      sha256: a0117dc2167805aa9125b82eee515cc891819bac2f538c83646d355b16f58b9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.1"
   printing:
     dependency: "direct main"
     description:
