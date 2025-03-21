@@ -16,9 +16,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CapturePresenter(
-      state.storeData,
-      state.trialMeta,
-      state.meta.trialDuration,
+      state.meta,
       onDelegated: delegatedCapture,
       onEnded: endedCapture,
       onError: errorCapture,
@@ -55,7 +53,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 
     if (state.playing &&
         state.countdown == 0 &&
-        asmt.meta.isComplete(state.detection)) {
+        asmt.config.isComplete(state.detection)) {
       //Think about this a little more. What do we want this language to be? How do we design this to work with the Kinestex SDK and the BaseAssessment class
       capture.add(CaptureWarn("Fall Detected", decay: 5));
     }
@@ -180,11 +178,8 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 
     void onComplete() {
       asmt.add(
-        AssessmentTrial(
-          capRep.localStorage.values.toList(),
-          capture.start,
-          capture.duration,
-        ),
+        AssessmentTrial(capRep.localStorage.values.toList(), capture.start,
+            capture.duration, asmt.state.formFields),
       );
       capture.add(CaptureStop(reset: false));
     }

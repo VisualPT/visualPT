@@ -33,19 +33,19 @@ class GAIT implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => ["Walk"];
+  List<String> get stageNames => ["Walk"];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(1, [
+  List<List<String>> get stageInstructions => List.filled(1, [
         "Hold the camera steady and level",
         "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<bool> get conditionObtrusion => [false];
+  List<bool> get stageObtrusion => [false];
 
   @override
-  List<bool> get conditionInstability => [false];
+  List<bool> get stageInstability => [false];
 
   @override
   Map<String, FormFieldItem> get formFields => {};

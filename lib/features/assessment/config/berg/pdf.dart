@@ -202,7 +202,7 @@ class BergPDF extends BasePDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(berg.conditionNames[i]),
+                  child: Text(berg.stageNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

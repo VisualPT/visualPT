@@ -32,7 +32,7 @@ class BERG implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => [
+  List<String> get stageNames => [
         "Standing Unsupported with Feet Together",
         "Standing on One Leg",
         "Pick Up Object from the Floor",
@@ -42,18 +42,16 @@ class BERG implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(6, [
+  List<List<String>> get stageInstructions => List.filled(6, [
         "Hold the camera steady and level",
         "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<bool> get conditionObtrusion =>
-      [false, false, false, false, false, false];
+  List<bool> get stageObtrusion => [false, false, false, false, false, false];
 
   @override
-  List<bool> get conditionInstability =>
-      [false, false, false, false, false, false];
+  List<bool> get stageInstability => [false, false, false, false, false, false];
 
   @override
   Map<String, FormFieldItem> get formFields => {};

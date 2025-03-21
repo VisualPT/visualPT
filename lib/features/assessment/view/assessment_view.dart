@@ -29,7 +29,7 @@ class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
             children: [
               Text(state.message.toString()),
               Button(
-                  onPressed: () => AppNav(context).back(),
+                  onPressed: () => AppNav(context).reset(),
                   text: "Restart Assessment")
             ],
           ),

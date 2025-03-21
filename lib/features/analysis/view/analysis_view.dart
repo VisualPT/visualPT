@@ -19,7 +19,7 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.meta.type.name} Report",
+        pageTitle: "${asmtState.config.type.name} Report",
         poppable: false,
         child: AnalysisPresenter(
           onCreate: PdfInit(
@@ -58,12 +58,17 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               Button(
                   onPressed: () {
                     //TODO Add an are you sure popup
-                    BlocProvider.of<AssessmentBloc>(context).add(AssessmentInit(
-                        asmtState.meta.formFields, asmtState.storeData));
+                    BlocProvider.of<AssessmentBloc>(context)
+                        .add(AssessmentInit(asmtState.formFields));
                   },
                   text: "Redo"),
-              EmailPresenter(asmtState.storeData, asmtState.meta,
-                  asmtState.profile, asmtState.dbAssessment, state.pdfData),
+              EmailPresenter(
+                  bool.tryParse(asmtState.formFields['store data']?.value) ??
+                      true,
+                  asmtState.config,
+                  asmtState.profile,
+                  asmtState.dbAssessment,
+                  state.pdfData),
               Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
               // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
               // Button(
@@ -95,7 +100,14 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
   Widget pdfError(BuildContext context, PdfState _, Exception e) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text(e.toString()),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Text(
+          "PDF Generation Error\n ${e.toString()}",
+          style: Styles.error,
+          textAlign: TextAlign.center,
+        ),
+      ),
       Button(
           text: "Retry",
           onPressed: () => BlocProvider.of<PdfBloc>(context).add(

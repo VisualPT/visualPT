@@ -3,6 +3,7 @@ import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter/foundation.dart';
 import 'package:form_builder_cupertino_fields/form_builder_cupertino_fields.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
@@ -40,7 +41,7 @@ class CTSIB implements BaseAssessment {
   int get trialDuration => 30; //TODO: Make this dynamic
 
   @override
-  List<String> get conditionNames => [
+  List<String> get stageNames => [
         "Eyes Open, Firm Surface",
         "Eyes Closed, Firm Surface",
         "Visual Conflict Dome, Firm Surface",
@@ -68,23 +69,70 @@ class CTSIB implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(stages, [
+  List<List<String>> get stageInstructions => List.filled(stages, [
         "Hold the camera steady and level",
         "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<bool> get conditionObtrusion => [false, false, false, true, true, true];
+  List<bool> get stageObtrusion => [false, false, false, true, true, true];
 
   @override
-  List<bool> get conditionInstability =>
-      [false, false, true, false, false, true];
+  List<bool> get stageInstability => [false, false, true, false, false, true];
 
   @override
   Map<String, FormFieldItem> get formFields => {
-        "fall history": FormFieldItem(
+        "head motions": FormFieldItem<bool>(
+          form: FormBuilderCupertinoSwitch(
+              key: const Key("head_motions"),
+              name: "Head Motions",
+              prefix: const Text("Head Motions", style: Styles.prefixStyle),
+              initialValue: false),
+          value: false,
+        ),
+        "trial count": FormFieldItem(
+          form: FormBuilderCupertinoSegmentedControl(
+            key: const Key("trial_count"),
+            name: "Trial Count",
+            prefix: const Text("Trial Count", style: Styles.prefixStyle),
+            initialValue: 1,
+            shouldExpandedField: true,
+            options: [1, 2, 3]
+                .map((e) => FormBuilderFieldOption(
+                      value: e,
+                      child: Text(
+                        e.toString(),
+                        style: Styles.inputStyle,
+                        softWrap: false,
+                      ),
+                    ))
+                .toList(),
+          ),
+          value: 1,
+        ),
+        "trial duration": FormFieldItem<int>(
+          form: FormBuilderCupertinoSegmentedControl<int>(
+            key: const Key("trial_duration"),
+            name: "Trial Duration",
+            prefix: const Text("Trial Duration", style: Styles.prefixStyle),
+            shouldExpandedField: true,
+            options: [10, 15, 20, 30]
+                .map((e) => FormBuilderFieldOption(
+                      value: e,
+                      child: Text(
+                        e.toString(),
+                        style: Styles.inputStyle,
+                        softWrap: false,
+                      ),
+                    ))
+                .toList(),
+          ),
+          value: 30,
+        ),
+        "fall history": FormFieldItem<FallHistory>(
           //TODO: Build a FormBuilder Cupertino Dialog selection for this
           form: FormBuilderCupertinoSegmentedControl(
+              key: const Key("fall_history"),
               name: "Fall History",
               helper: const Text("Fall History", style: Styles.prefixStyle),
               shouldExpandedField: true,
@@ -98,11 +146,23 @@ class CTSIB implements BaseAssessment {
                       )))
                   .toList(),
               valueTransformer: (value) {
-                value as FallHistory;
-                return value.name.toString();
+                if (value == null) {
+                  return FallHistory.NONE;
+                } else {
+                  return value;
+                }
               }),
-          value: "NONE",
+          value: FallHistory.NONE,
         ),
+        if (kDebugMode)
+          "store data": FormFieldItem<bool>(
+            form: FormBuilderCupertinoSwitch(
+                key: const Key("store_data"),
+                name: "Store Data",
+                prefix: const Text("Store Data", style: Styles.prefixStyle),
+                initialValue: true),
+            value: true,
+          ),
       };
 
   @override
