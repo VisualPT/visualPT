@@ -21,13 +21,10 @@ abstract class Repository<O> {
 
   Future<void> initialize();
   Future<void> store(int id, O output, Map<String, dynamic>? params);
-  void reset() {
-    localStorage.clear();
-    count = 0;
-  }
 
   void dispose() {
-    reset();
+    localStorage.clear();
+    count = 0;
     if (!_streamController.isClosed) {
       _streamController.close();
     }

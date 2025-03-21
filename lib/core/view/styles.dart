@@ -29,6 +29,7 @@ class Styles {
   static const errorRed = Color(0xFFD32F2F);
 
   // Primary Colors
+  static const skyBlueString = '74C6E7';
   static const skyBlue = Color(0xFF74C6E7);
   static const activeOrange = Color(0xFFEA7A36);
 

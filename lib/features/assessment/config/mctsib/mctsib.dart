@@ -114,10 +114,12 @@ class MCTSIB implements BaseAssessment {
       // Iterate over each trial
       for (int i = 0; i < stage.trials!.length; i++) {
         final trial = stage.trials![i];
-        if (trial.detections != null && trial.detections!.isNotEmpty) {
+        final keypoints =
+            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+        if (keypoints.isNotEmpty) {
           // Iterate over each detection
-          for (int j = 0; j < trial.detections!.length; j++) {
-            final detection = trial.detections![j];
+          for (int j = 0; j < keypoints.length; j++) {
+            final detection = keypoints[j];
             final prediction = int.tryParse(detection.prediction ?? "-1");
             if (prediction != null &&
                 prediction >= 0 &&
@@ -199,12 +201,14 @@ class MCTSIB implements BaseAssessment {
       final conditionScores = validStages.map((stage) {
         final trialsCountAndScoreSum = stage.trials!.fold<(int, double)>(
             (0, 0.0), (trialsCountAndScoreIterator, trial) {
-          if (trial.detections == null || trial.detections!.isEmpty) {
+          final keypoints =
+              PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+
+          if (keypoints.isEmpty) {
             return trialsCountAndScoreIterator;
           }
-          final detectionCountAndScoreSum = trial.detections!
-              .fold<(int, double)>((0, 0.0),
-                  (detectionCountAndScoreIterator, detection) {
+          final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
+              (0, 0.0), (detectionCountAndScoreIterator, detection) {
             final (xSway, _) = PoseLandmarks.computeAngles(detection);
             final latProportion = xSway / swayLimits[2];
             //If the profile is leaning forward, the angle will be negative, so use the anterior sway limit

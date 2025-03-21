@@ -11,81 +11,137 @@ import 'package:visualpt/models/ModelProvider.dart';
 part 'capture_event.dart';
 part 'capture_state.dart';
 
-//TODO: Prevent the user from stopping the camera too soon, add a delay
-// Ref: https://github.com/flutter/flutter/issues/121659
 class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
-  CaptureBloc(this.repo, this.meta, this.totalDuration)
-      : _ticker = Ticker(duration: totalDuration),
-        super(const CaptureDelegated()) {
+  CaptureBloc(
+    this.repo,
+    this.meta,
+    this.totalDuration, {
+    this.countdown = 3,
+    this.ternimateTick = 300, //3 seconds
+  })  : _terminateTick = ternimateTick,
+        ticker = Ticker(duration: totalDuration),
+        super(CaptureDelegated(countdown: countdown)) {
     on<CapturePlay>(_onPlay);
-    on<CaptureTick>(_onTick);
     on<CaptureLandmark>(_onLandmark);
+    on<CaptureWarn>(_onWarn);
+    on<CapturePause>(_onPause);
     on<CaptureStop>(_onStop);
   }
 
   final CaptureRepository repo;
   final TrialMeta meta;
-  late Duration videoDuration = const Duration(seconds: 0);
+  final int countdown;
+  final int ternimateTick;
+  final Ticker ticker;
+  Duration duration = const Duration(seconds: 0);
   final Duration totalDuration;
-  final Ticker _ticker;
+  late int _countdown;
+  late int _terminateTick;
   late amplify.TemporalDateTime start;
+  bool forcePause = false;
+
   StreamSubscription<Duration>? _tickerSubscription;
 
   FutureOr<void> _onPlay(CapturePlay event, Emitter<CaptureState> emit) async {
+    //TODO: Should not be allowed to play if there is no detection
+    _terminateTick = ternimateTick;
     start = amplify.TemporalDateTime(DateTime.now());
-    _tickerSubscription = _ticker
-        .tick()
-        .listen((duration) => add(CaptureTick(duration: duration)));
-  }
+    _countdown = countdown;
+    while (_countdown > 0) {
+      emit(CaptureDelegated(
+          playing: true,
+          message: "Starting in $_countdown",
+          countdown: _countdown,
+          terminateTick: _terminateTick));
+      await Future.delayed(const Duration(seconds: 1));
+      _countdown--;
+    }
+    emit(CaptureDelegated(playing: true, terminateTick: _terminateTick));
 
-  FutureOr<void> _onTick(CaptureTick event, Emitter<CaptureState> emit) async {
-    videoDuration = event.duration;
-    final shouldEnd = videoDuration >= totalDuration;
-    emit(CaptureDelegated(
-        playing: true,
-        detection: (repo.localStorage.entries.isNotEmpty &&
-                repo.localStorage.entries.last.value.env.timestamp
-                        .getDateTimeInUtc()
-                        .difference(DateTime.now().toUtc())
-                        .abs()
-                        .inMilliseconds <=
-                    500)
-            ? repo.localStorage.entries.last.value
-            : null,
-        duration: videoDuration,
-        shouldEnd: shouldEnd));
+    // Use a Completer to keep _onPlay alive
+    final completer = Completer<void>();
+    _tickerSubscription = ticker.tick().listen((t) {
+      duration = t;
+      final detection = mostRecentDetection(repo);
+      if (detection == null) {
+        add(CaptureWarn("No Detection $_terminateTick"));
+      }
+      if (_terminateTick <= 0) {
+        add(CaptureWarn('Invalid Frame Detected'));
+      }
+
+      // If the ticker is done, end the capture
+      if (t >= totalDuration) {
+        add(CapturePause());
+        completer.complete(); // Mark the event as completed
+      }
+    });
+
+    await completer.future; // Keep event handler alive until completed
   }
 
   FutureOr<void> _onLandmark(
       CaptureLandmark event, Emitter<CaptureState> emit) async {
-    // print(repo.currentAccel);
-    final detection = Detection(
-      obtrustion: meta.obtrustion,
-      instability: meta.instability,
-      env: DetectionEnv(
-        timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
-        accX: repo.currentAccel.x,
-        accY: repo.currentAccel.y,
-        accZ: repo.currentAccel.z,
-      ),
-      keypoints: PoseLandmarks(event.landmarks).encode(),
-    );
+    if (event.playing) {
+      _terminateTick =
+          _terminateTick <= ternimateTick ? _terminateTick + 1 : ternimateTick;
 
-    repo.add(detection);
-    //FIXME: Make sure this doesn't interfere with the ticker
-    emit(CaptureDelegated(playing: event.playing, detection: detection));
+      final detection = Detection(
+        obtrustion: meta.obtrustion,
+        instability: meta.instability,
+        env: DetectionEnv(
+          timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
+          accX: repo.currentAccel.x,
+          accY: repo.currentAccel.y,
+          accZ: repo.currentAccel.z,
+        ),
+        keypoints: PoseLandmarks(event.landmarks).encode(),
+      );
+      if (duration < totalDuration && !forcePause) {
+        emit(CaptureDelegated(
+            playing: event.playing,
+            message: _countdown > 0 ? "Starting in $_countdown" : "",
+            countdown: _countdown,
+            terminateTick: _terminateTick,
+            detection: detection));
+      }
+      if (!(_tickerSubscription?.isPaused ?? true)) {
+        repo.add(detection);
+      }
+    }
+  }
+
+//Responsible for decrementing the terminate tick until it is 0 and then ending the capture
+  FutureOr<void> _onWarn(CaptureWarn event, Emitter<CaptureState> emit) {
+    _terminateTick = _terminateTick - event.decay;
+
+    if (_terminateTick <= 0) {
+      add(CapturePause());
+    } else {
+      emit(CaptureDelegated(
+        playing: _terminateTick > 0,
+        terminateTick: _terminateTick,
+        message: event.warning,
+        detection: mostRecentDetection(repo),
+      ));
+    }
+  }
+
+  FutureOr<void> _onPause(CapturePause event, Emitter<CaptureState> emit) {
+    forcePause = true;
+    _tickerSubscription?.pause();
+    emit(const CaptureEnded());
   }
 
   FutureOr<void> _onStop(CaptureStop event, Emitter<CaptureState> emit) async {
     try {
-      _tickerSubscription?.cancel();
-
       if (event.reset) {
-        return emit(const CaptureDelegated(
-            playing: false, duration: Duration(seconds: 0), shouldEnd: false));
+        _countdown = countdown;
+        duration = const Duration(seconds: 0);
+        return emit(
+            CaptureDelegated(playing: false, terminateTick: ternimateTick));
       }
 
-      emit(const CaptureEnded(Duration.zero));
       repo.dispose();
     } catch (e) {
       emit(CaptureError(exception: Exception(e)));
@@ -94,9 +150,23 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
 
   @override
   void onError(Object error, StackTrace stackTrace) {
+    _tickerSubscription?.cancel();
     // Always call super.onError with the current error
     super.onError(error, stackTrace);
-    debugPrint('VideoBloc Error: $error, $stackTrace');
+    debugPrint('CaptureBloc Error: $error, $stackTrace');
+  }
+
+  /// Returns the latest detection from the repository until 1 second goes by, then returns null
+  Detection? mostRecentDetection(CaptureRepository repo) {
+    return repo.localStorage.entries.isNotEmpty &&
+            repo.localStorage.entries.last.value.env.timestamp
+                    .getDateTimeInUtc()
+                    .difference(DateTime.now().toUtc())
+                    .abs()
+                    .inSeconds <=
+                1
+        ? repo.localStorage.entries.last.value
+        : null;
   }
 }
 

@@ -18,16 +18,6 @@ class CapturePlay extends CaptureEvent {
   List<Object?> get props => [];
 }
 
-class CaptureTick extends CaptureEvent {
-  //Incremental time update
-  CaptureTick({required this.duration})
-      : super(DateTime.now().microsecondsSinceEpoch);
-  final Duration duration;
-
-  @override
-  List<Object?> get props => [duration];
-}
-
 class CaptureLandmark extends CaptureEvent {
   // Landmark data from the camera
   CaptureLandmark(this.landmarks, this.playing)
@@ -37,6 +27,25 @@ class CaptureLandmark extends CaptureEvent {
 
   @override
   List<Object?> get props => [landmarks, playing];
+}
+
+class CaptureWarn extends CaptureEvent {
+  // Warning from the camera
+  CaptureWarn(this.warning, {this.decay = 1})
+      : super(DateTime.now().microsecondsSinceEpoch);
+  final String warning;
+  final int decay; // controls decay rate
+
+  @override
+  List<Object?> get props => [warning, decay];
+}
+
+class CapturePause extends CaptureEvent {
+  // Pauses the Capture stream, repository and view
+  CapturePause() : super(DateTime.now().microsecondsSinceEpoch);
+
+  @override
+  List<Object?> get props => [];
 }
 
 class CaptureStop extends CaptureEvent {

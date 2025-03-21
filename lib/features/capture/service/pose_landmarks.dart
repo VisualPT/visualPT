@@ -1,21 +1,19 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:archive/archive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:visualpt/models/ModelProvider.dart';
+import 'package:visualpt/models/Detection.dart';
 
 // ignore: must_be_immutable
 class PoseLandmarks extends Equatable {
   PoseLandmarks(this.output) {
-    poseLandmarks = parseLandmarks(
-        output['poseLandmarks'], computeZScale(output['poseLandmarks']));
-    worldLandmarks = parseLandmarks(
-        output['worldLandmarks'], computeZScale(output['worldLandmarks']));
+    worldLandmarks = parseLandmarks(output['worldLandmarks']['coordinates'],
+        computeZScale(output['worldLandmarks']['coordinates']));
   }
 
   final Map<String, dynamic> output;
-  late List<(double, double, double, double)> poseLandmarks;
   late List<(double, double, double, double)> worldLandmarks;
 
   // Define constants for excluding landmarks
@@ -33,71 +31,59 @@ class PoseLandmarks extends Equatable {
   ];
 
   List<(double, double, double, double)> parseLandmarks(
-      List<dynamic> landmarks, double zScale) {
-    return landmarks
-        .map((landmark) => (
-              landmark['x'] as double,
-              landmark['y'] as double,
-              ((landmark['z'] as double) - getMinZ(landmarks)) * zScale +
-                  getMinX(landmarks),
-              landmark['visibility'] as double
-            ))
-        .toList();
+      Map<String, dynamic> landmarks, double zScale) {
+    return landmarks.entries.map((entry) {
+      final landmark = entry.value;
+      return (
+        landmark['x'] as double,
+        landmark['y'] as double,
+        ((landmark['z'] as double) - getMinZ(landmarks)) * zScale +
+            getMinX(landmarks),
+        landmark['visibility'] as double
+      );
+    }).toList();
   }
 
-  /// Computes the appropriate Z scaling factor based on the range of X and Z values
-  double computeZScale(List<dynamic> landmarks) {
+  double computeZScale(Map<String, dynamic> landmarks) {
     if (landmarks.isEmpty) return 1.0;
-
     double xRange = getMaxX(landmarks) - getMinX(landmarks);
     double zRange = getMaxZ(landmarks) - getMinZ(landmarks);
-
-    return (zRange > 0)
-        ? (xRange / zRange)
-        : 1.0; // Default to 1 if zRange is zero
+    return (zRange > 0) ? (xRange / zRange) : 1.0;
   }
 
-  double getMinX(List<dynamic> landmarks) =>
-      landmarks.map((l) => l['x'] as double).reduce(min);
-  double getMaxX(List<dynamic> landmarks) =>
-      landmarks.map((l) => l['x'] as double).reduce(max);
-  double getMinZ(List<dynamic> landmarks) =>
-      landmarks.map((l) => l['z'] as double).reduce(min);
-  double getMaxZ(List<dynamic> landmarks) =>
-      landmarks.map((l) => l['z'] as double).reduce(max);
+  double getMinX(Map<String, dynamic> landmarks) =>
+      landmarks.values.map((l) => l['x'] as double).reduce(min);
+  double getMaxX(Map<String, dynamic> landmarks) =>
+      landmarks.values.map((l) => l['x'] as double).reduce(max);
+  double getMinZ(Map<String, dynamic> landmarks) =>
+      landmarks.values.map((l) => l['z'] as double).reduce(min);
+  double getMaxZ(Map<String, dynamic> landmarks) =>
+      landmarks.values.map((l) => l['z'] as double).reduce(max);
 
-  /// Encodes the PoseLandmarks object into a JSON string
   String encode() {
     final encoded = {
-      'poseLandmarks':
-          poseLandmarks.map((l) => [l.$1, l.$2, l.$3, l.$4]).toList(),
-      'worldLandmarks':
-          worldLandmarks.map((l) => [l.$1, l.$2, l.$3, l.$4]).toList(),
+      'worldLandmarks': worldLandmarks
+          .map((l) => _roundLandmark([l.$1, l.$2, l.$3, l.$4]))
+          .toList(),
     };
     return jsonEncode(encoded);
   }
 
-  /// Decodes a JSON string and applies the appropriate Z scaling
-  static Map<String, List<(double, double, double, double)>> decode(
-      String input) {
+  List<double> _roundLandmark(List<double> l, {int precision = 3}) {
+    double scale = pow(10, precision).toDouble();
+    return l.map((v) => (v * scale).round() / scale).toList();
+  }
+
+  static List<(double, double, double, double)> decode(String input) {
     final Map<String, dynamic> decoded = jsonDecode(input);
-
-    final Map<String, List<(double, double, double, double)>> output = {
-      'poseLandmarks': [],
-      'worldLandmarks': [],
-    };
-
-    for (var landmark in decoded['poseLandmarks']) {
-      output['poseLandmarks']
-          ?.add((landmark[0], landmark[1], landmark[2], landmark[3]));
-    }
-
-    for (var landmark in decoded['worldLandmarks']) {
-      output['worldLandmarks']
-          ?.add((landmark[0], landmark[1], landmark[2], landmark[3]));
-    }
-
-    return output;
+    return (decoded['worldLandmarks'] as List)
+        .map((landmark) => (
+              landmark[0] as double,
+              landmark[1] as double,
+              landmark[2] as double,
+              landmark[3] as double
+            ))
+        .toList();
   }
 
   @override
@@ -105,38 +91,21 @@ class PoseLandmarks extends Equatable {
     return encode();
   }
 
-  /// Compute body angles for a given detection.
-  /// `type` can be `'lsq'` or `'lrg'`
   static (double, double) computeAngles(Detection detection) {
-    final points = decode(detection.keypoints)['worldLandmarks'] ?? [];
+    // Decode keypoints from the stored string format
+    final decodedKeypoints = PoseLandmarks.decode(detection.keypoints);
+    final points = decodedKeypoints; // List of (x, y, z, visibility)
+
     if (points.isEmpty) return (0.0, 0.0);
 
+    // Extract accelerometer data
     final accelData = AccelerometerEvent(
         detection.env.accX,
         detection.env.accY,
         detection.env.accZ,
         detection.env.timestamp.getDateTimeInUtc().toLocal());
 
-    // // --- Step 1: Compute Hip Center and Rotation Angle ---
-    // final leftHip = points[23];
-    // final rightHip = points[24];
-
-    // double hipCenterX = (leftHip.$1 + rightHip.$1) / 2;
-    // double hipCenterZ = (leftHip.$3 + rightHip.$3) / 2;
-    // double deltaX = rightHip.$1 - leftHip.$1;
-    // double deltaZ = rightHip.$3 - leftHip.$3;
-    // double theta = atan2(deltaZ, deltaX); // Rotation angle
-
-    // // --- Step 2: Rotate All Points to Align Hips Forward ---
-    // List<(double, double, double, double)> rotatedPoints = points.map((point) {
-    //   double x = point.$1 - hipCenterX;
-    //   double z = point.$3 - hipCenterZ;
-    //   double newX = x * cos(-theta) - z * sin(-theta);
-    //   double newZ = x * sin(-theta) + z * cos(-theta);
-    //   return (newX + hipCenterX, point.$2, newZ + hipCenterZ, point.$4);
-    // }).toList();
-
-    // --- Step 3: Filter Points Based on Exclusions ---
+    // Filter keypoints based on exclusion lists
     final filteredPointsXY = points
         .asMap()
         .entries
@@ -151,11 +120,11 @@ class PoseLandmarks extends Equatable {
         .map((entry) => entry.value)
         .toList();
 
-    // --- Step 4: Compute Angles Using Reusable Function ---
+    // Compute angles using least squares regression
     double degreesXY = _computeSlopeDegreesLstsq(filteredPointsXY, 1, 2);
     double degreesYZ = _computeSlopeDegreesLstsq(filteredPointsYZ, 2, 3);
 
-    // --- Step 5: Adjust for Pitch (Device Tilt Compensation) ---
+    // Apply pitch adjustment using accelerometer data
     final pitch = (atan2(-accelData.x,
                 sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
             (180 / pi))
@@ -165,18 +134,16 @@ class PoseLandmarks extends Equatable {
     return (degreesXY, degreesYZ);
   }
 
-  /// Compute slope in degrees for a given set of points.
-  /// Uses least squares regression for stability.
   static double _computeSlopeDegreesLstsq(
       List<(double, double, double, double)> points, int axis1, int axis2) {
     int n = points.length;
-    if (n < 2) return 0.0; // Avoid division by zero
+    if (n < 2) return 0.0;
 
     double sumA = 0, sumB = 0, sumAB = 0, sumB2 = 0;
 
     for (var point in points) {
-      double a = (axis1 == 1) ? point.$1 : point.$3; // X or Z
-      double b = point.$2; // Y
+      double a = (axis1 == 1) ? point.$1 : point.$3;
+      double b = point.$2;
       sumA += a;
       sumB += b;
       sumAB += a * b;
@@ -185,7 +152,20 @@ class PoseLandmarks extends Equatable {
 
     if (sumB2 == 0) return 0.0;
     double slope = (n * sumAB - sumA * sumB) / (n * sumB2 - sumB * sumB);
-    return (atan(slope) * 180 / pi); // Convert to degrees
+    return (atan(slope) * 180 / pi);
+  }
+
+  static String encodeCompressed(List<Detection> detections) {
+    final json = jsonEncode(detections.map((d) => d.toJson()).toList());
+    final compressed = const GZipEncoder().encode(utf8.encode(json));
+    return base64Encode(compressed);
+  }
+
+  static List<Detection> decodeCompressed(String compressedString) {
+    final compressed = base64Decode(compressedString);
+    final decompressed = const GZipDecoder().decodeBytes(compressed);
+    final decodedJson = jsonDecode(utf8.decode(decompressed)) as List<dynamic>;
+    return decodedJson.map((e) => Detection.fromJson(e)).toList();
   }
 
   @override

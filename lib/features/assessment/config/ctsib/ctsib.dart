@@ -37,7 +37,7 @@ class CTSIB implements BaseAssessment {
   int get trials => 1;
 
   @override
-  int get trialDuration => 20;
+  int get trialDuration => 30; //TODO: Make this dynamic
 
   @override
   List<String> get conditionNames => [
@@ -190,12 +190,13 @@ class CTSIB implements BaseAssessment {
       final conditionScores = validStages.map((stage) {
         final trialsCountAndScoreSum = stage.trials!.fold<(int, double)>(
             (0, 0.0), (trialsCountAndScoreIterator, trial) {
-          if (trial.detections == null || trial.detections!.isEmpty) {
+          final keypoints =
+              PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+          if (keypoints.isEmpty) {
             return trialsCountAndScoreIterator;
           }
-          final detectionCountAndScoreSum = trial.detections!
-              .fold<(int, double)>((0, 0.0),
-                  (detectionCountAndScore, detection) {
+          final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
+              (0, 0.0), (detectionCountAndScore, detection) {
             //If a fall has been registered, in other words, a detection registered and the score 0
             if (detectionCountAndScore.$1 != 0 &&
                 detectionCountAndScore.$2 == 0) {
@@ -295,12 +296,13 @@ class CTSIB implements BaseAssessment {
       // CalculaStagesway and count of detections
       final totalAndCount = stage.trials!.fold<(int, (double, double))>(
           (0, (0.0, 0.0)), (previousValue, trial) {
-        if (trial.detections == null || trial.detections!.isEmpty) {
+        final keypoints =
+            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+        if (keypoints.isEmpty) {
           return previousValue;
         }
-        final trialTotalAndCount = trial.detections!
-            .fold<(int, (double, double))>((0, (0.0, 0.0)),
-                (averageAngle, detection) {
+        final trialTotalAndCount = keypoints.fold<(int, (double, double))>(
+            (0, (0.0, 0.0)), (averageAngle, detection) {
           final angle = PoseLandmarks.computeAngles(detection);
 
           return (
@@ -339,11 +341,13 @@ class CTSIB implements BaseAssessment {
       // CalculaStagesway anstagef detections
       final maxSway = stage.trials!.fold<(double, double)>((0.0, 0.0),
           (previousValue, trial) {
-        if (trial.detections == null || trial.detections!.isEmpty) {
+        final keypoints =
+            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+        if (keypoints.isEmpty) {
           return previousValue;
         }
-        final trialMaxSway = trial.detections!
-            .fold<(double, double)>((0.0, 0.0), (maxAngle, detection) {
+        final trialMaxSway =
+            keypoints.fold<(double, double)>((0.0, 0.0), (maxAngle, detection) {
           final (lat, lng) = PoseLandmarks.computeAngles(detection);
 
           return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
@@ -373,10 +377,13 @@ class CTSIB implements BaseAssessment {
       // Iterate over each trial
       for (int i = 0; i < stage.trials!.length; i++) {
         final trial = stage.trials![i];
-        if (trial.detections != null && trial.detections!.isNotEmpty) {
+        final keypoints =
+            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+
+        if (keypoints.isNotEmpty) {
           // Iterate over each detection
-          for (int j = 0; j < trial.detections!.length; j++) {
-            final detection = trial.detections![j];
+          for (int j = 0; j < keypoints.length; j++) {
+            final detection = keypoints[j];
             final prediction = int.tryParse(detection.prediction ?? "-1");
             if (prediction != null &&
                 prediction >= 0 &&
@@ -394,17 +401,15 @@ class CTSIB implements BaseAssessment {
   static (bool, double) poseToCtsibData(Detection detection) {
     final (xSway, zSway) = PoseLandmarks.computeAngles(detection);
     final latProportion = xSway / swayLimits[2];
-    //If the profile is leaning forward, the angle will be negative, so use the anterior sway limit
-    // final lonProportion =
-    //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
-    //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
-    // A new pose detection model should be trained to fix this
-    if (latProportion > 1 /* || lonProportion > 1*/) {
+    final lonProportion =
+        zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
+
+    if (latProportion > 1 || lonProportion > 1) {
       //This indicates a fall
       return (true, 0.0);
     }
-    final proportionOfFailure = latProportion;
-    //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
+    final proportionOfFailure =
+        sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
     final detectionScore = 100 * (1 - proportionOfFailure);
     return (
       false, //No fall

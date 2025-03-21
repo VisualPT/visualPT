@@ -29,7 +29,8 @@ class DEV implements BaseAssessment {
   int get trials => 1;
 
   @override
-  int get trialDuration => 6000000;
+  int get trialDuration =>
+      30; //Anything over around 50 seconds will cause issues with the detection storage
 
   @override
   List<String> get conditionNames => [

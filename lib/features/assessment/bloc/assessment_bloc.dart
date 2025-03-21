@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visualpt/core/services/api.dart';
 import 'package:visualpt/features/assessment/types.dart';
+import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -35,7 +36,7 @@ class AssessmentBloc<T extends BaseAssessment>
   FutureOr<void> _onInit(
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     try {
-      emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
+      emit(AssessmentLoading<T>(0, meta));
 
       assessmentStartTime = DateTime.now();
       assessment = Assessment(
@@ -69,13 +70,14 @@ class AssessmentBloc<T extends BaseAssessment>
     try {
       emit(AssessmentLoading<T>(assessment.stages?.length ?? 0, meta));
       // Update the latest stage with the new trial
+
       final response = await ApiService.create(Trial(
           startTime: event.startTime,
           duration: event.duration.inMilliseconds / 1000, //seconds
-          detections: event.detections,
+          compressedKeypoints:
+              PoseLandmarks.encodeCompressed(event.detections ?? []),
           stage: currentStage));
       final trial = response.data!;
-
       //Add the trial into the stage
       currentStage =
           currentStage.copyWith(trials: [...currentStage.trials ?? [], trial]);

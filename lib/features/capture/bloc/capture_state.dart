@@ -2,37 +2,40 @@ part of 'capture_bloc.dart';
 
 @immutable
 abstract class CaptureState extends Equatable {
-  final Duration duration;
-  final bool shouldEnd;
-  const CaptureState(this.duration, [this.shouldEnd = false]);
+  const CaptureState();
 }
 
 class CaptureDelegated extends CaptureState {
   final bool playing;
+  final String message;
+  final int countdown;
+  final int terminateTick;
   final Detection? detection;
-  const CaptureDelegated(
-      {this.playing = false,
-      this.detection,
-      Duration duration = Duration.zero,
-      bool shouldEnd = false})
-      : super(duration, shouldEnd);
+
+  const CaptureDelegated({
+    this.countdown = 0,
+    this.message = '',
+    this.playing = false,
+    this.terminateTick = 0,
+    this.detection,
+  }) : super();
 
   @override
-  List<Object?> get props => [duration, shouldEnd, playing, detection];
+  List<Object?> get props => [playing, detection, countdown, terminateTick];
 }
 
 class CaptureEnded extends CaptureState {
-  const CaptureEnded(super.duration);
+  const CaptureEnded();
 
   @override
-  List<Object?> get props => [duration];
+  List<Object?> get props => [];
 }
 
 class CaptureError extends CaptureState {
   final Exception exception;
   const CaptureError({
     required this.exception,
-  }) : super(Duration.zero);
+  }) : super();
 
   @override
   List<Object?> get props => [exception];
