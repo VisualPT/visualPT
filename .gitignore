@@ -1,6 +1,3 @@
-# Environment variable file
-.env
-
 # Miscellaneous
 *.class
 *.log
