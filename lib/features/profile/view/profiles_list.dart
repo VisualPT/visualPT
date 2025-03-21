@@ -9,7 +9,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 class ProfilesList extends StatelessWidget {
   const ProfilesList(this.onSelected, {super.key});
 
-  final Function(Profile) onSelected;
+  final Function(Profile, List<Assessment>) onSelected;
 
   @override
   Widget build(BuildContext context) {

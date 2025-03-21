@@ -35,60 +35,63 @@ class _VisualPTState extends State<VisualPT> {
   Widget build(BuildContext context) {
     return AuthView(
       CupertinoApp(
-          builder: Authenticator.builder(),
-          debugShowCheckedModeBanner: false,
-          theme: const CupertinoThemeData(
-              brightness: Brightness.light,
-              textTheme: CupertinoTextThemeData(
-                  textStyle: TextStyle(
-                      fontFamily: "Raleway",
-                      fontWeight: FontWeight.bold,
-                      color: Styles.black))),
-          home: CupertinoTabScaffold(
-              tabBar: CupertinoTabBar(items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.list_bullet),
-                  label: "Assessments",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.group),
-                  label: "Profiles",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.chart_bar),
-                  label: "Trends",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.settings),
-                  label: "Settings",
-                ),
-              ]),
-              tabBuilder: (context, index) {
-                switch (index) {
-                  case 0:
-                    return const AssessmentsView();
-                  case 1:
-                    return const ProfilesView();
-                  case 2:
-                    return const TrendsView();
-                  default:
-                    return const SettingsView();
-                }
-              }),
-          onGenerateRoute: (route) {
-            if (route.name == "/assessment") {
-              final props = route.arguments as AssessmentPathProps;
-              final config = AssessmentUtils.getConfig(props.type);
-              return CupertinoPageRoute(
-                  builder: (context) => AssessmentView(config, props.profile));
-            }
-            if (route.name == "/profile") {
-              final profile = route.arguments as Profile;
-              return CupertinoPageRoute(
-                  builder: (context) => ProfileView(profile));
-            }
-            return null;
-          }),
+        builder: Authenticator.builder(),
+        debugShowCheckedModeBanner: false,
+        theme: const CupertinoThemeData(
+            brightness: Brightness.light,
+            textTheme: CupertinoTextThemeData(
+                textStyle: TextStyle(
+                    fontFamily: "Raleway",
+                    fontWeight: FontWeight.bold,
+                    color: Styles.black))),
+        home: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(items: const [
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.list_bullet),
+                label: "Assessments",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.group),
+                label: "Profiles",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.chart_bar),
+                label: "Trends",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.settings),
+                label: "Settings",
+              ),
+            ]),
+            tabBuilder: (context, index) {
+              switch (index) {
+                case 0:
+                  return const AssessmentsView();
+                case 1:
+                  return const ProfilesView();
+                case 2:
+                  return const TrendsView();
+                default:
+                  return const SettingsView();
+              }
+            }),
+        onGenerateRoute: (route) {
+          if (route.name == "/assessment") {
+            final props = route.arguments as AssessmentPathProps;
+            final config = AssessmentUtils.getConfig(props.type);
+            return CupertinoPageRoute(
+                builder: (context) => AssessmentView(config, props.profile));
+          }
+          if (route.name == "/profile") {
+            final args = route.arguments as Map<String, dynamic>;
+            final profile = args['profile'] as Profile;
+            final assessments = args['assessments'] as List<Assessment>;
+            return CupertinoPageRoute(
+                builder: (context) => ProfileView(profile, assessments));
+          }
+          return null;
+        },
+      ),
     );
   }
 

@@ -266,7 +266,7 @@ class _ProfileFormState extends State<ProfileForm> {
           child: Column(
             children: [
               Text(e.toString()),
-              Button(onPressed: () => nav.back(), text: "Restart Assessment")
+              Button(onPressed: () => nav.back(), text: "Reset")
             ],
           ));
     }
