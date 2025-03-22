@@ -35,7 +35,7 @@ class CtsibPDF extends BasePDF {
             Spacer(),
             assessmentData(profile, assessment, norms),
             Spacer(),
-            sensoryMismatchData(assessment),
+            sensoryMismatchData(assessment, norms),
             Spacer(),
             normativeData(assessment, norms),
             Spacer(),
@@ -307,7 +307,7 @@ class CtsibPDF extends BasePDF {
     );
   }
 
-  Widget sensoryMismatchData(Assessment assessment) {
+  Widget sensoryMismatchData(Assessment assessment, List<Norm>? norms) {
     // Function to calculate severity score based on the equilibrium score
     List<int> calculateSeverityScore(List<List<double>> equilibriumScores) {
       List<int> severityScores = List.filled(equilibriumScores.length, 0);
@@ -315,13 +315,17 @@ class CtsibPDF extends BasePDF {
         final stageScores = equilibriumScores[i];
         final averageScore =
             stageScores.reduce((a, b) => a + b) / stageScores.length;
-        print('Average Score for stage $i: $averageScore');
-        if (averageScore >= 75) {
+        final normScore =
+            (norms?[i].scoreSum ?? 0) / ((norms?[i].trialSum ?? 1));
+
+        // Determine the severity score based on the average score and normative data
+        // Ref: https://github.com/VisualPT/visualPT/issues/243
+        if (averageScore >= 75 && averageScore >= normScore) {
           severityScores[i] = 3; // 75-100 range
-        } else if (averageScore >= 50) {
-          severityScores[i] = 2; // 50-74 range
-        } else if (averageScore >= 25) {
-          severityScores[i] = 1; // 25-49 range
+        } else if (averageScore >= (i < 4 ? 50 : normScore)) {
+          severityScores[i] = 2; // 50-74 range or >= normScore
+        } else if (averageScore >= (i < 4 ? 25 : 0)) {
+          severityScores[i] = 1; // 25-49 range or 0-49 range
         } else {
           severityScores[i] = 0; // 0-24 range
         }
