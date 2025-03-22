@@ -38,9 +38,10 @@ class AssessmentBloc<T extends BaseAssessment>
       AssessmentInit event, Emitter<AssessmentState> emit) async {
     try {
       emit(AssessmentLoading<T>(0, config, event.formFields));
-      storeData = bool.tryParse(event.formFields['store data']?.value) ?? true;
+      final validatedFields = fillInBlankFields(event.formFields, config);
+      storeData = bool.tryParse(validatedFields['store data']?.value) ?? true;
       assessmentStartTime = DateTime.now();
-      final extra = jsonEncode(Map.fromEntries(event.formFields.entries
+      final extra = jsonEncode(Map.fromEntries(validatedFields.entries
           .map((entry) => MapEntry(entry.key, entry.value.value.toString()))));
       assessment = Assessment(
         profile: profile,
@@ -66,8 +67,8 @@ class AssessmentBloc<T extends BaseAssessment>
       }
 
 //Set the meta based on fields and possible overrides
-      final defaultMeta = getMeta(config, profile, event, 0, 0);
-      emit(AssessmentActive<T>(defaultMeta, profile, config, event.formFields));
+      final defaultMeta = getMeta(config, profile, validatedFields, 0, 0);
+      emit(AssessmentActive<T>(defaultMeta, profile, config, validatedFields));
     } catch (e) {
       emit(AssessmentError<T>(
           Exception(
@@ -103,7 +104,7 @@ class AssessmentBloc<T extends BaseAssessment>
       final meta = getMeta(
         config,
         profile,
-        event,
+        event.formFields,
         assessment.stages?.length ?? 0,
         currentStage.trials?.length ?? 0,
       );
@@ -164,7 +165,8 @@ class AssessmentBloc<T extends BaseAssessment>
           await ApiService.create(currentStage);
         }
         emit(AssessmentActive<T>(
-            getMeta(config, profile, event, assessment.stages?.length ?? 0, 0),
+            getMeta(config, profile, event.formFields,
+                assessment.stages?.length ?? 0, 0),
             profile,
             config,
             event.formFields));

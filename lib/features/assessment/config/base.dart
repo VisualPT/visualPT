@@ -2,11 +2,11 @@ import 'dart:typed_data';
 
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter/cupertino.dart' as cupertino;
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
-import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -61,16 +61,15 @@ abstract class BaseAssessment {
 TrialMeta getMeta(
   BaseAssessment config,
   Profile profile,
-  AssessmentEvent event,
+  Map<String, FormFieldItem<dynamic>> formFields,
   int stageIndex,
   int trialIndex,
 ) {
   final trials =
-      int.tryParse(event.formFields['trial count']?.value) ?? config.trials;
+      int.tryParse(formFields['trial count']?.value) ?? config.trials;
   final trialDuration =
-      int.tryParse(event.formFields['trial duration']?.value) ??
-          config.trialDuration;
-  final store = bool.tryParse(event.formFields['store data']?.value) ?? true;
+      int.tryParse(formFields['trial duration']?.value) ?? config.trialDuration;
+  final store = bool.tryParse(formFields['store data']?.value) ?? true;
 
   return TrialMeta(
       profile.dob.toString(),
@@ -83,6 +82,35 @@ TrialMeta getMeta(
       trials,
       trialDuration,
       store);
+}
+
+defaultFormField(String name, dynamic value) {
+  return FormFieldItem(
+      form: FormBuilderField(
+        name: name,
+        builder: (s) => cupertino.Container(),
+        initialValue: value,
+      ),
+      value: value);
+}
+
+Map<String, FormFieldItem<dynamic>> fillInBlankFields(
+    Map<String, FormFieldItem> formFields, BaseAssessment config) {
+  //If trial duration, trial count or store data are not in the form fields, we need to fill them in
+  if (formFields['trial duration'] == null) {
+    formFields['trial duration'] =
+        defaultFormField("trial duration", config.trialDuration.toString());
+  }
+  if (formFields['trial count'] == null) {
+    formFields['trial count'] =
+        defaultFormField("trial count", config.trials.toString());
+  }
+  if (formFields['store data'] == null) {
+    formFields['store data'] = defaultFormField("store data", true.toString());
+  }
+  return formFields.map((key, value) {
+    return MapEntry(key, FormFieldItem(form: value.form, value: value.value));
+  });
 }
 
 abstract class BasePDF {

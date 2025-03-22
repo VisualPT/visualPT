@@ -28,6 +28,20 @@ class _AssessmentFormState<T extends BaseAssessment>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //Ensure form values are updated after the first build
+      setState(() {
+        _formKey.currentState?.save();
+        formValues = _formKey.currentState?.value
+                .map((k, v) => MapEntry(k.toLowerCase(), v.toString())) ??
+            {};
+      });
+    });
+  }
+
+  @override
   void dispose() {
     _formKey.currentState?.dispose();
     super.dispose();
