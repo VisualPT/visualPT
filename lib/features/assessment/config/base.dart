@@ -44,8 +44,8 @@ abstract class BaseAssessment {
     return Future.value();
   }
 
-  List<double> calculateScores(Assessment assessment) {
-    return List.filled(0, 0.0);
+  List<List<double>> calculateScores(Assessment assessment) {
+    return List.filled(0, List.filled(0, 0.0));
   }
 
   String getNormativeMessage(Assessment assessment, List<Norm>? norms) {

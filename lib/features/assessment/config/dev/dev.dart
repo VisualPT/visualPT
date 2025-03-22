@@ -91,8 +91,8 @@ class DEV implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
-    return [];
+  List<List<double>> calculateScores(Assessment assessment) {
+    return [[]];
   }
 
   @override

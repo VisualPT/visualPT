@@ -55,8 +55,10 @@ void updateNorms(
   final equilibriumScores = assessmentMeta.calculateScores(assessment);
   int seqNum = 0;
   for (var score in equilibriumScores) {
-    assessmentMeta.setNorm(
-        profile.dob, profile.gender, seqNum, score, assessmentMeta.trials);
+    final averageScore =
+        score.reduce((value, element) => value + element) / score.length;
+    assessmentMeta.setNorm(profile.dob, profile.gender, seqNum, averageScore,
+        assessmentMeta.trials);
     seqNum++;
   }
 }

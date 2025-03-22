@@ -50,8 +50,8 @@ class _AssessmentInstructionsState<T extends BaseAssessment>
           const Spacer(),
           Text(widget.state.meta.assessment.name, style: Styles.title),
           Text(
-              "Stage ${(widget.state.meta.stage + 1).toString()} of ${widget.state.config.stages.toString()}",
-              style: Styles.heading1),
+              "Stage ${(widget.state.meta.stage + 1).toString()} of ${widget.state.config.stages.toString()} \n Trial ${widget.state.meta.trial + 1} of ${widget.state.formFields['trial count']?.value ?? widget.state.config.trials}",
+              style: Styles.body),
           Text(
             widget.state.config.stageNames[widget.state.meta.stage],
             style: Styles.heading1,

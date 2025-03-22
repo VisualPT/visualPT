@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -138,6 +140,25 @@ class CtsibPDF extends BasePDF {
 
   Widget assessmentData(
       Profile profile, Assessment assessment, List<Norm>? norms) {
+    final scores = ctsib.calculateScores(assessment);
+
+    final trialCount = int.parse(jsonDecode(assessment.extra)['trial count']);
+    final margins = trialCount == 1
+        ? [30.0, 30.0]
+        : trialCount == 2
+            ? [26.0, 34.0]
+            : [23.0, 38.0];
+
+    final cumulativeColor = scores
+                    .expand((stage) => stage)
+                    .reduce((a, b) => a + b) /
+                (scores.expand((stage) => stage).length) >
+            (norms?.map((norm) => norm.scoreSum).reduce((a, b) => a + b) ?? 0) /
+                (norms?.map((norm) => norm.trialSum).reduce((a, b) => a + b) ??
+                    1)
+        ? PdfColors.green
+        : PdfColors.red;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -155,7 +176,9 @@ class CtsibPDF extends BasePDF {
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
                       (assessment.stages?.length ?? 0) + 1,
-                      (i) => '\n\n',
+                      (i) => i < ctsib.stages
+                          ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
+                          : 'Cumulative',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -184,13 +207,64 @@ class CtsibPDF extends BasePDF {
                 }),
               ),
               // Foreground chart for patient scores
+              ...List.generate(
+                (assessment.stages?.length ?? 0),
+                (i) {
+                  return Chart(
+                    grid: CartesianGrid(
+                      xAxis: FixedAxis.fromStrings(
+                        List.generate(
+                          (assessment.stages?.length ?? 0) + 1,
+                          (i) => '\n\n',
+                        ),
+                        textStyle: TextStyle(fontSize: 10, font: baseFont),
+                        marginStart: margins[0],
+                        marginEnd: margins[1],
+                      ),
+                      yAxis: FixedAxis(
+                        [0, 25, 50, 75, 100],
+                        format: (v) => '$v',
+                        marginStart: 1,
+                        divisions: true,
+                        divisionsColor:
+                            PdfColor.fromInt(Styles.activeOrange.toARGB32()),
+                      ),
+                    ),
+                    datasets: scores[i].asMap().entries.map((entry) {
+                      return BarDataSet(
+                        legend: '',
+                        width: scores[i].length == 1 ? 20 : 5,
+                        color: entry.value >
+                                (norms?[i].scoreSum ?? 0) /
+                                    ((norms?[i].trialSum ?? 1))
+                            ? PdfColors.green
+                            : PdfColors.red,
+                        data: [
+                          PointChartValue(
+                            (i + entry.key * 0.1).toDouble(),
+                            entry.value,
+                          )
+                        ],
+                        buildValue: (context, point) => Text(
+                            point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: 10,
+                              font: baseFont,
+                            )),
+                        valuePosition: ValuePosition.auto,
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+              // Cumulative chart
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
-                      ((assessment.stages?.length ?? 0) + 1),
-                      (i) => (assessment.stages?.length ?? 0) != i
-                          ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
+                      (assessment.stages?.length ?? 0) + 1,
+                      (i) => i < ctsib.stages
+                          ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
                           : 'Cumulative',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
@@ -201,63 +275,30 @@ class CtsibPDF extends BasePDF {
                     [0, 25, 50, 75, 100],
                     format: (v) => '$v',
                     marginStart: 1,
-                    divisions: true,
-                    divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
                   ),
                 ),
-                datasets:
-                    List.generate(((assessment.stages?.length ?? 0) + 1), (i) {
-                  if ((assessment.stages?.length ?? 0) != i) {
-                    //TODO: Add multiple trials here
-                    return BarDataSet(
-                      legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
-                      color: ctsib.calculateScores(assessment)[i] >
-                              (norms?[i].scoreSum ?? 0) /
-                                  ((norms?[i].trialSum ?? 1))
-                          ? PdfColors.green
-                          : PdfColors.red, // Patient data color
-                      width: 20,
-                      data: [
-                        PointChartValue(
-                          (i).toDouble(),
-                          ctsib.calculateScores(assessment)[i],
-                        ),
-                      ],
-                      buildValue: (context, point) => Text(
-                          //If this is flagged as a fall, write FALL
-                          point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontSize: 10,
-                            font: baseFont,
-                          )),
-                      valuePosition: ValuePosition.auto,
-                    );
-                  }
-                  return BarDataSet(
-                    legend: '#${i + 1}',
-                    color: (ctsib.calculateScores(assessment).fold<double>(0.0,
-                                    (prevScore, score) => prevScore + score) /
-                                i) >
-                            (norms?[i].scoreSum ?? 0) /
-                                ((norms?[i].trialSum ?? 1))
-                        ? PdfColors.green
-                        : PdfColors.red, // Patient data color
-                    width: 20,
+                datasets: [
+                  BarDataSet(
+                    legend: '',
+                    color: cumulativeColor,
                     data: [
                       PointChartValue(
-                        (i).toDouble(),
-                        ctsib.calculateScores(assessment).fold<double>(
-                                0.0, (prevScore, score) => prevScore + score) /
-                            i,
-                      ),
+                          (assessment.stages?.length ?? 0).toDouble(),
+                          scores
+                                  .expand((stage) => stage)
+                                  .reduce((a, b) => a + b) /
+                              (scores.expand((stage) => stage).length))
                     ],
-                    buildValue: (context, point) => Text(
-                        //If this is flagged as a fall, write FALL
-                        point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
-                        style: const TextStyle(fontSize: 10)),
+                    buildValue: (context, point) =>
+                        Text(point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: 10,
+                              font: baseFont,
+                            )),
                     valuePosition: ValuePosition.auto,
-                  );
-                }),
+                    width: 20,
+                  ),
+                ],
               ),
             ],
           ),
@@ -268,14 +309,18 @@ class CtsibPDF extends BasePDF {
 
   Widget sensoryMismatchData(Assessment assessment) {
     // Function to calculate severity score based on the equilibrium score
-    List<int> calculateSeverityScore(List<double> equilibriumScore) {
-      List<int> severityScores = List.filled(equilibriumScore.length, 0);
-      for (int i = 0; i < equilibriumScore.length; i++) {
-        if (equilibriumScore[i] >= 75) {
+    List<int> calculateSeverityScore(List<List<double>> equilibriumScores) {
+      List<int> severityScores = List.filled(equilibriumScores.length, 0);
+      for (int i = 0; i < equilibriumScores.length; i++) {
+        final stageScores = equilibriumScores[i];
+        final averageScore =
+            stageScores.reduce((a, b) => a + b) / stageScores.length;
+        print('Average Score for stage $i: $averageScore');
+        if (averageScore >= 75) {
           severityScores[i] = 3; // 75-100 range
-        } else if (equilibriumScore[i] >= 50) {
+        } else if (averageScore >= 50) {
           severityScores[i] = 2; // 50-74 range
-        } else if (equilibriumScore[i] >= 25) {
+        } else if (averageScore >= 25) {
           severityScores[i] = 1; // 25-49 range
         } else {
           severityScores[i] = 0; // 0-24 range

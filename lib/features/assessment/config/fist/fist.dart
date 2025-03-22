@@ -69,7 +69,7 @@ class FIST implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
+  List<List<double>> calculateScores(Assessment assessment) {
     // TODO: implement calculateScores
     throw UnimplementedError();
   }

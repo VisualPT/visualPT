@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -31,7 +33,7 @@ class MctsibPDF extends BasePDF {
             headerData(),
             subjectData(profile, assessment),
             Spacer(),
-            assessmentData(profile, assessment),
+            assessmentData(profile, assessment, norms),
             Spacer(),
             conditionRatioTable(assessment),
             Spacer(),
@@ -136,202 +138,173 @@ class MctsibPDF extends BasePDF {
     ]);
   }
 
-  Widget assessmentData(Profile profile, Assessment assessment) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Assessment Information", style: subHeader)),
-      Table(
-        border: TableBorder.all(color: black),
-        columnWidths: {
-          0: const IntrinsicColumnWidth(),
-          1: const IntrinsicColumnWidth(),
-          2: const IntrinsicColumnWidth(),
-        },
-        children: [
-          // Create table header
-          TableRow(
+  Widget assessmentData(
+      Profile profile, Assessment assessment, List<Norm>? norms) {
+    final scores = mctsib.calculateScores(assessment);
+
+    final trialCount = int.parse(jsonDecode(assessment.extra)['trial count']);
+    final margins = trialCount == 1
+        ? [30.0, 30.0]
+        : trialCount == 2
+            ? [26.0, 34.0]
+            : [23.0, 38.0];
+
+    final cumulativeColor = scores
+                    .expand((stage) => stage)
+                    .reduce((a, b) => a + b) /
+                (scores.expand((stage) => stage).length) >
+            (norms?.map((norm) => norm.scoreSum).reduce((a, b) => a + b) ?? 0) /
+                (norms?.map((norm) => norm.trialSum).reduce((a, b) => a + b) ??
+                    1)
+        ? PdfColors.green
+        : PdfColors.red;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(text: "Assessment Score", style: subHeader)),
+        Container(
+          padding: const EdgeInsets.only(top: 10),
+          height: 220, // Increase height for better visibility
+          child: Stack(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('#',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
+              // Background chart for norm scores (gray background)
+              Chart(
+                grid: CartesianGrid(
+                  xAxis: FixedAxis.fromStrings(
+                    List.generate(
+                      (assessment.stages?.length ?? 0) + 1,
+                      (i) => i < mctsib.stages
+                          ? '${mctsib.vision[i]} \n ${mctsib.surface[i]}'
+                          : 'Cumulative',
+                    ),
+                    textStyle: TextStyle(fontSize: 10, font: baseFont),
+                    marginStart: 30,
+                    marginEnd: 30,
+                  ),
+                  yAxis: FixedAxis(
+                    [0, 25, 50, 75, 100],
+                    format: (v) => '$v',
+                    marginStart: 1,
+                  ),
+                ),
+                datasets:
+                    List.generate(((assessment.stages?.length ?? 0) + 1), (i) {
+                  return BarDataSet(
+                    legend: '',
+                    color: PdfColors.grey, // Normative background
+                    data: [
+                      PointChartValue(
+                          (i).toDouble(),
+                          (norms?[i].scoreSum ?? 0) /
+                              ((norms?[i].trialSum ?? 1)))
+                    ],
+                    valuePosition: ValuePosition.auto,
+                    width: 30,
+                  );
+                }),
               ),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('Surface',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
+              // Foreground chart for patient scores
+              ...List.generate(
+                (assessment.stages?.length ?? 0),
+                (i) {
+                  return Chart(
+                    grid: CartesianGrid(
+                      xAxis: FixedAxis.fromStrings(
+                        List.generate(
+                          (assessment.stages?.length ?? 0) + 1,
+                          (i) => '\n\n',
+                        ),
+                        textStyle: TextStyle(fontSize: 10, font: baseFont),
+                        marginStart: margins[0],
+                        marginEnd: margins[1],
+                      ),
+                      yAxis: FixedAxis(
+                        [0, 25, 50, 75, 100],
+                        format: (v) => '$v',
+                        marginStart: 1,
+                        divisions: true,
+                        divisionsColor:
+                            PdfColor.fromInt(Styles.activeOrange.toARGB32()),
+                      ),
+                    ),
+                    datasets: scores[i].asMap().entries.map((entry) {
+                      return BarDataSet(
+                        legend: '',
+                        width: scores[i].length == 1 ? 20 : 5,
+                        color: entry.value >
+                                (norms?[i].scoreSum ?? 0) /
+                                    ((norms?[i].trialSum ?? 1))
+                            ? PdfColors.green
+                            : PdfColors.red,
+                        data: [
+                          PointChartValue(
+                            (i + entry.key * 0.1).toDouble(),
+                            entry.value,
+                          )
+                        ],
+                        buildValue: (context, point) => Text(
+                            point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: 10,
+                              font: baseFont,
+                            )),
+                        valuePosition: ValuePosition.auto,
+                      );
+                    }).toList(),
+                  );
+                },
               ),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('Vision',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('Trials',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text('Avg Lat Sway (Max)',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text('Avg Lng Sway (Max)',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text('Equilibrium Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('Result',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
+              // Cumulative chart
+              Chart(
+                grid: CartesianGrid(
+                  xAxis: FixedAxis.fromStrings(
+                    List.generate(
+                      (assessment.stages?.length ?? 0) + 1,
+                      (i) => i < mctsib.stages
+                          ? '${mctsib.vision[i]} \n ${mctsib.surface[i]}'
+                          : 'Cumulative',
+                    ),
+                    textStyle: TextStyle(fontSize: 10, font: baseFont),
+                    marginStart: 30,
+                    marginEnd: 30,
+                  ),
+                  yAxis: FixedAxis(
+                    [0, 25, 50, 75, 100],
+                    format: (v) => '$v',
+                    marginStart: 1,
+                  ),
+                ),
+                datasets: [
+                  BarDataSet(
+                    legend: '',
+                    color: cumulativeColor,
+                    data: [
+                      PointChartValue(
+                          (assessment.stages?.length ?? 0).toDouble(),
+                          scores
+                                  .expand((stage) => stage)
+                                  .reduce((a, b) => a + b) /
+                              (scores.expand((stage) => stage).length))
+                    ],
+                    buildValue: (context, point) =>
+                        Text(point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: 10,
+                              font: baseFont,
+                            )),
+                    valuePosition: ValuePosition.auto,
+                    width: 20,
+                  ),
+                ],
               ),
             ],
           ),
-          for (int i = 0; i < (assessment.stages?.length ?? 1); i++)
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text((i + 1).toString(),
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(mctsib.surface[i],
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(mctsib.vision[i],
-                      style: detail, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      assessment.stages?[i].trials?.length.toString() ?? "0",
-                      style: detail,
-                      textAlign: TextAlign.center),
-                ),
-                Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$1.toStringAsFixed(2)})°",
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                        "${CTSIB.averageSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)} (${CTSIB.maxSwayPerCondition(assessment)[i].$2.toStringAsFixed(2)})°",
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                        mctsib
-                            .calculateScores(assessment)[i]
-                            .toStringAsFixed(2),
-                        style: detail,
-                        textAlign: TextAlign.center)),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      "${AssessmentUtils.getAvgDuration(assessment.stages?[i].trials).toStringAsFixed(1)} / 30",
-                      style: detail,
-                      textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-          // Create a table row for the total duration score
-          TableRow(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('Total',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text('', textAlign: TextAlign.center),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      assessment.stages
-                              ?.fold(0,
-                                  (curr, c) => curr + (c.trials?.length ?? 0))
-                              .toString() ??
-                          '',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
-                                double,
-                                double
-                              )>((
-                                0.0,
-                                0.0
-                              ), (avg, sway) => (
-                                avg.$1 + sway.$1,
-                                avg.$2 + sway.$2
-                              )).$1 / mctsib.stages).toStringAsFixed(2)}°",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      "${(CTSIB.averageSwayPerCondition(assessment).fold<(
-                                double,
-                                double
-                              )>((
-                                0.0,
-                                0.0
-                              ), (avg, sway) => (
-                                avg.$1 + sway.$1,
-                                avg.$2 + sway.$2
-                              )).$2 / mctsib.stages).toStringAsFixed(2)}°",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center)),
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                      mctsib
-                          .calculateScores(assessment)
-                          .fold<double>(
-                              0.0, (prevScore, score) => prevScore + score)
-                          .toStringAsFixed(1),
-                      style: detail,
-                      textAlign: TextAlign.center)),
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Text(
-                    "${AssessmentUtils.getTotalAverageDuration(assessment).toStringAsFixed(1)} / ${30 * mctsib.stages} seconds",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 
   Widget conditionRatioTable(Assessment assessment) {

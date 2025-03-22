@@ -114,9 +114,11 @@ class CTSIB implements BaseAssessment {
           form: FormBuilderCupertinoSegmentedControl<int>(
             key: const Key("trial_duration"),
             name: "Trial Duration",
-            prefix: const Text("Trial Duration", style: Styles.prefixStyle),
+            prefix:
+                const Text("Trial Duration (secs)", style: Styles.prefixStyle),
             shouldExpandedField: true,
-            options: [10, 15, 20, 30]
+            initialValue: 30,
+            options: [3, 10, 15, 20, 30]
                 .map((e) => FormBuilderFieldOption(
                       value: e,
                       child: Text(
@@ -135,6 +137,7 @@ class CTSIB implements BaseAssessment {
               key: const Key("fall_history"),
               name: "Fall History",
               helper: const Text("Fall History", style: Styles.prefixStyle),
+              initialValue: FallHistory.NONE,
               shouldExpandedField: true,
               options: FallHistory.values
                   .map((e) => FormBuilderFieldOption(
@@ -238,9 +241,7 @@ class CTSIB implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
-    //Equilibrium Score is the the proportion of the actual sway to the swayLimit, multiplied by 100, summed up and divided by the number of detections per trial, then summed across all trials and divided by the number of trials
-    //If the sway detected is greater than the sway limit, the score is 0
+  List<List<double>> calculateScores(Assessment assessment) {
     final validStages = assessment.stages
             ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
             .toList() ??
@@ -248,19 +249,16 @@ class CTSIB implements BaseAssessment {
 
     try {
       final conditionScores = validStages.map((stage) {
-        final trialsCountAndScoreSum = stage.trials!.fold<(int, double)>(
-            (0, 0.0), (trialsCountAndScoreIterator, trial) {
+        return stage.trials!.map((trial) {
           final keypoints =
               PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
           if (keypoints.isEmpty) {
-            return trialsCountAndScoreIterator;
+            return 0.0;
           }
           final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
               (0, 0.0), (detectionCountAndScore, detection) {
-            //If a fall has been registered, in other words, a detection registered and the score 0
             if (detectionCountAndScore.$1 != 0 &&
                 detectionCountAndScore.$2 == 0) {
-              //The score remains 0
               return detectionCountAndScore;
             }
             final (isFall, detectionScore) = poseToCtsibData(detection);
@@ -277,18 +275,13 @@ class CTSIB implements BaseAssessment {
           final trialScore =
               detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
 
-          return (
-            trialsCountAndScoreIterator.$1 + 1,
-            trialsCountAndScoreIterator.$2 + trialScore
-          );
-        });
-        final value = trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
-        return value.isNaN ? 0.0 : value;
+          return trialScore.isNaN ? 0.0 : trialScore;
+        }).toList();
       }).toList();
       return conditionScores;
     } on Exception catch (e) {
       print(e);
-      return List.generate(validStages.length, (index) => 0.0, growable: false);
+      return List.generate(validStages.length, (_) => [0.0], growable: false);
     }
   }
 
@@ -303,7 +296,9 @@ class CTSIB implements BaseAssessment {
         0.0;
 
     // Calculate local scores for the patient
-    final localScores = calculateScores(assessment).reduce((a, b) => a + b);
+    final localScores = calculateScores(assessment)
+        .expand((stageScores) => stageScores)
+        .reduce((a, b) => a + b);
 
     // Calculate the percentage difference between patient and norm
     final percent = ((localScores - globalScores) / globalScores) * 100;

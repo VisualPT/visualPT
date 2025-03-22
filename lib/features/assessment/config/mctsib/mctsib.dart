@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/cupertino.dart';
@@ -190,8 +192,7 @@ class MCTSIB implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
-    //Equilibrium Score is the the proportion of the actual sway to the swayLimit, multiplied by 100, summed up and divided by the number of detections per trial, then summed across all trials and divided by the number of trials
+  List<List<double>> calculateScores(Assessment assessment) {
     final validStages = assessment.stages
             ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
             .toList() ??
@@ -199,52 +200,39 @@ class MCTSIB implements BaseAssessment {
 
     try {
       final conditionScores = validStages.map((stage) {
-        final trialsCountAndScoreSum = stage.trials!.fold<(int, double)>(
-            (0, 0.0), (trialsCountAndScoreIterator, trial) {
+        return stage.trials!.map((trial) {
           final keypoints =
               PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-
           if (keypoints.isEmpty) {
-            return trialsCountAndScoreIterator;
+            return 0.0;
           }
           final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
-              (0, 0.0), (detectionCountAndScoreIterator, detection) {
-            final (xSway, _) = PoseLandmarks.computeAngles(detection);
-            final latProportion = xSway / swayLimits[2];
-            //If the profile is leaning forward, the angle will be negative, so use the anterior sway limit
-            // final lonProportion =
-            //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
-            //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
-            // A new pose detection model should be trained to fix this
-            if (latProportion > 1 /* || lonProportion > 1*/) {
+              (0, 0.0), (detectionCountAndScore, detection) {
+            if (detectionCountAndScore.$1 != 0 &&
+                detectionCountAndScore.$2 == 0) {
+              return detectionCountAndScore;
+            }
+            final (isFall, detectionScore) = CTSIB.poseToCtsibData(detection);
+
+            if (isFall) {
+              return (detectionCountAndScore.$1 + 1, 0.0);
+            } else {
               return (
-                detectionCountAndScoreIterator.$1 + 1,
-                detectionCountAndScoreIterator.$2,
+                detectionCountAndScore.$1 + 1,
+                detectionCountAndScore.$2 + detectionScore
               );
             }
-            final proportionOfFailure = latProportion;
-            //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
-            final detectionScore = 100 * (1 - proportionOfFailure);
-            return (
-              detectionCountAndScoreIterator.$1 + 1,
-              detectionCountAndScoreIterator.$2 + detectionScore
-            );
           });
           final trialScore =
               detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
 
-          return (
-            trialsCountAndScoreIterator.$1 + 1,
-            trialsCountAndScoreIterator.$2 + trialScore
-          );
-        });
-        final value = trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
-        return value.isNaN ? 0.0 : value;
+          return trialScore.isNaN ? 0.0 : trialScore;
+        }).toList();
       }).toList();
       return conditionScores;
     } on Exception catch (e) {
-      print(e);
-      return List.generate(validStages.length, (index) => 0.0, growable: false);
+      log(e.toString());
+      return List.generate(validStages.length, (_) => [0.0], growable: false);
     }
   }
 
