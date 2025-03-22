@@ -36,25 +36,32 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: PDFView(
-              pdfData: state.pdfData,
-              enableSwipe: false,
-              pageFling: false,
-              onError: (error) => {
-                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                        profile: asmtState.profile,
-                        assessment: asmtState.dbAssessment))
-                  },
-              onPageError: (page, error) => {
-                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                        profile: asmtState.profile,
-                        assessment: asmtState.dbAssessment))
-                  },
-              pageSnap: false),
+            pdfData: state.pdfData,
+            enableSwipe: false,
+            pageFling: false,
+            pageSnap: false,
+            onError: (error) => {
+              BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                  profile: asmtState.profile,
+                  assessment: asmtState.dbAssessment))
+            },
+            onPageError: (page, error) => {
+              BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                  profile: asmtState.profile,
+                  assessment: asmtState.dbAssessment))
+            },
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
           child: Column(
             children: [
+              // Button(
+              //     text: "Refresh PDF",
+              //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(
+              //         PdfInit(
+              //             profile: asmtState.profile,
+              //             assessment: asmtState.dbAssessment))),
               Button(
                   onPressed: () {
                     //TODO Add an are you sure popup
@@ -78,12 +85,6 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
               //         onLayout: (onLayout) => state.pdfData)
               //   },
               // ),
-              // Button(
-              //     text: "Refresh PDF",
-              //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-              //         PdfInit(
-              //             profile: asmtState.profile,
-              //             assessment: asmtState.dbAssessment)))
             ],
           ),
         ),
