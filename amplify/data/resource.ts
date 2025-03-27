@@ -22,6 +22,7 @@ const schema = a.schema({
     "FIST",
     "DEV",
   ]),
+  CameraDirection: a.enum(["FRONT", "BACK"]),
   FallHistory: a.enum(["NONE", "FEW", "RECURRING"]),
   DetectionEnv: a.customType({
     timestamp: a.datetime().required(),
@@ -32,6 +33,7 @@ const schema = a.schema({
   Detection: a.customType({
     obtrustion: a.boolean().required(),
     instability: a.boolean().required(),
+    direction: a.ref("CameraDirection").required(),
     env: a.ref("DetectionEnv").required(),
     keypoints: a.string().required(),
     prediction: a.string(),
@@ -87,7 +89,7 @@ const schema = a.schema({
       duration: a.float().required(),
       stageId: a.id().required(),
       stage: a.belongsTo("Stage", "stageId"),
-      compressedKeypoints: a.string().required(), // a base 64 gzip of detection data
+      compressedDetections: a.string().required(), // a base 64 gzip of detection data
     })
     .secondaryIndexes((index) => [index("stageId")])
     .authorization((allow) => [allow.owner(), allow.group("admin")]),

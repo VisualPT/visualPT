@@ -31,6 +31,7 @@ import 'DetectionEnv.dart';
 export 'AgeRange.dart';
 export 'Assessment.dart';
 export 'AssessmentType.dart';
+export 'CameraDirection.dart';
 export 'Detection.dart';
 export 'DetectionEnv.dart';
 export 'FallHistory.dart';
@@ -42,7 +43,7 @@ export 'Trial.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "589e7b0716b69ac8707ce7d392a076c9";
+  String version = "f0714c1eef663ccd723b480b481def12";
   @override
   List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Norm.schema, Profile.schema, Stage.schema, Trial.schema];
   @override

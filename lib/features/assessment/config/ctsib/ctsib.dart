@@ -250,12 +250,12 @@ class CTSIB implements BaseAssessment {
     try {
       final conditionScores = validStages.map((stage) {
         return stage.trials!.map((trial) {
-          final keypoints =
-              PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-          if (keypoints.isEmpty) {
+          final detections =
+              PoseLandmarks.decodeCompressed(trial.compressedDetections);
+          if (detections.isEmpty) {
             return 0.0;
           }
-          final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
+          final detectionCountAndScoreSum = detections.fold<(int, double)>(
               (0, 0.0), (detectionCountAndScore, detection) {
             if (detectionCountAndScore.$1 != 0 &&
                 detectionCountAndScore.$2 == 0) {
@@ -351,12 +351,12 @@ class CTSIB implements BaseAssessment {
       // CalculaStagesway and count of detections
       final totalAndCount = stage.trials!.fold<(int, (double, double))>(
           (0, (0.0, 0.0)), (previousValue, trial) {
-        final keypoints =
-            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-        if (keypoints.isEmpty) {
+        final detections =
+            PoseLandmarks.decodeCompressed(trial.compressedDetections);
+        if (detections.isEmpty) {
           return previousValue;
         }
-        final trialTotalAndCount = keypoints.fold<(int, (double, double))>(
+        final trialTotalAndCount = detections.fold<(int, (double, double))>(
             (0, (0.0, 0.0)), (averageAngle, detection) {
           final angle = PoseLandmarks.computeAngles(detection);
 
@@ -396,13 +396,13 @@ class CTSIB implements BaseAssessment {
       // CalculaStagesway anstagef detections
       final maxSway = stage.trials!.fold<(double, double)>((0.0, 0.0),
           (previousValue, trial) {
-        final keypoints =
-            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-        if (keypoints.isEmpty) {
+        final detections =
+            PoseLandmarks.decodeCompressed(trial.compressedDetections);
+        if (detections.isEmpty) {
           return previousValue;
         }
-        final trialMaxSway =
-            keypoints.fold<(double, double)>((0.0, 0.0), (maxAngle, detection) {
+        final trialMaxSway = detections.fold<(double, double)>((0.0, 0.0),
+            (maxAngle, detection) {
           final (lat, lng) = PoseLandmarks.computeAngles(detection);
 
           return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
@@ -432,13 +432,13 @@ class CTSIB implements BaseAssessment {
       // Iterate over each trial
       for (int i = 0; i < stage.trials!.length; i++) {
         final trial = stage.trials![i];
-        final keypoints =
-            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
+        final detections =
+            PoseLandmarks.decodeCompressed(trial.compressedDetections);
 
-        if (keypoints.isNotEmpty) {
+        if (detections.isNotEmpty) {
           // Iterate over each detection
-          for (int j = 0; j < keypoints.length; j++) {
-            final detection = keypoints[j];
+          for (int j = 0; j < detections.length; j++) {
+            final detection = detections[j];
             final prediction = int.tryParse(detection.prediction ?? "-1");
             if (prediction != null &&
                 prediction >= 0 &&

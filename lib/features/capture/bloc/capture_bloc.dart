@@ -89,6 +89,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       final detection = Detection(
         obtrustion: meta.obtrustion,
         instability: meta.instability,
+        direction: CameraDirection.FRONT,
         env: DetectionEnv(
           timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
           accX: repo.currentAccel.x,

@@ -623,8 +623,8 @@ const amplifyConfig = r'''{
                 ]
               }
             },
-            "compressedKeypoints": {
-              "name": "compressedKeypoints",
+            "compressedDetections": {
+              "name": "compressedDetections",
               "isArray": false,
               "type": "String",
               "isRequired": true,
@@ -739,6 +739,13 @@ const amplifyConfig = r'''{
             "DEV"
           ]
         },
+        "CameraDirection": {
+          "name": "CameraDirection",
+          "values": [
+            "FRONT",
+            "BACK"
+          ]
+        },
         "FallHistory": {
           "name": "FallHistory",
           "values": [
@@ -796,6 +803,15 @@ const amplifyConfig = r'''{
               "name": "instability",
               "isArray": false,
               "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "direction": {
+              "name": "direction",
+              "isArray": false,
+              "type": {
+                "enum": "CameraDirection"
+              },
               "isRequired": true,
               "attributes": []
             },

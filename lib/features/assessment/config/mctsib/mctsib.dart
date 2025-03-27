@@ -116,12 +116,12 @@ class MCTSIB implements BaseAssessment {
       // Iterate over each trial
       for (int i = 0; i < stage.trials!.length; i++) {
         final trial = stage.trials![i];
-        final keypoints =
-            PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-        if (keypoints.isNotEmpty) {
+        final detections =
+            PoseLandmarks.decodeCompressed(trial.compressedDetections);
+        if (detections.isNotEmpty) {
           // Iterate over each detection
-          for (int j = 0; j < keypoints.length; j++) {
-            final detection = keypoints[j];
+          for (int j = 0; j < detections.length; j++) {
+            final detection = detections[j];
             final prediction = int.tryParse(detection.prediction ?? "-1");
             if (prediction != null &&
                 prediction >= 0 &&
@@ -201,12 +201,12 @@ class MCTSIB implements BaseAssessment {
     try {
       final conditionScores = validStages.map((stage) {
         return stage.trials!.map((trial) {
-          final keypoints =
-              PoseLandmarks.decodeCompressed(trial.compressedKeypoints);
-          if (keypoints.isEmpty) {
+          final detections =
+              PoseLandmarks.decodeCompressed(trial.compressedDetections);
+          if (detections.isEmpty) {
             return 0.0;
           }
-          final detectionCountAndScoreSum = keypoints.fold<(int, double)>(
+          final detectionCountAndScoreSum = detections.fold<(int, double)>(
               (0, 0.0), (detectionCountAndScore, detection) {
             if (detectionCountAndScore.$1 != 0 &&
                 detectionCountAndScore.$2 == 0) {

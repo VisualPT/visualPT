@@ -89,7 +89,7 @@ class AssessmentBloc<T extends BaseAssessment>
       var trial = Trial(
           startTime: event.startTime,
           duration: event.duration.inMilliseconds / 1000, //seconds
-          compressedKeypoints:
+          compressedDetections:
               PoseLandmarks.encodeCompressed(event.detections ?? []),
           stage: currentStage);
 

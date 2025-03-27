@@ -27,6 +27,7 @@ import 'package:amplify_core/amplify_core.dart' as amplify_core;
 class Detection {
   final bool? _obtrustion;
   final bool? _instability;
+  final CameraDirection? _direction;
   final DetectionEnv? _env;
   final String? _keypoints;
   final String? _prediction;
@@ -47,6 +48,19 @@ class Detection {
   bool get instability {
     try {
       return _instability!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  CameraDirection get direction {
+    try {
+      return _direction!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -87,12 +101,13 @@ class Detection {
     return _prediction;
   }
   
-  const Detection._internal({required obtrustion, required instability, required env, required keypoints, prediction}): _obtrustion = obtrustion, _instability = instability, _env = env, _keypoints = keypoints, _prediction = prediction;
+  const Detection._internal({required obtrustion, required instability, required direction, required env, required keypoints, prediction}): _obtrustion = obtrustion, _instability = instability, _direction = direction, _env = env, _keypoints = keypoints, _prediction = prediction;
   
-  factory Detection({required bool obtrustion, required bool instability, required DetectionEnv env, required String keypoints, String? prediction}) {
+  factory Detection({required bool obtrustion, required bool instability, required CameraDirection direction, required DetectionEnv env, required String keypoints, String? prediction}) {
     return Detection._internal(
       obtrustion: obtrustion,
       instability: instability,
+      direction: direction,
       env: env,
       keypoints: keypoints,
       prediction: prediction);
@@ -108,6 +123,7 @@ class Detection {
     return other is Detection &&
       _obtrustion == other._obtrustion &&
       _instability == other._instability &&
+      _direction == other._direction &&
       _env == other._env &&
       _keypoints == other._keypoints &&
       _prediction == other._prediction;
@@ -123,6 +139,7 @@ class Detection {
     buffer.write("Detection {");
     buffer.write("obtrustion=" + (_obtrustion != null ? _obtrustion!.toString() : "null") + ", ");
     buffer.write("instability=" + (_instability != null ? _instability!.toString() : "null") + ", ");
+    buffer.write("direction=" + (_direction != null ? amplify_core.enumToString(_direction)! : "null") + ", ");
     buffer.write("env=" + (_env != null ? _env!.toString() : "null") + ", ");
     buffer.write("keypoints=" + "$_keypoints" + ", ");
     buffer.write("prediction=" + "$_prediction");
@@ -131,10 +148,11 @@ class Detection {
     return buffer.toString();
   }
   
-  Detection copyWith({bool? obtrustion, bool? instability, DetectionEnv? env, String? keypoints, String? prediction}) {
+  Detection copyWith({bool? obtrustion, bool? instability, CameraDirection? direction, DetectionEnv? env, String? keypoints, String? prediction}) {
     return Detection._internal(
       obtrustion: obtrustion ?? this.obtrustion,
       instability: instability ?? this.instability,
+      direction: direction ?? this.direction,
       env: env ?? this.env,
       keypoints: keypoints ?? this.keypoints,
       prediction: prediction ?? this.prediction);
@@ -143,6 +161,7 @@ class Detection {
   Detection copyWithModelFieldValues({
     ModelFieldValue<bool>? obtrustion,
     ModelFieldValue<bool>? instability,
+    ModelFieldValue<CameraDirection>? direction,
     ModelFieldValue<DetectionEnv>? env,
     ModelFieldValue<String>? keypoints,
     ModelFieldValue<String?>? prediction
@@ -150,6 +169,7 @@ class Detection {
     return Detection._internal(
       obtrustion: obtrustion == null ? this.obtrustion : obtrustion.value,
       instability: instability == null ? this.instability : instability.value,
+      direction: direction == null ? this.direction : direction.value,
       env: env == null ? this.env : env.value,
       keypoints: keypoints == null ? this.keypoints : keypoints.value,
       prediction: prediction == null ? this.prediction : prediction.value
@@ -159,6 +179,7 @@ class Detection {
   Detection.fromJson(Map<String, dynamic> json)  
     : _obtrustion = json['obtrustion'],
       _instability = json['instability'],
+      _direction = amplify_core.enumFromString<CameraDirection>(json['direction'], CameraDirection.values),
       _env = json['env'] != null
           ? json['env']['serializedData'] != null
               ? DetectionEnv.fromJson(new Map<String, dynamic>.from(json['env']['serializedData']))
@@ -168,12 +189,13 @@ class Detection {
       _prediction = json['prediction'];
   
   Map<String, dynamic> toJson() => {
-    'obtrustion': _obtrustion, 'instability': _instability, 'env': _env?.toJson(), 'keypoints': _keypoints, 'prediction': _prediction
+    'obtrustion': _obtrustion, 'instability': _instability, 'direction': amplify_core.enumToString(_direction), 'env': _env?.toJson(), 'keypoints': _keypoints, 'prediction': _prediction
   };
   
   Map<String, Object?> toMap() => {
     'obtrustion': _obtrustion,
     'instability': _instability,
+    'direction': _direction,
     'env': _env,
     'keypoints': _keypoints,
     'prediction': _prediction
@@ -193,6 +215,12 @@ class Detection {
       fieldName: 'instability',
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.bool)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
+      fieldName: 'direction',
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.embedded(
