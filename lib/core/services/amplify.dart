@@ -31,6 +31,15 @@ Future<void> _configureAmplify(String amplifyconfig) async {
   }
 }
 
+Future<void> deleteUser() async {
+  try {
+    await Amplify.Auth.deleteUser();
+    safePrint('Delete user succeeded');
+  } on AuthException catch (e) {
+    safePrint('Delete user failed with error: $e');
+  }
+}
+
 Future<void> requestPermissions(void Function() onError) async {
   if (await AppTrackingTransparency.trackingAuthorizationStatus ==
       TrackingStatus.notDetermined) {

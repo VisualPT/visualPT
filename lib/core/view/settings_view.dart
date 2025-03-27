@@ -7,14 +7,20 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BaseView(
+    return BaseView(
       pageTitle: "Settings",
       child: Stack(
         children: [
           Center(
             child: Column(
               children: [
-                Padding(padding: EdgeInsets.all(8.0), child: SignOutButton()),
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Button(
+                        text: "Delete Account",
+                        onPressed: () => onDeleteAccount(context))),
+                const Padding(
+                    padding: EdgeInsets.all(8.0), child: SignOutButton()),
               ],
             ),
           ),
@@ -22,4 +28,20 @@ class SettingsView extends StatelessWidget {
       ),
     );
   }
+}
+
+onDeleteAccount(BuildContext context) {
+  //Enqueue a prompt window to confirm account deletion
+  appDialog(
+      context: context,
+      title: "Delete Account",
+      content:
+          "Are you sure you want to delete your account? This action cannot be undone.",
+      primaryAction: "Delete",
+      secondaryAction: "Cancel",
+      secondaryCallback: () => {
+            //Do not delete, pop the dialog
+            Navigator.pop(context)
+          },
+      primaryCallback: () => deleteUser());
 }
