@@ -37,7 +37,8 @@ class PdfBloc extends Bloc<PdfEvent, PdfState> {
     try {
       await document
           .configPdfStyles()
-          .then((_) => document.generatePdf(event.profile, event.assessment))
+          .then((_) => document.generatePdf(
+              event.profile, event.assessment, event.params))
           .then((pdfData) {
         emit(PdfReady(
             pdfData: pdfData,

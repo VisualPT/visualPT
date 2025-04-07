@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:amplify_flutter/amplify_flutter.dart' as amplify;
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kinestex_sdk_flutter/kinestex_sdk.dart';
 import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/capture/service/capture_repository.dart';
 import 'package:visualpt/features/capture/service/pose_landmarks.dart';
@@ -21,6 +22,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   })  : _terminateTick = ternimateTick,
         ticker = Ticker(duration: totalDuration),
         super(CaptureDelegated(countdown: countdown)) {
+    on<CaptureMessage>(_onMessage);
+    on<CaptureToggle>(_onToggle);
     on<CapturePlay>(_onPlay);
     on<CaptureLandmark>(_onLandmark);
     on<CaptureWarn>(_onWarn);
@@ -39,8 +42,37 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   late int _terminateTick;
   late amplify.TemporalDateTime start;
   bool forcePause = false;
+  CameraDirection _cameraDirection = CameraDirection.FRONT;
 
   StreamSubscription<Duration>? _tickerSubscription;
+
+  FutureOr<void> _onMessage(
+      CaptureMessage event, Emitter<CaptureState> emit) async {
+    //TODO: Handle Kinestex messages
+    if (event.message.data['type'] != "world_landmarks") {
+      print({'type': event.message.data['type'], 'data': event.message.data});
+    }
+    if (event.message is Mistake || event.message is LeftCameraFrame) {
+      add(CaptureWarn(event.message.data.toString()));
+    } else if (event.message is ReturnedCameraFrame) {
+      add(CaptureWarn(event.message.data.toString()));
+    } else if (event.message.data['type'] == 'camera_selected') {
+      final CameraDirection direction =
+          event.message.data['label'].toString().toLowerCase().contains('front')
+              ? CameraDirection.FRONT
+              : CameraDirection.BACK;
+      add(CaptureToggle(direction));
+    } else if (event.message.data['type'] == 'person_in_frame') {
+      //TODO: enable the play button to be pressed
+    } else if (event.message.data['type'] == 'world_landmarks') {
+      add(CaptureLandmark(event.message.data, event.playing));
+    }
+  }
+
+  FutureOr<void> _onToggle(
+      CaptureToggle event, Emitter<CaptureState> emit) async {
+    _cameraDirection = event.direction;
+  }
 
   FutureOr<void> _onPlay(CapturePlay event, Emitter<CaptureState> emit) async {
     //TODO: Should not be allowed to play if there is no detection
@@ -89,7 +121,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       final detection = Detection(
         obtrustion: meta.obtrustion,
         instability: meta.instability,
-        direction: CameraDirection.FRONT,
+        direction: _cameraDirection,
         env: DetectionEnv(
           timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
           accX: repo.currentAccel.x,

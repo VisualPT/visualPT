@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:form_builder_cupertino_fields/form_builder_cupertino_fields.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 
 import 'package:visualpt/models/ModelProvider.dart';
@@ -241,7 +242,8 @@ class CTSIB implements BaseAssessment {
   }
 
   @override
-  List<List<double>> calculateScores(Assessment assessment) {
+  List<List<double>> calculateScores(Assessment assessment,
+      {DetectionParams params = const DetectionParams()}) {
     final validStages = assessment.stages
             ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
             .toList() ??
@@ -261,7 +263,8 @@ class CTSIB implements BaseAssessment {
                 detectionCountAndScore.$2 == 0) {
               return detectionCountAndScore;
             }
-            final (isFall, detectionScore) = poseToCtsibData(detection);
+            final (isFall, detectionScore) =
+                poseToCtsibData(detection, params: params);
 
             if (isFall) {
               return (detectionCountAndScore.$1 + 1, 0.0);
@@ -336,125 +339,11 @@ class CTSIB implements BaseAssessment {
     return isFall;
   }
 
-  //Numbers are in m/s and start in the 6-12, then 13-19, then 20-29, 30-39... to 80+
-  // static const norms = [179.7, 180.0, 179.9, 177.7];
-  // static const ageGroups = [20, 49, 59, 69, 79];
-
-  static List<(double, double)> averageSwayPerCondition(Assessment assessment) {
-    // Filter out null stages and stages without trials
-    final validStages = assessment.stages
-            ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validStages.map((stage) {
-      // CalculaStagesway and count of detections
-      final totalAndCount = stage.trials!.fold<(int, (double, double))>(
-          (0, (0.0, 0.0)), (previousValue, trial) {
-        final detections =
-            PoseLandmarks.decodeCompressed(trial.compressedDetections);
-        if (detections.isEmpty) {
-          return previousValue;
-        }
-        final trialTotalAndCount = detections.fold<(int, (double, double))>(
-            (0, (0.0, 0.0)), (averageAngle, detection) {
-          final angle = PoseLandmarks.computeAngles(detection);
-
-          return (
-            averageAngle.$1 + 1,
-            (averageAngle.$2.$1 + angle.$1, averageAngle.$2.$2 + angle.$2)
-          );
-        });
-        return (
-          previousValue.$1 + trialTotalAndCount.$1,
-          (
-            previousValue.$2.$1 + trialTotalAndCount.$2.$1,
-            previousValue.$2.$2 + trialTotalAndCount.$2.$2
-          )
-        );
-      });
-
-      if (totalAndCount.$1 == 0) {
-        return (0.0, 0.0);
-      }
-      // Calculate and return the average sway for this stage
-      return (
-        totalAndCount.$2.$1 / totalAndCount.$1,
-        totalAndCount.$2.$2 / totalAndCount.$1
-      );
-    }).toList();
-  }
-
-  static List<(double, double)> maxSwayPerCondition(Assessment assessment) {
-    // Filter out null stages and stages without trials
-    final validStages = assessment.stages
-            ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validStages.map((stage) {
-      // CalculaStagesway anstagef detections
-      final maxSway = stage.trials!.fold<(double, double)>((0.0, 0.0),
-          (previousValue, trial) {
-        final detections =
-            PoseLandmarks.decodeCompressed(trial.compressedDetections);
-        if (detections.isEmpty) {
-          return previousValue;
-        }
-        final trialMaxSway = detections.fold<(double, double)>((0.0, 0.0),
-            (maxAngle, detection) {
-          final (lat, lng) = PoseLandmarks.computeAngles(detection);
-
-          return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
-        });
-
-        return (
-          max(previousValue.$1, trialMaxSway.$1),
-          max(previousValue.$2, trialMaxSway.$2)
-        );
-      });
-
-      return maxSway;
-    }).toList();
-  }
-
-  static List<List<int>> getPredictionTotals(Assessment assessment) {
-    // Filter out null stages and stages without trials
-    final validStages = assessment.stages
-            ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validStages.map((stage) {
-      // InitialStagesst for counting predictions
-      final totalPredictions = List<int>.filled(5, 0);
-
-      // Iterate over each trial
-      for (int i = 0; i < stage.trials!.length; i++) {
-        final trial = stage.trials![i];
-        final detections =
-            PoseLandmarks.decodeCompressed(trial.compressedDetections);
-
-        if (detections.isNotEmpty) {
-          // Iterate over each detection
-          for (int j = 0; j < detections.length; j++) {
-            final detection = detections[j];
-            final prediction = int.tryParse(detection.prediction ?? "-1");
-            if (prediction != null &&
-                prediction >= 0 &&
-                prediction < totalPredictions.length) {
-              totalPredictions[prediction]++;
-            }
-          }
-        }
-      }
-      return totalPredictions;
-    }).toList();
-  }
-
   //Returns isFall, equlibrium score
-  static (bool, double) poseToCtsibData(Detection detection) {
-    final (xSway, zSway) = PoseLandmarks.computeAngles(detection);
+  static (bool, double) poseToCtsibData(Detection detection,
+      {DetectionParams params = const DetectionParams()}) {
+    final (xSway, zSway) = PoseLandmarks.computeAngles(detection,
+        sensitivity: params.sensitivity, offset: params.offset);
     final latProportion = xSway / swayLimits[2];
     final lonProportion =
         zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
@@ -528,3 +417,119 @@ List<Norm> createNormData() {
 
   return norms;
 }
+
+
+  //  -------------- Deprecated, not used but kept here for reference --------------
+  // static List<(double, double)> averageSwayPerCondition(Assessment assessment) {
+  //   // Filter out null stages and stages without trials
+  //   final validStages = assessment.stages
+  //           ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
+  //           .toList() ??
+  //       [];
+
+  //   return validStages.map((stage) {
+  //     // CalculaStagesway and count of detections
+  //     final totalAndCount = stage.trials!.fold<(int, (double, double))>(
+  //         (0, (0.0, 0.0)), (previousValue, trial) {
+  //       final detections =
+  //           PoseLandmarks.decodeCompressed(trial.compressedDetections);
+  //       if (detections.isEmpty) {
+  //         return previousValue;
+  //       }
+  //       final trialTotalAndCount = detections.fold<(int, (double, double))>(
+  //           (0, (0.0, 0.0)), (averageAngle, detection) {
+  //         final angle = PoseLandmarks.computeAngles(detection);
+
+  //         return (
+  //           averageAngle.$1 + 1,
+  //           (averageAngle.$2.$1 + angle.$1, averageAngle.$2.$2 + angle.$2)
+  //         );
+  //       });
+  //       return (
+  //         previousValue.$1 + trialTotalAndCount.$1,
+  //         (
+  //           previousValue.$2.$1 + trialTotalAndCount.$2.$1,
+  //           previousValue.$2.$2 + trialTotalAndCount.$2.$2
+  //         )
+  //       );
+  //     });
+
+  //     if (totalAndCount.$1 == 0) {
+  //       return (0.0, 0.0);
+  //     }
+  //     // Calculate and return the average sway for this stage
+  //     return (
+  //       totalAndCount.$2.$1 / totalAndCount.$1,
+  //       totalAndCount.$2.$2 / totalAndCount.$1
+  //     );
+  //   }).toList();
+  // }
+
+  // static List<(double, double)> maxSwayPerCondition(Assessment assessment) {
+  //   // Filter out null stages and stages without trials
+  //   final validStages = assessment.stages
+  //           ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
+  //           .toList() ??
+  //       [];
+
+  //   return validStages.map((stage) {
+  //     // CalculaStagesway anstagef detections
+  //     final maxSway = stage.trials!.fold<(double, double)>((0.0, 0.0),
+  //         (previousValue, trial) {
+  //       final detections =
+  //           PoseLandmarks.decodeCompressed(trial.compressedDetections);
+  //       if (detections.isEmpty) {
+  //         return previousValue;
+  //       }
+  //       final trialMaxSway = detections.fold<(double, double)>((0.0, 0.0),
+  //           (maxAngle, detection) {
+  //         final (lat, lng) = PoseLandmarks.computeAngles(detection);
+
+  //         return (max(maxAngle.$1, lat), max(maxAngle.$2, lng));
+  //       });
+
+  //       return (
+  //         max(previousValue.$1, trialMaxSway.$1),
+  //         max(previousValue.$2, trialMaxSway.$2)
+  //       );
+  //     });
+
+  //     return maxSway;
+  //   }).toList();
+  // }
+
+  //  -------------- Deprecated, not used but kept here for reference, related to pose classificaiton model --------------
+  // static List<List<int>> getPredictionTotals(Assessment assessment) {
+  //   // Filter out null stages and stages without trials
+  //   final validStages = assessment.stages
+  //           ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
+  //           .toList() ??
+  //       [];
+
+  //   return validStages.map((stage) {
+  //     // InitialStagesst for counting predictions
+  //     final totalPredictions = List<int>.filled(5, 0);
+
+  //     // Iterate over each trial
+  //     for (int i = 0; i < stage.trials!.length; i++) {
+  //       final trial = stage.trials![i];
+  //       final detections =
+  //           PoseLandmarks.decodeCompressed(trial.compressedDetections);
+
+  //       if (detections.isNotEmpty) {
+  //         // Iterate over each detection
+  //         for (int j = 0; j < detections.length; j++) {
+  //           final detection = detections[j];
+  //           final prediction = int.tryParse(detection.prediction ?? "-1");
+  //           if (prediction != null &&
+  //               prediction >= 0 &&
+  //               prediction < totalPredictions.length) {
+  //             totalPredictions[prediction]++;
+  //           }
+  //         }
+  //       }
+  //     }
+  //     return totalPredictions;
+  //   }).toList();
+  // }
+  //  -------------- Deprecated, not used but kept here for reference --------------

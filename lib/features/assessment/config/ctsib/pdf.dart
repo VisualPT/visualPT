@@ -1,16 +1,16 @@
-import 'dart:convert';
-
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class CtsibPDF extends BasePDF {
   final ctsib = CTSIB();
   @override
-  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
 
     final norms = await ctsib.getNorms(profile.dob, profile.gender);
@@ -18,6 +18,9 @@ class CtsibPDF extends BasePDF {
     final pdf = Document(
         title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
+    final scores = ctsib.calculateScores(assessment,
+        params: DetectionParams(
+            sensitivity: params['sensitivity'], offset: params['offset']));
 
     pdf.addPage(
       Page(
@@ -33,9 +36,9 @@ class CtsibPDF extends BasePDF {
             headerData(),
             subjectData(profile, assessment),
             Spacer(),
-            assessmentData(profile, assessment, norms),
+            assessmentData(scores, norms),
             Spacer(),
-            sensoryMismatchData(assessment, norms),
+            sensoryMismatchData(scores, norms),
             Spacer(),
             normativeData(assessment, norms),
             Spacer(),
@@ -138,14 +141,11 @@ class CtsibPDF extends BasePDF {
     ]);
   }
 
-  Widget assessmentData(
-      Profile profile, Assessment assessment, List<Norm>? norms) {
-    final scores = ctsib.calculateScores(assessment);
-
-    final trialCount = int.parse(jsonDecode(assessment.extra)['trial count']);
-    final margins = trialCount == 1
+  Widget assessmentData(List<List<double>> scores, List<Norm>? norms) {
+    // Set the margins based on the number of trials
+    final margins = scores[0].length == 1
         ? [30.0, 30.0]
-        : trialCount == 2
+        : scores[0].length == 2
             ? [26.0, 34.0]
             : [23.0, 38.0];
 
@@ -175,7 +175,7 @@ class CtsibPDF extends BasePDF {
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
-                      (assessment.stages?.length ?? 0) + 1,
+                      scores.length + 1,
                       (i) => i < ctsib.stages
                           ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
                           : 'Cumulative',
@@ -190,8 +190,7 @@ class CtsibPDF extends BasePDF {
                     marginStart: 1,
                   ),
                 ),
-                datasets:
-                    List.generate(((assessment.stages?.length ?? 0) + 1), (i) {
+                datasets: List.generate((scores.length + 1), (i) {
                   return BarDataSet(
                     legend: '',
                     color: PdfColors.grey, // Normative background
@@ -208,13 +207,13 @@ class CtsibPDF extends BasePDF {
               ),
               // Foreground chart for patient scores
               ...List.generate(
-                (assessment.stages?.length ?? 0),
+                (scores.length ?? 0),
                 (i) {
                   return Chart(
                     grid: CartesianGrid(
                       xAxis: FixedAxis.fromStrings(
                         List.generate(
-                          (assessment.stages?.length ?? 0) + 1,
+                          scores.length + 1,
                           (i) => '\n\n',
                         ),
                         textStyle: TextStyle(fontSize: 10, font: baseFont),
@@ -262,7 +261,7 @@ class CtsibPDF extends BasePDF {
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
-                      (assessment.stages?.length ?? 0) + 1,
+                      scores.length + 1,
                       (i) => i < ctsib.stages
                           ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
                           : 'Cumulative',
@@ -283,7 +282,7 @@ class CtsibPDF extends BasePDF {
                     color: cumulativeColor,
                     data: [
                       PointChartValue(
-                          (assessment.stages?.length ?? 0).toDouble(),
+                          scores.length.toDouble(),
                           scores
                                   .expand((stage) => stage)
                                   .reduce((a, b) => a + b) /
@@ -307,7 +306,7 @@ class CtsibPDF extends BasePDF {
     );
   }
 
-  Widget sensoryMismatchData(Assessment assessment, List<Norm>? norms) {
+  Widget sensoryMismatchData(List<List<double>> scores, List<Norm>? norms) {
     // Function to calculate severity score based on the equilibrium score
     List<int> calculateSeverityScore(List<List<double>> equilibriumScores) {
       List<int> severityScores = List.filled(equilibriumScores.length, 0);
@@ -479,7 +478,6 @@ class CtsibPDF extends BasePDF {
       );
     }
 
-    final scores = ctsib.calculateScores(assessment);
     final severityScores = calculateSeverityScore(scores);
     final compositeScore =
         severityScores.fold<int>(0, (prev, cur) => prev + cur);

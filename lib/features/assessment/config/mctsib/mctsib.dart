@@ -102,39 +102,6 @@ class MCTSIB implements BaseAssessment {
     return norms[index];
   }
 
-  static List<List<int>> getPredictionTotals(Assessment assessment) {
-    // Filter out null stages and stages without trials
-    final validStages = assessment.stages
-            ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validStages.map((stage) {
-      // Initialize the list for counting predictions
-      final totalPredictions = List<int>.filled(5, 0);
-
-      // Iterate over each trial
-      for (int i = 0; i < stage.trials!.length; i++) {
-        final trial = stage.trials![i];
-        final detections =
-            PoseLandmarks.decodeCompressed(trial.compressedDetections);
-        if (detections.isNotEmpty) {
-          // Iterate over each detection
-          for (int j = 0; j < detections.length; j++) {
-            final detection = detections[j];
-            final prediction = int.tryParse(detection.prediction ?? "-1");
-            if (prediction != null &&
-                prediction >= 0 &&
-                prediction < totalPredictions.length) {
-              totalPredictions[prediction]++;
-            }
-          }
-        }
-      }
-      return totalPredictions;
-    }).toList();
-  }
-
   @override
   Future<List<Norm>?> getNorms(TemporalDate dob, Gender gender) async {
     try {

@@ -7,7 +7,8 @@ import 'package:visualpt/models/ModelProvider.dart';
 class BergPDF extends BasePDF {
   final berg = BERG();
   @override
-  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
 
     final pdf = Document(

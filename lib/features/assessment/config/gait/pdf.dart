@@ -8,7 +8,8 @@ import 'package:visualpt/models/ModelProvider.dart';
 
 class GaitPDF extends BasePDF {
   @override
-  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
     final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 

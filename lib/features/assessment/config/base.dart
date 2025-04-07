@@ -186,7 +186,8 @@ abstract class BasePDF {
     return;
   }
 
-  Future<Uint8List> generatePdf(Profile profile, Assessment assessment);
+  Future<Uint8List> generatePdf(
+      Profile profile, Assessment assessment, Map<String, dynamic> params);
 }
 
 class FormFieldItem<T> {

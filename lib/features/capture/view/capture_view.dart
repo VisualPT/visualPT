@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kinestex_sdk_flutter/kinestex_sdk.dart';
@@ -33,28 +36,14 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
 
     void onPlay() => capture.add(CapturePlay());
     void onPause() => capture.add(CapturePause());
-
-    void handleWebViewMessage(WebViewMessage message) {
-      //TODO: Handle Kinestex messages
-      //if (message is KinestexLaunched) {
-      // capture.add(CaptureLaunched(message.data));
-      // } else if (message is ExitKinestex || message is ExerciseCompleted) {
-      //   capture.add(CaptureComplete(message.data));
-      if (message is Mistake || message is LeftCameraFrame) {
-        capture.add(CaptureWarn(message.data.toString()));
-      } else if (message is ReturnedCameraFrame) {
-        capture.add(CaptureWarn(message.data.toString()));
-      } else if (message.data['type'] == 'person_in_frame') {
-        //TODO: enable the play button to be pressed
-      } else if (message.data['type'] == 'world_landmarks') {
-        capture.add(CaptureLandmark(message.data, state.playing));
-      }
-    }
+    void onMessageReceived(WebViewMessage message) =>
+        capture.add(CaptureMessage(message, state.playing));
 
     if (state.playing &&
         state.countdown == 0 &&
         asmt.config.isComplete(state.detection)) {
       //Think about this a little more. What do we want this language to be? How do we design this to work with the Kinestex SDK and the BaseAssessment class
+      //TODO: Can use the pose classification model within the isComplete function to check WHICH pose was detected and then return a different warning message for each pose
       capture.add(CaptureWarn("Fall Detected", decay: 5));
     }
 
@@ -85,6 +74,19 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
                 ),
                 PoseLandmarksIndicator(state.detection,
                     message: !state.playing ? "Start the trial" : null),
+                kDebugMode
+                    ? CaptureIndicator(
+                        icon: CupertinoIcons.device_phone_portrait,
+                        type: "Device",
+                        child: Text(
+                            //display the pitch and yaw angles using capture.repo.currentAccel
+                            '${(atan2(-capture.repo.currentAccel.x, sqrt(capture.repo.currentAccel.y * capture.repo.currentAccel.y + capture.repo.currentAccel.z * capture.repo.currentAccel.z)) * (180 / pi)).toInt()}° / ${(capture.repo.currentAccel.y != 0) ? (atan(capture.repo.currentAccel.z / capture.repo.currentAccel.y) * (180 / pi)).toInt() : 0}°',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              fontFamily: 'monospace',
+                            )))
+                    : Container(),
               ],
             ),
           ),
@@ -109,7 +111,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
                         "landmarkColor": Styles.skyBlueString,
                         "shouldShowCameraSelector": true,
                       },
-                      onMessageReceived: handleWebViewMessage,
+                      onMessageReceived: onMessageReceived,
                     )
                   : const Center(
                       child:

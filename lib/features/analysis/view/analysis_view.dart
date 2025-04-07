@@ -11,26 +11,46 @@ import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
-class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
+class AnalysisView<T extends BaseAssessment> extends StatefulWidget {
   final AssessmentAnalysis<T> asmtState;
 
   const AnalysisView(this.asmtState, {super.key});
 
   @override
+  State<AnalysisView<T>> createState() => _AnalysisViewState<T>();
+}
+
+class _AnalysisViewState<T extends BaseAssessment>
+    extends State<AnalysisView<T>> {
+  double xySensitivity = 1;
+  double yzSensitivity = 1;
+  double xyOffset = 0;
+  double yzOffset = 0;
+
+  getParams() {
+    return {
+      'sensitivity': (xySensitivity, yzSensitivity),
+      'offset': (xyOffset, yzOffset),
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.config.type.name} Report",
+        pageTitle: "${widget.asmtState.config.type.name} Report",
         poppable: false,
         child: AnalysisPresenter(
           onCreate: PdfInit(
-              profile: asmtState.profile, assessment: asmtState.dbAssessment),
-          onReady: pdfReady,
-          onLoading: pdfLoading,
-          onError: pdfError,
+              profile: widget.asmtState.profile,
+              assessment: widget.asmtState.dbAssessment,
+              params: getParams()),
+          onReady: onReady,
+          onLoading: onLoading,
+          onError: onError,
         ));
   }
 
-  Widget pdfReady(BuildContext context, PdfReady state) {
+  Widget onReady(BuildContext context, PdfReady state) {
     return SingleChildScrollView(
       child: Column(children: [
         AspectRatio(
@@ -42,39 +62,113 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
             pageSnap: false,
             onError: (error) => {
               BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                  profile: asmtState.profile,
-                  assessment: asmtState.dbAssessment))
+                  profile: widget.asmtState.profile,
+                  assessment: widget.asmtState.dbAssessment,
+                  params: getParams()))
             },
             onPageError: (page, error) => {
               BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                  profile: asmtState.profile,
-                  assessment: asmtState.dbAssessment))
+                  profile: widget.asmtState.profile,
+                  assessment: widget.asmtState.dbAssessment,
+                  params: getParams()))
             },
           ),
         ),
+        const Text("Depth Tuning", style: Styles.heading1),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Sensitivity:  ", style: Styles.body),
+                  CupertinoSlider(
+                    value: yzSensitivity,
+                    min: 0.0,
+                    max: 1.0,
+                    divisions: 20,
+                    onChanged: (value) {
+                      setState(() => yzSensitivity = value);
+                    },
+                    onChangeEnd: (value) {
+                      BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                          profile: widget.asmtState.profile,
+                          assessment: widget.asmtState.dbAssessment,
+                          params: getParams()));
+                    },
+                  ),
+                  SizedBox(
+                    width: 80,
+                    child: Text(yzSensitivity.toStringAsPrecision(2),
+                        style: Styles.timerTextStyle,
+                        textAlign: TextAlign.right),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Offset:  ", style: Styles.body),
+                  CupertinoSlider(
+                    value: yzOffset,
+                    min: -5.0,
+                    max: 5.0,
+                    divisions: 20,
+                    onChanged: (value) {
+                      setState(() => yzOffset = value);
+                    },
+                    onChangeEnd: (value) {
+                      BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                          profile: widget.asmtState.profile,
+                          assessment: widget.asmtState.dbAssessment,
+                          params: getParams()));
+                    },
+                  ),
+                  SizedBox(
+                    width: 90,
+                    child: Text('${yzOffset.toStringAsPrecision(2)}°',
+                        style: Styles.timerTextStyle,
+                        textAlign: TextAlign.right),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // PoseChartAnalysis(
+        //     detections: (widget.asmtState.dbAssessment.stages ?? [])
+        //         .expand((stage) => stage.trials ?? [])
+        //         .cast<Trial>()
+        //         .map((trial) =>
+        //             PoseLandmarks.decodeCompressed(trial.compressedDetections))
+        //         .expand((keypoints) => keypoints)
+        //         .toList()),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
           child: Column(
             children: [
-              // Button(
-              //     text: "Refresh PDF",
-              //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-              //         PdfInit(
-              //             profile: asmtState.profile,
-              //             assessment: asmtState.dbAssessment))),
+              Button(
+                text: "Refresh PDF",
+                onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                    profile: widget.asmtState.profile,
+                    assessment: widget.asmtState.dbAssessment,
+                    params: getParams())),
+              ),
               Button(
                   onPressed: () {
                     //TODO Add an are you sure popup
                     BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentInit(asmtState.formFields));
+                        .add(AssessmentInit(widget.asmtState.formFields));
                   },
                   text: "Redo"),
               EmailPresenter(
-                  bool.tryParse(asmtState.formFields['store data']?.value) ??
+                  bool.tryParse(
+                          widget.asmtState.formFields['store data']?.value) ??
                       true,
-                  asmtState.config,
-                  asmtState.profile,
-                  asmtState.dbAssessment,
+                  widget.asmtState.config,
+                  widget.asmtState.profile,
+                  widget.asmtState.dbAssessment,
                   state.pdfData),
               Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
               // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
@@ -92,13 +186,13 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
     );
   }
 
-  Widget pdfLoading(BuildContext _, PdfState __) {
+  Widget onLoading(BuildContext _, PdfState __) {
     return const AppLoading(
       message: "Generating PDF report...",
     );
   }
 
-  Widget pdfError(BuildContext context, PdfState _, Exception e) {
+  Widget onError(BuildContext context, PdfState _, Exception e) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Padding(
@@ -111,11 +205,10 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
       ),
       Button(
           text: "Retry",
-          onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-                PdfInit(
-                    profile: asmtState.profile,
-                    assessment: asmtState.dbAssessment),
-              ))
+          onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
+              profile: widget.asmtState.profile,
+              assessment: widget.asmtState.dbAssessment,
+              params: getParams())))
     ]));
   }
 }

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:visualpt/models/CameraDirection.dart';
 import 'package:visualpt/models/Detection.dart';
 
 // ignore: must_be_immutable
@@ -21,13 +22,15 @@ class PoseLandmarks extends Equatable {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, // Face landmarks
     13, 14, // Elbows
     15, 16, 17, 18, 19, 20, 21, 22, // Hands
+    29, 30, 31, 32 //Feet
   ];
 
   static List<int> excludeForYZ = [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, // Face landmarks
     13, 14, // Elbows
     15, 16, 17, 18, 19, 20, 21, 22, // Hands
-    27, 28, 29, 30, 31, 32 // Feet
+    27, 28, // Ankles
+    29, 30, 31, 32 // Feet
   ];
 
   List<(double, double, double, double)> parseLandmarks(
@@ -91,7 +94,12 @@ class PoseLandmarks extends Equatable {
     return encode();
   }
 
-  static (double, double) computeAngles(Detection detection) {
+  static (double, double) computeAngles(
+    Detection detection, {
+    (double, double) sensitivity = (1.0, 1.0),
+    (double, double) offset = (0.0, 0.0),
+    bool accountForDeviceAngle = true,
+  }) {
     // Decode keypoints from the stored string format
     final decodedKeypoints = PoseLandmarks.decode(detection.keypoints);
     final points = decodedKeypoints; // List of (x, y, z, visibility)
@@ -124,12 +132,30 @@ class PoseLandmarks extends Equatable {
     double degreesXY = _computeSlopeDegreesLstsq(filteredPointsXY, 1, 2);
     double degreesYZ = _computeSlopeDegreesLstsq(filteredPointsYZ, 2, 3);
 
-    // Apply pitch adjustment using accelerometer data
-    final pitch = (atan2(-accelData.x,
-                sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
-            (180 / pi))
-        .abs();
-    degreesXY = (degreesXY - pitch).abs();
+    // Account for the camera direction
+    if (detection.direction == CameraDirection.BACK) {
+      degreesYZ = -degreesYZ;
+    } else if (detection.direction == CameraDirection.FRONT) {
+      degreesXY = -degreesXY;
+    }
+
+    // Apply pitch and yaw adjustments using accelerometer data if required
+    if (accountForDeviceAngle) {
+      final pitch = (atan2(-accelData.x,
+              sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
+          (180 / pi));
+
+      final yaw = (accelData.y != 0)
+          ? (atan(accelData.z / accelData.y) * (180 / pi))
+          : 0;
+
+      degreesXY -= pitch;
+      degreesYZ -= yaw;
+    }
+
+    // Always apply sensitivity and offset
+    degreesXY = (degreesXY + offset.$1) * sensitivity.$1;
+    degreesYZ = (degreesYZ + offset.$2) * sensitivity.$2;
 
     return (degreesXY, degreesYZ);
   }

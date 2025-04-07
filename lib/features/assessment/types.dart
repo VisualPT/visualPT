@@ -45,3 +45,11 @@ class TrialMeta {
     );
   }
 }
+
+class DetectionParams {
+  final (double, double) sensitivity;
+  final (double, double) offset;
+
+  const DetectionParams(
+      {this.sensitivity = (1.0, 1.0), this.offset = (0.0, 0.0)});
+}

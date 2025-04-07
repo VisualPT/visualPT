@@ -10,7 +10,8 @@ import 'package:visualpt/models/ModelProvider.dart';
 class MctsibPDF extends BasePDF {
   final mctsib = MCTSIB();
   @override
-  Future<Uint8List> generatePdf(Profile profile, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
 
     final norms = await mctsib.getNorms(profile.dob, profile.gender);

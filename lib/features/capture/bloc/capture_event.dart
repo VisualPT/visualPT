@@ -10,12 +10,32 @@ abstract class CaptureEvent extends Equatable {
   List<Object?> get props => [id];
 }
 
+class CaptureMessage extends CaptureEvent {
+  //Message from the Kinestex SDK
+  CaptureMessage(this.message, this.playing)
+      : super(DateTime.now().microsecondsSinceEpoch);
+  final WebViewMessage message;
+  final bool playing;
+
+  @override
+  List<Object?> get props => [message, playing];
+}
+
 class CapturePlay extends CaptureEvent {
   //Starts streaming the Capture data into the view and repo
   CapturePlay() : super(DateTime.now().microsecondsSinceEpoch);
 
   @override
   List<Object?> get props => [];
+}
+
+class CaptureToggle extends CaptureEvent {
+  //Toggles the camera direction
+  CaptureToggle(this.direction) : super(DateTime.now().microsecondsSinceEpoch);
+  final CameraDirection direction;
+
+  @override
+  List<Object?> get props => [direction];
 }
 
 class CaptureLandmark extends CaptureEvent {

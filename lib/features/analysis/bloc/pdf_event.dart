@@ -10,8 +10,12 @@ abstract class PdfEvent extends Equatable {
 class PdfInit extends PdfEvent {
   final Profile profile;
   final Assessment assessment;
-
-  const PdfInit({required this.profile, required this.assessment});
+  final Map<String, dynamic> params;
+  const PdfInit({
+    required this.profile,
+    required this.assessment,
+    required this.params,
+  });
 
   @override
   List<Object> get props => [profile, assessment];
