@@ -342,8 +342,8 @@ class CTSIB implements BaseAssessment {
   //Returns isFall, equlibrium score
   static (bool, double) poseToCtsibData(Detection detection,
       {DetectionParams params = const DetectionParams()}) {
-    final (xSway, zSway) = PoseLandmarks.computeAngles(detection,
-        sensitivity: params.sensitivity, offset: params.offset);
+    final (xSway, zSway) =
+        PoseLandmarks.computeAngles(detection, params: params);
     final latProportion = xSway / swayLimits[2];
     final lonProportion =
         zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];

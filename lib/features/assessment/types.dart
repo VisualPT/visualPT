@@ -49,7 +49,10 @@ class TrialMeta {
 class DetectionParams {
   final (double, double) sensitivity;
   final (double, double) offset;
+  final bool deviceCorrection;
 
   const DetectionParams(
-      {this.sensitivity = (1.0, 1.0), this.offset = (0.0, 0.0)});
+      {this.sensitivity = (1.0, 1.0),
+      this.offset = (0.0, 0.0),
+      this.deviceCorrection = true});
 }

@@ -20,7 +20,9 @@ class CtsibPDF extends BasePDF {
         creator: "VisualPT Systems");
     final scores = ctsib.calculateScores(assessment,
         params: DetectionParams(
-            sensitivity: params['sensitivity'], offset: params['offset']));
+            sensitivity: params['sensitivity'],
+            offset: params['offset'],
+            deviceCorrection: params['deviceCorrection']));
 
     pdf.addPage(
       Page(

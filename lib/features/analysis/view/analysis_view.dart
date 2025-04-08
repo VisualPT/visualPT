@@ -26,6 +26,7 @@ class _AnalysisViewState<T extends BaseAssessment>
   double yzSensitivity = 1;
   double xyOffset = 0;
   double yzOffset = 0;
+  bool deviceCorrection = true;
 
   getParams() {
     return {
@@ -131,6 +132,17 @@ class _AnalysisViewState<T extends BaseAssessment>
                         style: Styles.timerTextStyle,
                         textAlign: TextAlign.right),
                   ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Device Correction:  ", style: Styles.body),
+                  CupertinoSwitch(
+                      value: deviceCorrection,
+                      onChanged: (value) {
+                        setState(() => deviceCorrection = value);
+                      }),
                 ],
               ),
             ],
