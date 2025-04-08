@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/CameraDirection.dart';
 import 'package:visualpt/models/Detection.dart';
 
@@ -96,9 +97,7 @@ class PoseLandmarks extends Equatable {
 
   static (double, double) computeAngles(
     Detection detection, {
-    (double, double) sensitivity = (1.0, 1.0),
-    (double, double) offset = (0.0, 0.0),
-    bool accountForDeviceAngle = true,
+    DetectionParams params = const DetectionParams(),
   }) {
     // Decode keypoints from the stored string format
     final decodedKeypoints = PoseLandmarks.decode(detection.keypoints);
@@ -140,7 +139,7 @@ class PoseLandmarks extends Equatable {
     }
 
     // Apply pitch and yaw adjustments using accelerometer data if required
-    if (accountForDeviceAngle) {
+    if (params.deviceCorrection) {
       final pitch = (atan2(-accelData.x,
               sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
           (180 / pi));
@@ -154,8 +153,8 @@ class PoseLandmarks extends Equatable {
     }
 
     // Always apply sensitivity and offset
-    degreesXY = (degreesXY + offset.$1) * sensitivity.$1;
-    degreesYZ = (degreesYZ + offset.$2) * sensitivity.$2;
+    degreesXY = (degreesXY + params.offset.$1) * params.sensitivity.$1;
+    degreesYZ = (degreesYZ + params.offset.$2) * params.sensitivity.$2;
 
     return (degreesXY, degreesYZ);
   }
