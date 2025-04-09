@@ -23,10 +23,12 @@ class _ProfileCardState extends State<ProfileCard> {
     assessments =
         await ProfileService.queryAssessmentsByProfileId(widget.profile.id);
     assessments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    setState(() {
-      latestAssessment = assessments.isNotEmpty ? assessments.last : null;
-      loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        latestAssessment = assessments.isNotEmpty ? assessments.last : null;
+        loading = false;
+      });
+    }
   }
 
   @override
