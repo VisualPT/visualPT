@@ -139,18 +139,18 @@ class PoseLandmarks extends Equatable {
     }
 
     // Apply pitch and yaw adjustments using accelerometer data if required
-    if (params.deviceCorrection) {
-      final pitch = (atan2(-accelData.x,
-              sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
-          (180 / pi));
+    // if (params.deviceCorrection) {
+    //   final pitch = (atan2(-accelData.x,
+    //           sqrt(accelData.y * accelData.y + accelData.z * accelData.z)) *
+    //       (180 / pi));
 
-      final yaw = (accelData.y != 0)
-          ? (atan(accelData.z / accelData.y) * (180 / pi))
-          : 0;
+    //   final yaw = (accelData.y != 0)
+    //       ? (atan(accelData.z / accelData.y) * (180 / pi))
+    //       : 0;
 
-      degreesXY -= pitch;
-      degreesYZ -= yaw;
-    }
+    //   degreesXY -= pitch;
+    //   degreesYZ -= yaw;
+    // }
 
     // Always apply sensitivity and offset
     degreesXY = (degreesXY + params.offset.$1) * params.sensitivity.$1;
