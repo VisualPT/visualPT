@@ -114,9 +114,9 @@ class _AnalysisViewState<T extends BaseAssessment>
                   const Text("Offset:  ", style: Styles.body),
                   CupertinoSlider(
                     value: yzOffset,
-                    min: -5.0,
-                    max: 5.0,
-                    divisions: 20,
+                    min: -10.0,
+                    max: 10.0,
+                    divisions: 40,
                     onChanged: (value) {
                       setState(() => yzOffset = value);
                     },
