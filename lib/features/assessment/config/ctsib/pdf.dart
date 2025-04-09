@@ -18,11 +18,14 @@ class CtsibPDF extends BasePDF {
     final pdf = Document(
         title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
-    final scores = ctsib.calculateScores(assessment,
-        params: DetectionParams(
-            sensitivity: params['sensitivity'],
-            offset: params['offset'],
-            deviceCorrection: params['deviceCorrection']));
+
+    final detectionParams = DetectionParams(
+      sensitivity: params.putIfAbsent('sensitivity', () => (1.0, 1.0)),
+      offset: params.putIfAbsent('offset', () => (0.0, 0.0)),
+      deviceCorrection: params.putIfAbsent('deviceCorrection', () => true),
+    );
+
+    final scores = ctsib.calculateScores(assessment, params: detectionParams);
 
     pdf.addPage(
       Page(

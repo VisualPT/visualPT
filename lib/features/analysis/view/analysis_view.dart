@@ -32,6 +32,7 @@ class _AnalysisViewState<T extends BaseAssessment>
     return {
       'sensitivity': (xySensitivity, yzSensitivity),
       'offset': (xyOffset, yzOffset),
+      'deviceCorrection': deviceCorrection,
     };
   }
 
@@ -210,7 +211,7 @@ class _AnalysisViewState<T extends BaseAssessment>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Text(
-          "PDF Generation Error\n ${e.toString()}",
+          "Analysis Error\n ${e.toString()}",
           style: Styles.error,
           textAlign: TextAlign.center,
         ),
