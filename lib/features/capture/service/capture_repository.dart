@@ -16,19 +16,17 @@ class CaptureRepository extends Repository<Detection> {
   }
 
   @override
-  Future<void> initialize() async {
-    isInitialized = true;
-  }
-
-  @override
   Future<void> store(
       int id, Detection output, Map<String, dynamic>? params) async {
-    if (!isInitialized) {
-      throw Exception("store: Detection Inference Service not initialized");
-    }
+    throw Exception("store: Detection Inference Service not initialized");
 
     //FIXME: Store this in Amplify and pull the video from KinteseX to S3
   }
+
+  // Future<void> log() {
+  //   //Get all of the detections, and save them locally in repo.json
+  //   // this.localStorage.entries.
+  // }
 
   @override
   void dispose() {

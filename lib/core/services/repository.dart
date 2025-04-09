@@ -2,7 +2,6 @@ import 'dart:async';
 
 abstract class Repository<O> {
   final StreamController<O> _streamController;
-  var isInitialized = false;
   var count = 0;
   var localStorage = <int, O>{};
 
@@ -19,7 +18,6 @@ abstract class Repository<O> {
     }
   }
 
-  Future<void> initialize();
   Future<void> store(int id, O output, Map<String, dynamic>? params);
 
   void dispose() {
