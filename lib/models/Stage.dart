@@ -82,23 +82,43 @@ class Stage extends amplify_core.Model {
     return _trials;
   }
   
-  amplify_core.TemporalDateTime? get createdAt {
-    return _createdAt;
+  amplify_core.TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  amplify_core.TemporalDateTime? get updatedAt {
-    return _updatedAt;
+  amplify_core.TemporalDateTime get updatedAt {
+    try {
+      return _updatedAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  const Stage._internal({required this.id, required stageNumber, required duration, assessment, trials, createdAt, updatedAt}): _stageNumber = stageNumber, _duration = duration, _assessment = assessment, _trials = trials, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Stage._internal({required this.id, required stageNumber, required duration, assessment, trials, required createdAt, required updatedAt}): _stageNumber = stageNumber, _duration = duration, _assessment = assessment, _trials = trials, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Stage({String? id, required int stageNumber, required double duration, Assessment? assessment, List<Trial>? trials}) {
+  factory Stage({String? id, required int stageNumber, required double duration, Assessment? assessment, List<Trial>? trials, required amplify_core.TemporalDateTime createdAt, required amplify_core.TemporalDateTime updatedAt}) {
     return Stage._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       stageNumber: stageNumber,
       duration: duration,
       assessment: assessment,
-      trials: trials != null ? List<Trial>.unmodifiable(trials) : trials);
+      trials: trials != null ? List<Trial>.unmodifiable(trials) : trials,
+      createdAt: createdAt,
+      updatedAt: updatedAt);
   }
   
   bool equals(Object other) {
@@ -113,7 +133,9 @@ class Stage extends amplify_core.Model {
       _stageNumber == other._stageNumber &&
       _duration == other._duration &&
       _assessment == other._assessment &&
-      DeepCollectionEquality().equals(_trials, other._trials);
+      DeepCollectionEquality().equals(_trials, other._trials) &&
+      _createdAt == other._createdAt &&
+      _updatedAt == other._updatedAt;
   }
   
   @override
@@ -135,27 +157,33 @@ class Stage extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Stage copyWith({int? stageNumber, double? duration, Assessment? assessment, List<Trial>? trials}) {
+  Stage copyWith({int? stageNumber, double? duration, Assessment? assessment, List<Trial>? trials, amplify_core.TemporalDateTime? createdAt, amplify_core.TemporalDateTime? updatedAt}) {
     return Stage._internal(
       id: id,
       stageNumber: stageNumber ?? this.stageNumber,
       duration: duration ?? this.duration,
       assessment: assessment ?? this.assessment,
-      trials: trials ?? this.trials);
+      trials: trials ?? this.trials,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt);
   }
   
   Stage copyWithModelFieldValues({
     ModelFieldValue<int>? stageNumber,
     ModelFieldValue<double>? duration,
     ModelFieldValue<Assessment?>? assessment,
-    ModelFieldValue<List<Trial>?>? trials
+    ModelFieldValue<List<Trial>?>? trials,
+    ModelFieldValue<amplify_core.TemporalDateTime>? createdAt,
+    ModelFieldValue<amplify_core.TemporalDateTime>? updatedAt
   }) {
     return Stage._internal(
       id: id,
       stageNumber: stageNumber == null ? this.stageNumber : stageNumber.value,
       duration: duration == null ? this.duration : duration.value,
       assessment: assessment == null ? this.assessment : assessment.value,
-      trials: trials == null ? this.trials : trials.value
+      trials: trials == null ? this.trials : trials.value,
+      createdAt: createdAt == null ? this.createdAt : createdAt.value,
+      updatedAt: updatedAt == null ? this.updatedAt : updatedAt.value
     );
   }
   
@@ -208,6 +236,8 @@ class Stage extends amplify_core.Model {
   static final TRIALS = amplify_core.QueryField(
     fieldName: "trials",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Trial'));
+  static final CREATEDAT = amplify_core.QueryField(fieldName: "createdAt");
+  static final UPDATEDAT = amplify_core.QueryField(fieldName: "updatedAt");
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Stage";
     modelSchemaDefinition.pluralName = "Stages";
@@ -269,17 +299,15 @@ class Stage extends amplify_core.Model {
       associatedKey: Trial.STAGE
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Stage.CREATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'updatedAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Stage.UPDATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });

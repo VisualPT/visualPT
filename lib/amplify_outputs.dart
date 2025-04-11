@@ -103,17 +103,15 @@ const amplifyConfig = r'''{
               "name": "createdAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             },
             "updatedAt": {
               "name": "updatedAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             }
           },
           "syncable": true,
@@ -200,6 +198,20 @@ const amplifyConfig = r'''{
               "isRequired": true,
               "attributes": []
             },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
             "assessments": {
               "name": "assessments",
               "isArray": true,
@@ -215,22 +227,6 @@ const amplifyConfig = r'''{
                   "profileId"
                 ]
               }
-            },
-            "createdAt": {
-              "name": "createdAt",
-              "isArray": false,
-              "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
-            },
-            "updatedAt": {
-              "name": "updatedAt",
-              "isArray": false,
-              "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
             }
           },
           "syncable": true,
@@ -337,6 +333,13 @@ const amplifyConfig = r'''{
               "isRequired": true,
               "attributes": []
             },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
             "profileId": {
               "name": "profileId",
               "isArray": false,
@@ -374,14 +377,6 @@ const amplifyConfig = r'''{
                   "assessmentId"
                 ]
               }
-            },
-            "updatedAt": {
-              "name": "updatedAt",
-              "isArray": false,
-              "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
             }
           },
           "syncable": true,
@@ -507,17 +502,15 @@ const amplifyConfig = r'''{
               "name": "createdAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             },
             "updatedAt": {
               "name": "updatedAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             }
           },
           "syncable": true,
@@ -634,17 +627,15 @@ const amplifyConfig = r'''{
               "name": "createdAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             },
             "updatedAt": {
               "name": "updatedAt",
               "isArray": false,
               "type": "AWSDateTime",
-              "isRequired": false,
-              "attributes": [],
-              "isReadOnly": true
+              "isRequired": true,
+              "attributes": []
             }
           },
           "syncable": true,

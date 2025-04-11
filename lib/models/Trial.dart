@@ -90,23 +90,43 @@ class Trial extends amplify_core.Model {
     }
   }
   
-  amplify_core.TemporalDateTime? get createdAt {
-    return _createdAt;
+  amplify_core.TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  amplify_core.TemporalDateTime? get updatedAt {
-    return _updatedAt;
+  amplify_core.TemporalDateTime get updatedAt {
+    try {
+      return _updatedAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  const Trial._internal({required this.id, required startTime, required duration, stage, required compressedDetections, createdAt, updatedAt}): _startTime = startTime, _duration = duration, _stage = stage, _compressedDetections = compressedDetections, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Trial._internal({required this.id, required startTime, required duration, stage, required compressedDetections, required createdAt, required updatedAt}): _startTime = startTime, _duration = duration, _stage = stage, _compressedDetections = compressedDetections, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Trial({String? id, required amplify_core.TemporalDateTime startTime, required double duration, Stage? stage, required String compressedDetections}) {
+  factory Trial({String? id, required amplify_core.TemporalDateTime startTime, required double duration, Stage? stage, required String compressedDetections, required amplify_core.TemporalDateTime createdAt, required amplify_core.TemporalDateTime updatedAt}) {
     return Trial._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       startTime: startTime,
       duration: duration,
       stage: stage,
-      compressedDetections: compressedDetections);
+      compressedDetections: compressedDetections,
+      createdAt: createdAt,
+      updatedAt: updatedAt);
   }
   
   bool equals(Object other) {
@@ -121,7 +141,9 @@ class Trial extends amplify_core.Model {
       _startTime == other._startTime &&
       _duration == other._duration &&
       _stage == other._stage &&
-      _compressedDetections == other._compressedDetections;
+      _compressedDetections == other._compressedDetections &&
+      _createdAt == other._createdAt &&
+      _updatedAt == other._updatedAt;
   }
   
   @override
@@ -144,27 +166,33 @@ class Trial extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Trial copyWith({amplify_core.TemporalDateTime? startTime, double? duration, Stage? stage, String? compressedDetections}) {
+  Trial copyWith({amplify_core.TemporalDateTime? startTime, double? duration, Stage? stage, String? compressedDetections, amplify_core.TemporalDateTime? createdAt, amplify_core.TemporalDateTime? updatedAt}) {
     return Trial._internal(
       id: id,
       startTime: startTime ?? this.startTime,
       duration: duration ?? this.duration,
       stage: stage ?? this.stage,
-      compressedDetections: compressedDetections ?? this.compressedDetections);
+      compressedDetections: compressedDetections ?? this.compressedDetections,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt);
   }
   
   Trial copyWithModelFieldValues({
     ModelFieldValue<amplify_core.TemporalDateTime>? startTime,
     ModelFieldValue<double>? duration,
     ModelFieldValue<Stage?>? stage,
-    ModelFieldValue<String>? compressedDetections
+    ModelFieldValue<String>? compressedDetections,
+    ModelFieldValue<amplify_core.TemporalDateTime>? createdAt,
+    ModelFieldValue<amplify_core.TemporalDateTime>? updatedAt
   }) {
     return Trial._internal(
       id: id,
       startTime: startTime == null ? this.startTime : startTime.value,
       duration: duration == null ? this.duration : duration.value,
       stage: stage == null ? this.stage : stage.value,
-      compressedDetections: compressedDetections == null ? this.compressedDetections : compressedDetections.value
+      compressedDetections: compressedDetections == null ? this.compressedDetections : compressedDetections.value,
+      createdAt: createdAt == null ? this.createdAt : createdAt.value,
+      updatedAt: updatedAt == null ? this.updatedAt : updatedAt.value
     );
   }
   
@@ -203,6 +231,8 @@ class Trial extends amplify_core.Model {
     fieldName: "stage",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Stage'));
   static final COMPRESSEDDETECTIONS = amplify_core.QueryField(fieldName: "compressedDetections");
+  static final CREATEDAT = amplify_core.QueryField(fieldName: "createdAt");
+  static final UPDATEDAT = amplify_core.QueryField(fieldName: "updatedAt");
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Trial";
     modelSchemaDefinition.pluralName = "Trials";
@@ -263,17 +293,15 @@ class Trial extends amplify_core.Model {
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Trial.CREATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'updatedAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Trial.UPDATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });

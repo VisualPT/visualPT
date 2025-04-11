@@ -48,7 +48,8 @@ class AssessmentBloc<T extends BaseAssessment>
         type: config.type,
         duration: 0,
         extra: extra,
-        createdAt: TemporalDateTime(DateTime.now()),
+        createdAt: TemporalDateTime.now(),
+        updatedAt: TemporalDateTime.now(),
       );
       //TODO: dont save this till the end of the assessment to ensure we have some data in it?
       if (storeData) {
@@ -60,6 +61,8 @@ class AssessmentBloc<T extends BaseAssessment>
         assessment: assessment,
         duration: 0,
         stageNumber: assessment.stages?.length ?? 0,
+        createdAt: TemporalDateTime.now(),
+        updatedAt: TemporalDateTime.now(),
       );
       if (storeData) {
         final stageResponse = await ApiService.create(currentStage);
@@ -87,11 +90,14 @@ class AssessmentBloc<T extends BaseAssessment>
       // Update the latest stage with the new trial
 
       var trial = Trial(
-          startTime: event.startTime,
-          duration: event.duration.inMilliseconds / 1000, //seconds
-          compressedDetections:
-              PoseLandmarks.encodeCompressed(event.detections ?? []),
-          stage: currentStage);
+        startTime: event.startTime,
+        duration: event.duration.inMilliseconds / 1000, //seconds
+        compressedDetections:
+            PoseLandmarks.encodeCompressed(event.detections ?? []),
+        stage: currentStage,
+        createdAt: TemporalDateTime.now(),
+        updatedAt: TemporalDateTime.now(),
+      );
 
       if (storeData) {
         final response = await ApiService.create(trial);
@@ -160,6 +166,8 @@ class AssessmentBloc<T extends BaseAssessment>
           assessment: assessment,
           duration: 0,
           stageNumber: assessment.stages?.length ?? 0,
+          createdAt: TemporalDateTime.now(),
+          updatedAt: TemporalDateTime.now(),
         );
         if (storeData) {
           await ApiService.create(currentStage);

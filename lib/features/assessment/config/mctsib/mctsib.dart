@@ -147,6 +147,8 @@ class MCTSIB implements BaseAssessment {
           stageNumber: seqNum,
           scoreSum: score,
           trialSum: trials,
+          createdAt: TemporalDateTime.now(),
+          updatedAt: TemporalDateTime.now(),
         );
         final request = ModelMutations.create(newNorm);
         final response = await Amplify.API.mutate(request: request).response;

@@ -46,6 +46,8 @@ const schema = a.schema({
       gender: a.ref("Gender").required(),
       scoreSum: a.float().required(),
       trialSum: a.integer().required(),
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
     })
     .authorization((allow) => [allow.authenticated()]),
   Profile: a
@@ -56,6 +58,8 @@ const schema = a.schema({
       dob: a.date().required(),
       gender: a.ref("Gender").required(),
       height: a.float().required(), // in inches
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
       assessments: a.hasMany("Assessment", "profileId"),
     })
     .secondaryIndexes((index) => [index("email")])
@@ -67,6 +71,7 @@ const schema = a.schema({
       pdf: a.string(),
       extra: a.string().required(), // a string parsable into a JSON object defined by the BaseAssessment.formField schema
       createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
       profileId: a.id().required(),
       profile: a.belongsTo("Profile", "profileId"),
       stages: a.hasMany("Stage", "assessmentId"),
@@ -80,6 +85,8 @@ const schema = a.schema({
       assessmentId: a.id().required(),
       assessment: a.belongsTo("Assessment", "assessmentId"),
       trials: a.hasMany("Trial", "stageId"),
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
     })
     .secondaryIndexes((index) => [index("assessmentId")])
     .authorization((allow) => [allow.owner(), allow.group("admin")]),
@@ -90,6 +97,8 @@ const schema = a.schema({
       stageId: a.id().required(),
       stage: a.belongsTo("Stage", "stageId"),
       compressedDetections: a.string().required(), // a base 64 gzip of detection data
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
     })
     .secondaryIndexes((index) => [index("stageId")])
     .authorization((allow) => [allow.owner(), allow.group("admin")]),

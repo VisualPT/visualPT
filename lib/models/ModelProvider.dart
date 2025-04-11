@@ -43,7 +43,7 @@ export 'Trial.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "f0714c1eef663ccd723b480b481def12";
+  String version = "e73eb5d27aa99a259707b69ff1e56cb5";
   @override
   List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Norm.schema, Profile.schema, Stage.schema, Trial.schema];
   @override

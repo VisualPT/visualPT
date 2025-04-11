@@ -17,6 +17,8 @@ class FormHelper {
       gender: genderParse(gender),
       height: double.parse(height.split("\"")[0]),
       email: email,
+      createdAt: TemporalDateTime.now(),
+      updatedAt: TemporalDateTime.now(),
     );
   }
 

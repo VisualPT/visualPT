@@ -34,9 +34,9 @@ class Profile extends amplify_core.Model {
   final amplify_core.TemporalDate? _dob;
   final Gender? _gender;
   final double? _height;
-  final List<Assessment>? _assessments;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
+  final List<Assessment>? _assessments;
 
   @override
   getInstanceType() => classType;
@@ -129,21 +129,39 @@ class Profile extends amplify_core.Model {
     }
   }
   
+  amplify_core.TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  amplify_core.TemporalDateTime get updatedAt {
+    try {
+      return _updatedAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
   List<Assessment>? get assessments {
     return _assessments;
   }
   
-  amplify_core.TemporalDateTime? get createdAt {
-    return _createdAt;
-  }
+  const Profile._internal({required this.id, required email, required firstName, required lastName, required dob, required gender, required height, required createdAt, required updatedAt, assessments}): _email = email, _firstName = firstName, _lastName = lastName, _dob = dob, _gender = gender, _height = height, _createdAt = createdAt, _updatedAt = updatedAt, _assessments = assessments;
   
-  amplify_core.TemporalDateTime? get updatedAt {
-    return _updatedAt;
-  }
-  
-  const Profile._internal({required this.id, required email, required firstName, required lastName, required dob, required gender, required height, assessments, createdAt, updatedAt}): _email = email, _firstName = firstName, _lastName = lastName, _dob = dob, _gender = gender, _height = height, _assessments = assessments, _createdAt = createdAt, _updatedAt = updatedAt;
-  
-  factory Profile({String? id, required String email, required String firstName, required String lastName, required amplify_core.TemporalDate dob, required Gender gender, required double height, List<Assessment>? assessments}) {
+  factory Profile({String? id, required String email, required String firstName, required String lastName, required amplify_core.TemporalDate dob, required Gender gender, required double height, required amplify_core.TemporalDateTime createdAt, required amplify_core.TemporalDateTime updatedAt, List<Assessment>? assessments}) {
     return Profile._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       email: email,
@@ -152,6 +170,8 @@ class Profile extends amplify_core.Model {
       dob: dob,
       gender: gender,
       height: height,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
       assessments: assessments != null ? List<Assessment>.unmodifiable(assessments) : assessments);
   }
   
@@ -170,6 +190,8 @@ class Profile extends amplify_core.Model {
       _dob == other._dob &&
       _gender == other._gender &&
       _height == other._height &&
+      _createdAt == other._createdAt &&
+      _updatedAt == other._updatedAt &&
       DeepCollectionEquality().equals(_assessments, other._assessments);
   }
   
@@ -195,7 +217,7 @@ class Profile extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Profile copyWith({String? email, String? firstName, String? lastName, amplify_core.TemporalDate? dob, Gender? gender, double? height, List<Assessment>? assessments}) {
+  Profile copyWith({String? email, String? firstName, String? lastName, amplify_core.TemporalDate? dob, Gender? gender, double? height, amplify_core.TemporalDateTime? createdAt, amplify_core.TemporalDateTime? updatedAt, List<Assessment>? assessments}) {
     return Profile._internal(
       id: id,
       email: email ?? this.email,
@@ -204,6 +226,8 @@ class Profile extends amplify_core.Model {
       dob: dob ?? this.dob,
       gender: gender ?? this.gender,
       height: height ?? this.height,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       assessments: assessments ?? this.assessments);
   }
   
@@ -214,6 +238,8 @@ class Profile extends amplify_core.Model {
     ModelFieldValue<amplify_core.TemporalDate>? dob,
     ModelFieldValue<Gender>? gender,
     ModelFieldValue<double>? height,
+    ModelFieldValue<amplify_core.TemporalDateTime>? createdAt,
+    ModelFieldValue<amplify_core.TemporalDateTime>? updatedAt,
     ModelFieldValue<List<Assessment>?>? assessments
   }) {
     return Profile._internal(
@@ -224,6 +250,8 @@ class Profile extends amplify_core.Model {
       dob: dob == null ? this.dob : dob.value,
       gender: gender == null ? this.gender : gender.value,
       height: height == null ? this.height : height.value,
+      createdAt: createdAt == null ? this.createdAt : createdAt.value,
+      updatedAt: updatedAt == null ? this.updatedAt : updatedAt.value,
       assessments: assessments == null ? this.assessments : assessments.value
     );
   }
@@ -236,6 +264,8 @@ class Profile extends amplify_core.Model {
       _dob = json['dob'] != null ? amplify_core.TemporalDate.fromString(json['dob']) : null,
       _gender = amplify_core.enumFromString<Gender>(json['gender'], Gender.values),
       _height = (json['height'] as num?)?.toDouble(),
+      _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
+      _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null,
       _assessments = json['assessments']  is Map
         ? (json['assessments']['items'] is List
           ? (json['assessments']['items'] as List)
@@ -248,12 +278,10 @@ class Profile extends amplify_core.Model {
               .where((e) => e?['serializedData'] != null)
               .map((e) => Assessment.fromJson(new Map<String, dynamic>.from(e?['serializedData'])))
               .toList()
-          : null),
-      _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
-      _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
+          : null);
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'email': _email, 'firstName': _firstName, 'lastName': _lastName, 'dob': _dob?.format(), 'gender': amplify_core.enumToString(_gender), 'height': _height, 'assessments': _assessments?.map((Assessment? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'email': _email, 'firstName': _firstName, 'lastName': _lastName, 'dob': _dob?.format(), 'gender': amplify_core.enumToString(_gender), 'height': _height, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format(), 'assessments': _assessments?.map((Assessment? e) => e?.toJson()).toList()
   };
   
   Map<String, Object?> toMap() => {
@@ -264,9 +292,9 @@ class Profile extends amplify_core.Model {
     'dob': _dob,
     'gender': _gender,
     'height': _height,
-    'assessments': _assessments,
     'createdAt': _createdAt,
-    'updatedAt': _updatedAt
+    'updatedAt': _updatedAt,
+    'assessments': _assessments
   };
 
   static final amplify_core.QueryModelIdentifier<ProfileModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<ProfileModelIdentifier>();
@@ -277,6 +305,8 @@ class Profile extends amplify_core.Model {
   static final DOB = amplify_core.QueryField(fieldName: "dob");
   static final GENDER = amplify_core.QueryField(fieldName: "gender");
   static final HEIGHT = amplify_core.QueryField(fieldName: "height");
+  static final CREATEDAT = amplify_core.QueryField(fieldName: "createdAt");
+  static final UPDATEDAT = amplify_core.QueryField(fieldName: "updatedAt");
   static final ASSESSMENTS = amplify_core.QueryField(
     fieldName: "assessments",
     fieldType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.model, ofModelName: 'Assessment'));
@@ -351,25 +381,23 @@ class Profile extends amplify_core.Model {
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
     ));
     
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Profile.CREATEDAT,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Profile.UPDATEDAT,
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
+    ));
+    
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.hasMany(
       key: Profile.ASSESSMENTS,
       isRequired: false,
       ofModelName: 'Assessment',
       associatedKey: Assessment.PROFILE
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'updatedAt',
-      isRequired: false,
-      isReadOnly: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });
 }

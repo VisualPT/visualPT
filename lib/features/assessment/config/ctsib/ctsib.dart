@@ -230,6 +230,8 @@ class CTSIB implements BaseAssessment {
           stageNumber: seqNum,
           scoreSum: score,
           trialSum: trials,
+          createdAt: TemporalDateTime.now(),
+          updatedAt: TemporalDateTime.now(),
         );
         final request = ModelMutations.create(newNorm);
         final response = await Amplify.API.mutate(request: request).response;
@@ -396,6 +398,8 @@ List<Norm> createNormData() {
         gender: Gender.MALE,
         scoreSum: score * 30,
         trialSum: 30,
+        createdAt: TemporalDateTime.now(),
+        updatedAt: TemporalDateTime.now(),
       ));
       norms.add(Norm(
         type: assessmentType,
@@ -404,6 +408,8 @@ List<Norm> createNormData() {
         gender: Gender.FEMALE,
         scoreSum: score * 30,
         trialSum: 30,
+        createdAt: TemporalDateTime.now(),
+        updatedAt: TemporalDateTime.now(),
       ));
     }
 

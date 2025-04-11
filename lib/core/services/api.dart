@@ -21,7 +21,8 @@ class ApiService {
   static Future<GraphQLResponse<PaginatedResult<T>>> list<T extends Model>(
       ModelType<T> type,
       {int limit = 100,
-      QueryPredicate<Model>? where}) async {
+      QueryPredicate<Model>? where,
+      bool getAll = false}) async {
     final request = ModelQueries.list(type, limit: limit, where: where);
     log(request.toJson().toString(), name: "API Service");
     final response = await Amplify.API.query(request: request).response;
@@ -31,7 +32,40 @@ class ApiService {
           "Error while fetching the assessment: ${response.errors}");
     }
 
-    return response;
+    // Collect all items from paginated results only if getAll is true
+    final List<T?> allItems = [];
+    var currentPageData = response.data;
+
+    if (getAll) {
+      while (currentPageData != null) {
+        allItems.addAll(currentPageData.items);
+        if (currentPageData.hasNextResult) {
+          final nextRequest = currentPageData.requestForNextResult;
+          final nextResult =
+              await Amplify.API.query(request: nextRequest!).response;
+          if (nextResult.hasErrors && nextResult.data == null) {
+            throw Exception(
+                "Error while fetching the next page: ${nextResult.errors}");
+          }
+          currentPageData = nextResult.data;
+        } else {
+          currentPageData = null; // Exit the loop if no more pages
+        }
+      }
+    } else {
+      // Ensure there is data to return if getAll is false
+      allItems.addAll(response.data?.items ?? []);
+    }
+
+    return GraphQLResponse<PaginatedResult<T>>(
+        data: PaginatedResult<T>(
+            allItems,
+            currentPageData?.limit,
+            currentPageData?.nextToken,
+            currentPageData?.filter,
+            type,
+            currentPageData?.requestForNextResult),
+        errors: []);
   }
 
   static Future<GraphQLResponse<T>> create<T extends Model>(T model) async {
