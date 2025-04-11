@@ -133,39 +133,41 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
                     ),
                   ),
                 ),
-              Positioned(
-                bottom: 0,
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const Spacer(),
-                    if (!state.playing) ...[
-                      //Space filling icon to align the others in the row
+              if (!state.selector) ...[
+                Positioned(
+                  bottom: 0,
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
                       const Spacer(),
-                      GestureDetector(
-                        onTap: onPlay,
-                        child: const Icon(
-                          CupertinoIcons.circle,
-                          color: Styles.actionPrimary,
-                          size: 80,
+                      if (!state.playing) ...[
+                        //Space filling icon to align the others in the row
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: onPlay,
+                          child: const Icon(
+                            CupertinoIcons.circle,
+                            color: Styles.actionPrimary,
+                            size: 80,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                    ] else if (state.countdown == 0) ...[
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: onPause,
-                        child: const Icon(CupertinoIcons.stop,
-                            color: Styles.actionPrimary, size: 80),
-                      ),
+                        const Spacer(),
+                      ] else if (state.countdown == 0) ...[
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: onPause,
+                          child: const Icon(CupertinoIcons.stop,
+                              color: Styles.actionPrimary, size: 80),
+                        ),
+                        const Spacer(),
+                      ],
                       const Spacer(),
                     ],
-                    const Spacer(),
-                  ],
+                  ),
                 ),
-              ),
+              ]
             ],
           ),
         ),

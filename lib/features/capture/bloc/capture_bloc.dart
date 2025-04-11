@@ -23,6 +23,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
         ticker = Ticker(duration: totalDuration),
         super(CaptureDelegated(countdown: countdown)) {
     on<CaptureMessage>(_onMessage);
+    on<CaptureSelector>(_onSelector);
     on<CaptureToggle>(_onToggle);
     on<CapturePlay>(_onPlay);
     on<CaptureLandmark>(_onLandmark);
@@ -56,6 +57,10 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       add(CaptureWarn(event.message.data.toString()));
     } else if (event.message is ReturnedCameraFrame) {
       add(CaptureWarn(event.message.data.toString()));
+    } else if (event.message.data['type'] == 'camera_selector_opened') {
+      add(CaptureSelector(true));
+    } else if (event.message.data['type'] == 'camera_selector_closed') {
+      add(CaptureSelector(false));
     } else if (event.message.data['type'] == 'camera_selected') {
       final CameraDirection direction =
           event.message.data['label'].toString().toLowerCase().contains('front')
@@ -67,6 +72,11 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     } else if (event.message.data['type'] == 'world_landmarks') {
       add(CaptureLandmark(event.message.data, event.playing));
     }
+  }
+
+  FutureOr<void> _onSelector(
+      CaptureSelector event, Emitter<CaptureState> emit) async {
+    emit(CaptureDelegated(selector: event.selector));
   }
 
   FutureOr<void> _onToggle(
