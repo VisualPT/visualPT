@@ -12,6 +12,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 part 'capture_event.dart';
 part 'capture_state.dart';
 
+//TODO: Add a timeout event that will end the capture if the user does not interact with the app for a certain amount of time
 class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   CaptureBloc(
     this.repo,
@@ -145,6 +146,30 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
             playing: event.playing,
             message: _countdown > 0 ? "Starting in $_countdown" : "",
             countdown: _countdown,
+            terminateTick: _terminateTick,
+            detection: detection));
+      }
+      if (!(_tickerSubscription?.isPaused ?? true)) {
+        repo.add(detection);
+      }
+    } else if (kDebugMode) {
+      final detection = Detection(
+        obtrustion: meta.obtrustion,
+        instability: meta.instability,
+        direction: _cameraDirection,
+        env: DetectionEnv(
+          timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
+          accX: repo.currentAccel.x,
+          accY: repo.currentAccel.y,
+          accZ: repo.currentAccel.z,
+        ),
+        keypoints: PoseLandmarks(event.landmarks).encode(),
+      );
+      if (duration < totalDuration && !forcePause) {
+        emit(CaptureDelegated(
+            playing: event.playing,
+            message: "debug",
+            countdown: 0,
             terminateTick: _terminateTick,
             detection: detection));
       }
