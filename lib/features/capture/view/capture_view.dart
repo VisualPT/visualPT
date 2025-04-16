@@ -188,8 +188,9 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
       capture.add(CaptureStop(reset: false));
     }
 
-    return BaseView(
-      child: Center(
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
