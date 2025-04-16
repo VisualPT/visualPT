@@ -15,16 +15,16 @@ class Button extends StatelessWidget {
         onTap: disabled ? null : onPressed,
         child: Container(
           constraints: const BoxConstraints(maxWidth: double.infinity),
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          padding: Styles.buttonPadding,
+          margin: Styles.buttonMargin,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: Styles.borderRadiusM,
-            border: Border.all(
-                color: disabled ? Styles.disabled : Styles.black, width: 1.0),
-            color: disabled ? Styles.disabled : Styles.actionPrimary,
+            borderRadius: Styles.borderRadiusXL,
+            // border: Border.all(
+            //     color: disabled ? Styles.disabled : Styles.white, width: 1.0),
+            color: disabled ? Styles.disabled : Styles.buttonAction,
           ),
-          child: Text(text, style: Styles.actionText),
+          child: Text(text, style: Styles.buttonText),
         ));
   }
 }

@@ -247,7 +247,7 @@ class MctsibPDF extends BasePDF {
                           )
                         ],
                         buildValue: (context, point) => Text(
-                            point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                            point.y == 0 ? "F" : point.y.toStringAsFixed(0),
                             style: TextStyle(
                               fontSize: 10,
                               font: baseFont,
@@ -291,7 +291,7 @@ class MctsibPDF extends BasePDF {
                               (scores.expand((stage) => stage).length))
                     ],
                     buildValue: (context, point) =>
-                        Text(point.y == 0 ? "FALL" : point.y.toStringAsFixed(0),
+                        Text(point.y == 0 ? "F" : point.y.toStringAsFixed(0),
                             style: TextStyle(
                               fontSize: 10,
                               font: baseFont,

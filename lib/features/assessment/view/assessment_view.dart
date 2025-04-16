@@ -21,7 +21,10 @@ class AssessmentView<T extends BaseAssessment> extends StatelessWidget {
       profile: profile,
       onForm: (context, state) => AssessmentForm<T>(state),
       onActive: (context, state) => AssessmentCapture<T>(state),
-      onAnalysis: (context, state) => AnalysisView(state),
+      onAnalysis: (context, state) => AnalysisView(
+        state,
+        poppable: false,
+      ),
       onError: (context, state) => BaseView(
         pageTitle: "Assessment Error",
         child: SingleChildScrollView(

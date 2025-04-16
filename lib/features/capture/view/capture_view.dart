@@ -191,49 +191,40 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
     return BaseView(
       child: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Capture Ended",
-                      style: CupertinoTheme.of(context)
-                          .textTheme
-                          .navTitleTextStyle
-                          .copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      "Would you like to reset this trial or proceed to the next?",
-                      style: Styles.body,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Reset
-                        Button(
-                          onPressed: () =>
-                              capture.add(CaptureStop(reset: true)),
-                          text: "Reset",
-                        ),
-                        // Next
-                        Button(
-                          onPressed: onComplete,
-                          text: "Next",
-                        ),
-                      ],
-                    ),
-                  ],
+            Text(
+              "Capture Ended",
+              style: CupertinoTheme.of(context)
+                  .textTheme
+                  .navTitleTextStyle
+                  .copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Would you like to reset this trial or proceed to the next?",
+              style: Styles.body,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Reset
+                Button(
+                  onPressed: () => capture.add(CaptureStop(reset: true)),
+                  text: "Reset",
                 ),
-              ),
+                // Next
+                Button(
+                  onPressed: onComplete,
+                  text: "Next",
+                ),
+              ],
             ),
           ],
         ),

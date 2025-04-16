@@ -17,7 +17,7 @@ class AuthView extends StatelessWidget {
               state: state,
               body: SignInForm(),
               footer: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Don\'t have an account?'),
                   Button(
@@ -34,7 +34,7 @@ class AuthView extends StatelessWidget {
               state: state,
               body: SignUpForm(),
               footer: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Already have an account?'),
                   Button(
@@ -102,7 +102,11 @@ class CustomScaffold extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: body,
                 ),
-                if (footer != null) footer!,
+                if (footer != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 48),
+                    child: footer!,
+                  ),
               ],
             ),
           ),

@@ -38,6 +38,7 @@ class Styles {
   static const ceruleanBlue = Color(0xFF2C8ECA);
 
   // Action Colors (Derived from Primary for buttons, highlights, CTAs)
+  static const buttonAction = Color(0xFF007AFF); //blue
   static const actionPrimary = Color(0xDCEA7A36); //activeOrange at 87% opacity
   static const actionSecondary = skyBlue;
 
@@ -72,10 +73,13 @@ class Styles {
       TextStyle(color: Styles.inactiveGray, fontSize: 20);
   static const prefixStyle = TextStyle(color: Styles.black, fontSize: 18);
   static const inputStyle = TextStyle(color: Styles.black, fontSize: 20);
-  static const actionText =
-      TextStyle(color: Styles.black, fontSize: 24, fontWeight: FontWeight.bold);
-  static const subactionText =
-      TextStyle(color: Styles.white, fontSize: 18, fontWeight: FontWeight.bold);
+  static const buttonText = TextStyle(
+      color: Styles.white,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      fontFamily: "Roboto");
+  static const actionText = TextStyle(color: Styles.black, fontSize: 16);
+  static const subactionText = TextStyle(color: Styles.white, fontSize: 12);
   static const popupSelectionText =
       TextStyle(color: Styles.black, fontSize: 16);
 
@@ -106,4 +110,13 @@ class Styles {
   static const borderRadiusS = BorderRadius.all(Radius.circular(4));
   static const borderRadiusM = BorderRadius.all(Radius.circular(8));
   static const borderRadiusL = BorderRadius.all(Radius.circular(16));
+  static const borderRadiusXL = BorderRadius.all(Radius.circular(32));
+
+  //Padding
+  static const buttonPadding =
+      EdgeInsets.symmetric(horizontal: 48.0, vertical: 10.0);
+
+  //Margin
+  static const buttonMargin =
+      EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0);
 }
