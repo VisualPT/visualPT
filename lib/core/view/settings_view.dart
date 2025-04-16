@@ -21,6 +21,7 @@ class SettingsView extends StatelessWidget {
                         onPressed: () => onDeleteAccount(context))),
                 const Padding(
                     padding: EdgeInsets.all(8.0), child: SignOutButton()),
+                const AppVersion()
               ],
             ),
           ),

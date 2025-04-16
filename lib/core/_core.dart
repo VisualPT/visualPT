@@ -9,6 +9,7 @@ export 'view/components/app_dialog.dart';
 export 'view/components/app_loading.dart';
 export 'view/components/button.dart';
 export 'view/components/card.dart';
+export 'view/components/app_version.dart';
 
 export 'view/app_nav.dart';
 export 'view/base_view.dart';

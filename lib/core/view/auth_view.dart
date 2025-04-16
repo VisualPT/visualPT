@@ -98,6 +98,7 @@ class CustomScaffold extends StatelessWidget {
                   child: Center(
                       child: Image(image: AssetImage(Styles.mainIconpath))),
                 ),
+                const AppVersion(),
                 Container(
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: body,
