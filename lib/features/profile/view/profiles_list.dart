@@ -9,7 +9,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 class ProfilesList extends StatelessWidget {
   const ProfilesList(this.onSelected, {super.key});
 
-  final Function(Profile, List<Assessment>) onSelected;
+  final Function(Profile) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,10 @@ class ProfilesList extends StatelessWidget {
               itemCount: state.profiles.length,
               itemBuilder: (context, index) {
                 final profile = state.profiles[index];
-                return ProfileCard(profile, onSelected);
+                return Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: ProfileCard(profile, onSelected),
+                );
               },
             ),
           ),

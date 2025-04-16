@@ -7,7 +7,7 @@ import 'package:visualpt/models/ModelProvider.dart';
 class ProfileCard extends StatefulWidget {
   const ProfileCard(this.profile, this.onSelected, {super.key});
   final Profile profile;
-  final void Function(Profile, List<Assessment>) onSelected;
+  final void Function(Profile) onSelected;
 
   @override
   State<ProfileCard> createState() => _ProfileCardState();
@@ -46,7 +46,7 @@ class _ProfileCardState extends State<ProfileCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      onTap: () => widget.onSelected(widget.profile, assessments),
+      onTap: () => widget.onSelected(widget.profile),
       child: Column(
         children: [
           Row(

@@ -27,10 +27,9 @@ class ProfilesView extends StatelessWidget {
                           style: Styles.title, textAlign: TextAlign.left),
                     ),
                     ProfilesList(
-                      (profile, assessments) {
+                      (profile) {
                         AppNav(context).toPath(path: "/profile", args: {
                           "profile": profile,
-                          "assessments": assessments,
                         });
                         return;
                       },

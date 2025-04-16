@@ -73,7 +73,7 @@ class Styles {
   static const prefixStyle = TextStyle(color: Styles.black, fontSize: 18);
   static const inputStyle = TextStyle(color: Styles.black, fontSize: 20);
   static const actionText =
-      TextStyle(color: Styles.black, fontSize: 28, fontWeight: FontWeight.bold);
+      TextStyle(color: Styles.black, fontSize: 24, fontWeight: FontWeight.bold);
   static const subactionText =
       TextStyle(color: Styles.white, fontSize: 18, fontWeight: FontWeight.bold);
   static const popupSelectionText =

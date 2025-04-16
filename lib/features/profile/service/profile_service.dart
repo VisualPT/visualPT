@@ -14,10 +14,20 @@ class ProfileService {
     }
   }
 
-  static Future<List<Assessment>> queryAssessmentsByProfileId(String id) async {
+  static Future<List<Assessment>> queryAssessmentsByProfileId(String id,
+      {AssessmentType? type, bool getAll = true}) async {
+    final predicate = type != null
+        ? Assessment.PROFILE.eq(id).and(Assessment.TYPE.eq(type))
+        : Assessment.PROFILE.eq(id);
+
     final response = await ApiService.list<Assessment>(Assessment.classType,
-        where: Assessment.PROFILE.eq(id), getAll: true);
+        where: predicate, getAll: getAll);
+
     final assessments = FormatUtil.filterList<Assessment>(response.data?.items);
     return assessments;
+  }
+
+  static void deleteAssessment(Assessment assessment) {
+    ApiService.delete<Assessment>(assessment);
   }
 }

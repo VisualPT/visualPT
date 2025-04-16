@@ -58,7 +58,7 @@ class AssessmentCard extends StatelessWidget {
                                   height:
                                       MediaQuery.of(context).size.height / 4,
                                   child: ProfilesList(
-                                    (profile, _) => nav.toPath(
+                                    (profile) => nav.toPath(
                                         path: "/assessment",
                                         args: AssessmentPathProps(
                                             assessment.type, profile)),

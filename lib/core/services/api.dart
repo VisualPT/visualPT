@@ -93,4 +93,25 @@ class ApiService {
 
     return response;
   }
+
+  static Future<void> delete<T extends Model>(T model,
+      {QueryPredicate<Model>? where}) async {
+    final request = ModelMutations.delete(model, where: where);
+    log(request.toJson().toString(), name: "API Service");
+    final response = await Amplify.API.mutate(request: request).response;
+
+    if (response.hasErrors && response.data == null) {
+      throw Exception(
+          "Error while deleting the assessment: ${response.errors}");
+    }
+    if (response.data == null) {
+      throw Exception(
+          "Error while deleting the assessment: ${response.errors}");
+    }
+    if (response.data != null) {
+      log("Deleted ${model.runtimeType} with id: $model");
+    } else {
+      log("Failed to delete ${model.runtimeType} with id: $model");
+    }
+  }
 }

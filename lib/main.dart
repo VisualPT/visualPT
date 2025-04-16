@@ -5,7 +5,6 @@ import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/core/view/auth_view.dart';
 import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/profile/_profile.dart';
-import 'package:visualpt/features/profile/view/profile_view.dart';
 import 'package:visualpt/features/trend/_trend.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -85,9 +84,8 @@ class _VisualPTState extends State<VisualPT> {
           if (route.name == "/profile") {
             final args = route.arguments as Map<String, dynamic>;
             final profile = args['profile'] as Profile;
-            final assessments = args['assessments'] as List<Assessment>;
             return CupertinoPageRoute(
-                builder: (context) => ProfileView(profile, assessments));
+                builder: (context) => ProfileView(profile));
           }
           return null;
         },
@@ -120,4 +118,11 @@ class AssessmentPathProps {
   final Profile profile;
 
   const AssessmentPathProps(this.type, this.profile);
+}
+
+class ProfileAssessmentPathProps {
+  final AssessmentType type;
+  final Profile profile;
+
+  const ProfileAssessmentPathProps(this.type, this.profile);
 }
