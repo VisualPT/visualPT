@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -39,13 +41,13 @@ class CtsibPDF extends BasePDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            subjectData(profile, assessment),
+            subjectData(profile, assessment, detectionParams),
             Spacer(),
             assessmentData(scores, norms),
             Spacer(),
             sensoryMismatchData(scores, norms),
             Spacer(),
-            normativeData(assessment, norms),
+            normativeData(assessment, norms, params: detectionParams),
             Spacer(),
             interpretationData(assessment),
             Spacer(),
@@ -71,11 +73,12 @@ class CtsibPDF extends BasePDF {
     );
   }
 
-  Widget subjectData(Profile profile, Assessment assessment) {
+  Widget subjectData(
+      Profile profile, Assessment assessment, DetectionParams params) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
-          text: TextSpan(text: "Patient Information", style: subHeader)),
+          text: TextSpan(text: "Assessment Information", style: subHeader)),
       Row(children: [
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           RichText(
@@ -112,10 +115,20 @@ class CtsibPDF extends BasePDF {
               TextSpan(text: profile.gender.name, style: detailBold),
             ]),
           ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Fall History: ", style: detail),
+              TextSpan(
+                  text: FormatUtil.castValue(
+                          jsonDecode(assessment.extra)['fall history'],
+                          FallHistory.NONE)
+                      .name,
+                  style: detailBold),
+            ]),
+          ),
         ]),
         Spacer(),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          //TODO internationalize this date format to local time
           RichText(
               text: TextSpan(children: [
             TextSpan(text: "Date: ", style: detail),
@@ -138,6 +151,68 @@ class CtsibPDF extends BasePDF {
               TextSpan(text: "Total Duration: ", style: detail),
               TextSpan(
                   text: FormatUtil.duration(assessment.duration),
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Number of Stages: ", style: detail),
+              TextSpan(
+                  text: assessment.stages?.length.toString() ?? "0",
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Number of Trials: ", style: detail),
+              TextSpan(
+                  text: assessment.stages
+                          ?.fold<int>(0,
+                              (sum, stage) => sum + (stage.trials?.length ?? 0))
+                          .toString() ??
+                      "0",
+                  style: detailBold),
+            ]),
+          ),
+        ]),
+      ]),
+      SizedBox(height: 10),
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Detection Parameters", style: subHeader)),
+      Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Offset: ", style: detail),
+              TextSpan(text: params.offset.toString(), style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Sensitivity: ", style: detail),
+              TextSpan(text: params.sensitivity.toString(), style: detailBold),
+            ]),
+          ),
+        ]),
+        Spacer(),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Device Correction: ", style: detail),
+              TextSpan(
+                  text: params.deviceCorrection ? "Enabled" : "Disabled",
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Data Stored: ", style: detail),
+              TextSpan(
+                  text: (jsonDecode(assessment.extra)['store data'] == true ||
+                          jsonDecode(assessment.extra)['store data'] == "true")
+                      ? "Yes"
+                      : "No",
                   style: detailBold),
             ]),
           ),
@@ -212,7 +287,7 @@ class CtsibPDF extends BasePDF {
               ),
               // Foreground chart for patient scores
               ...List.generate(
-                (scores.length ?? 0),
+                (scores.length),
                 (i) {
                   return Chart(
                     grid: CartesianGrid(
@@ -531,8 +606,10 @@ class CtsibPDF extends BasePDF {
   }
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Assessment assessment, List<Norm>? norms) {
-    final message = ctsib.getNormativeMessage(assessment, norms);
+  Widget normativeData(Assessment assessment, List<Norm>? norms,
+      {DetectionParams params = const DetectionParams()}) {
+    final message =
+        ctsib.getNormativeMessage(assessment, norms, params: params);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(

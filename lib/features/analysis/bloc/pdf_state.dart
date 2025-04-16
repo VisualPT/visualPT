@@ -28,7 +28,8 @@ class PdfReady extends PdfState {
 
 class PdfError extends PdfState {
   final Exception exception;
-  const PdfError({required this.exception});
+  final StackTrace? stackTrace;
+  const PdfError({required this.exception, this.stackTrace});
 
   @override
   List<Object> get props => [exception];

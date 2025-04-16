@@ -291,7 +291,8 @@ class CTSIB implements BaseAssessment {
   }
 
   @override
-  String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
+  String getNormativeMessage(Assessment assessment, List<Norm>? norms,
+      {DetectionParams params = const DetectionParams()}) {
     // Do not include the last value in the score list as it is the total score
     final globalScores = norms
             ?.map((s) => s.trialSum == 0 || s.stageNumber == stages
@@ -301,7 +302,7 @@ class CTSIB implements BaseAssessment {
         0.0;
 
     // Calculate local scores for the patient
-    final localScores = calculateScores(assessment)
+    final localScores = calculateScores(assessment, params: params)
         .expand((stageScores) => stageScores)
         .reduce((a, b) => a + b);
 
@@ -344,8 +345,9 @@ class CTSIB implements BaseAssessment {
   //Returns isFall, equlibrium score
   static (bool, double) poseToCtsibData(Detection detection,
       {DetectionParams params = const DetectionParams()}) {
-    final (xSway, zSway) =
-        PoseLandmarks.computeAngles(detection, params: params);
+    var (xSway, zSway) = PoseLandmarks.computeAngles(detection, params: params);
+    xSway = xSway.abs();
+    zSway = zSway.abs();
     final latProportion = xSway / swayLimits[2];
     final lonProportion =
         zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];

@@ -8,8 +8,8 @@ class AnalysisPresenter extends StatelessWidget {
   final PdfEvent onCreate;
   final Widget Function(BuildContext context, PdfState state) onLoading;
   final Widget Function(BuildContext context, PdfReady state) onReady;
-  final Widget Function(BuildContext context, PdfState state, Exception e)
-      onError;
+  final Widget Function(BuildContext context, PdfState state, Exception e,
+      StackTrace? stackTrace) onError;
 
   const AnalysisPresenter(
       {super.key,
@@ -37,12 +37,13 @@ class AnalysisPresenter extends StatelessWidget {
             } else if (state is PdfLoading) {
               return onLoading(context, state);
             } else if (state is PdfError) {
-              return onError(context, state, state.exception);
+              return onError(context, state, state.exception, state.stackTrace);
             } else {
-              return onError(context, state, Exception("Unknown state"));
+              return onError(context, state, Exception("Unknown state"),
+                  StackTrace.current);
             }
-          } catch (e) {
-            return onError(context, state, Exception(e.toString()));
+          } catch (e, stackTrace) {
+            return onError(context, state, Exception(e.toString()), stackTrace);
           }
         },
       ),

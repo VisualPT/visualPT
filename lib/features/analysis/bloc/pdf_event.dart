@@ -18,5 +18,14 @@ class PdfInit extends PdfEvent {
   });
 
   @override
-  List<Object> get props => [profile, assessment];
+  List<Object> get props => [profile, assessment, params];
+}
+
+class PdfPrint extends PdfEvent {
+  final Uint8List pdfData;
+  const PdfPrint({
+    required this.pdfData,
+  });
+  @override
+  List<Object> get props => [pdfData];
 }

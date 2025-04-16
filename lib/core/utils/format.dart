@@ -1,5 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:visualpt/models/FallHistory.dart';
 
 class FormatUtil {
   static String date(DateTime dateTime) {
@@ -37,5 +38,18 @@ class FormatUtil {
     //Converts an Amplify TemporalDate to a difference in time by years and returns that as an int
     final now = TemporalDate.now();
     return now.getDateTime().year - dob.getDateTime().year;
+  }
+
+  static T castValue<T>(dynamic value, T typeSample) {
+    if (typeSample is int) return int.tryParse(value.toString()) as T;
+    if (typeSample is double) return double.tryParse(value.toString()) as T;
+    if (typeSample is bool) return (value.toString() == 'true') as T;
+    if (typeSample is FallHistory) {
+      return FallHistory.values.firstWhere(
+        (e) => e.name == value.toString(),
+        orElse: () => FallHistory.NONE,
+      ) as T;
+    }
+    return value as T;
   }
 }

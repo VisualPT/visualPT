@@ -1,8 +1,8 @@
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
@@ -13,8 +13,9 @@ import 'package:visualpt/models/ModelProvider.dart';
 
 class AnalysisView<T extends BaseAssessment> extends StatefulWidget {
   final AssessmentAnalysis<T> asmtState;
+  final bool poppable;
 
-  const AnalysisView(this.asmtState, {super.key});
+  const AnalysisView(this.asmtState, {super.key, required this.poppable});
 
   @override
   State<AnalysisView<T>> createState() => _AnalysisViewState<T>();
@@ -40,7 +41,7 @@ class _AnalysisViewState<T extends BaseAssessment>
   Widget build(BuildContext context) {
     return BaseView(
         pageTitle: "${widget.asmtState.config.type.name} Report",
-        poppable: false,
+        poppable: widget.poppable,
         child: AnalysisPresenter(
           onCreate: PdfInit(
               profile: widget.asmtState.profile,
@@ -114,8 +115,8 @@ class _AnalysisViewState<T extends BaseAssessment>
                   const Text("Offset:  ", style: Styles.body),
                   CupertinoSlider(
                     value: yzOffset,
-                    min: -10.0,
-                    max: 10.0,
+                    min: -20.0,
+                    max: 20.0,
                     divisions: 40,
                     onChanged: (value) {
                       setState(() => yzOffset = value);
@@ -143,6 +144,10 @@ class _AnalysisViewState<T extends BaseAssessment>
                       value: deviceCorrection,
                       onChanged: (value) {
                         setState(() => deviceCorrection = value);
+                        BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                            profile: widget.asmtState.profile,
+                            assessment: widget.asmtState.dbAssessment,
+                            params: getParams()));
                       }),
                 ],
               ),
@@ -161,37 +166,77 @@ class _AnalysisViewState<T extends BaseAssessment>
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
           child: Column(
             children: [
-              Button(
-                text: "Refresh PDF",
-                onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                    profile: widget.asmtState.profile,
-                    assessment: widget.asmtState.dbAssessment,
-                    params: getParams())),
-              ),
-              Button(
-                  onPressed: () {
-                    //TODO Add an are you sure popup
-                    BlocProvider.of<AssessmentBloc>(context)
-                        .add(AssessmentInit(widget.asmtState.formFields));
-                  },
-                  text: "Redo"),
-              EmailPresenter(
-                  bool.tryParse(
-                          widget.asmtState.formFields['store data']?.value) ??
-                      true,
-                  widget.asmtState.config,
-                  widget.asmtState.profile,
-                  widget.asmtState.dbAssessment,
-                  state.pdfData),
+              kDebugMode
+                  ? Button(
+                      text: "Refresh PDF",
+                      onPressed: () => BlocProvider.of<PdfBloc>(context).add(
+                          PdfInit(
+                              profile: widget.asmtState.profile,
+                              assessment: widget.asmtState.dbAssessment,
+                              params: getParams())),
+                    )
+                  : const SizedBox.shrink(),
+              (() {
+                try {
+                  // Attempt to get the AssessmentBloc from the context
+                  final assessmentBloc =
+                      BlocProvider.of<AssessmentBloc>(context, listen: false);
+
+                  // If it's not null, show the button
+                  return Column(
+                    children: [
+                      Button(
+                        onPressed: () {
+                          // Show a confirmation dialog before proceeding
+                          appDialog(
+                            context: context,
+                            title: "Redo Assessment",
+                            content:
+                                "Are you sure you want to redo the assessment? This will overwrite the current data.",
+                            primaryCallback: () {
+                              Navigator.pop(context); // Close the dialog
+                              assessmentBloc.add(
+                                  AssessmentInit(widget.asmtState.formFields));
+                            },
+                            secondaryCallback: () {
+                              Navigator.pop(context); // Close the dialog
+                            },
+                          );
+                        },
+                        text: "Redo",
+                      ),
+                      EmailPresenter(
+                        widget.asmtState.formFields['store data']?.value is bool
+                            ? widget.asmtState.formFields['store data']?.value
+                            : (widget.asmtState.formFields['store data']?.value
+                                    is String
+                                ? bool.tryParse(widget.asmtState
+                                        .formFields['store data']?.value) ??
+                                    true
+                                : true),
+                        widget.asmtState.config,
+                        widget.asmtState.profile,
+                        widget.asmtState.dbAssessment,
+                        state.pdfData,
+                      ),
+                    ],
+                  );
+                } catch (e) {
+                  return Column(
+                    children: [
+                      Button(
+                        onPressed: () async {
+                          BlocProvider.of<PdfBloc>(context).add(PdfPrint(
+                            pdfData: state.pdfData,
+                          ));
+                        },
+                        text: "Print (under development)",
+                      ),
+                    ],
+                  );
+                }
+              })(),
               Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
-              // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
-              // Button(
-              //   text: "Print PDF",
-              //   onPressed: () async => {
-              //     await Printing.layoutPdf(
-              //         onLayout: (onLayout) => state.pdfData)
-              //   },
-              // ),
             ],
           ),
         ),
@@ -205,13 +250,14 @@ class _AnalysisViewState<T extends BaseAssessment>
     );
   }
 
-  Widget onError(BuildContext context, PdfState _, Exception e) {
+  Widget onError(
+      BuildContext context, PdfState _, Exception e, StackTrace? stackTrace) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Text(
-          "Analysis Error\n ${e.toString()}",
+          "Analysis Error\n ${e.toString()} \n${stackTrace.toString()}",
           style: Styles.error,
           textAlign: TextAlign.center,
         ),

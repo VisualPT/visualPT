@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:visualpt/core/_core.dart';
-import 'package:visualpt/features/assessment/config/base.dart';
+import 'package:visualpt/features/analysis/view/analysis_view.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/profile/service/profile_service.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
@@ -115,7 +117,8 @@ class _ProfileAssessmentsViewState extends State<ProfileAssessmentsView> {
                                         color: Styles.white,
                                       ),
                                     ),
-                                    child: ProfileAssessmentCard(assessment)),
+                                    child: ProfileAssessmentCard(
+                                        widget.profile, assessment)),
                               ))
                           .toList()
                       : [const Text('No assessments available')],
@@ -127,7 +130,8 @@ class _ProfileAssessmentsViewState extends State<ProfileAssessmentsView> {
 }
 
 class ProfileAssessmentCard extends StatefulWidget {
-  const ProfileAssessmentCard(this.assessment, {super.key});
+  const ProfileAssessmentCard(this.profile, this.assessment, {super.key});
+  final Profile profile;
   final Assessment assessment;
 
   @override
@@ -148,8 +152,8 @@ class _ProfileAssessmentCardState extends State<ProfileAssessmentCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      onTap: () =>
-          AppNav(context).toView(ProfileAssessmentView(widget.assessment)),
+      onTap: () => AppNav(context)
+          .toView(ProfileAssessmentView(widget.profile, widget.assessment.id)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -177,31 +181,121 @@ class _ProfileAssessmentCardState extends State<ProfileAssessmentCard> {
   }
 }
 
-class ProfileAssessmentView extends StatelessWidget {
-  const ProfileAssessmentView(this.assessment, {super.key});
-  final Assessment assessment;
+class ProfileAssessmentView extends StatefulWidget {
+  const ProfileAssessmentView(this.profile, this.id, {super.key});
+  final Profile profile;
+  final String id;
+
+  @override
+  State<ProfileAssessmentView> createState() => _ProfileAssessmentViewState();
+}
+
+class _ProfileAssessmentViewState extends State<ProfileAssessmentView> {
+  AssessmentAnalysis? analysis;
+  bool loading = true;
+  String error = '';
+
+  fetchAnalysis() async {
+    try {
+      final assembledAssessment =
+          await AssessmentService.assembleAssessment(widget.id);
+      final config = AssessmentUtils.getConfig(assembledAssessment.type);
+      final formFields = Map<String, FormFieldItem<dynamic>>.fromEntries(
+        (jsonDecode(assembledAssessment.extra) as Map<String, dynamic>)
+            .entries
+            .map(
+          (entry) {
+            final key = entry.key;
+            final value = entry.value;
+
+            // Fetch default form (template) from config
+            final defaultField = config.formFields[key];
+
+            if (defaultField == null) {
+              throw Exception("Unknown field key: $key");
+            }
+
+            return MapEntry(
+              key,
+              FormFieldItem<dynamic>(
+                form: defaultField.form,
+                value: FormatUtil.castValue(value, defaultField.value),
+              ),
+            );
+          },
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          analysis = AssessmentAnalysis(
+            widget.profile,
+            assembledAssessment,
+            config,
+            formFields,
+          );
+          loading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        loading = false;
+        error = 'Fetch Error: ${e.toString()}';
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAnalysis();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BaseView(
-      pageTitle: 'Assessment Details',
-      poppable: true,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
+    if (loading) {
+      return Container(
+        color: Styles.white,
+        child: const Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Date: ${assessment.createdAt.toString()}'),
-              Text('Stages: ${assessment.stages}'),
-              Text(
-                  'Trials: ${assessment.stages?.map((s) => s.trials).join(', ')}'),
-              Text(
-                  'Detections: ${assessment.stages?.map((s) => s.trials?.map((t) => t.compressedDetections).join(', ')).join(', ')}'),
-              Text(
-                  'Total Detections: ${assessment.stages?.expand<String>((s) => s.trials?.map((t) => t.compressedDetections) ?? []).length ?? 0}'),
+              Text('Loading full pose analysis, this might take a minute...'),
+              SizedBox(height: 8),
+              CupertinoActivityIndicator(),
             ],
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (analysis == null) {
+      return Container(
+        color: Styles.white,
+        child: Center(
+          child: Text(error.isNotEmpty
+              ? error
+              : 'No assessment found for ID: ${widget.id}'),
+        ),
+      );
+    }
+
+    try {
+      return AnalysisView(
+        analysis!,
+        poppable: true,
+      );
+    } catch (e) {
+      return Container(
+        color: Styles.white,
+        child: Center(
+          child: Text(
+            'Failed to build analysis view due to outdated assessment format. '
+            'Assessment ID: ${widget.id}\nError: ${e.toString()}',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
   }
 }

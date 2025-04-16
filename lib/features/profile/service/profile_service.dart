@@ -30,4 +30,13 @@ class ProfileService {
   static void deleteAssessment(Assessment assessment) {
     ApiService.delete<Assessment>(assessment);
   }
+
+  static Future<Profile?> getProfile(String? id) async {
+    if (id == null) {
+      return null;
+    }
+    final response = await ApiService.read<Profile>(
+        Profile.classType, ProfileModelIdentifier(id: id));
+    return response.data;
+  }
 }
