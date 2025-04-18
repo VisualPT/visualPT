@@ -352,7 +352,8 @@ class CTSIB implements BaseAssessment {
     final lonProportion =
         zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
 
-    if (latProportion > 1 || lonProportion > 1) {
+    //FIXME: Ignnore the zSway for now when calculating the fall until we have a better detection
+    if (latProportion > 1 /* || lonProportion > 1*/) {
       //This indicates a fall
       return (true, 0.0);
     }
