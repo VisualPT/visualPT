@@ -11,19 +11,19 @@ class CaptureDelegated extends CaptureState {
   final int countdown;
   final int terminateTick;
   final Detection? detection;
-  final bool selector;
+  final bool ready;
   const CaptureDelegated({
     this.countdown = 0,
     this.message = '',
     this.playing = false,
     this.terminateTick = 0,
     this.detection,
-    this.selector = false,
+    this.ready = false,
   }) : super();
 
   @override
   List<Object?> get props =>
-      [playing, detection, countdown, terminateTick, selector];
+      [playing, detection, countdown, terminateTick, ready];
 }
 
 class CaptureEnded extends CaptureState {

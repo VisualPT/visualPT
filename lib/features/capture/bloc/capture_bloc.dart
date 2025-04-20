@@ -22,9 +22,9 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     this.ternimateTick = 300, //3 seconds
   })  : _terminateTick = ternimateTick,
         ticker = Ticker(duration: totalDuration),
-        super(CaptureDelegated(countdown: countdown)) {
+        super(CaptureDelegated(countdown: countdown, ready: false)) {
     on<CaptureMessage>(_onMessage);
-    on<CaptureSelector>(_onSelector);
+    on<CaptureReady>(_onReady);
     on<CaptureToggle>(_onToggle);
     on<CapturePlay>(_onPlay);
     on<CaptureLandmark>(_onLandmark);
@@ -43,6 +43,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   late int _countdown;
   late int _terminateTick;
   late amplify.TemporalDateTime start;
+  bool ready = false;
   bool forcePause = false;
   CameraDirection _cameraDirection = CameraDirection.FRONT;
 
@@ -52,16 +53,17 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       CaptureMessage event, Emitter<CaptureState> emit) async {
     //TODO: Handle Kinestex messages
     if (event.message.data['type'] != "world_landmarks") {
-      print({'type': event.message.data['type'], 'data': event.message.data});
+      print(event.message.data);
     }
     if (event.message is Mistake || event.message is LeftCameraFrame) {
       add(CaptureWarn(event.message.data.toString()));
     } else if (event.message is ReturnedCameraFrame) {
       add(CaptureWarn(event.message.data.toString()));
+    } else if (event.message.data['type'] == 'model_warmedup' ||
+        event.message.data['type'] == 'camera_selector_closed') {
+      add(CaptureReady(true));
     } else if (event.message.data['type'] == 'camera_selector_opened') {
-      add(CaptureSelector(true));
-    } else if (event.message.data['type'] == 'camera_selector_closed') {
-      add(CaptureSelector(false));
+      add(CaptureReady(false));
     } else if (event.message.data['type'] == 'camera_selected') {
       final CameraDirection direction =
           event.message.data['label'].toString().toLowerCase().contains('front')
@@ -75,9 +77,14 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     }
   }
 
-  FutureOr<void> _onSelector(
-      CaptureSelector event, Emitter<CaptureState> emit) async {
-    emit(CaptureDelegated(selector: event.selector));
+  FutureOr<void> _onReady(
+      CaptureReady event, Emitter<CaptureState> emit) async {
+    ready = event.ready;
+    // If the selector is open, then we are not ready to record
+    emit(CaptureDelegated(
+        countdown: countdown,
+        terminateTick: _terminateTick,
+        ready: event.ready));
   }
 
   FutureOr<void> _onToggle(
@@ -99,7 +106,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       await Future.delayed(const Duration(seconds: 1));
       _countdown--;
     }
-    emit(CaptureDelegated(playing: true, terminateTick: _terminateTick));
+    emit(CaptureDelegated(
+        playing: true, terminateTick: _terminateTick, ready: ready));
 
     // Use a Completer to keep _onPlay alive
     final completer = Completer<void>();
@@ -147,7 +155,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
             message: _countdown > 0 ? "Starting in $_countdown" : "",
             countdown: _countdown,
             terminateTick: _terminateTick,
-            detection: detection));
+            detection: detection,
+            ready: ready));
       }
       if (!(_tickerSubscription?.isPaused ?? true)) {
         repo.add(detection);
@@ -171,7 +180,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
             message: "debug",
             countdown: 0,
             terminateTick: _terminateTick,
-            detection: detection));
+            detection: detection,
+            ready: ready));
       }
       if (!(_tickerSubscription?.isPaused ?? true)) {
         repo.add(detection);
@@ -191,6 +201,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
         terminateTick: _terminateTick,
         message: event.warning,
         detection: mostRecentDetection(repo),
+        ready: ready,
       ));
     }
   }
@@ -206,8 +217,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       if (event.reset) {
         _countdown = countdown;
         duration = const Duration(seconds: 0);
-        return emit(
-            CaptureDelegated(playing: false, terminateTick: ternimateTick));
+        return emit(CaptureDelegated(
+            playing: false, terminateTick: ternimateTick, ready: ready));
       }
 
       repo.dispose();

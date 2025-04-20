@@ -10,13 +10,13 @@ abstract class CaptureEvent extends Equatable {
   List<Object?> get props => [id];
 }
 
-class CaptureSelector extends CaptureEvent {
-  //Selector from the Kinestex SDK
-  CaptureSelector(this.selector) : super(DateTime.now().microsecondsSinceEpoch);
-  final bool selector;
+class CaptureReady extends CaptureEvent {
+  //Indicates if the capture is ready
+  CaptureReady(this.ready) : super(DateTime.now().microsecondsSinceEpoch);
+  final bool ready;
 
   @override
-  List<Object?> get props => [selector];
+  List<Object?> get props => [ready];
 }
 
 class CaptureMessage extends CaptureEvent {

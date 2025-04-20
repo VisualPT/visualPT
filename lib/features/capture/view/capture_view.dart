@@ -110,6 +110,10 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
                         "includePoseData": ['worldLandmarks'],
                         "landmarkColor": Styles.skyBlueString,
                         "shouldShowCameraSelector": true,
+                        //FIXME: KinesteX support requested 4/11/2025
+                        // 'minPoseDetectionConfidence': 0.5,
+                        // 'minTrackingConfidence': 0.8,
+                        // 'minPosePresenceConfidence': 0.5,
                       },
                       onMessageReceived: onMessageReceived,
                     )
@@ -133,7 +137,7 @@ class CaptureView<T extends BaseAssessment> extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (!state.selector) ...[
+              if (state.ready) ...[
                 Positioned(
                   bottom: 0,
                   width: MediaQuery.of(context).size.width,
