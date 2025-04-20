@@ -233,8 +233,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
                     .getDateTimeInUtc()
                     .difference(DateTime.now().toUtc())
                     .abs()
-                    .inSeconds <=
-                1
+                    .inMilliseconds <=
+                500
         ? repo.localStorage.entries.last.value
         : null;
   }
