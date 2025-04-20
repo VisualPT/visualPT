@@ -133,56 +133,35 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
 
   FutureOr<void> _onLandmark(
       CaptureLandmark event, Emitter<CaptureState> emit) async {
+    final detection = Detection(
+      obtrustion: meta.obtrustion,
+      instability: meta.instability,
+      direction: _cameraDirection,
+      env: DetectionEnv(
+        timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
+        accX: repo.currentAccel.x,
+        accY: repo.currentAccel.y,
+        accZ: repo.currentAccel.z,
+      ),
+      keypoints: PoseLandmarks(event.landmarks).encode(),
+    );
+
+    if (duration < totalDuration && !forcePause) {
+      emit(CaptureDelegated(
+          playing: event.playing,
+          message: event.playing
+              ? (_countdown > 0 ? "Starting in $_countdown" : "")
+              : "Get into position",
+          countdown: event.playing ? _countdown : 0,
+          terminateTick: _terminateTick,
+          detection: detection,
+          ready: ready));
+    }
+
     if (event.playing) {
       _terminateTick =
           _terminateTick <= ternimateTick ? _terminateTick + 1 : ternimateTick;
 
-      final detection = Detection(
-        obtrustion: meta.obtrustion,
-        instability: meta.instability,
-        direction: _cameraDirection,
-        env: DetectionEnv(
-          timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
-          accX: repo.currentAccel.x,
-          accY: repo.currentAccel.y,
-          accZ: repo.currentAccel.z,
-        ),
-        keypoints: PoseLandmarks(event.landmarks).encode(),
-      );
-      if (duration < totalDuration && !forcePause) {
-        emit(CaptureDelegated(
-            playing: event.playing,
-            message: _countdown > 0 ? "Starting in $_countdown" : "",
-            countdown: _countdown,
-            terminateTick: _terminateTick,
-            detection: detection,
-            ready: ready));
-      }
-      if (!(_tickerSubscription?.isPaused ?? true)) {
-        repo.add(detection);
-      }
-    } else if (kDebugMode) {
-      final detection = Detection(
-        obtrustion: meta.obtrustion,
-        instability: meta.instability,
-        direction: _cameraDirection,
-        env: DetectionEnv(
-          timestamp: amplify.TemporalDateTime(repo.currentAccel.timestamp),
-          accX: repo.currentAccel.x,
-          accY: repo.currentAccel.y,
-          accZ: repo.currentAccel.z,
-        ),
-        keypoints: PoseLandmarks(event.landmarks).encode(),
-      );
-      if (duration < totalDuration && !forcePause) {
-        emit(CaptureDelegated(
-            playing: event.playing,
-            message: "debug",
-            countdown: 0,
-            terminateTick: _terminateTick,
-            detection: detection,
-            ready: ready));
-      }
       if (!(_tickerSubscription?.isPaused ?? true)) {
         repo.add(detection);
       }
