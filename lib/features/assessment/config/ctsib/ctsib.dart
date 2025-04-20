@@ -338,8 +338,9 @@ class CTSIB implements BaseAssessment {
     if (detection == null) {
       return true; // Person MUST be detected during the full assessment for it to be complete
     }
-    final (isFall, __) = CTSIB.poseToCtsibData(detection);
-    return isFall;
+    // FIXME: do not detect fall as completion until detection is improved
+    //final (isFall, __) = CTSIB.poseToCtsibData(detection);
+    return false;
   }
 
   //Returns isFall, equlibrium score
@@ -352,8 +353,7 @@ class CTSIB implements BaseAssessment {
     final lonProportion =
         zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
 
-    //FIXME: Ignnore the zSway for now when calculating the fall until we have a better detection
-    if (latProportion > 1 /* || lonProportion > 1*/) {
+    if (latProportion > 1 || lonProportion > 1) {
       //This indicates a fall
       return (true, 0.0);
     }
