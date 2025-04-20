@@ -37,7 +37,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   final TrialMeta meta;
   final int countdown;
   final int ternimateTick;
-  final Ticker ticker;
+  Ticker ticker;
   Duration duration = const Duration(seconds: 0);
   final Duration totalDuration;
   late int _countdown;
@@ -215,8 +215,14 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   FutureOr<void> _onStop(CaptureStop event, Emitter<CaptureState> emit) async {
     try {
       if (event.reset) {
+        await _tickerSubscription?.cancel();
+
+        forcePause = false;
         _countdown = countdown;
         duration = const Duration(seconds: 0);
+        // Reinitialize the ticker
+        ticker = Ticker(duration: totalDuration);
+
         return emit(CaptureDelegated(
             playing: false, terminateTick: ternimateTick, ready: ready));
       }
@@ -235,7 +241,13 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     debugPrint('CaptureBloc Error: $error, $stackTrace');
   }
 
-  /// Returns the latest detection from the repository until 1 second goes by, then returns null
+  @override
+  Future<void> close() {
+    _tickerSubscription?.cancel();
+    return super.close();
+  }
+
+  /// Returns the latest detection from the repository until 500 ms goes by, then returns null
   Detection? mostRecentDetection(CaptureRepository repo) {
     return repo.localStorage.entries.isNotEmpty &&
             repo.localStorage.entries.last.value.env.timestamp
