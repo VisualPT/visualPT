@@ -139,7 +139,7 @@ class _AnalysisViewState<T extends BaseAssessment>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Device Correction:  ", style: Styles.body),
+                  const Text("Device Stabilized:  ", style: Styles.body),
                   CupertinoSwitch(
                       value: deviceCorrection,
                       onChanged: (value) {

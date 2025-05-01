@@ -156,7 +156,7 @@ class CtsibPDF extends BasePDF {
           ),
           RichText(
             text: TextSpan(children: [
-              TextSpan(text: "Number of Stages: ", style: detail),
+              TextSpan(text: "Number of Conditions: ", style: detail),
               TextSpan(
                   text: assessment.stages?.length.toString() ?? "0",
                   style: detailBold),
@@ -199,7 +199,7 @@ class CtsibPDF extends BasePDF {
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           RichText(
             text: TextSpan(children: [
-              TextSpan(text: "Device Correction: ", style: detail),
+              TextSpan(text: "Device Stabilized: ", style: detail),
               TextSpan(
                   text: params.deviceCorrection ? "Enabled" : "Disabled",
                   style: detailBold),
@@ -222,10 +222,11 @@ class CtsibPDF extends BasePDF {
   }
 
   Widget assessmentData(List<List<double>> scores, List<Norm>? norms) {
+    final trialsCount = scores[0].length;
     // Set the margins based on the number of trials
-    final margins = scores[0].length == 1
+    final margins = trialsCount == 1
         ? [30.0, 30.0]
-        : scores[0].length == 2
+        : trialsCount == 2
             ? [26.0, 34.0]
             : [23.0, 38.0];
 
@@ -250,15 +251,15 @@ class CtsibPDF extends BasePDF {
           height: 220, // Increase height for better visibility
           child: Stack(
             children: [
+              // Add a horizontal line at y = 75 using the dartpdf API
+
               // Background chart for norm scores (gray background)
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
                       scores.length + 1,
-                      (i) => i < ctsib.stages
-                          ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
-                          : 'Cumulative',
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Cumulative',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -268,6 +269,9 @@ class CtsibPDF extends BasePDF {
                     [0, 25, 50, 75, 100],
                     format: (v) => '$v',
                     marginStart: 1,
+                    divisions: true,
+                    divisionsColor:
+                        PdfColor.fromInt(Styles.activeOrange.toARGB32()),
                   ),
                 ),
                 datasets: List.generate((scores.length + 1), (i) {
@@ -285,6 +289,16 @@ class CtsibPDF extends BasePDF {
                   );
                 }),
               ),
+              // 75% performance line
+              Positioned(
+                bottom: 220 * 0.69725, // the closest to y = 75%
+                left: 30,
+                right: 0,
+                child: Container(
+                  height: 2,
+                  color: PdfColors.blue,
+                ),
+              ),
               // Foreground chart for patient scores
               ...List.generate(
                 (scores.length),
@@ -294,7 +308,7 @@ class CtsibPDF extends BasePDF {
                       xAxis: FixedAxis.fromStrings(
                         List.generate(
                           scores.length + 1,
-                          (i) => '\n\n',
+                          (i) => '\n',
                         ),
                         textStyle: TextStyle(fontSize: 10, font: baseFont),
                         marginStart: margins[0],
@@ -304,9 +318,6 @@ class CtsibPDF extends BasePDF {
                         [0, 25, 50, 75, 100],
                         format: (v) => '$v',
                         marginStart: 1,
-                        divisions: true,
-                        divisionsColor:
-                            PdfColor.fromInt(Styles.activeOrange.toARGB32()),
                       ),
                     ),
                     datasets: scores[i].asMap().entries.map((entry) {
@@ -327,7 +338,7 @@ class CtsibPDF extends BasePDF {
                         buildValue: (context, point) => Text(
                             point.y == 0 ? "F" : point.y.toStringAsFixed(0),
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: trialsCount == 1 ? 10 : 8,
                               font: baseFont,
                             )),
                         valuePosition: ValuePosition.auto,
@@ -342,9 +353,7 @@ class CtsibPDF extends BasePDF {
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
                       scores.length + 1,
-                      (i) => i < ctsib.stages
-                          ? '${ctsib.vision[i]} \n ${ctsib.surface[i]}'
-                          : 'Cumulative',
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Cumulative',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
