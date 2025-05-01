@@ -20,6 +20,7 @@ abstract class BaseAssessment {
   String get imagePath;
   String? get stageGifPath;
 
+  String get stageLabel;
   int get stages;
   int get trials;
   int get trialDuration;

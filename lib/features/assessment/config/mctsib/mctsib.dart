@@ -31,6 +31,9 @@ class MCTSIB implements BaseAssessment {
   String get stageGifPath => ""; //TODO
 
   @override
+  String get stageLabel => "Condition";
+
+  @override
   int get stages => 4;
 
   @override

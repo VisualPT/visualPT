@@ -24,6 +24,9 @@ class GAIT implements BaseAssessment {
   String get stageGifPath => ""; //TODO
 
   @override
+  String get stageLabel => "Stage";
+
+  @override
   int get stages => 1;
 
   @override

@@ -33,6 +33,9 @@ class CTSIB implements BaseAssessment {
   String get stageGifPath => "assets/videos/CTSIB/CTSIB";
 
   @override
+  String get stageLabel => "Condition";
+
+  @override
   int get stages => 6;
 
   @override

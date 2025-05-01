@@ -23,6 +23,9 @@ class BERG implements BaseAssessment {
   String get stageGifPath => ""; //TODO
 
   @override
+  String get stageLabel => "Stage";
+
+  @override
   int get stages => 6;
 
   @override
