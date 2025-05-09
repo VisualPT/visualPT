@@ -373,16 +373,17 @@ class CTSIB implements BaseAssessment {
 //Anterior, Posterior, Lat
 const swayLimits = [8.0, 4.5, 8.0];
 
+// Values provided from https://github.com/VisualPT/visualPT/issues/261
 Map<AgeRange, List<double>> normativeValues = {
   AgeRange.BABY_0_5: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
   AgeRange.CHILD_6_12: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
   AgeRange.TEEN_13_19: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
-  AgeRange.ADULT_20_39: [86.1, 83.4, 81.6, 86.1, 82.8, 82.1, 83.7],
-  AgeRange.ADULT_40_64: [87.9, 85.3, 87.5, 83.4, 81.5, 78.9, 84.1],
-  AgeRange.SENIOR_65_69: [88.7, 85.5, 87.9, 80.4, 71.6, 65.5, 78.3],
+  AgeRange.ADULT_20_39: [94.0, 92.0, 91.0, 82.0, 69.0, 67.0, 79.8],
+  AgeRange.ADULT_40_64: [94.0, 91.0, 89.0, 85.0, 65.0, 65.0, 77.6],
+  AgeRange.SENIOR_65_69: [94.0, 91.0, 89.0, 85.0, 65.0, 65.0, 77.6],
   AgeRange.SENIOR_70_79: [89.4, 85.8, 88.2, 77.6, 61.6, 53.0, 72.8],
   AgeRange.SENIOR_80_84: [94.3, 91.1, 90.0, 77.2, 48.8, 47.7, 69.9],
-  AgeRange.SENIOR_85_PLUS: [92.6, 89.9, 89.9, 71.2, 28.9, 33.2, 60.7],
+  AgeRange.SENIOR_85_PLUS: [92.6, 89.9, 89.1, 71.2, 28.9, 33.2, 60.7],
 };
 
 List<Norm> createNormData() {
