@@ -150,7 +150,7 @@ class MctsibPDF extends BasePDF {
             ? [26.0, 34.0]
             : [23.0, 38.0];
 
-    final cumulativeColor = scores
+    final compositeColor = scores
                     .expand((stage) => stage)
                     .reduce((a, b) => a + b) /
                 (scores.expand((stage) => stage).length) >
@@ -179,7 +179,7 @@ class MctsibPDF extends BasePDF {
                       (assessment.stages?.length ?? 0) + 1,
                       (i) => i < mctsib.stages
                           ? '${mctsib.vision[i]} \n ${mctsib.surface[i]}'
-                          : 'Cumulative',
+                          : 'Composite',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -258,7 +258,7 @@ class MctsibPDF extends BasePDF {
                   );
                 },
               ),
-              // Cumulative chart
+              // Composite chart
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
@@ -266,7 +266,7 @@ class MctsibPDF extends BasePDF {
                       (assessment.stages?.length ?? 0) + 1,
                       (i) => i < mctsib.stages
                           ? '${mctsib.vision[i]} \n ${mctsib.surface[i]}'
-                          : 'Cumulative',
+                          : 'Composite',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -281,7 +281,7 @@ class MctsibPDF extends BasePDF {
                 datasets: [
                   BarDataSet(
                     legend: '',
-                    color: cumulativeColor,
+                    color: compositeColor,
                     data: [
                       PointChartValue(
                           (assessment.stages?.length ?? 0).toDouble(),

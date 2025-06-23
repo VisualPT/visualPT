@@ -47,9 +47,9 @@ class CtsibPDF extends BasePDF {
             Spacer(),
             sensoryMismatchData(scores, norms),
             Spacer(),
-            normativeData(assessment, norms, params: detectionParams),
-            Spacer(),
-            interpretationData(assessment),
+            // normativeData(assessment, norms, params: detectionParams),
+            // Spacer(),
+            // interpretationData(assessment),
             Spacer(),
             footerData(),
           ]),
@@ -221,6 +221,7 @@ class CtsibPDF extends BasePDF {
     ]);
   }
 
+//TODO: Make the bars wider to get the bar labels to fit better
   Widget assessmentData(List<List<double>> scores, List<Norm>? norms) {
     final trialsCount = scores[0].length;
     // Set the margins based on the number of trials
@@ -230,7 +231,7 @@ class CtsibPDF extends BasePDF {
             ? [26.0, 34.0]
             : [23.0, 38.0];
 
-    final cumulativeColor = scores
+    final compositeColor = scores
                     .expand((stage) => stage)
                     .reduce((a, b) => a + b) /
                 (scores.expand((stage) => stage).length) >
@@ -239,6 +240,10 @@ class CtsibPDF extends BasePDF {
                     1)
         ? PdfColors.green
         : PdfColors.red;
+
+    final compositeScore =
+        scores.expand((stage) => stage).reduce((a, b) => a + b) /
+            (scores.expand((stage) => stage).length);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +264,7 @@ class CtsibPDF extends BasePDF {
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
                       scores.length + 1,
-                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Cumulative',
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Composite',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -347,13 +352,13 @@ class CtsibPDF extends BasePDF {
                   );
                 },
               ),
-              // Cumulative chart
+              // Composite chart
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
                     List.generate(
                       scores.length + 1,
-                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Cumulative',
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Composite',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -368,14 +373,9 @@ class CtsibPDF extends BasePDF {
                 datasets: [
                   BarDataSet(
                     legend: '',
-                    color: cumulativeColor,
+                    color: compositeColor,
                     data: [
-                      PointChartValue(
-                          scores.length.toDouble(),
-                          scores
-                                  .expand((stage) => stage)
-                                  .reduce((a, b) => a + b) /
-                              (scores.expand((stage) => stage).length))
+                      PointChartValue(scores.length.toDouble(), compositeScore)
                     ],
                     buildValue: (context, point) =>
                         Text(point.y == 0 ? "F" : point.y.toStringAsFixed(0),
@@ -426,27 +426,40 @@ class CtsibPDF extends BasePDF {
       String c2 = severityScores[1] == 3 ? 'S' : 'V'; // Condition 2 (SOM)
       String c3 = severityScores[2] == 3 ? 'S' : 'V'; // Condition 3 (SOM)
       String c4 = severityScores[3] == 3 ? 'V' : 'S'; // Condition 4 (VIS)
-      String c5 = severityScores[4] == 3
-          ? 'Vest'
-          : severityScores[4] == 2
-              ? 'S'
-              : 'V';
-      String c6 = severityScores[5] == 3
-          ? 'Vest'
-          : severityScores[5] == 2
-              ? 'S'
-              : 'V';
+
+      String classifyC5C6(List<double> trialScores, double normScore) {
+        int belowMean = trialScores.where((score) => score < normScore).length;
+        int aboveMean = trialScores.where((score) => score >= normScore).length;
+        int belowPerfLine = trialScores.where((score) => score < 75).length;
+
+        if (aboveMean == trialScores.length && belowPerfLine == 0) {
+          return 'Vest'; // All above mean and above performance line
+        } else if (aboveMean == trialScores.length && belowPerfLine > 0) {
+          return 'S'; // All above mean but some below 75%
+        } else if (belowMean >= 2) {
+          return 'V'; // Two or more below mean
+        } else if (aboveMean >= 2) {
+          return 'S'; // Two or more above mean
+        } else {
+          return 'V'; // Fallback
+        }
+      }
+
+      String c5 = classifyC5C6(
+          scores[4], (norms?[4].scoreSum ?? 0) / ((norms?[4].trialSum ?? 1)));
+      String c6 = classifyC5C6(
+          scores[5], (norms?[5].scoreSum ?? 0) / ((norms?[5].trialSum ?? 1)));
 
       String sensoryString = "$c2$c3$c4$c5$c6";
       return sensoryString;
     }
 
-    // Function to determine the sensory mismatch and check for Aphysio
-    // Function to determine the sensory mismatch based on sensoryString
-    String determineSensoryMismatch(String sensoryString, int compositeScore) {
-      // Direct mapping of sensoryString patterns to sensory mismatch categories
+    String determineSensoryMismatch(
+        String sensoryString, double compositeScore) {
+      const double cutoff = 48.0;
+
+      // Define base mismatch mapping
       Map<String, String> sensoryMappings = {
-        //TODO: have a PT review these, the color codings of these actually matter
         "VVVVV": "VVM",
         "VVVVS": "VVM",
         "VVVSS": "VVM",
@@ -470,16 +483,25 @@ class CtsibPDF extends BasePDF {
         "SSSVS": "SVM",
       };
 
-      // Check if the sensoryString matches any known mappings
-      if (sensoryMappings.containsKey(sensoryString)) {
-        return sensoryMappings[sensoryString]!;
+      // Get the base mismatch type
+      String? baseMismatch = sensoryMappings[sensoryString];
+
+      // If it's unknown and compositeScore is low, it's SVVM or Complex
+      if (baseMismatch == null) {
+        return compositeScore < cutoff ? "SVVM or Complex SM" : "Normal";
       }
 
-      // Apply age-group thresholds based on the composite score
-      if (compositeScore >= 12) {
-        return sensoryMappings[sensoryString] ?? "Normal";
+      // Composite score determines severity classification
+      if (compositeScore < cutoff) {
+        if (baseMismatch == "VVM" ||
+            baseMismatch == "SVM" ||
+            baseMismatch == "VSVM") {
+          return "$baseMismatch (Aphysiological?)";
+        } else {
+          return baseMismatch; // Already severe enough (e.g., SVVM, Vh-SOM)
+        }
       } else {
-        return "SVVM or Complex SM"; // Complex SM for lower scores
+        return baseMismatch; // Composite is good, use base label
       }
     }
 
@@ -568,8 +590,10 @@ class CtsibPDF extends BasePDF {
     }
 
     final severityScores = calculateSeverityScore(scores);
+
     final compositeScore =
-        severityScores.fold<int>(0, (prev, cur) => prev + cur);
+        scores.expand((stage) => stage).reduce((a, b) => a + b) /
+            (scores.expand((stage) => stage).length);
     final sensoryRatio = calculateSensoryRatio(severityScores);
     final sensoryMismatch =
         determineSensoryMismatch(sensoryRatio, compositeScore);
@@ -615,43 +639,42 @@ class CtsibPDF extends BasePDF {
   }
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Assessment assessment, List<Norm>? norms,
-      {DetectionParams params = const DetectionParams()}) {
-    final message =
-        ctsib.getNormativeMessage(assessment, norms, params: params);
+  // Widget normativeData(Assessment assessment, List<Norm>? norms,
+  //     {DetectionParams params = const DetectionParams()}) {
+  //   final message =
+  //       ctsib.getNormativeMessage(assessment, norms, params: params);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(text: TextSpan(text: message, style: detail)),
-    ]);
-  }
+  //   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //     RichText(
+  //         textAlign: TextAlign.left,
+  //         text: TextSpan(text: "Normative Comparison", style: subHeader)),
+  //     RichText(text: TextSpan(text: message, style: detail)),
+  //   ]);
+  // }
 
-  Widget interpretationData(Assessment assessment) {
-    // final is9xFallRisk = checkFallRisk(assessment);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Interpretation", style: subHeader)),
-      // if (is9xFallRisk)
-      //   RichText(
-      //     textAlign: TextAlign.left,
-      //     text: TextSpan(
-      //         text:
-      //             "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
-      //         style: detail),
-      //   ),
-      RichText(
-          text: TextSpan(
-              text: "Generative AI snippets coming soon", style: detail)),
-      //generateConditionRatioText(assessment), style: detail)),
-      //             "1)	Vision Dependence: Patients become unstable in stages 2, 3, 5 & 6 with eyes closed.",
-      //             "2) Surface/somatosensory dependence: Patient becomes unstable in stages 4, 5 & 6 because they stand on a soft surface (foam).",
-      //             "3)	Vestibular loss: Patient becomes unstable in stages 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-      //             "4)	Patients with sensory selection problems become unstable in stages 3-6.",
-    ]);
-  }
+  // Widget interpretationData(Assessment assessment) {
+  //   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //     RichText(
+  //         textAlign: TextAlign.left,
+  //         text: TextSpan(text: "Interpretation", style: subHeader)),
+  //     // if (is9xFallRisk)
+  //     //   RichText(
+  //     //     textAlign: TextAlign.left,
+  //     //     text: TextSpan(
+  //     //         text:
+  //     //             "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
+  //     //         style: detail),
+  //     //   ),
+  //     RichText(
+  //         text: TextSpan(
+  //             text: "Generative AI snippets coming soon", style: detail)),
+  //     //generateConditionRatioText(assessment), style: detail)),
+  //     //             "1)	Vision Dependence: Patients become unstable in stages 2, 3, 5 & 6 with eyes closed.",
+  //     //             "2) Surface/somatosensory dependence: Patient becomes unstable in stages 4, 5 & 6 because they stand on a soft surface (foam).",
+  //     //             "3)	Vestibular loss: Patient becomes unstable in stages 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+  //     //             "4)	Patients with sensory selection problems become unstable in stages 3-6.",
+  //   ]);
+  // }
 
   Widget footerData() {
     return Footer(
@@ -682,18 +705,5 @@ class CtsibPDF extends BasePDF {
     } else {
       return "Functional"; // Patient is considered functional otherwise
     }
-  }
-
-  //TODO: This likely needs to be based on the equlibrium score
-  bool checkFallRisk(Assessment assessment) {
-    // Calculate the total duration of the assessment (only for stages 5 and 6)
-    bool is9xFallRisk(int i) {
-      final total =
-          AssessmentUtils.getAvgDuration(assessment.stages?[i].trials) > 30.0;
-      return total;
-    }
-
-    // Determine if the patient is at risk of falling based on the total duration
-    return is9xFallRisk(4) || is9xFallRisk(5);
   }
 }
