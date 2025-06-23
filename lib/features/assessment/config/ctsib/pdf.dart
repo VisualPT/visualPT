@@ -465,6 +465,7 @@ class CtsibPDF extends BasePDF {
         "VVVSS": "VVM",
         "VSVSV": "VVM",
         "VVVSV": "VVM",
+        "VVSVV": "VVM",
         "SVVVV": "VSVM",
         "SSSSS": "SVM",
         "SVSVS": "SVM",
@@ -615,7 +616,8 @@ class CtsibPDF extends BasePDF {
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Composite Score: ", style: detail),
-              TextSpan(text: compositeScore.toString(), style: detailBold),
+              TextSpan(
+                  text: compositeScore.round().toString(), style: detailBold),
             ]),
           ),
         ]),
