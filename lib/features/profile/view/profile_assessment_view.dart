@@ -240,7 +240,7 @@ class _ProfileAssessmentViewState extends State<ProfileAssessmentView> {
     } catch (e) {
       setState(() {
         loading = false;
-        error = 'Fetch Error: ${e.toString()}';
+        error = 'Analysis Error: ${e.toString()}';
       });
     }
   }

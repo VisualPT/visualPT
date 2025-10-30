@@ -200,3 +200,22 @@ class FormFieldItem<T> {
     required this.value,
   });
 }
+
+dynamic getFormValue(Map<String, dynamic> formFields, String key,
+    dynamic defaultValue, dynamic Function(dynamic)? valueTransform) {
+  // Check if the key exists in the formFields map
+  if (!formFields.containsKey(key) || formFields[key]?.value == null) {
+    return defaultValue; // Return the default value if the key doesn't exist or value is null
+  }
+  final value = formFields[key]?.value;
+  if (valueTransform != null) {
+    try {
+      final transformedValue = valueTransform(value);
+      return transformedValue ??
+          defaultValue; // Return transformed value or default if null
+    } catch (e) {
+      return defaultValue; // Return default if transformation fails
+    }
+  }
+  return value; // Return the actual value if no transformation is needed
+}

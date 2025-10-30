@@ -206,14 +206,8 @@ class _AnalysisViewState<T extends BaseAssessment>
                         text: "Redo",
                       ),
                       EmailPresenter(
-                        widget.asmtState.formFields['store data']?.value is bool
-                            ? widget.asmtState.formFields['store data']?.value
-                            : (widget.asmtState.formFields['store data']?.value
-                                    is String
-                                ? bool.tryParse(widget.asmtState
-                                        .formFields['store data']?.value) ??
-                                    true
-                                : true),
+                        getFormValue(widget.asmtState.formFields, 'store data',
+                            true, (val) => bool.tryParse(val) ?? true) as bool,
                         widget.asmtState.config,
                         widget.asmtState.profile,
                         widget.asmtState.dbAssessment,
