@@ -25,27 +25,13 @@ import 'package:amplify_core/amplify_core.dart' as amplify_core;
 
 /** This is an auto generated class representing the Detection type in your schema. */
 class Detection {
-  final String id;
-  final int? _version;
   final bool? _obtrustion;
   final bool? _instability;
+  final CameraDirection? _direction;
   final DetectionEnv? _env;
   final String? _keypoints;
   final String? _prediction;
 
-  int get version {
-    try {
-      return _version!;
-    } catch(e) {
-      throw amplify_core.AmplifyCodeGenModelException(
-          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
-          recoverySuggestion:
-            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
-          underlyingException: e.toString()
-          );
-    }
-  }
-  
   bool get obtrustion {
     try {
       return _obtrustion!;
@@ -62,6 +48,19 @@ class Detection {
   bool get instability {
     try {
       return _instability!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  CameraDirection get direction {
+    try {
+      return _direction!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -102,14 +101,13 @@ class Detection {
     return _prediction;
   }
   
-  const Detection._internal({required this.id, required version, required obtrustion, required instability, required env, required keypoints, prediction}): _version = version, _obtrustion = obtrustion, _instability = instability, _env = env, _keypoints = keypoints, _prediction = prediction;
+  const Detection._internal({required obtrustion, required instability, required direction, required env, required keypoints, prediction}): _obtrustion = obtrustion, _instability = instability, _direction = direction, _env = env, _keypoints = keypoints, _prediction = prediction;
   
-  factory Detection({String? id, required int version, required bool obtrustion, required bool instability, required DetectionEnv env, required String keypoints, String? prediction}) {
+  factory Detection({required bool obtrustion, required bool instability, required CameraDirection direction, required DetectionEnv env, required String keypoints, String? prediction}) {
     return Detection._internal(
-      id: id == null ? amplify_core.UUID.getUUID() : id,
-      version: version,
       obtrustion: obtrustion,
       instability: instability,
+      direction: direction,
       env: env,
       keypoints: keypoints,
       prediction: prediction);
@@ -123,10 +121,9 @@ class Detection {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is Detection &&
-      id == other.id &&
-      _version == other._version &&
       _obtrustion == other._obtrustion &&
       _instability == other._instability &&
+      _direction == other._direction &&
       _env == other._env &&
       _keypoints == other._keypoints &&
       _prediction == other._prediction;
@@ -140,10 +137,9 @@ class Detection {
     var buffer = new StringBuffer();
     
     buffer.write("Detection {");
-    buffer.write("id=" + "$id" + ", ");
-    buffer.write("version=" + (_version != null ? _version!.toString() : "null") + ", ");
     buffer.write("obtrustion=" + (_obtrustion != null ? _obtrustion!.toString() : "null") + ", ");
     buffer.write("instability=" + (_instability != null ? _instability!.toString() : "null") + ", ");
+    buffer.write("direction=" + (_direction != null ? amplify_core.enumToString(_direction)! : "null") + ", ");
     buffer.write("env=" + (_env != null ? _env!.toString() : "null") + ", ");
     buffer.write("keypoints=" + "$_keypoints" + ", ");
     buffer.write("prediction=" + "$_prediction");
@@ -152,31 +148,28 @@ class Detection {
     return buffer.toString();
   }
   
-  Detection copyWith({String? id, int? version, bool? obtrustion, bool? instability, DetectionEnv? env, String? keypoints, String? prediction}) {
+  Detection copyWith({bool? obtrustion, bool? instability, CameraDirection? direction, DetectionEnv? env, String? keypoints, String? prediction}) {
     return Detection._internal(
-      id: id ?? this.id,
-      version: version ?? this.version,
       obtrustion: obtrustion ?? this.obtrustion,
       instability: instability ?? this.instability,
+      direction: direction ?? this.direction,
       env: env ?? this.env,
       keypoints: keypoints ?? this.keypoints,
       prediction: prediction ?? this.prediction);
   }
   
   Detection copyWithModelFieldValues({
-    ModelFieldValue<String>? id,
-    ModelFieldValue<int>? version,
     ModelFieldValue<bool>? obtrustion,
     ModelFieldValue<bool>? instability,
+    ModelFieldValue<CameraDirection>? direction,
     ModelFieldValue<DetectionEnv>? env,
     ModelFieldValue<String>? keypoints,
     ModelFieldValue<String?>? prediction
   }) {
     return Detection._internal(
-      id: id == null ? this.id : id.value,
-      version: version == null ? this.version : version.value,
       obtrustion: obtrustion == null ? this.obtrustion : obtrustion.value,
       instability: instability == null ? this.instability : instability.value,
+      direction: direction == null ? this.direction : direction.value,
       env: env == null ? this.env : env.value,
       keypoints: keypoints == null ? this.keypoints : keypoints.value,
       prediction: prediction == null ? this.prediction : prediction.value
@@ -184,10 +177,9 @@ class Detection {
   }
   
   Detection.fromJson(Map<String, dynamic> json)  
-    : id = json['id'],
-      _version = (json['version'] as num?)?.toInt(),
-      _obtrustion = json['obtrustion'],
+    : _obtrustion = json['obtrustion'],
       _instability = json['instability'],
+      _direction = amplify_core.enumFromString<CameraDirection>(json['direction'], CameraDirection.values),
       _env = json['env'] != null
           ? json['env']['serializedData'] != null
               ? DetectionEnv.fromJson(new Map<String, dynamic>.from(json['env']['serializedData']))
@@ -197,14 +189,13 @@ class Detection {
       _prediction = json['prediction'];
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'version': _version, 'obtrustion': _obtrustion, 'instability': _instability, 'env': _env?.toJson(), 'keypoints': _keypoints, 'prediction': _prediction
+    'obtrustion': _obtrustion, 'instability': _instability, 'direction': amplify_core.enumToString(_direction), 'env': _env?.toJson(), 'keypoints': _keypoints, 'prediction': _prediction
   };
   
   Map<String, Object?> toMap() => {
-    'id': id,
-    'version': _version,
     'obtrustion': _obtrustion,
     'instability': _instability,
+    'direction': _direction,
     'env': _env,
     'keypoints': _keypoints,
     'prediction': _prediction
@@ -213,18 +204,6 @@ class Detection {
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Detection";
     modelSchemaDefinition.pluralName = "Detections";
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
-      fieldName: 'id',
-      isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
-      fieldName: 'version',
-      isRequired: true,
-      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.int)
-    ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
       fieldName: 'obtrustion',
@@ -236,6 +215,12 @@ class Detection {
       fieldName: 'instability',
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.bool)
+    ));
+    
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.customTypeField(
+      fieldName: 'direction',
+      isRequired: true,
+      ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.embedded(

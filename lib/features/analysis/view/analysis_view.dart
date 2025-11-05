@@ -1,131 +1,273 @@
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/features/analysis/bloc/pdf_bloc.dart';
 import 'package:visualpt/features/analysis/view/analysis_presenter.dart';
-import 'package:visualpt/features/assessment/bloc/assessment_bloc.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/features/email/bloc/email_bloc.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/service/assessment_service.dart';
-import 'package:visualpt/core/views/_views.dart';
-import 'package:visualpt/core/views/components/_components.dart';
 
-class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
+class AnalysisView<T extends BaseAssessment> extends StatefulWidget {
   final AssessmentAnalysis<T> asmtState;
+  final bool poppable;
 
-  const AnalysisView(this.asmtState, {super.key});
+  const AnalysisView(this.asmtState, {super.key, required this.poppable});
+
+  @override
+  State<AnalysisView<T>> createState() => _AnalysisViewState<T>();
+}
+
+class _AnalysisViewState<T extends BaseAssessment>
+    extends State<AnalysisView<T>> {
+  double xySensitivity = 1;
+  double yzSensitivity = 1;
+  double xyOffset = 0;
+  double yzOffset = 0;
+  bool deviceCorrection = true;
+
+  getParams() {
+    return {
+      'sensitivity': (xySensitivity, yzSensitivity),
+      'offset': (xyOffset, yzOffset),
+      'deviceCorrection': deviceCorrection,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     return BaseView(
-        pageTitle: "${asmtState.meta.type.name} Report",
-        poppable: false,
+        pageTitle: "${widget.asmtState.config.type.name} Report",
+        poppable: widget.poppable,
         child: AnalysisPresenter(
           onCreate: PdfInit(
-              subject: asmtState.subject, assessment: asmtState.dbAssessment),
-          onReady: pdfReady,
-          onLoading: pdfLoading,
-          onError: pdfError,
+              profile: widget.asmtState.profile,
+              assessment: widget.asmtState.dbAssessment,
+              params: getParams()),
+          onReady: onReady,
+          onLoading: onLoading,
+          onError: onError,
         ));
   }
 
-  Widget pdfReady(BuildContext context, PdfReady state) {
+  Widget onReady(BuildContext context, PdfReady state) {
     return SingleChildScrollView(
       child: Column(children: [
         AspectRatio(
           aspectRatio: 8.5 / 11,
           child: PDFView(
-              // key: Key(state.pdfData.hashCode.toString()),
-              pdfData: state.pdfData,
-              enableSwipe: false,
-              pageFling: false,
-              onError: (error) => {
-                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                        subject: asmtState.subject,
-                        assessment: asmtState.dbAssessment))
-                  },
-              onPageError: (page, error) => {
-                    BlocProvider.of<PdfBloc>(context).add(PdfInit(
-                        subject: asmtState.subject,
-                        assessment: asmtState.dbAssessment))
-                  },
-              pageSnap: false),
+            pdfData: state.pdfData,
+            enableSwipe: false,
+            pageFling: false,
+            pageSnap: false,
+            onError: (error) => {
+              BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                  profile: widget.asmtState.profile,
+                  assessment: widget.asmtState.dbAssessment,
+                  params: getParams()))
+            },
+            onPageError: (page, error) => {
+              BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                  profile: widget.asmtState.profile,
+                  assessment: widget.asmtState.dbAssessment,
+                  params: getParams()))
+            },
+          ),
         ),
+        const Text("Depth Tuning", style: Styles.heading1),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
-          child: Row(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+          child: Column(
             children: [
-              const Spacer(),
-              CupertinoButton(
-                padding: const EdgeInsets.all(13.0),
-                color: Styles.actionSecondary,
-                onPressed: () {
-                  //TODO Add an are you sure popup
-                  BlocProvider.of<AssessmentBloc>(context).add(
-                      AssessmentInit(asmtState.subject, asmtState.storeData));
-                },
-                child: const Text("Redo Assessment",
-                    style: TextStyle(color: Styles.black)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Sensitivity:  ", style: Styles.body),
+                  CupertinoSlider(
+                    value: yzSensitivity,
+                    min: 0.0,
+                    max: 1.0,
+                    divisions: 20,
+                    onChanged: (value) {
+                      setState(() => yzSensitivity = value);
+                    },
+                    onChangeEnd: (value) {
+                      BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                          profile: widget.asmtState.profile,
+                          assessment: widget.asmtState.dbAssessment,
+                          params: getParams()));
+                    },
+                  ),
+                  SizedBox(
+                    width: 80,
+                    child: Text(yzSensitivity.toStringAsPrecision(2),
+                        style: Styles.timerTextStyle,
+                        textAlign: TextAlign.right),
+                  ),
+                ],
               ),
-              const Spacer(),
-              EmailPresenter(asmtState.storeData, asmtState.meta,
-                  asmtState.subject, asmtState.dbAssessment, state.pdfData),
-              // TODO: Blocked by https://github.com/DavBfr/dart_pdf/issues/1638
-              // CupertinoButton(
-              //   padding: const EdgeInsets.all(13.0),
-              //   color: Styles.actionPrimary,
-              //   onPressed: () async => {
-              //     BlocProvider.of<PdfBloc>(context).add(PdfPrint(
-              //         subject: asmtState.subject,
-              //         assessment: asmtState.dbAssessment))
-              //   },
-              //   child: const Text("Print PDF",
-              //       style: TextStyle(color: Styles.black)),
-              // ),
-              const Spacer(),
-              CupertinoButton(
-                padding: const EdgeInsets.all(13.0),
-                color: Styles.actionPrimary,
-                onPressed: () => AppNav(context).setHome(),
-                child: const Text("Go home",
-                    style: TextStyle(color: Styles.black)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Offset:  ", style: Styles.body),
+                  CupertinoSlider(
+                    value: yzOffset,
+                    min: -20.0,
+                    max: 20.0,
+                    divisions: 40,
+                    onChanged: (value) {
+                      setState(() => yzOffset = value);
+                    },
+                    onChangeEnd: (value) {
+                      BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                          profile: widget.asmtState.profile,
+                          assessment: widget.asmtState.dbAssessment,
+                          params: getParams()));
+                    },
+                  ),
+                  SizedBox(
+                    width: 90,
+                    child: Text('${yzOffset.toStringAsPrecision(2)}°',
+                        style: Styles.timerTextStyle,
+                        textAlign: TextAlign.right),
+                  ),
+                ],
               ),
-              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Device Stabilized:  ", style: Styles.body),
+                  CupertinoSwitch(
+                      value: deviceCorrection,
+                      onChanged: (value) {
+                        setState(() => deviceCorrection = value);
+                        BlocProvider.of<PdfBloc>(context).add(PdfInit(
+                            profile: widget.asmtState.profile,
+                            assessment: widget.asmtState.dbAssessment,
+                            params: getParams()));
+                      }),
+                ],
+              ),
             ],
           ),
         ),
-        // CupertinoButton(
-        //     color: Styles.actionSecondary,
-        //     child: const Text("Refresh PDF",
-        //         style: TextStyle(color: Styles.black)),
-        //     onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
-        //         subject: asmtState.subject,
-        //         assessment: asmtState.dbAssessment)))
+        // PoseChartAnalysis(
+        //     detections: (widget.asmtState.dbAssessment.stages ?? [])
+        //         .expand((stage) => stage.trials ?? [])
+        //         .cast<Trial>()
+        //         .map((trial) =>
+        //             PoseLandmarks.decodeCompressed(trial.compressedDetections))
+        //         .expand((keypoints) => keypoints)
+        //         .toList()),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
+          child: Column(
+            children: [
+              kDebugMode
+                  ? Button(
+                      text: "Refresh PDF",
+                      onPressed: () => BlocProvider.of<PdfBloc>(context).add(
+                          PdfInit(
+                              profile: widget.asmtState.profile,
+                              assessment: widget.asmtState.dbAssessment,
+                              params: getParams())),
+                    )
+                  : const SizedBox.shrink(),
+              (() {
+                try {
+                  // Attempt to get the AssessmentBloc from the context
+                  final assessmentBloc =
+                      BlocProvider.of<AssessmentBloc>(context, listen: false);
+
+                  // If it's not null, show the button
+                  return Column(
+                    children: [
+                      Button(
+                        onPressed: () {
+                          // Show a confirmation dialog before proceeding
+                          appDialog(
+                            context: context,
+                            title: "Redo Assessment",
+                            content:
+                                "Are you sure you want to redo the assessment? This will overwrite the current data.",
+                            primaryCallback: () {
+                              Navigator.pop(context); // Close the dialog
+                              assessmentBloc.add(
+                                  AssessmentInit(widget.asmtState.formFields));
+                            },
+                            secondaryCallback: () {
+                              Navigator.pop(context); // Close the dialog
+                            },
+                          );
+                        },
+                        text: "Redo",
+                      ),
+                      EmailPresenter(
+                        widget.asmtState.formFields['store data']?.value is bool
+                            ? widget.asmtState.formFields['store data']?.value
+                            : (widget.asmtState.formFields['store data']?.value
+                                    is String
+                                ? bool.tryParse(widget.asmtState
+                                        .formFields['store data']?.value) ??
+                                    true
+                                : true),
+                        widget.asmtState.config,
+                        widget.asmtState.profile,
+                        widget.asmtState.dbAssessment,
+                        state.pdfData,
+                      ),
+                    ],
+                  );
+                } catch (e) {
+                  return Column(
+                    children: [
+                      Button(
+                        onPressed: () async {
+                          BlocProvider.of<PdfBloc>(context).add(PdfPrint(
+                            pdfData: state.pdfData,
+                          ));
+                        },
+                        text: "Print (under development)",
+                      ),
+                    ],
+                  );
+                }
+              })(),
+              Button(onPressed: () => AppNav(context).reset(), text: "Exit"),
+            ],
+          ),
+        ),
       ]),
     );
   }
 
-  Widget pdfLoading(BuildContext _, PdfState __) {
+  Widget onLoading(BuildContext _, PdfState __) {
     return const AppLoading(
       message: "Generating PDF report...",
     );
   }
 
-  Widget pdfError(BuildContext context, PdfState _, Exception e) {
+  Widget onError(
+      BuildContext context, PdfState _, Exception e, StackTrace? stackTrace) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text(e.toString()),
-      CupertinoButton(
-          child: const Text("Retry"),
-          onPressed: () => BlocProvider.of<PdfBloc>(context).add(
-                PdfInit(
-                    subject: asmtState.subject,
-                    assessment: asmtState.dbAssessment),
-              ))
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Text(
+          "Analysis Error\n ${e.toString()} \n${stackTrace.toString()}",
+          style: Styles.error,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Button(
+          text: "Retry",
+          onPressed: () => BlocProvider.of<PdfBloc>(context).add(PdfInit(
+              profile: widget.asmtState.profile,
+              assessment: widget.asmtState.dbAssessment,
+              params: getParams())))
     ]));
   }
 }
@@ -133,75 +275,70 @@ class AnalysisView<T extends BaseAssessment> extends StatelessWidget {
 class EmailPresenter<T extends BaseAssessment> extends StatelessWidget {
   final bool storeData;
   final T meta;
-  final Subject subject;
+  final Profile profile;
   final Assessment assessment;
   final Uint8List pdf;
   const EmailPresenter(
-      this.storeData, this.meta, this.subject, this.assessment, this.pdf,
+      this.storeData, this.meta, this.profile, this.assessment, this.pdf,
       {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EmailBloc, EmailState>(
-      builder: (context, state) {
-        if (state is EmailSending) {
-          return const CupertinoButton(
-            padding: EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
-            onPressed: null,
-            child:
-                Text("Sending Email...", style: TextStyle(color: Styles.black)),
-          );
-        } else if (state is EmailSent) {
-          return const CupertinoButton(
-            padding: EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
-            onPressed: null,
-            child: Text("Email Sent", style: TextStyle(color: Styles.black)),
-          );
-        } else {
-          return CupertinoButton(
-            padding: const EdgeInsets.all(13.0),
-            color: Styles.actionPrimary,
-            onPressed: () => onSend(context, subject, assessment, pdf),
-            child:
-                const Text("Send Email", style: TextStyle(color: Styles.black)),
-          );
-        }
-      },
-    );
+    return BlocBuilder<EmailBloc, EmailState>(builder: (context, state) {
+      return switch (state) {
+        EmailInit() =>
+          //Email address is not accessible yet
+          Container(),
+        EmailSending() => const Button(
+            disabled: true,
+            text: "Sending Email...",
+          ),
+        EmailFetched() => Button(
+            onPressed: () =>
+                onSend(context, state.email, profile, assessment, pdf),
+            text: "Save",
+          ),
+        EmailSent() => Button(
+            onPressed: () => AppNav(context).reset(),
+            text: "Exit",
+          ),
+        EmailError() => Button(
+            onPressed: () =>
+                BlocProvider.of<EmailBloc>(context).add(const EmailFetch()),
+            text: 'Error ${state.message}',
+          )
+      };
+    });
   }
 
   ///The button that initates the email post
   ///Saves the PDF and stores assessment by default
   void onSend(
     BuildContext context,
-    Subject subject,
+    String email,
+    Profile profile,
     Assessment assessment,
     Uint8List pdf,
   ) {
     appDialog(
         context: context,
-        title: storeData ? "Save and Send" : "Home",
+        title: storeData ? "Save and Send" : "Exit",
         content: storeData
-            ? "This will assume the data is valid and change the age-group norm table with the data from this assessment. Email will be sent to: ${subject.provider_contact}"
+            ? "The data will be used to update the age-group norm table and the PDF will then be emailed to $email."
             : "This data was indicated as a test and will ONLY be sent to your email. Are you sure you want to return home?",
         secondaryCallback: () => Navigator.pop(context),
         primaryCallback: () {
           if (storeData) {
-            updateNorms(meta, assessment, subject);
+            updateNorms(meta, assessment, profile);
           }
-          assessment = AssessmentService().addPDF(assessment, pdf);
+          assessment = AssessmentService().updateAssessmentPdf(assessment, pdf);
           BlocProvider.of<EmailBloc>(context).add(EmailSend(
               storeData: storeData,
-              subject: subject,
+              profile: profile,
               assessment: assessment,
-              onSuccess: () => {
-                    //AppNav(context).setHome()
-                  },
+              onSuccess: () => AppNav(context).reset(),
               onFail: () => log("Email failed")));
           Navigator.pop(context);
-          //TODO: BlocProvider.of<PatientBloc>(context).add(const PatientClear());
         });
   }
 }

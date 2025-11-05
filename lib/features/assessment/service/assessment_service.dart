@@ -1,42 +1,48 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
-
-import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/core/_core.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/backend/service/datastore_service.dart';
 
-class AssessmentService extends DataStoreService<Assessment> {
-  AssessmentService();
-
-  @override
-  void create(Assessment entity) {
-    log("Saving assessment");
-    super.create(entity);
-  }
-
-  @override
-  void delete(Assessment entity) {
-    Amplify.DataStore.delete(entity);
-  }
-
-  Assessment addPDF(Assessment assessment, Uint8List rawPdf) {
-    log("Adding pdf to assessment object");
+class AssessmentService {
+  Assessment updateAssessmentPdf(Assessment assessment, Uint8List rawPdf) {
     String base64String = base64Encode(rawPdf);
     String header = 'data:application/pdf;base64,';
     final pdf = header + base64String;
     return assessment.copyWith(pdf: pdf);
   }
 
-  Assessment addConditions(Assessment assessment, List<Condition> conditions) {
-    log("Adding conditions to assessment object");
-    //Add all the incomong conditions to the existing conditions in the assessment
-    conditions.addAll(assessment.Conditions ?? []);
-    return assessment.copyWith(Conditions: conditions);
-  }
+  static Future<Assessment> assembleAssessment(String id) async {
+    //First fetch the assessment object
+    final assessmentResult = await ApiService.read(
+        Assessment.classType, AssessmentModelIdentifier(id: id));
+    if (assessmentResult.data == null) {
+      throw Exception(
+          "Error while fetching the assessment: ${assessmentResult.errors}");
+    }
+    // Then fetch the stages,
+    final stagesResult = await ApiService.list(Stage.classType,
+        where: Stage.ASSESSMENT.eq(assessmentResult.data?.id), getAll: true);
+    // Then for each stage, fetch the trials,
+    final List<Stage> stages = [];
+    for (var stage in stagesResult.data!.items) {
+      if (stage == null) {
+        continue;
+      }
+      final trialsResult = await ApiService.list(Trial.classType,
+          where: Trial.STAGE.eq(stage.id), getAll: true);
+      final List<Trial> trials = [];
+      for (var trial in trialsResult.data!.items) {
+        if (trial == null) {
+          continue;
+        }
+        trials.add(trial);
+      }
 
-  Assessment addDuration(Assessment assessment, double durationSeconds) {
-    log("Adding duration (in seconds) to assessment object");
-    return assessment.copyWith(duration: durationSeconds);
+      stages.add(stage.copyWith(trials: trials));
+    }
+    // Then put the assessment object together and return
+
+    final result = assessmentResult.data!.copyWith(stages: stages);
+    return result;
   }
 }

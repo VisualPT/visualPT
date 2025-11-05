@@ -1,27 +1,25 @@
-//DO NOT IMPORT material.dart without renaming it with <as> keyword, will conflict with pdf/widgets.dart
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/gait/gait.dart';
 
-import '../_pdf.dart';
-
-class GaitPDF extends PDF {
+class GaitPDF extends BasePDF {
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
     final gaitrLogo = await rootBundle.loadString('assets/gaitr-logo.svg');
 
     final pdf = Document(
-        title: subject.last_name + subject.first_name + subject.dob.toString(),
+        title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -70,7 +68,7 @@ class GaitPDF extends PDF {
                                         text: "Patient Name: ", style: detail),
                                     TextSpan(
                                         text:
-                                            "${subject.first_name} ${subject.last_name}",
+                                            "${profile.firstName} ${profile.lastName}",
                                         style: detailBold),
                                   ]),
                                 ),
@@ -80,7 +78,7 @@ class GaitPDF extends PDF {
                                     TextSpan(
                                         text: "Birth Date: ", style: detail),
                                     TextSpan(
-                                        text: subject.dob.toString(),
+                                        text: profile.dob.toString(),
                                         style: detailBold),
                                   ]),
                                 ),
@@ -93,18 +91,22 @@ class GaitPDF extends PDF {
                                     text: TextSpan(children: [
                                   TextSpan(text: "Date: ", style: detail),
                                   TextSpan(
-                                      text: assessment.datetime
-                                          .toString(), //TODO timestamp=>datetime
+                                      text: FormatUtil.date(assessment.createdAt
+                                          .getDateTimeInUtc()
+                                          .toLocal()),
                                       style: detailBold),
                                 ])),
-                                Spacer(),
                                 RichText(
-                                    text: TextSpan(children: [
-                                  TextSpan(text: "Time: ", style: detail),
-                                  TextSpan(
-                                      text: assessment.datetime.toString(),
-                                      style: detailBold),
-                                ])),
+                                  text: TextSpan(children: [
+                                    TextSpan(text: "Time: ", style: detail),
+                                    TextSpan(
+                                        text: FormatUtil.time(assessment
+                                            .createdAt
+                                            .getDateTimeInUtc()
+                                            .toLocal()),
+                                        style: detailBold),
+                                  ]),
+                                ),
                               ]),
                         ])),
                     Spacer(),
@@ -112,7 +114,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Age: ", style: detail),
                         TextSpan(
-                            text: subject.dob.toString(),
+                            text: profile.dob.toString(),
                             style: detailBold), //TODO DOB to age
                       ]),
                     ),
@@ -121,7 +123,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Gender: ", style: detail),
                         TextSpan(
-                            text: subject.gender.toString(), style: detailBold),
+                            text: profile.gender.toString(), style: detailBold),
                       ]),
                     ),
                     Spacer(),
@@ -139,7 +141,7 @@ class GaitPDF extends PDF {
                       text: TextSpan(children: [
                         TextSpan(text: "Measurement Duration: ", style: detail),
                         TextSpan(
-                            text: assessment.datetime
+                            text: assessment.duration
                                 .toString(), //TODO add duration type to
                             style: detailBold),
                         TextSpan(text: " seconds", style: detail),
@@ -213,7 +215,7 @@ class GaitPDF extends PDF {
                     Positioned(
                       top: 0.1,
                       left: positioner(GaitNorms.getVelocityFromAge(
-                              subject.gender, subject.dob)
+                              profile.gender, profile.dob)
                           .toString()),
                       child: Container(
                         height: 0.25 * inch,
@@ -267,7 +269,7 @@ class GaitPDF extends PDF {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: detailBold,
-                  text: getComparisonMessage(30, subject.gender, subject.dob),
+                  text: getComparisonMessage(30, profile.gender, profile.dob),
                 ),
               ),
             ),
@@ -349,7 +351,7 @@ class GaitPDF extends PDF {
 String getComparisonMessage(double velocity, Gender gender, TemporalDate dob) {
   double percent =
       GaitNorms.getPercentDifferenceFromNorm(velocity, gender, dob);
-  int age = getAge(dob);
+  int age = FormatUtil.getAge(dob);
   int index = (age / 10).round();
   String speedComparison = percent > 0 ? "faster" : "slower";
   String ageRange = index > 8 ? "80+" : "${index}0 - ${index}9";

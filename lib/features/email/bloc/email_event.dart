@@ -1,25 +1,29 @@
 part of 'email_bloc.dart';
 
-abstract class EmailEvent extends Equatable {
+sealed class EmailEvent extends Equatable {
   const EmailEvent();
 
   @override
   List<Object> get props => [];
 }
 
+class EmailFetch extends EmailEvent {
+  const EmailFetch();
+}
+
 class EmailSend extends EmailEvent {
   final bool storeData;
-  final Subject subject;
+  final Profile profile;
   final Assessment assessment;
   final Function() onSuccess;
   final Function() onFail;
   const EmailSend(
       {required this.storeData,
-      required this.subject,
+      required this.profile,
       required this.assessment,
       required this.onSuccess,
       required this.onFail});
 
   @override
-  List<Object> get props => [subject, assessment, onSuccess, onFail];
+  List<Object> get props => [profile, assessment, onSuccess, onFail];
 }

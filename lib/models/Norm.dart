@@ -28,11 +28,11 @@ class Norm extends amplify_core.Model {
   static const classType = const _NormModelType();
   final String id;
   final AssessmentType? _type;
-  final int? _sequenceNumber;
-  final AgeRange? _age_range;
+  final int? _stageNumber;
+  final AgeRange? _ageRange;
   final Gender? _gender;
-  final double? _score_sum;
-  final int? _trial_sum;
+  final double? _scoreSum;
+  final int? _trialSum;
   final amplify_core.TemporalDateTime? _createdAt;
   final amplify_core.TemporalDateTime? _updatedAt;
 
@@ -62,9 +62,9 @@ class Norm extends amplify_core.Model {
     }
   }
   
-  int get sequenceNumber {
+  int get stageNumber {
     try {
-      return _sequenceNumber!;
+      return _stageNumber!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -75,9 +75,9 @@ class Norm extends amplify_core.Model {
     }
   }
   
-  AgeRange get age_range {
+  AgeRange get ageRange {
     try {
-      return _age_range!;
+      return _ageRange!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -101,9 +101,9 @@ class Norm extends amplify_core.Model {
     }
   }
   
-  double get score_sum {
+  double get scoreSum {
     try {
-      return _score_sum!;
+      return _scoreSum!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -114,9 +114,9 @@ class Norm extends amplify_core.Model {
     }
   }
   
-  int get trial_sum {
+  int get trialSum {
     try {
-      return _trial_sum!;
+      return _trialSum!;
     } catch(e) {
       throw amplify_core.AmplifyCodeGenModelException(
           amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -127,25 +127,45 @@ class Norm extends amplify_core.Model {
     }
   }
   
-  amplify_core.TemporalDateTime? get createdAt {
-    return _createdAt;
+  amplify_core.TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  amplify_core.TemporalDateTime? get updatedAt {
-    return _updatedAt;
+  amplify_core.TemporalDateTime get updatedAt {
+    try {
+      return _updatedAt!;
+    } catch(e) {
+      throw amplify_core.AmplifyCodeGenModelException(
+          amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            amplify_core.AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  const Norm._internal({required this.id, required type, required sequenceNumber, required age_range, required gender, required score_sum, required trial_sum, createdAt, updatedAt}): _type = type, _sequenceNumber = sequenceNumber, _age_range = age_range, _gender = gender, _score_sum = score_sum, _trial_sum = trial_sum, _createdAt = createdAt, _updatedAt = updatedAt;
+  const Norm._internal({required this.id, required type, required stageNumber, required ageRange, required gender, required scoreSum, required trialSum, required createdAt, required updatedAt}): _type = type, _stageNumber = stageNumber, _ageRange = ageRange, _gender = gender, _scoreSum = scoreSum, _trialSum = trialSum, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Norm({String? id, required AssessmentType type, required int sequenceNumber, required AgeRange age_range, required Gender gender, required double score_sum, required int trial_sum}) {
+  factory Norm({String? id, required AssessmentType type, required int stageNumber, required AgeRange ageRange, required Gender gender, required double scoreSum, required int trialSum, required amplify_core.TemporalDateTime createdAt, required amplify_core.TemporalDateTime updatedAt}) {
     return Norm._internal(
       id: id == null ? amplify_core.UUID.getUUID() : id,
       type: type,
-      sequenceNumber: sequenceNumber,
-      age_range: age_range,
+      stageNumber: stageNumber,
+      ageRange: ageRange,
       gender: gender,
-      score_sum: score_sum,
-      trial_sum: trial_sum);
+      scoreSum: scoreSum,
+      trialSum: trialSum,
+      createdAt: createdAt,
+      updatedAt: updatedAt);
   }
   
   bool equals(Object other) {
@@ -158,11 +178,13 @@ class Norm extends amplify_core.Model {
     return other is Norm &&
       id == other.id &&
       _type == other._type &&
-      _sequenceNumber == other._sequenceNumber &&
-      _age_range == other._age_range &&
+      _stageNumber == other._stageNumber &&
+      _ageRange == other._ageRange &&
       _gender == other._gender &&
-      _score_sum == other._score_sum &&
-      _trial_sum == other._trial_sum;
+      _scoreSum == other._scoreSum &&
+      _trialSum == other._trialSum &&
+      _createdAt == other._createdAt &&
+      _updatedAt == other._updatedAt;
   }
   
   @override
@@ -175,11 +197,11 @@ class Norm extends amplify_core.Model {
     buffer.write("Norm {");
     buffer.write("id=" + "$id" + ", ");
     buffer.write("type=" + (_type != null ? amplify_core.enumToString(_type)! : "null") + ", ");
-    buffer.write("sequenceNumber=" + (_sequenceNumber != null ? _sequenceNumber!.toString() : "null") + ", ");
-    buffer.write("age_range=" + (_age_range != null ? amplify_core.enumToString(_age_range)! : "null") + ", ");
+    buffer.write("stageNumber=" + (_stageNumber != null ? _stageNumber!.toString() : "null") + ", ");
+    buffer.write("ageRange=" + (_ageRange != null ? amplify_core.enumToString(_ageRange)! : "null") + ", ");
     buffer.write("gender=" + (_gender != null ? amplify_core.enumToString(_gender)! : "null") + ", ");
-    buffer.write("score_sum=" + (_score_sum != null ? _score_sum!.toString() : "null") + ", ");
-    buffer.write("trial_sum=" + (_trial_sum != null ? _trial_sum!.toString() : "null") + ", ");
+    buffer.write("scoreSum=" + (_scoreSum != null ? _scoreSum!.toString() : "null") + ", ");
+    buffer.write("trialSum=" + (_trialSum != null ? _trialSum!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -187,59 +209,65 @@ class Norm extends amplify_core.Model {
     return buffer.toString();
   }
   
-  Norm copyWith({AssessmentType? type, int? sequenceNumber, AgeRange? age_range, Gender? gender, double? score_sum, int? trial_sum}) {
+  Norm copyWith({AssessmentType? type, int? stageNumber, AgeRange? ageRange, Gender? gender, double? scoreSum, int? trialSum, amplify_core.TemporalDateTime? createdAt, amplify_core.TemporalDateTime? updatedAt}) {
     return Norm._internal(
       id: id,
       type: type ?? this.type,
-      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
-      age_range: age_range ?? this.age_range,
+      stageNumber: stageNumber ?? this.stageNumber,
+      ageRange: ageRange ?? this.ageRange,
       gender: gender ?? this.gender,
-      score_sum: score_sum ?? this.score_sum,
-      trial_sum: trial_sum ?? this.trial_sum);
+      scoreSum: scoreSum ?? this.scoreSum,
+      trialSum: trialSum ?? this.trialSum,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt);
   }
   
   Norm copyWithModelFieldValues({
     ModelFieldValue<AssessmentType>? type,
-    ModelFieldValue<int>? sequenceNumber,
-    ModelFieldValue<AgeRange>? age_range,
+    ModelFieldValue<int>? stageNumber,
+    ModelFieldValue<AgeRange>? ageRange,
     ModelFieldValue<Gender>? gender,
-    ModelFieldValue<double>? score_sum,
-    ModelFieldValue<int>? trial_sum
+    ModelFieldValue<double>? scoreSum,
+    ModelFieldValue<int>? trialSum,
+    ModelFieldValue<amplify_core.TemporalDateTime>? createdAt,
+    ModelFieldValue<amplify_core.TemporalDateTime>? updatedAt
   }) {
     return Norm._internal(
       id: id,
       type: type == null ? this.type : type.value,
-      sequenceNumber: sequenceNumber == null ? this.sequenceNumber : sequenceNumber.value,
-      age_range: age_range == null ? this.age_range : age_range.value,
+      stageNumber: stageNumber == null ? this.stageNumber : stageNumber.value,
+      ageRange: ageRange == null ? this.ageRange : ageRange.value,
       gender: gender == null ? this.gender : gender.value,
-      score_sum: score_sum == null ? this.score_sum : score_sum.value,
-      trial_sum: trial_sum == null ? this.trial_sum : trial_sum.value
+      scoreSum: scoreSum == null ? this.scoreSum : scoreSum.value,
+      trialSum: trialSum == null ? this.trialSum : trialSum.value,
+      createdAt: createdAt == null ? this.createdAt : createdAt.value,
+      updatedAt: updatedAt == null ? this.updatedAt : updatedAt.value
     );
   }
   
   Norm.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
       _type = amplify_core.enumFromString<AssessmentType>(json['type'], AssessmentType.values),
-      _sequenceNumber = (json['sequenceNumber'] as num?)?.toInt(),
-      _age_range = amplify_core.enumFromString<AgeRange>(json['age_range'], AgeRange.values),
+      _stageNumber = (json['stageNumber'] as num?)?.toInt(),
+      _ageRange = amplify_core.enumFromString<AgeRange>(json['ageRange'], AgeRange.values),
       _gender = amplify_core.enumFromString<Gender>(json['gender'], Gender.values),
-      _score_sum = (json['score_sum'] as num?)?.toDouble(),
-      _trial_sum = (json['trial_sum'] as num?)?.toInt(),
+      _scoreSum = (json['scoreSum'] as num?)?.toDouble(),
+      _trialSum = (json['trialSum'] as num?)?.toInt(),
       _createdAt = json['createdAt'] != null ? amplify_core.TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? amplify_core.TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'type': amplify_core.enumToString(_type), 'sequenceNumber': _sequenceNumber, 'age_range': amplify_core.enumToString(_age_range), 'gender': amplify_core.enumToString(_gender), 'score_sum': _score_sum, 'trial_sum': _trial_sum, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'type': amplify_core.enumToString(_type), 'stageNumber': _stageNumber, 'ageRange': amplify_core.enumToString(_ageRange), 'gender': amplify_core.enumToString(_gender), 'scoreSum': _scoreSum, 'trialSum': _trialSum, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
   
   Map<String, Object?> toMap() => {
     'id': id,
     'type': _type,
-    'sequenceNumber': _sequenceNumber,
-    'age_range': _age_range,
+    'stageNumber': _stageNumber,
+    'ageRange': _ageRange,
     'gender': _gender,
-    'score_sum': _score_sum,
-    'trial_sum': _trial_sum,
+    'scoreSum': _scoreSum,
+    'trialSum': _trialSum,
     'createdAt': _createdAt,
     'updatedAt': _updatedAt
   };
@@ -247,11 +275,13 @@ class Norm extends amplify_core.Model {
   static final amplify_core.QueryModelIdentifier<NormModelIdentifier> MODEL_IDENTIFIER = amplify_core.QueryModelIdentifier<NormModelIdentifier>();
   static final ID = amplify_core.QueryField(fieldName: "id");
   static final TYPE = amplify_core.QueryField(fieldName: "type");
-  static final SEQUENCENUMBER = amplify_core.QueryField(fieldName: "sequenceNumber");
-  static final AGE_RANGE = amplify_core.QueryField(fieldName: "age_range");
+  static final STAGENUMBER = amplify_core.QueryField(fieldName: "stageNumber");
+  static final AGERANGE = amplify_core.QueryField(fieldName: "ageRange");
   static final GENDER = amplify_core.QueryField(fieldName: "gender");
-  static final SCORE_SUM = amplify_core.QueryField(fieldName: "score_sum");
-  static final TRIAL_SUM = amplify_core.QueryField(fieldName: "trial_sum");
+  static final SCORESUM = amplify_core.QueryField(fieldName: "scoreSum");
+  static final TRIALSUM = amplify_core.QueryField(fieldName: "trialSum");
+  static final CREATEDAT = amplify_core.QueryField(fieldName: "createdAt");
+  static final UPDATEDAT = amplify_core.QueryField(fieldName: "updatedAt");
   static var schema = amplify_core.Model.defineSchema(define: (amplify_core.ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Norm";
     modelSchemaDefinition.pluralName = "Norms";
@@ -276,13 +306,13 @@ class Norm extends amplify_core.Model {
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Norm.SEQUENCENUMBER,
+      key: Norm.STAGENUMBER,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.int)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Norm.AGE_RANGE,
+      key: Norm.AGERANGE,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.enumeration)
     ));
@@ -294,28 +324,26 @@ class Norm extends amplify_core.Model {
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Norm.SCORE_SUM,
+      key: Norm.SCORESUM,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.double)
     ));
     
     modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
-      key: Norm.TRIAL_SUM,
+      key: Norm.TRIALSUM,
       isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.int)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Norm.CREATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
     
-    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.nonQueryField(
-      fieldName: 'updatedAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(amplify_core.ModelFieldDefinition.field(
+      key: Norm.UPDATEDAT,
+      isRequired: true,
       ofType: amplify_core.ModelFieldType(amplify_core.ModelFieldTypeEnum.dateTime)
     ));
   });

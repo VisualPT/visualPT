@@ -1,52 +1,51 @@
 part of 'assessment_bloc.dart';
 
 @immutable
-abstract class AssessmentState<T> extends Equatable {
-  final T meta;
-  const AssessmentState(this.meta);
+abstract class AssessmentState<T extends BaseAssessment> extends Equatable {
+  final T config;
+  final Map<String, FormFieldItem> formFields;
+  const AssessmentState(this.config, this.formFields);
 }
 
-class AssessmentForm<T> extends AssessmentState<T> {
-  const AssessmentForm(super.meta);
+class AssessmentInputs<T extends BaseAssessment> extends AssessmentState<T> {
+  const AssessmentInputs(super.config, super.formFields);
   @override
-  List<Object?> get props => [meta];
+  List<Object?> get props => [config, formFields];
 }
 
-class AssessmentActive<T> extends AssessmentState<T> {
-  final TrialMeta trialMeta;
-  final Subject subject;
-  final bool storeData;
+class AssessmentActive<T extends BaseAssessment> extends AssessmentState<T> {
+  final TrialMeta meta;
+  final Profile profile;
   const AssessmentActive(
-      this.trialMeta, this.subject, this.storeData, super.meta);
+      this.meta, this.profile, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [trialMeta, meta, storeData];
+  List<Object?> get props => [meta, profile, config, formFields];
 }
 
-class AssessmentAnalysis<T> extends AssessmentState<T> {
-  final Subject subject;
-  final bool storeData;
+class AssessmentAnalysis<T extends BaseAssessment> extends AssessmentState<T> {
+  final Profile profile;
   final Assessment dbAssessment;
   const AssessmentAnalysis(
-      this.subject, this.storeData, this.dbAssessment, super.meta);
+      this.profile, this.dbAssessment, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [subject, storeData, dbAssessment, meta];
+  List<Object?> get props => [profile, dbAssessment, config];
 }
 
-class AssessmentLoading<T> extends AssessmentState<T> {
+class AssessmentLoading<T extends BaseAssessment> extends AssessmentState<T> {
   final int index;
-  const AssessmentLoading(this.index, super.meta);
+  const AssessmentLoading(this.index, super.config, super.formFields);
   @override
-  List<Object?> get props => [meta, index];
+  List<Object?> get props => [index, config, formFields];
 }
 
-class AssessmentError<T> extends AssessmentState<T> {
+class AssessmentError<T extends BaseAssessment> extends AssessmentState<T> {
   //TODO Establish VisualPT Error Codes
   final Exception? message;
 
-  const AssessmentError(this.message, super.meta);
+  const AssessmentError(this.message, super.config, super.formFields);
 
   @override
-  List<Object?> get props => [message, meta];
+  List<Object?> get props => [message, config];
 }

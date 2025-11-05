@@ -1,7 +1,5 @@
-import 'package:amplify_core/src/types/temporal/temporal_date.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class BERG implements BaseAssessment {
@@ -16,13 +14,19 @@ class BERG implements BaseAssessment {
 
   @override
   String get details =>
-      """Test of a person's static and dynamic balance abilities.\n\nThe test is used to identify balance deficits in the elderly and in patients with neurological conditions.""";
+      """Test of a person's static and dynamic balance abilities.\n\nThe test is used to identify balance deficits in the elderly and in patients with neurological stages.""";
 
   @override
   String get imagePath => "assets/images/berg_mainlogo.png";
 
   @override
-  int get conditions => 6;
+  String get stageGifPath => ""; //TODO
+
+  @override
+  String get stageLabel => "Stage";
+
+  @override
+  int get stages => 6;
 
   @override
   int get trials => 1;
@@ -31,7 +35,7 @@ class BERG implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => [
+  List<String> get stageNames => [
         "Standing Unsupported with Feet Together",
         "Standing on One Leg",
         "Pick Up Object from the Floor",
@@ -41,26 +45,19 @@ class BERG implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(6, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+  List<List<String>> get stageInstructions => List.filled(6, [
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(6, [InferenceType.poseDetection]);
+  List<bool> get stageObtrusion => [false, false, false, false, false, false];
 
   @override
-  List<bool> get conditionObtrusion =>
-      [false, false, false, false, false, false];
+  List<bool> get stageInstability => [false, false, false, false, false, false];
 
   @override
-  List<bool> get conditionInstability =>
-      [false, false, false, false, false, false];
-
-  @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -82,7 +79,7 @@ class BERG implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
+  List<List<double>> calculateScores(Assessment assessment) {
     // TODO: implement calculateScores
     throw UnimplementedError();
   }
@@ -94,36 +91,10 @@ class BERG implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
     return false;
-  }
-}
-
-class BERGData {
-  final num imageHeight;
-  final num imageWidth;
-  final int classIndex;
-  final int conditionNumber;
-  final int trialNumber;
-  final PoseDetectionOutput output;
-  const BERGData(
-    this.imageHeight,
-    this.imageWidth,
-    this.classIndex,
-    this.conditionNumber,
-    this.trialNumber,
-    this.output,
-  );
-
-  toCSV() {
-    final lines = output.output.map((line) => line.join(",")).join("\n");
-    final metadata = [
-      imageHeight,
-      imageWidth,
-      classIndex,
-      conditionNumber,
-      trialNumber
-    ].join(",");
-    return "$metadata\n$lines";
   }
 }

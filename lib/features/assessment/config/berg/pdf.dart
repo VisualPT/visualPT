@@ -1,23 +1,23 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/features/assessment/config/berg/berg.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
 
-class BergPDF extends PDF {
+class BergPDF extends BasePDF {
   final berg = BERG();
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
 
     final pdf = Document(
-        title: subject.last_name + subject.first_name + subject.dob.toString(),
+        title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -27,10 +27,10 @@ class BergPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            subjectData(subject, assessment),
-            // assessmentData(subject, assessment),
+            subjectData(profile, assessment),
+            // assessmentData(profile, assessment),
             // interpretationData(assessment),
-            // normativeData(subject, assessment),
+            // normativeData(profile, assessment),
             diagnosisData(),
             Spacer(),
             footerData(),
@@ -76,7 +76,7 @@ class BergPDF extends PDF {
     );
   }
 
-  Widget subjectData(Subject subject, Assessment assessment) {
+  Widget subjectData(Profile profile, Assessment assessment) {
     return SizedBox(
       height: 1.5 * inch,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -89,14 +89,14 @@ class BergPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Name: ", style: detail),
                 TextSpan(
-                    text: "${subject.first_name} ${subject.last_name}",
+                    text: "${profile.firstName} ${profile.lastName}",
                     style: detailBold),
               ]),
             ),
             RichText(
               text: TextSpan(children: [
                 TextSpan(text: "DOB: ", style: detail),
-                TextSpan(text: subject.dob.toString(), style: detailBold),
+                TextSpan(text: profile.dob.toString(), style: detailBold),
               ]),
             ),
             RichText(
@@ -104,7 +104,7 @@ class BergPDF extends PDF {
                 TextSpan(text: "Age: ", style: detail),
                 TextSpan(
                     text: (DateTime.now()
-                                .difference(subject.dob.getDateTime())
+                                .difference(profile.dob.getDateTime())
                                 .inDays ~/
                             365)
                         .toString(),
@@ -114,7 +114,7 @@ class BergPDF extends PDF {
             RichText(
               text: TextSpan(children: [
                 TextSpan(text: "Gender: ", style: detail),
-                TextSpan(text: subject.gender.name, style: detailBold),
+                TextSpan(text: profile.gender.name, style: detailBold),
               ]),
             ),
           ]),
@@ -125,7 +125,8 @@ class BergPDF extends PDF {
                 text: TextSpan(children: [
               TextSpan(text: "Date: ", style: detail),
               TextSpan(
-                  text: DateTime.parse(assessment.datetime.toString())
+                  text: assessment.createdAt
+                      .getDateTimeInUtc()
                       .toLocal()
                       .toIso8601String()
                       .substring(0, 10),
@@ -135,7 +136,8 @@ class BergPDF extends PDF {
               text: TextSpan(children: [
                 TextSpan(text: "Time: ", style: detail),
                 TextSpan(
-                    text: DateTime.parse(assessment.datetime.toString())
+                    text: assessment.createdAt
+                        .getDateTimeInUtc()
                         .toLocal()
                         .toIso8601String()
                         .substring(11)
@@ -159,7 +161,7 @@ class BergPDF extends PDF {
     );
   }
 
-  Widget assessmentData(Subject subject, Assessment assessment) {
+  Widget assessmentData(Profile profile, Assessment assessment) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
@@ -192,7 +194,7 @@ class BergPDF extends PDF {
             ],
           ),
           // Create a table row for each segment
-          for (int i = 0; i < assessment.Conditions!.length; i++)
+          for (int i = 0; i < assessment.stages!.length; i++)
             TableRow(
               children: [
                 Padding(
@@ -201,12 +203,12 @@ class BergPDF extends PDF {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(berg.conditionNames[i]),
+                  child: Text(berg.stageNames[i]),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      "${assessment.Conditions![i].duration.toString()} / 30 seconds"),
+                      "${assessment.stages![i].duration.toString()} / 30 seconds"),
                 ),
               ],
             ),
@@ -225,7 +227,7 @@ class BergPDF extends PDF {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "${assessment.Conditions!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * berg.conditions} seconds",
+                  "${assessment.stages!.map((s) => s.duration).reduce((a, b) => a + b).toString()} / ${30 * berg.stages} seconds",
                 ),
               ),
             ],
@@ -243,22 +245,22 @@ class BergPDF extends PDF {
       RichText(
           text: TextSpan(
               text:
-                  "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
+                  "1)	Vision Dependence: Patients become unstable in stages 2, 3, 5 & 6 with eyes closed.",
               style: disclaimer)),
       RichText(
           text: TextSpan(
               text:
-                  "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
+                  "2) Surface/somatosensory dependence: Patient becomes unstable in stages 4, 5 & 6 because they stand on a soft surface (foam).",
               style: disclaimer)),
       RichText(
           text: TextSpan(
               text:
-                  "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+                  "3)	Vestibular loss: Patient becomes unstable in stages 5 & 6 because they can't rely on vision or surface / somatosensory function.",
               style: disclaimer)),
       RichText(
           text: TextSpan(
               text:
-                  "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
+                  "4)	Patients with sensory selection problems become unstable in stages 3-6.",
               style: disclaimer)),
     ]);
   }

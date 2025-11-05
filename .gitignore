@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -54,16 +56,13 @@ amplify/backend/.temp
 build/
 dist/
 node_modules/
-aws-exports.js
-awsconfiguration.json
-amplifyconfiguration.json
-# amplifyconfiguration.dart commeneted out to allow for xcode actions
-amplify-build-config.json
-amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
+.amplify
+amplifyconfiguration*
 #amplify-do-not-edit-end
 
 # FVM Version Cache
 .fvm/
+

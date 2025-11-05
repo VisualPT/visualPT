@@ -1,7 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:visualpt/core/utils/amplify_utils.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class GAIT implements BaseAssessment {
@@ -16,13 +15,19 @@ class GAIT implements BaseAssessment {
 
   @override
   String get details =>
-      """The Gait Velocity Test is a quick and easy way to assess a subject's walking speed. \nThe test is performed by having the subject walk a set distance and measuring the time it takes to complete the distance.""";
+      """The Gait Velocity Test is a quick and easy way to assess a profile's walking speed. \nThe test is performed by having the profile walk a set distance and measuring the time it takes to complete the distance.""";
 
   @override
   String get imagePath => "assets/images/gv_mainlogo.png";
 
   @override
-  int get conditions => 1;
+  String get stageGifPath => ""; //TODO
+
+  @override
+  String get stageLabel => "Stage";
+
+  @override
+  int get stages => 1;
 
   @override
   int get trials => 1;
@@ -31,27 +36,22 @@ class GAIT implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => ["Walk"];
+  List<String> get stageNames => ["Walk"];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(1, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+  List<List<String>> get stageInstructions => List.filled(1, [
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(1, [InferenceType.poseDetection]);
+  List<bool> get stageObtrusion => [false];
 
   @override
-  List<bool> get conditionObtrusion => [false];
+  List<bool> get stageInstability => [false];
 
   @override
-  List<bool> get conditionInstability => [false];
-
-  @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -73,7 +73,7 @@ class GAIT implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
+  List<List<double>> calculateScores(Assessment assessment) {
     // TODO: implement calculateScores
     throw UnimplementedError();
   }
@@ -85,7 +85,10 @@ class GAIT implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
     return false;
   }
 }
@@ -97,7 +100,7 @@ class GaitNorms {
   static const femaleNorm = [1.14, 1.2, 1.4, 1.4, 1.4, 1.39, 1.22, 1.19, 1.0];
 
   static double getVelocityFromAge(Gender gender, TemporalDate dob) {
-    int age = getAge(dob);
+    int age = FormatUtil.getAge(dob);
     final int index = (age / 10).round().clamp(0, 8);
     return gender == Gender.MALE ? maleNorm[index] : femaleNorm[index];
   }
@@ -115,7 +118,7 @@ class GaitNorms {
 // class GaitPatientData {
 //   late String managingtherapistEmail = 'sample@example.com';
 //   late String firstname = 'sample';
-//   late String lastname = 'subject';
+//   late String lastname = 'profile';
 //   late String bday = '01/01/1901';
 //   late bool isMale = true;
 //   late String age = '0';
@@ -133,7 +136,7 @@ class GAITData {
   //final int classIndex;
   //final int conditionNumber;
   final int trialNumber;
-  //final Patient subject; TODO: #140 Implement Patient Row in the Metadata @DrBubbles42 this should probably become a third row
+  //final Patient profile; TODO: #140 Implement Patient Row in the Metadata @DrBubbles42 this should probably become a third row
   //final GaitDetectionOutput output;
   const GAITData(
     this.imageHeight,

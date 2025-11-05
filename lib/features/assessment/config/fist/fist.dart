@@ -1,10 +1,6 @@
-import 'package:amplify_core/src/types/temporal/temporal_date.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/models/Assessment.dart';
-import 'package:visualpt/models/AssessmentType.dart';
-import 'package:visualpt/models/Gender.dart';
-import 'package:visualpt/models/Norm.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/models/ModelProvider.dart';
 
 class FIST implements BaseAssessment {
   @override
@@ -24,7 +20,13 @@ class FIST implements BaseAssessment {
   String get imagePath => "assets/images/fist_mainlogo.png";
 
   @override
-  int get conditions => 1;
+  String get stageGifPath => ""; //TODO
+
+  @override
+  String get stageLabel => "Stage";
+
+  @override
+  int get stages => 1;
 
   @override
   int get trials => 1;
@@ -33,27 +35,22 @@ class FIST implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => ["Sitting"];
+  List<String> get stageNames => ["Sitting"];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(1, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+  List<List<String>> get stageInstructions => List.filled(1, [
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(1, [InferenceType.poseDetection]);
+  List<bool> get stageObtrusion => [false];
 
   @override
-  List<bool> get conditionObtrusion => [false];
+  List<bool> get stageInstability => [false];
 
   @override
-  List<bool> get conditionInstability => [false];
-
-  @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {};
 
   @override
   bool get isTrainingData => true;
@@ -75,7 +72,7 @@ class FIST implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
+  List<List<double>> calculateScores(Assessment assessment) {
     // TODO: implement calculateScores
     throw UnimplementedError();
   }
@@ -87,7 +84,10 @@ class FIST implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
     return false;
   }
 }

@@ -1,27 +1,37 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:visualpt/core/views/styles.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/assessment/types.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/features/assessment/config/_pdf.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
 
-class CtsibPDF extends PDF {
+class CtsibPDF extends BasePDF {
   final ctsib = CTSIB();
   @override
-  Future<Uint8List> generatePdf(Subject subject, Assessment assessment) async {
+  Future<Uint8List> generatePdf(Profile profile, Assessment assessment,
+      Map<String, dynamic> params) async {
     await configPdfStyles();
 
-    final norms = await ctsib.getNorms(subject.dob, subject.gender);
+    final norms = await ctsib.getNorms(profile.dob, profile.gender);
 
     final pdf = Document(
-        title: subject.last_name + subject.first_name + subject.dob.toString(),
+        title: profile.lastName + profile.firstName + profile.dob.toString(),
         creator: "VisualPT Systems");
+
+    final detectionParams = DetectionParams(
+      sensitivity: params.putIfAbsent('sensitivity', () => (1.0, 1.0)),
+      offset: params.putIfAbsent('offset', () => (0.0, 0.0)),
+      deviceCorrection: params.putIfAbsent('deviceCorrection', () => true),
+    );
+
+    final scores = ctsib.calculateScores(assessment, params: detectionParams);
 
     pdf.addPage(
       Page(
-        pageTheme: PageTheme(
+        pageTheme: const PageTheme(
           pageFormat: PdfPageFormat.letter,
           margin: EdgeInsets.all(halfinch),
         ),
@@ -31,15 +41,15 @@ class CtsibPDF extends PDF {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             headerData(),
-            subjectData(subject, assessment),
+            subjectData(profile, assessment, detectionParams),
             Spacer(),
-            assessmentData(subject, assessment, norms),
+            assessmentData(scores, norms),
             Spacer(),
-            sensoryMismatchData(assessment),
+            sensoryMismatchData(scores, norms),
             Spacer(),
-            normativeData(assessment, norms),
-            Spacer(),
-            interpretationData(assessment),
+            // normativeData(assessment, norms, params: detectionParams),
+            // Spacer(),
+            // interpretationData(assessment),
             Spacer(),
             footerData(),
           ]),
@@ -63,18 +73,19 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget subjectData(Subject subject, Assessment assessment) {
+  Widget subjectData(
+      Profile profile, Assessment assessment, DetectionParams params) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       RichText(
           textAlign: TextAlign.left,
-          text: TextSpan(text: "Patient Information", style: subHeader)),
+          text: TextSpan(text: "Assessment Information", style: subHeader)),
       Row(children: [
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Name: ", style: detail),
               TextSpan(
-                  text: "${subject.first_name} ${subject.last_name}",
+                  text: "${profile.firstName} ${profile.lastName}",
                   style: detailBold),
             ]),
           ),
@@ -82,7 +93,7 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "DOB: ", style: detail),
               TextSpan(
-                  text: formatDate(subject.dob.getDateTime()),
+                  text: FormatUtil.date(profile.dob.getDateTime()),
                   style: detailBold),
             ]),
           ),
@@ -91,7 +102,7 @@ class CtsibPDF extends PDF {
               TextSpan(text: "Age: ", style: detail),
               TextSpan(
                   text: (DateTime.now()
-                              .difference(subject.dob.getDateTime())
+                              .difference(profile.dob.getDateTime())
                               .inDays ~/
                           365)
                       .toString(),
@@ -101,27 +112,37 @@ class CtsibPDF extends PDF {
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Gender: ", style: detail),
-              TextSpan(text: subject.gender.name, style: detailBold),
+              TextSpan(text: profile.gender.name, style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Fall History: ", style: detail),
+              TextSpan(
+                  text: FormatUtil.castValue(
+                          jsonDecode(assessment.extra)['fall history'],
+                          FallHistory.NONE)
+                      .name,
+                  style: detailBold),
             ]),
           ),
         ]),
         Spacer(),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          //TODO internationalize this date format to local time
           RichText(
               text: TextSpan(children: [
             TextSpan(text: "Date: ", style: detail),
             TextSpan(
-                text:
-                    formatDate(DateTime.parse(assessment.datetime.toString())),
+                text: FormatUtil.date(
+                    assessment.createdAt.getDateTimeInUtc().toLocal()),
                 style: detailBold),
           ])),
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Time: ", style: detail),
               TextSpan(
-                  text: formatTime(
-                      DateTime.parse(assessment.datetime.toString()).toLocal()),
+                  text: FormatUtil.time(
+                      assessment.createdAt.getDateTimeInUtc().toLocal()),
                   style: detailBold),
             ]),
           ),
@@ -129,7 +150,70 @@ class CtsibPDF extends PDF {
             text: TextSpan(children: [
               TextSpan(text: "Total Duration: ", style: detail),
               TextSpan(
-                  text: formatDuration(assessment.duration), style: detailBold),
+                  text: FormatUtil.duration(assessment.duration),
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Number of Conditions: ", style: detail),
+              TextSpan(
+                  text: assessment.stages?.length.toString() ?? "0",
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Number of Trials: ", style: detail),
+              TextSpan(
+                  text: assessment.stages
+                          ?.fold<int>(0,
+                              (sum, stage) => sum + (stage.trials?.length ?? 0))
+                          .toString() ??
+                      "0",
+                  style: detailBold),
+            ]),
+          ),
+        ]),
+      ]),
+      SizedBox(height: 10),
+      RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(text: "Detection Parameters", style: subHeader)),
+      Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Offset: ", style: detail),
+              TextSpan(text: params.offset.toString(), style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Sensitivity: ", style: detail),
+              TextSpan(text: params.sensitivity.toString(), style: detailBold),
+            ]),
+          ),
+        ]),
+        Spacer(),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Device Stabilized: ", style: detail),
+              TextSpan(
+                  text: params.deviceCorrection ? "Enabled" : "Disabled",
+                  style: detailBold),
+            ]),
+          ),
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: "Data Stored: ", style: detail),
+              TextSpan(
+                  text: (jsonDecode(assessment.extra)['store data'] == true ||
+                          jsonDecode(assessment.extra)['store data'] == "true")
+                      ? "Yes"
+                      : "No",
+                  style: detailBold),
             ]),
           ),
         ]),
@@ -137,8 +221,30 @@ class CtsibPDF extends PDF {
     ]);
   }
 
-  Widget assessmentData(
-      Subject subject, Assessment assessment, List<Norm>? norms) {
+//TODO: Make the bars wider to get the bar labels to fit better
+  Widget assessmentData(List<List<double>> scores, List<Norm>? norms) {
+    final trialsCount = scores[0].length;
+    // Set the margins based on the number of trials
+    final margins = trialsCount == 1
+        ? [30.0, 30.0]
+        : trialsCount == 2
+            ? [26.0, 34.0]
+            : [23.0, 38.0];
+
+    final compositeColor = scores
+                    .expand((stage) => stage)
+                    .reduce((a, b) => a + b) /
+                (scores.expand((stage) => stage).length) >
+            (norms?.map((norm) => norm.scoreSum).reduce((a, b) => a + b) ?? 0) /
+                (norms?.map((norm) => norm.trialSum).reduce((a, b) => a + b) ??
+                    1)
+        ? PdfColors.green
+        : PdfColors.red;
+
+    final compositeScore =
+        scores.expand((stage) => stage).reduce((a, b) => a + b) /
+            (scores.expand((stage) => stage).length);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -150,47 +256,15 @@ class CtsibPDF extends PDF {
           height: 220, // Increase height for better visibility
           child: Stack(
             children: [
+              // Add a horizontal line at y = 75 using the dartpdf API
+
               // Background chart for norm scores (gray background)
               Chart(
                 grid: CartesianGrid(
                   xAxis: FixedAxis.fromStrings(
-                    List.generate(((assessment.Conditions?.length ?? 0) + 1),
-                        (i) => '\n\n'),
-                    textStyle: TextStyle(fontSize: 10, font: baseFont),
-                    marginStart: 30,
-                    marginEnd: 30,
-                  ),
-                  yAxis: FixedAxis(
-                    [0, 25, 50, 75, 100],
-                    format: (v) => '$v',
-                    marginStart: 1,
-                  ),
-                ),
-                datasets: List.generate(
-                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
-                  return BarDataSet(
-                    legend: '',
-                    color: PdfColors.grey, // Normative background
-                    data: [
-                      PointChartValue(
-                          (i).toDouble(),
-                          (norms?[i].score_sum ?? 0) /
-                              ((norms?[i].trial_sum ?? 1)))
-                    ],
-                    valuePosition: ValuePosition.auto,
-                    width: 30,
-                  );
-                }),
-              ),
-              // Foreground chart for patient scores
-              Chart(
-                grid: CartesianGrid(
-                  xAxis: FixedAxis.fromStrings(
                     List.generate(
-                      ((assessment.Conditions?.length ?? 0) + 1),
-                      (i) => (assessment.Conditions?.length ?? 0) != i
-                          ? '${ctsib.vision[i]}\n${ctsib.surface[i]}'
-                          : 'Cumulative',
+                      scores.length + 1,
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Composite',
                     ),
                     textStyle: TextStyle(fontSize: 10, font: baseFont),
                     marginStart: 30,
@@ -201,62 +275,118 @@ class CtsibPDF extends PDF {
                     format: (v) => '$v',
                     marginStart: 1,
                     divisions: true,
-                    divisionsColor: PdfColor.fromInt(Styles.activeOrange.value),
+                    divisionsColor:
+                        PdfColor.fromInt(Styles.activeOrange.toARGB32()),
                   ),
                 ),
-                datasets: List.generate(
-                    ((assessment.Conditions?.length ?? 0) + 1), (i) {
-                  if ((assessment.Conditions?.length ?? 0) != i) {
-                    //TODO: Add multiple trials here
-                    return BarDataSet(
-                      legend: '${ctsib.vision[i]}\n${ctsib.surface[i]}',
-                      color: ctsib.calculateScores(assessment)[i] >
-                              (norms?[i].score_sum ?? 0) /
-                                  ((norms?[i].trial_sum ?? 1))
-                          ? PdfColors.green
-                          : PdfColors.red, // Patient data color
-                      width: 20,
-                      data: [
-                        PointChartValue(
-                          (i).toDouble(),
-                          ctsib.calculateScores(assessment)[i],
-                        ),
-                      ],
-                      buildValue: (context, point) => Text(
-                          //If this is flagged as a fall, write FALL
-                          point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontSize: 10,
-                            font: baseFont,
-                          )),
-                      valuePosition: ValuePosition.auto,
-                    );
-                  }
+                datasets: List.generate((scores.length + 1), (i) {
                   return BarDataSet(
-                    legend: '#${i + 1}',
-                    color: (ctsib.calculateScores(assessment).fold<double>(0.0,
-                                    (prevScore, score) => prevScore + score) /
-                                i) >
-                            (norms?[i].score_sum ?? 0) /
-                                ((norms?[i].trial_sum ?? 1))
-                        ? PdfColors.green
-                        : PdfColors.red, // Patient data color
-                    width: 20,
+                    legend: '',
+                    color: PdfColors.grey, // Normative background
                     data: [
                       PointChartValue(
-                        (i).toDouble(),
-                        ctsib.calculateScores(assessment).fold<double>(
-                                0.0, (prevScore, score) => prevScore + score) /
-                            i,
-                      ),
+                          (i).toDouble(),
+                          (norms?[i].scoreSum ?? 0) /
+                              ((norms?[i].trialSum ?? 1)))
                     ],
-                    buildValue: (context, point) => Text(
-                        //If this is flagged as a fall, write FALL
-                        point.y == 0 ? "FALL" : point.y.toStringAsFixed(2),
-                        style: const TextStyle(fontSize: 10)),
                     valuePosition: ValuePosition.auto,
+                    width: 30,
                   );
                 }),
+              ),
+              // 75% performance line
+              Positioned(
+                bottom: 220 * 0.69725, // the closest to y = 75%
+                left: 30,
+                right: 0,
+                child: Container(
+                  height: 2,
+                  color: PdfColors.blue,
+                ),
+              ),
+              // Foreground chart for patient scores
+              ...List.generate(
+                (scores.length),
+                (i) {
+                  return Chart(
+                    grid: CartesianGrid(
+                      xAxis: FixedAxis.fromStrings(
+                        List.generate(
+                          scores.length + 1,
+                          (i) => '\n',
+                        ),
+                        textStyle: TextStyle(fontSize: 10, font: baseFont),
+                        marginStart: margins[0],
+                        marginEnd: margins[1],
+                      ),
+                      yAxis: FixedAxis(
+                        [0, 25, 50, 75, 100],
+                        format: (v) => '$v',
+                        marginStart: 1,
+                      ),
+                    ),
+                    datasets: scores[i].asMap().entries.map((entry) {
+                      return BarDataSet(
+                        legend: '',
+                        width: scores[i].length == 1 ? 20 : 5,
+                        color: entry.value >
+                                (norms?[i].scoreSum ?? 0) /
+                                    ((norms?[i].trialSum ?? 1))
+                            ? PdfColors.green
+                            : PdfColors.red,
+                        data: [
+                          PointChartValue(
+                            (i + entry.key * 0.1).toDouble(),
+                            entry.value,
+                          )
+                        ],
+                        buildValue: (context, point) => Text(
+                            point.y == 0 ? "F" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: trialsCount == 1 ? 10 : 8,
+                              font: baseFont,
+                            )),
+                        valuePosition: ValuePosition.auto,
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+              // Composite chart
+              Chart(
+                grid: CartesianGrid(
+                  xAxis: FixedAxis.fromStrings(
+                    List.generate(
+                      scores.length + 1,
+                      (i) => i < ctsib.stages ? 'C${i + 1}' : 'Composite',
+                    ),
+                    textStyle: TextStyle(fontSize: 10, font: baseFont),
+                    marginStart: 30,
+                    marginEnd: 30,
+                  ),
+                  yAxis: FixedAxis(
+                    [0, 25, 50, 75, 100],
+                    format: (v) => '$v',
+                    marginStart: 1,
+                  ),
+                ),
+                datasets: [
+                  BarDataSet(
+                    legend: '',
+                    color: compositeColor,
+                    data: [
+                      PointChartValue(scores.length.toDouble(), compositeScore)
+                    ],
+                    buildValue: (context, point) =>
+                        Text(point.y == 0 ? "F" : point.y.toStringAsFixed(0),
+                            style: TextStyle(
+                              fontSize: 10,
+                              font: baseFont,
+                            )),
+                    valuePosition: ValuePosition.auto,
+                    width: 20,
+                  ),
+                ],
               ),
             ],
           ),
@@ -265,17 +395,25 @@ class CtsibPDF extends PDF {
     );
   }
 
-  Widget sensoryMismatchData(Assessment assessment) {
+  Widget sensoryMismatchData(List<List<double>> scores, List<Norm>? norms) {
     // Function to calculate severity score based on the equilibrium score
-    List<int> calculateSeverityScore(List<double> equilibriumScore) {
-      List<int> severityScores = List.filled(equilibriumScore.length, 0);
-      for (int i = 0; i < equilibriumScore.length; i++) {
-        if (equilibriumScore[i] >= 75) {
+    List<int> calculateSeverityScore(List<List<double>> equilibriumScores) {
+      List<int> severityScores = List.filled(equilibriumScores.length, 0);
+      for (int i = 0; i < equilibriumScores.length; i++) {
+        final stageScores = equilibriumScores[i];
+        final averageScore =
+            stageScores.reduce((a, b) => a + b) / stageScores.length;
+        final normScore =
+            (norms?[i].scoreSum ?? 0) / ((norms?[i].trialSum ?? 1));
+
+        // Determine the severity score based on the average score and normative data
+        // Ref: https://github.com/VisualPT/visualPT/issues/243
+        if (averageScore >= 75 && averageScore >= normScore) {
           severityScores[i] = 3; // 75-100 range
-        } else if (equilibriumScore[i] >= 50) {
-          severityScores[i] = 2; // 50-74 range
-        } else if (equilibriumScore[i] >= 25) {
-          severityScores[i] = 1; // 25-49 range
+        } else if (averageScore >= (i < 4 ? 50 : normScore)) {
+          severityScores[i] = 2; // 50-74 range or >= normScore
+        } else if (averageScore >= (i < 4 ? 25 : 0)) {
+          severityScores[i] = 1; // 25-49 range or 0-49 range
         } else {
           severityScores[i] = 0; // 0-24 range
         }
@@ -288,32 +426,46 @@ class CtsibPDF extends PDF {
       String c2 = severityScores[1] == 3 ? 'S' : 'V'; // Condition 2 (SOM)
       String c3 = severityScores[2] == 3 ? 'S' : 'V'; // Condition 3 (SOM)
       String c4 = severityScores[3] == 3 ? 'V' : 'S'; // Condition 4 (VIS)
-      String c5 = severityScores[4] == 3
-          ? 'Vest'
-          : severityScores[4] == 2
-              ? 'S'
-              : 'V';
-      String c6 = severityScores[5] == 3
-          ? 'Vest'
-          : severityScores[5] == 2
-              ? 'S'
-              : 'V';
+
+      String classifyC5C6(List<double> trialScores, double normScore) {
+        int belowMean = trialScores.where((score) => score < normScore).length;
+        int aboveMean = trialScores.where((score) => score >= normScore).length;
+        int belowPerfLine = trialScores.where((score) => score < 75).length;
+
+        if (aboveMean == trialScores.length && belowPerfLine == 0) {
+          return 'Vest'; // All above mean and above performance line
+        } else if (aboveMean == trialScores.length && belowPerfLine > 0) {
+          return 'S'; // All above mean but some below 75%
+        } else if (belowMean >= 2) {
+          return 'V'; // Two or more below mean
+        } else if (aboveMean >= 2) {
+          return 'S'; // Two or more above mean
+        } else {
+          return 'V'; // Fallback
+        }
+      }
+
+      String c5 = classifyC5C6(
+          scores[4], (norms?[4].scoreSum ?? 0) / ((norms?[4].trialSum ?? 1)));
+      String c6 = classifyC5C6(
+          scores[5], (norms?[5].scoreSum ?? 0) / ((norms?[5].trialSum ?? 1)));
 
       String sensoryString = "$c2$c3$c4$c5$c6";
       return sensoryString;
     }
 
-    // Function to determine the sensory mismatch and check for Aphysio
-    // Function to determine the sensory mismatch based on sensoryString
-    String determineSensoryMismatch(String sensoryString, int compositeScore) {
-      // Direct mapping of sensoryString patterns to sensory mismatch categories
+    String determineSensoryMismatch(
+        String sensoryString, double compositeScore) {
+      const double cutoff = 48.0;
+
+      // Define base mismatch mapping
       Map<String, String> sensoryMappings = {
-        //TODO: have a PT review these, the color codings of these actually matter
         "VVVVV": "VVM",
         "VVVVS": "VVM",
         "VVVSS": "VVM",
         "VSVSV": "VVM",
         "VVVSV": "VVM",
+        "VVSVV": "VVM",
         "SVVVV": "VSVM",
         "SSSSS": "SVM",
         "SVSVS": "SVM",
@@ -332,16 +484,25 @@ class CtsibPDF extends PDF {
         "SSSVS": "SVM",
       };
 
-      // Check if the sensoryString matches any known mappings
-      if (sensoryMappings.containsKey(sensoryString)) {
-        return sensoryMappings[sensoryString]!;
+      // Get the base mismatch type
+      String? baseMismatch = sensoryMappings[sensoryString];
+
+      // If it's unknown and compositeScore is low, it's SVVM or Complex
+      if (baseMismatch == null) {
+        return compositeScore < cutoff ? "SVVM or Complex SM" : "Normal";
       }
 
-      // Apply age-group thresholds based on the composite score
-      if (compositeScore >= 12) {
-        return sensoryMappings[sensoryString] ?? "Normal";
+      // Composite score determines severity classification
+      if (compositeScore < cutoff) {
+        if (baseMismatch == "VVM" ||
+            baseMismatch == "SVM" ||
+            baseMismatch == "VSVM") {
+          return "$baseMismatch (Aphysiological?)";
+        } else {
+          return baseMismatch; // Already severe enough (e.g., SVVM, Vh-SOM)
+        }
       } else {
-        return "SVVM or Complex SM"; // Complex SM for lower scores
+        return baseMismatch; // Composite is good, use base label
       }
     }
 
@@ -429,10 +590,11 @@ class CtsibPDF extends PDF {
       );
     }
 
-    final scores = ctsib.calculateScores(assessment);
     final severityScores = calculateSeverityScore(scores);
+
     final compositeScore =
-        severityScores.fold<int>(0, (prev, cur) => prev + cur);
+        scores.expand((stage) => stage).reduce((a, b) => a + b) /
+            (scores.expand((stage) => stage).length);
     final sensoryRatio = calculateSensoryRatio(severityScores);
     final sensoryMismatch =
         determineSensoryMismatch(sensoryRatio, compositeScore);
@@ -454,7 +616,8 @@ class CtsibPDF extends PDF {
           RichText(
             text: TextSpan(children: [
               TextSpan(text: "Composite Score: ", style: detail),
-              TextSpan(text: compositeScore.toString(), style: detailBold),
+              TextSpan(
+                  text: compositeScore.round().toString(), style: detailBold),
             ]),
           ),
         ]),
@@ -478,41 +641,42 @@ class CtsibPDF extends PDF {
   }
 
   //TODO: Add normative data, and potientally another data field for collecting the patients fall history
-  Widget normativeData(Assessment assessment, List<Norm>? norms) {
-    final message = ctsib.getNormativeMessage(assessment, norms);
+  // Widget normativeData(Assessment assessment, List<Norm>? norms,
+  //     {DetectionParams params = const DetectionParams()}) {
+  //   final message =
+  //       ctsib.getNormativeMessage(assessment, norms, params: params);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Normative Comparison", style: subHeader)),
-      RichText(text: TextSpan(text: message, style: detail)),
-    ]);
-  }
+  //   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //     RichText(
+  //         textAlign: TextAlign.left,
+  //         text: TextSpan(text: "Normative Comparison", style: subHeader)),
+  //     RichText(text: TextSpan(text: message, style: detail)),
+  //   ]);
+  // }
 
-  Widget interpretationData(Assessment assessment) {
-    // final is9xFallRisk = checkFallRisk(assessment);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(text: "Interpretation", style: subHeader)),
-      // if (is9xFallRisk)
-      //   RichText(
-      //     textAlign: TextAlign.left,
-      //     text: TextSpan(
-      //         text:
-      //             "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
-      //         style: detail),
-      //   ),
-      RichText(
-          text: TextSpan(
-              text: "Generative AI snippets coming soon", style: detail)),
-      //generateConditionRatioText(assessment), style: detail)),
-      //             "1)	Vision Dependence: Patients become unstable in conditions 2, 3, 5 & 6 with eyes closed.",
-      //             "2) Surface/somatosensory dependence: Patient becomes unstable in conditions 4, 5 & 6 because they stand on a soft surface (foam).",
-      //             "3)	Vestibular loss: Patient becomes unstable in conditions 5 & 6 because they can't rely on vision or surface / somatosensory function.",
-      //             "4)	Patients with sensory selection problems become unstable in conditions 3-6.",
-    ]);
-  }
+  // Widget interpretationData(Assessment assessment) {
+  //   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //     RichText(
+  //         textAlign: TextAlign.left,
+  //         text: TextSpan(text: "Interpretation", style: subHeader)),
+  //     // if (is9xFallRisk)
+  //     //   RichText(
+  //     //     textAlign: TextAlign.left,
+  //     //     text: TextSpan(
+  //     //         text:
+  //     //             "Patient displays deficits on Condition 5 and Condition 6 of the CTSIB which puts them at high risk (9x more likely) for a fall over the next 30 days.",
+  //     //         style: detail),
+  //     //   ),
+  //     RichText(
+  //         text: TextSpan(
+  //             text: "Generative AI snippets coming soon", style: detail)),
+  //     //generateConditionRatioText(assessment), style: detail)),
+  //     //             "1)	Vision Dependence: Patients become unstable in stages 2, 3, 5 & 6 with eyes closed.",
+  //     //             "2) Surface/somatosensory dependence: Patient becomes unstable in stages 4, 5 & 6 because they stand on a soft surface (foam).",
+  //     //             "3)	Vestibular loss: Patient becomes unstable in stages 5 & 6 because they can't rely on vision or surface / somatosensory function.",
+  //     //             "4)	Patients with sensory selection problems become unstable in stages 3-6.",
+  //   ]);
+  // }
 
   Widget footerData() {
     return Footer(
@@ -544,51 +708,4 @@ class CtsibPDF extends PDF {
       return "Functional"; // Patient is considered functional otherwise
     }
   }
-
-  //TODO: This likely needs to be based on the equlibrium score
-  bool checkFallRisk(Assessment assessment) {
-    // Calculate the total duration of the assessment (only for conditions 5 and 6)
-    bool is9xFallRisk(int i) {
-      final total =
-          AssessmentUtils.getAvgDuration(assessment.Conditions?[i].trials) >
-              30.0;
-      return total;
-    }
-
-    // Determine if the patient is at risk of falling based on the total duration
-    return is9xFallRisk(4) || is9xFallRisk(5);
-  }
-
-  // String generateConditionRatioText(Assessment assessment) {
-  //   final scores = CTSIB().calculateScores(assessment);
-
-  //   // Calculating ratios safely
-  //   final somRatio = safeDivision(scores[1], scores[0]);
-  //   final visRatio = safeDivision(scores[3], scores[0]);
-  //   final vestRatio = safeDivision(scores[4], scores[0]);
-
-  //   final ratios = [
-  //     (
-  //       vestRatio,
-  //       "Patient demonstrates a ${vestRatio.toStringAsFixed(2)}% ratio on the vestibular function test which puts them in the dysfunctional category."
-  //     ),
-  //     (
-  //       visRatio,
-  //       "Patient demonstrates a ${visRatio.toStringAsFixed(2)}% ratio on the visual dependence test which puts them in the dysfunctional category."
-  //     ),
-  //     (
-  //       somRatio,
-  //       "Patient demonstrates a ${somRatio.toStringAsFixed(2)}% ratio on the somatic sensory function test which puts them in the dysfunctional category."
-  //     ),
-  //   ];
-
-  //   // Determine the worst ratio among the three
-  //   final lowest = ratios.reduce((a, b) => a.$1 < b.$1 ? a : b);
-
-  //   if (lowest.$1 > 99) {
-  //     return "No significant findings were observed.";
-  //   }
-
-  //   return lowest.$2;
-  // }
 }

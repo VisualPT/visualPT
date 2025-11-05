@@ -1,0 +1,47 @@
+import 'dart:async';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:visualpt/core/services/repository.dart';
+import 'package:visualpt/models/ModelProvider.dart';
+
+class CaptureRepository extends Repository<Detection> {
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  AccelerometerEvent currentAccel = AccelerometerEvent(0, 0, 0, DateTime.now());
+  final bool storeData;
+
+  CaptureRepository(this.storeData) : super() {
+    final accelStream = accelerometerEventStream();
+    _accelSubscription = accelStream.listen((event) {
+      currentAccel = event;
+    });
+  }
+
+  @override
+  Future<void> store(
+      int id, Detection output, Map<String, dynamic>? params) async {
+    throw Exception("store: Detection Inference Service not initialized");
+
+    //FIXME: Store this in Amplify and pull the video from KinteseX to S3
+  }
+
+  // Future<void> log() {
+  //   //Get all of the detections, and save them locally in repo.json
+  //   // this.localStorage.entries.
+  // }
+
+  @override
+  void dispose() {
+    _accelSubscription?.cancel();
+    _accelSubscription = null;
+    super.dispose();
+  }
+
+//TODO: Implement this with KinesteX
+  // Future<void> saveVideo(String id, XFile file) async {
+  //   final storageService = StorageService();
+  //   final key = "${assessmentMeta.assessment.name}/video/$id.mp4";
+  //   final fileBytes = await file.readAsBytes();
+  //   final videoPayload =
+  //       S3DataPayload.bytes(fileBytes, contentType: "video/mp4");
+  //   storageService.upload(videoPayload, 'public/$key');
+  // }
+}

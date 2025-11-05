@@ -21,33 +21,31 @@
 
 import 'package:amplify_core/amplify_core.dart' as amplify_core;
 import 'Assessment.dart';
-import 'Condition.dart';
 import 'Norm.dart';
-import 'Subject.dart';
+import 'Profile.dart';
+import 'Stage.dart';
 import 'Trial.dart';
-import 'User.dart';
 import 'Detection.dart';
 import 'DetectionEnv.dart';
 
 export 'AgeRange.dart';
 export 'Assessment.dart';
 export 'AssessmentType.dart';
-export 'Condition.dart';
+export 'CameraDirection.dart';
 export 'Detection.dart';
 export 'DetectionEnv.dart';
 export 'FallHistory.dart';
 export 'Gender.dart';
 export 'Norm.dart';
-export 'Subject.dart';
+export 'Profile.dart';
+export 'Stage.dart';
 export 'Trial.dart';
-export 'User.dart';
-export 'UserStatus.dart';
 
 class ModelProvider implements amplify_core.ModelProviderInterface {
   @override
-  String version = "d8c36b869e9f75ec15d554e95c2167d9";
+  String version = "e73eb5d27aa99a259707b69ff1e56cb5";
   @override
-  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Condition.schema, Norm.schema, Subject.schema, Trial.schema, User.schema];
+  List<amplify_core.ModelSchema> modelSchemas = [Assessment.schema, Norm.schema, Profile.schema, Stage.schema, Trial.schema];
   @override
   List<amplify_core.ModelSchema> customTypeSchemas = [Detection.schema, DetectionEnv.schema];
   static final ModelProvider _instance = ModelProvider();
@@ -58,16 +56,14 @@ class ModelProvider implements amplify_core.ModelProviderInterface {
     switch(modelName) {
       case "Assessment":
         return Assessment.classType;
-      case "Condition":
-        return Condition.classType;
       case "Norm":
         return Norm.classType;
-      case "Subject":
-        return Subject.classType;
+      case "Profile":
+        return Profile.classType;
+      case "Stage":
+        return Stage.classType;
       case "Trial":
         return Trial.classType;
-      case "User":
-        return User.classType;
       default:
         throw Exception("Failed to find model in model provider for model name: " + modelName);
     }

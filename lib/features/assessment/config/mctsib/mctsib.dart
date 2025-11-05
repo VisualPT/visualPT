@@ -1,11 +1,13 @@
+import 'dart:developer';
+
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'package:visualpt/features/assessment/config/ctsib/ctsib.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
-import 'package:visualpt/features/inference/constants/model_file.dart';
-import 'package:visualpt/features/inference/service/pose_classification/pose_class_output.dart';
-import 'package:visualpt/features/inference/service/pose_detection/pose_detection_output.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_cupertino_fields/form_builder_cupertino_fields.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/capture/service/pose_landmarks.dart';
 import 'package:visualpt/models/ModelProvider.dart';
 
 class MCTSIB implements BaseAssessment {
@@ -20,13 +22,19 @@ class MCTSIB implements BaseAssessment {
 
   @override
   get details =>
-      """Modified Clinical Test of Sensory Integration & Balance is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the subject standing on a firm surface with eyes open, eyes closed.\n\nThe test is then repeated with the subject standing on a foam surface. It is considered modified since it does not test the visual conflict dome conditions""";
+      """Modified Clinical Test of Sensory Integration & Balance is a test used to assess the sensory integration of balance. \n\nThe test is used to identify the sensory system that is contributing to balance deficits.\n\nThe test is performed in a quiet environment with the profile standing on a firm surface with eyes open, eyes closed.\n\nThe test is then repeated with the profile standing on a foam surface. It is considered modified since it does not test the visual conflict dome stages""";
 
   @override
   String get imagePath => "assets/images/ctsib_mainlogo.png";
 
   @override
-  int get conditions => 4;
+  String get stageGifPath => ""; //TODO
+
+  @override
+  String get stageLabel => "Condition";
+
+  @override
+  int get stages => 4;
 
   @override
   int get trials => 1;
@@ -35,7 +43,7 @@ class MCTSIB implements BaseAssessment {
   int get trialDuration => 30;
 
   @override
-  List<String> get conditionNames => [
+  List<String> get stageNames => [
         "Eyes Open, Firm Surface",
         "Eyes Closed, Firm Surface",
         "Eyes Open, Foam Surface",
@@ -57,24 +65,31 @@ class MCTSIB implements BaseAssessment {
       ];
 
   @override
-  List<List<String>> get conditionInstructions => List.filled(conditions, [
-        "Patients' landmark boundaries must be as close to the fixed bounding box as possible",
-        "Camera position must be static and level",
-        "Lighting must be sufficient to clearly see the subject",
+  List<List<String>> get stageInstructions => List.filled(stages, [
+        "Hold the camera steady and level",
+        "Only one person should be in the frame at a time",
       ]);
 
   @override
-  List<List<InferenceType>> get conditionInference =>
-      List.filled(conditions, [InferenceType.poseDetection]);
+  List<bool> get stageObtrusion => [false, false, true, true];
 
   @override
-  List<bool> get conditionObtrusion => [false, false, true, true];
+  List<bool> get stageInstability => List.filled(4, false);
 
   @override
-  List<bool> get conditionInstability => List.filled(4, false);
-
-  @override
-  Map<Map<String, String>, String> get formFields => {};
+  Map<String, FormFieldItem> get formFields => {
+        "fall history": FormFieldItem(
+          form: FormBuilderCupertinoSegmentedControl(
+            name: "fall history",
+            helper: const Text("Fall History", style: Styles.prefixStyle),
+            options: FallHistory.values
+                .map((e) =>
+                    FormBuilderFieldOption(value: e, child: Text(e.name)))
+                .toList(),
+          ),
+          value: "NONE",
+        )
+      };
 
   @override
   bool get isTrainingData => true;
@@ -90,75 +105,6 @@ class MCTSIB implements BaseAssessment {
     return norms[index];
   }
 
-  static List<List<int>> getPredictionTotals(Assessment assessment) {
-    // Filter out null conditions and conditions without trials
-    final validConditions = assessment.Conditions?.where((condition) =>
-                condition.trials != null && condition.trials!.isNotEmpty)
-            .toList() ??
-        [];
-
-    return validConditions.map((condition) {
-      // Initialize the list for counting predictions
-      final totalPredictions = List<int>.filled(5, 0);
-
-      // Iterate over each trial
-      for (int i = 0; i < condition.trials!.length; i++) {
-        final trial = condition.trials![i];
-        if (trial.Detections != null && trial.Detections!.isNotEmpty) {
-          // Iterate over each detection
-          for (int j = 0; j < trial.Detections!.length; j++) {
-            final detection = trial.Detections![j];
-            final prediction = int.tryParse(detection.prediction ?? "-1");
-            if (prediction != null &&
-                prediction >= 0 &&
-                prediction < totalPredictions.length) {
-              totalPredictions[prediction]++;
-            }
-          }
-        }
-      }
-      return totalPredictions;
-    }).toList();
-  }
-
-  static getMostFrequentClassification(Assessment assessment, int i) {
-    return classifications[MCTSIB.getPredictionTotals(assessment)[i].indexWhere(
-        (value) =>
-            value ==
-            MCTSIB
-                .getPredictionTotals(assessment)[i]
-                .reduce((a, b) => a > b ? a : b))];
-  }
-
-  static String getMostFrequentIndexAcrossAllEntries(
-      List<List<int>> predictionTotals) {
-    // Initialize a map to count the frequency of each index
-    Map<int, int> indexFrequency = {};
-
-    // Iterate over each sublist
-    for (var sublist in predictionTotals) {
-      for (int i = 0; i < sublist.length; i++) {
-        if (!indexFrequency.containsKey(i)) {
-          indexFrequency[i] = 0;
-        }
-        indexFrequency[i] = indexFrequency[i]! + sublist[i];
-      }
-    }
-
-    // Find the index with the highest frequency
-    int mostFrequentIndex = -1;
-    int highestFrequency = -1;
-
-    indexFrequency.forEach((index, frequency) {
-      if (frequency > highestFrequency) {
-        highestFrequency = frequency;
-        mostFrequentIndex = index;
-      }
-    });
-
-    return classifications[mostFrequentIndex]?.toString() ?? "invalid";
-  }
-
   @override
   Future<List<Norm>?> getNorms(TemporalDate dob, Gender gender) async {
     try {
@@ -166,7 +112,7 @@ class MCTSIB implements BaseAssessment {
       final request = ModelQueries.list(Norm.classType,
           where: Norm.TYPE
               .eq(AssessmentType.CTSIB)
-              .and(Norm.AGE_RANGE.eq(ageRange).and(Norm.GENDER.eq(gender))));
+              .and(Norm.AGERANGE.eq(ageRange).and(Norm.GENDER.eq(gender))));
       final response = await Amplify.API.query(request: request).response;
 
       final norms = response.data?.items;
@@ -186,24 +132,26 @@ class MCTSIB implements BaseAssessment {
       double score, int trials) async {
     try {
       final existingNorms = await getNorms(dob, gender);
-      final existingNorm = existingNorms
-          ?.firstWhere((element) => element.sequenceNumber == seqNum);
+      final existingNorm =
+          existingNorms?.firstWhere((element) => element.stageNumber == seqNum);
 
       if (existingNorm != null) {
         final request = ModelMutations.update(existingNorm.copyWith(
-          score_sum: existingNorm.score_sum + score,
-          trial_sum: existingNorm.trial_sum + trials,
+          scoreSum: existingNorm.scoreSum + score,
+          trialSum: existingNorm.trialSum + trials,
         ));
         final response = await Amplify.API.mutate(request: request).response;
         return response.data;
       } else {
         final newNorm = Norm(
           type: AssessmentType.CTSIB,
-          age_range: getAgeEnumByTemporalDate(dob),
+          ageRange: getAgeEnumByTemporalDate(dob),
           gender: gender,
-          sequenceNumber: seqNum,
-          score_sum: score,
-          trial_sum: trials,
+          stageNumber: seqNum,
+          scoreSum: score,
+          trialSum: trials,
+          createdAt: TemporalDateTime.now(),
+          updatedAt: TemporalDateTime.now(),
         );
         final request = ModelMutations.create(newNorm);
         final response = await Amplify.API.mutate(request: request).response;
@@ -216,79 +164,58 @@ class MCTSIB implements BaseAssessment {
   }
 
   @override
-  List<double> calculateScores(Assessment assessment) {
-    //Equilibrium Score is the the proportion of the actual sway to the swayLimit, multiplied by 100, summed up and divided by the number of detections per trial, then summed across all trials and divided by the number of trials
-    final validConditions = assessment.Conditions?.where((condition) =>
-                condition.trials != null && condition.trials!.isNotEmpty)
+  List<List<double>> calculateScores(Assessment assessment) {
+    final validStages = assessment.stages
+            ?.where((stage) => stage.trials != null && stage.trials!.isNotEmpty)
             .toList() ??
         [];
 
     try {
-      final conditionScores = validConditions.map((condition) {
-        final trialsCountAndScoreSum = condition.trials!.fold<(int, double)>(
-            (0, 0.0), (trialsCountAndScoreIterator, trial) {
-          if (trial.Detections == null || trial.Detections!.isEmpty) {
-            return trialsCountAndScoreIterator;
+      final conditionScores = validStages.map((stage) {
+        return stage.trials!.map((trial) {
+          final detections =
+              PoseLandmarks.decodeCompressed(trial.compressedDetections);
+          if (detections.isEmpty) {
+            return 0.0;
           }
-          final detectionCountAndScoreSum = trial.Detections!
-              .fold<(int, double)>((0, 0.0),
-                  (detectionCountAndScoreIterator, detection) {
-            final poseOutput =
-                PoseDetectionOutput.fromString(detection.keypoints);
-            final (xSway, _) = PoseDetectionOutput.computeAngles(
-                poseOutput.map((e) => (e[0], e[1], e[2])).toList(),
-                AccelerometerEvent(
-                    detection.env.accX ?? 0,
-                    detection.env.accY ?? 0,
-                    detection.env.accZ ?? 0,
-                    detection.env.timestamp?.getDateTimeInUtc().toLocal() ??
-                        DateTime.now()));
-            final latProportion = xSway / swayLimits[2];
-            //If the subject is leaning forward, the angle will be negative, so use the anterior sway limit
-            // final lonProportion =
-            //     zSway > 0 ? zSway / swayLimits[0] : zSway / swayLimits[1];
-            //TODO: since the zSway is not to scale, the lonProportion will usually be greater than 1, usually leading to an equilibrium score of 0.
-            // A new pose detection model should be trained to fix this
-            if (latProportion > 1 /* || lonProportion > 1*/) {
+          final detectionCountAndScoreSum = detections.fold<(int, double)>(
+              (0, 0.0), (detectionCountAndScore, detection) {
+            if (detectionCountAndScore.$1 != 0 &&
+                detectionCountAndScore.$2 == 0) {
+              return detectionCountAndScore;
+            }
+            final (isFall, detectionScore) = CTSIB.poseToCtsibData(detection);
+
+            if (isFall) {
+              return (detectionCountAndScore.$1 + 1, 0.0);
+            } else {
               return (
-                detectionCountAndScoreIterator.$1 + 1,
-                detectionCountAndScoreIterator.$2,
+                detectionCountAndScore.$1 + 1,
+                detectionCountAndScore.$2 + detectionScore
               );
             }
-            final proportionOfFailure = latProportion;
-            //sqrt(pow(latProportion, 2) + pow(lonProportion, 2));
-            final detectionScore = 100 * (1 - proportionOfFailure);
-            return (
-              detectionCountAndScoreIterator.$1 + 1,
-              detectionCountAndScoreIterator.$2 + detectionScore
-            );
           });
           final trialScore =
               detectionCountAndScoreSum.$2 / detectionCountAndScoreSum.$1;
 
-          return (
-            trialsCountAndScoreIterator.$1 + 1,
-            trialsCountAndScoreIterator.$2 + trialScore
-          );
-        });
-        final value = trialsCountAndScoreSum.$2 / trialsCountAndScoreSum.$1;
-        return value.isNaN ? 0.0 : value;
+          return trialScore.isNaN ? 0.0 : trialScore;
+        }).toList();
       }).toList();
       return conditionScores;
     } on Exception catch (e) {
-      print(e);
-      return List.generate(validConditions.length, (index) => 0.0,
-          growable: false);
+      log(e.toString());
+      return List.generate(validStages.length, (_) => [0.0], growable: false);
     }
   }
 
   @override
   String getNormativeMessage(Assessment assessment, List<Norm>? norms) {
     final globalScores = norms
-            ?.map((s) => s.trial_sum == 0 ? 0 : s.score_sum / s.trial_sum)
+            ?.map((s) => s.trialSum == 0 ? 0 : s.scoreSum / s.trialSum)
             .reduce((a, b) => (a) + (b)) ??
         0.0;
-    final localScores = assessment.Conditions?.map((s) => s.trials?.fold(0.0,
+    final localScores = assessment.stages
+            ?.map((s) => s.trials?.fold(0.0,
                 (previousValue, element) => previousValue + element.duration))
             .reduce((a, b) => (a ?? 0.0) + (b ?? 0.0)) ??
         0.0;
@@ -298,10 +225,11 @@ class MCTSIB implements BaseAssessment {
   }
 
   @override
-  bool isComplete(args) {
-    args as PoseDetectionOutput;
-    final (isFall, __) = CTSIB.poseToCtsibData(args.toString(),
-        args.accelData ?? AccelerometerEvent(0, 0, 0, DateTime.now()));
+  bool isComplete(Detection? detection) {
+    if (detection == null) {
+      return true; // Person MUST be detected during the full assessment for it to be complete
+    }
+    final (isFall, __) = CTSIB.poseToCtsibData(detection);
     return isFall;
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:visualpt/core/views/app_nav.dart';
-import 'package:visualpt/core/views/styles.dart';
-import 'package:visualpt/features/assessment/view/_assessments.dart';
+import 'package:visualpt/core/view/app_nav.dart';
+import 'package:visualpt/core/view/styles.dart';
+import 'package:visualpt/features/assessment/config/base.dart';
+import 'package:visualpt/features/profile/view/profiles_list.dart';
+import 'package:visualpt/main.dart';
 
 class AssessmentCard extends StatelessWidget {
   final BaseAssessment assessment;
@@ -13,16 +15,6 @@ class AssessmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nav = AppNav(context);
-    // final isAdmin = (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-    //         .user
-    //         .email
-    //         .toLowerCase()
-    //         .contains("tim.richardson@fyzicalhq.com") ||
-    //     (BlocProvider.of<AuthBloc>(context).state as AuthSuccess)
-    //         .user
-    //         .email
-    //         .toLowerCase()
-    //         .contains("charlesrichardsonusa@gmail.com");
 
     return GestureDetector(
         onTap: () => showCupertinoModalPopup(
@@ -39,10 +31,6 @@ class AssessmentCard extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        !assessment.isAvailable
-                            ? const Text("Coming Soon",
-                                style: Styles.comingSoonHeading3)
-                            : Container(),
                         Center(
                           child: Text(
                             assessment.name,
@@ -50,83 +38,35 @@ class AssessmentCard extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                         ),
-
-                        Column(
-                          children: [
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () => assessment.isAvailable
-                                      ? nav.toPath(
-                                          path: "/assessment",
-                                          args: assessment.type)
-                                      : null,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4.0),
-                                    decoration: BoxDecoration(
-                                      color: Styles.actionPrimary.withAlpha(
-                                          assessment.isAvailable ? 255 : 128),
-                                      border: Border.all(
-                                        color: Styles.black,
-                                        width: 1,
-                                      ),
-                                      borderRadius: Styles.borderRadiusM,
-                                    ),
-                                    child: const Icon(
-                                      CupertinoIcons.play_arrow,
-                                      color: Styles.white,
-                                      size: 60,
-                                    ),
-                                  ),
-                                )),
-                            const Text("Capture", style: Styles.heading3),
-                          ],
-                        ),
-                        // const Spacer(),
-                        // isAdmin
-                        //     ? Column(
-                        //         children: [
-                        //           Padding(
-                        //             padding: const EdgeInsets.all(8.0),
-                        //             child: GestureDetector(
-                        //               onTap: () => nav.toPath(
-                        //                   path: "/validate",
-                        //                   args: assessment.type),
-                        //               child: Container(
-                        //                 padding: const EdgeInsets.all(4.0),
-                        //                 decoration: BoxDecoration(
-                        //                   color: Styles.actionSecondary
-                        //                       .withAlpha(
-                        //                           assessment.isAvailable
-                        //                               ? 255
-                        //                               : 128),
-                        //                   border: Border.all(
-                        //                     color: Styles.black,
-                        //                     width: 1,
-                        //                   ),
-                        //                   borderRadius: Styles.borderRadiusM,
-                        //                 ),
-                        //                 child: const Icon(
-                        //                   CupertinoIcons.eye,
-                        //                   color: Styles.black,
-                        //                   size: 60,
-                        //                 ),
-                        //               ),
-                        //             ),
-                        //           ),
-                        //           const Text("Validate",
-                        //               style: Styles.heading3)
-                        //         ],
-                        //       )
-                        //     : Container(),
-                        // const Spacer(),
-
                         const SizedBox(height: 20),
                         Text(
                           assessment.details,
                           style: Styles.popupSelectionText,
                           textAlign: TextAlign.center,
-                        )
+                        ),
+                        const SizedBox(height: 20),
+                        assessment.isAvailable
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Styles.black,
+                                    width: 1,
+                                  ),
+                                  borderRadius: Styles.borderRadiusM,
+                                ),
+                                child: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height / 4,
+                                  child: ProfilesList(
+                                    (profile) => nav.toPath(
+                                        path: "/assessment",
+                                        args: AssessmentPathProps(
+                                            assessment.type, profile)),
+                                  ),
+                                ),
+                              )
+                            : const Text("Coming Soon",
+                                style: Styles.comingSoonHeading3),
                       ],
                     ),
                   ),
@@ -136,8 +76,7 @@ class AssessmentCard extends StatelessWidget {
         child: Container(
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
-            color:
-                assessment.isAvailable ? Styles.white : Styles.comingSoonColor,
+            color: assessment.isAvailable ? Styles.white : Styles.disabled,
             border: Border.all(
               color: Styles.black,
               width: 1,
@@ -212,5 +151,5 @@ class AssessmentCard extends StatelessWidget {
 Widget comingSoon(Widget child) {
   return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      child: Container(color: Styles.comingSoonColor, child: child));
+      child: Container(color: Styles.disabled, child: child));
 }

@@ -37,9 +37,9 @@
 	<key>NSUserTrackingUsageDescription</key>
 	<string>VisualPT needs to collect visual and form data to generate a personalized screening report, your data is not sold</string>
 	<key>NSCameraUsageDescription</key>
-	<string>When you enable the camera, we detect points on the subject in the frame and use this to generate results in the screening report</string>
+	<string>When you enable the camera, we detect points on the profile in the frame and use this to generate results in the screening report</string>
 	<key>NSMotionUsageDescription</key>
-	<string>VisualPT uses motion data to detect the camera and subject's movement to generate results in the screening report</string>
+	<string>VisualPT uses motion data to detect the camera and profile's movement to generate results in the screening report</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

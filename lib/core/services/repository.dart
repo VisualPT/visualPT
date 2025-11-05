@@ -1,35 +1,30 @@
 import 'dart:async';
 
-import 'package:visualpt/features/assessment/types.dart';
-
-abstract class Repository<I, O> {
-  final TrialMeta meta;
-  final StreamController<I> _streamController;
-  var isInitialized = false;
+abstract class Repository<O> {
+  final StreamController<O> _streamController;
   var count = 0;
-  var localStorage = <I, O>{};
+  var localStorage = <int, O>{};
 
-  Repository(this.meta) : _streamController = StreamController.broadcast();
+  Repository() : _streamController = StreamController.broadcast();
 
-  Stream<I> get stream => _streamController.stream;
+  Stream<O> get stream => _streamController.stream;
 
-  void add(I data) {
+  void add(O data) {
     if (!_streamController.isClosed) {
       _streamController.add(data);
+      localStorage[DateTime.now().microsecondsSinceEpoch] =
+          data; // updated line to store data correctly
       count++;
     }
   }
 
-  Future<void> initialize();
-  Future<O?> runPredict(String id, I input, Map<String, dynamic>? params);
-  Future<void> store(
-      String id, I input, O output, Map<String, dynamic>? params);
-  void reset() {
-    localStorage.clear();
-    count = 0;
-  }
+  Future<void> store(int id, O output, Map<String, dynamic>? params);
 
   void dispose() {
-    _streamController.close();
+    localStorage.clear();
+    count = 0;
+    if (!_streamController.isClosed) {
+      _streamController.close();
+    }
   }
 }

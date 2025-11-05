@@ -28,5 +28,5 @@ enum AgeRange {
   SENIOR_65_69,
   SENIOR_70_79,
   SENIOR_80_84,
-  SENIOR_85_89
+  SENIOR_85_PLUS
 }

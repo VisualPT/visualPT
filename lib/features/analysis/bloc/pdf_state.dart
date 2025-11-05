@@ -17,18 +17,19 @@ class PdfLoading extends PdfState {
 
 class PdfReady extends PdfState {
   final Uint8List pdfData;
-  final Subject subject;
+  final Profile profile;
   final Assessment assessment;
   const PdfReady(
-      {required this.pdfData, required this.subject, required this.assessment});
+      {required this.pdfData, required this.profile, required this.assessment});
 
   @override
-  List<Object> get props => [pdfData, subject, assessment];
+  List<Object> get props => [pdfData, profile, assessment];
 }
 
 class PdfError extends PdfState {
   final Exception exception;
-  const PdfError({required this.exception});
+  final StackTrace? stackTrace;
+  const PdfError({required this.exception, this.stackTrace});
 
   @override
   List<Object> get props => [exception];

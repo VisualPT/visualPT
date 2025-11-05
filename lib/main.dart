@@ -1,77 +1,128 @@
+import 'package:amplify_authenticator/amplify_authenticator.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:visualpt/features/assessment/service/assessment_utils.dart';
-import 'package:visualpt/features/auth/bloc/auth_bloc.dart';
-import 'package:visualpt/features/auth/service/auth_repository.dart';
-import 'package:visualpt/features/backend/bloc/backend_bloc.dart';
-import 'package:visualpt/features/backend/service/backend_repository.dart';
-import 'package:visualpt/features/inference/service/service_locator.dart';
+import 'package:visualpt/amplify_outputs.dart';
+import 'package:visualpt/core/_core.dart';
+import 'package:visualpt/core/view/auth_view.dart';
+import 'package:visualpt/features/assessment/_assessment.dart';
+import 'package:visualpt/features/profile/_profile.dart';
+import 'package:visualpt/features/trend/_trend.dart';
 import 'package:visualpt/models/ModelProvider.dart';
-import 'package:visualpt/core/views/_views.dart';
 
-void main() {
+//Sync sandbox changes: npx ampx sandbox --outputs-format dart --outputs-out-dir lib
+//Generate new models: npx ampx generate graphql-client-code --format modelgen --model-target dart --out lib/models
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
+  await configure(amplifyConfig);
   runApp(const VisualPT());
 }
 
-///Root of Application
-///Global routes and themes defined here
-class VisualPT extends StatelessWidget {
+class VisualPT extends StatefulWidget {
   const VisualPT({super.key});
+
+  @override
+  State<VisualPT> createState() => _VisualPTState();
+}
+
+class _VisualPTState extends State<VisualPT> {
+  @override
+  void initState() {
+    super.initState();
+    requestPermissions(_showCameraAccessDeniedAlert);
+  }
+
   @override
   Widget build(BuildContext context) {
-    //TODO: Abstract this into a AppPresenter widget
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(
-          create: (context) => BackendRepository(),
-        ),
-        RepositoryProvider(
-          create: (context) => AuthRepository(),
-        ),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) =>
-                BackendBloc(RepositoryProvider.of<BackendRepository>(context))
-                  ..add(const BackendAttemptSync()),
-          ),
-          BlocProvider(
-            create: (context) => AuthBloc(
-                RepositoryProvider.of<BackendRepository>(context),
-                RepositoryProvider.of<AuthRepository>(context)),
-          ),
-        ],
-        child: CupertinoApp(
-          debugShowCheckedModeBanner: false,
-          theme: const CupertinoThemeData(
-              brightness: Brightness.light,
-              textTheme: CupertinoTextThemeData(
-                  textStyle: TextStyle(
-                      fontFamily: "Raleway",
-                      fontWeight: FontWeight.bold,
-                      color: Styles.black))),
-          routes: {
-            "/": (context) => const LandingView(),
-            "/home": (context) => const HomeView(),
-            "/settings": (context) => const SettingsView(),
-          },
-          onGenerateRoute: (route) {
-            if (route.name == "/assessment") {
-              final type = route.arguments as AssessmentType;
-              return CupertinoPageRoute(
-                  builder: (context) => AssessmentUtils.getView(type));
-            }
+    return AuthView(
+      CupertinoApp(
+        builder: Authenticator.builder(),
+        debugShowCheckedModeBanner: false,
+        theme: const CupertinoThemeData(
+            brightness: Brightness.light,
+            textTheme: CupertinoTextThemeData(
+                textStyle: TextStyle(
+                    fontFamily: "Raleway",
+                    fontWeight: FontWeight.bold,
+                    color: Styles.black))),
+        home: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(items: const [
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.list_bullet),
+                label: "Assessments",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.group),
+                label: "Profiles",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.chart_bar),
+                label: "Trends",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.settings),
+                label: "Settings",
+              ),
+            ]),
+            tabBuilder: (context, index) {
+              switch (index) {
+                case 0:
+                  return const AssessmentsView();
+                case 1:
+                  return const ProfilesView();
+                case 2:
+                  return const TrendsView();
+                default:
+                  return const SettingsView();
+              }
+            }),
+        onGenerateRoute: (route) {
+          if (route.name == "/assessment") {
+            final props = route.arguments as AssessmentPathProps;
+            final config = AssessmentUtils.getConfig(props.type);
             return CupertinoPageRoute(
-              builder: (context) =>
-                  //TODO: Add a 404 page
-                  const HomeView(),
-            );
-          },
-        ),
+                builder: (context) => AssessmentView(config, props.profile));
+          }
+          if (route.name == "/profile") {
+            final args = route.arguments as Map<String, dynamic>;
+            final profile = args['profile'] as Profile;
+            return CupertinoPageRoute(
+                builder: (context) => ProfileView(profile));
+          }
+          return null;
+        },
       ),
     );
   }
+
+  void _showCameraAccessDeniedAlert() {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text("Camera Permission Denied"),
+          content: const Text(
+              "Camera access is required for this app to function properly. Please enable camera access in your device settings."),
+          actions: <Widget>[
+            Button(
+              text: "OK",
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class AssessmentPathProps {
+  final AssessmentType type;
+  final Profile profile;
+
+  const AssessmentPathProps(this.type, this.profile);
+}
+
+class ProfileAssessmentPathProps {
+  final AssessmentType type;
+  final Profile profile;
+
+  const ProfileAssessmentPathProps(this.type, this.profile);
 }
