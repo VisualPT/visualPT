@@ -12,8 +12,8 @@ abstract class Repository<O> {
   void add(O data) {
     if (!_streamController.isClosed) {
       _streamController.add(data);
-      localStorage[DateTime.now().microsecondsSinceEpoch] =
-          data; // updated line to store data correctly
+      // Store the data in local storage with a unique key
+      localStorage[DateTime.now().microsecondsSinceEpoch] = data;
       count++;
     }
   }
