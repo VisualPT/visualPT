@@ -144,10 +144,9 @@ lib/
 
 ## 🙏 Acknowledgments
 
-- **Grand Valley State University** — Where this journey began
-- **Our professors and mentors** — For believing in us even when we weren't sure ourselves
+- **[Dad](https://github.com/Timothyrichpt)** — The man with the vision
 - **The Flutter & Amplify communities** — For the docs, Stack Overflow answers, and open source tools
-- **Everyone who contributed** — Every line of code, every code review, every late-night debugging session
+- **[Cole](https://github.com/bonesrnd), [Nick](https://github.com/drbubbles42)**, **[Evan](https://github.com/evanlevy43)** — Every line of code, every code review, every late-night debugging session
 
 ---
 
