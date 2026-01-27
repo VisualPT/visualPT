@@ -63,6 +63,15 @@ amplifytools.xcconfig
 amplifyconfiguration*
 #amplify-do-not-edit-end
 
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# Amplify outputs (contain AWS resource IDs)
+amplify_outputs.json
+lib/amplify_outputs.dart
+
 # FVM Version Cache
 .fvm/
 
