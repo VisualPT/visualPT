@@ -34,6 +34,36 @@ flutter pub get
 cd ios && pod install && cd ..
 ```
 
+**Configuration**
+
+Before running the application, you need to set up your configuration files:
+
+1. **Environment Variables**: Copy `.env.example` to `.env` and fill in your API keys:
+   ```
+   cp .env.example .env
+   ```
+   Then edit `.env` with your KinesteX API key.
+
+2. **AWS Amplify Configuration**: You have two options:
+
+   **Option A - Using Amplify CLI (Recommended for new deployments):**
+   ```
+   npx ampx sandbox --outputs-format dart --outputs-out-dir lib
+   ```
+   This will create `amplify_outputs.json` and `lib/amplify_outputs.dart` with your AWS resources.
+
+   **Option B - Manual configuration (For existing deployments):**
+   Copy `amplify_outputs.example.json` to `amplify_outputs.json` and fill in your AWS resource IDs:
+   ```
+   cp amplify_outputs.example.json amplify_outputs.json
+   ```
+   Then copy `lib/amplify_outputs.dart.example` to `lib/amplify_outputs.dart` and fill in the same values:
+   ```
+   cp lib/amplify_outputs.dart.example lib/amplify_outputs.dart
+   ```
+
+> **Important**: Never commit `.env`, `amplify_outputs.json`, or `lib/amplify_outputs.dart` to version control as they contain sensitive credentials.
+
 **Build & Run**
 
 - Create the build artifact for the iOS platform
