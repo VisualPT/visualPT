@@ -158,5 +158,5 @@ This project is open source and available for learning and inspiration. Feel fre
 ---
 
 <div align="center">
-  <sub>Built with ❤️ and a lot of ☕ by students who dared to dream big</sub>
+  <sub>Built with ❤️ for the game for a dude who wont ever just do it for the money</sub>
 </div>
